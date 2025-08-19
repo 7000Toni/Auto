@@ -6,11 +6,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
 public class Chart {
@@ -44,6 +43,8 @@ public class Chart {
 	private HorizontalScrollBar hsb;
 	private int numDataPoints = 1495;//299
 	private int numDecimalPts;
+	private int startIndex;
+	private int endIndex;
 	
 	private int size = -1;
 	
@@ -103,15 +104,33 @@ public class Chart {
 	}
 	
 	public void drawCrosshair() {
+		double fontSize = gc.getFont().getSize();
+		
 		gc.strokeLine(CHT_MARGIN, crossHairY, width - PRICE_MARGIN, crossHairY);
 		gc.strokeLine(crossHairX, CHT_MARGIN, crossHairX, height - HSB_HEIGHT - CHT_MARGIN);
 		
 		double price = ((((chartHeight - (CHT_DATA_MARGIN*2)) - (crossHairY - CHT_MARGIN - CHT_DATA_MARGIN))/ (double)(chartHeight - (CHT_DATA_MARGIN*2))) * range) + lowest;
 		double roundedPrice = Math.round(price * Math.pow(10, numDecimalPts)) / Math.pow(10, numDecimalPts);
 		
-		gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - gc.getFont().getSize()/2, 100, gc.getFont().getSize());
+		gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - fontSize/2, 100, fontSize);
 		gc.setStroke(Color.WHITE);
-		gc.strokeText(((Double)(roundedPrice)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, crossHairY + gc.getFont().getSize()/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+		gc.strokeText(((Double)(roundedPrice)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, crossHairY + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+		gc.setStroke(Color.BLACK);
+		
+		int index = startIndex + (int)(((crossHairX-CHT_MARGIN)/(double)chartWidth)*(endIndex-startIndex));
+		double dateBarHalfWidth = fontSize * 5;
+		double dateBarX;
+		if (crossHairX < CHT_MARGIN + dateBarHalfWidth) {
+			dateBarX = CHT_MARGIN;
+		} else if (crossHairX > chartWidth + CHT_MARGIN - dateBarHalfWidth) {
+			dateBarX = chartWidth + CHT_MARGIN - dateBarHalfWidth*2;
+		} else {
+			dateBarX = crossHairX - dateBarHalfWidth;
+		}
+		
+		gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
+		gc.setStroke(Color.WHITE);
+		gc.strokeText(data.get(index).dateTime.toString(), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
 		gc.setStroke(Color.BLACK);
 	}
 	
@@ -134,6 +153,15 @@ public class Chart {
 	
 	public void onMouseDragged(MouseEvent e) {	
 		onMouseMoved(e);
+	}
+	
+	public void onScroll(ScrollEvent e) {
+		//TODO set boundaries
+		if (e.getDeltaY() > 0) {
+			numDataPoints -= 100;
+		} else {
+			numDataPoints += 100;
+		}
 	}
 	
 	private void readData(String filePath) {
@@ -180,7 +208,7 @@ public class Chart {
 			chartHeight = height - HSB_HEIGHT - CHT_MARGIN*2;
 			canvas = new Canvas(width, height);
 			hsb = new HorizontalScrollBar(this, HSB_HEIGHT, HSB_WIDTH, data.size(), numDataPoints);
-			gc = canvas.getGraphicsContext2D();							
+			gc = canvas.getGraphicsContext2D();					
 			drawChart();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -216,9 +244,9 @@ public class Chart {
 	}
 	
 	public void drawChart() {		
-		int xDiff = (width-PRICE_MARGIN-CHT_MARGIN) / numDataPoints;
-		int startIndex = (int)((hsb.position() / (width - HSB_WIDTH)) * (data.size() - numDataPoints - 1));
-		int endIndex = startIndex + numDataPoints;
+		double xDiff = (width-PRICE_MARGIN-CHT_MARGIN) / (double)numDataPoints;
+		startIndex = (int)((hsb.position() / (width - HSB_WIDTH)) * (data.size() - numDataPoints - 1));
+		endIndex = startIndex + numDataPoints;
 		gc.clearRect(0, 0, width, height);
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		hsb.drawHSB();

@@ -16,7 +16,6 @@ public class HorizontalScrollBar {
 	private boolean dragging = false;
 	private boolean hovering = false;
 	private int initPos = 0;
-	private boolean controlPressed = false;
 	
 	public HorizontalScrollBar(Chart chart, int hsbHeight, int hsbWidth, int dataSize, int numDataPoints) {
 		this.chart = chart;
@@ -76,6 +75,10 @@ public class HorizontalScrollBar {
 				chart.drawChart();
 			}
 			chart.onMouseDragged(e);
+		});		
+		
+		chart.getCanvas().setOnScroll(e -> {
+			chart.onScroll(e);
 		});
 	}
 	
@@ -86,7 +89,7 @@ public class HorizontalScrollBar {
 	public void keyPressed(KeyEvent e) {
 		switch (e.getCode()) {
 			case KeyCode.LEFT:				
-				if (controlPressed) {
+				if (e.isControlDown()) {
 					if (position >= hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
 						position -= hsbMove*HSB_FAST_MOVE_MULTIPLIER;
 					} else {
@@ -102,7 +105,7 @@ public class HorizontalScrollBar {
 				chart.drawChart();
 				break;
 			case KeyCode.RIGHT:				
-				if (controlPressed) {
+				if (e.isControlDown()) {
 					if (position <= chart.getWidth() - hsbWidth - hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
 						position += hsbMove*HSB_FAST_MOVE_MULTIPLIER;
 					} else {
@@ -117,17 +120,6 @@ public class HorizontalScrollBar {
 				}
 				chart.drawChart();
 				break;
-			case KeyCode.CONTROL:
-				controlPressed = true;
-				break;
-			default:				
-		}
-	}
-	
-	public void keyReleased(KeyEvent e) {
-		switch (e.getCode()) {
-			case KeyCode.CONTROL:				
-				controlPressed = false;
 			default:				
 		}
 	}
