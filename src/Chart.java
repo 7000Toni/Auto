@@ -106,7 +106,7 @@ public class Chart {
 		gc.strokeLine(CHT_MARGIN, crossHairY, width - PRICE_MARGIN, crossHairY);
 		gc.strokeLine(crossHairX, CHT_MARGIN, crossHairX, height - HSB_HEIGHT - CHT_MARGIN);
 		
-		double price = ((((chartHeight - (CHT_DATA_MARGIN*2)) - (crossHairY - CHT_MARGIN - CHT_DATA_MARGIN))/ (chartHeight - (CHT_DATA_MARGIN*2))) * range) + lowest;
+		double price = ((((chartHeight - (CHT_DATA_MARGIN*2)) - (crossHairY - CHT_MARGIN - CHT_DATA_MARGIN))/ (double)(chartHeight - (CHT_DATA_MARGIN*2))) * range) + lowest;
 		double roundedPrice = Math.round(price * Math.pow(10, numDecimalPts)) / Math.pow(10, numDecimalPts);
 		
 		gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - gc.getFont().getSize()/2, 100, gc.getFont().getSize());

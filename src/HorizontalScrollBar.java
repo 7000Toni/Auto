@@ -89,10 +89,14 @@ public class HorizontalScrollBar {
 				if (controlPressed) {
 					if (position >= hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
 						position -= hsbMove*HSB_FAST_MOVE_MULTIPLIER;
+					} else {
+						position = 0;
 					}
 				} else {
 					if (position >= hsbMove) {
 						position -= hsbMove;
+					} else {
+						position = 0;
 					}
 				}
 				chart.drawChart();
@@ -101,10 +105,14 @@ public class HorizontalScrollBar {
 				if (controlPressed) {
 					if (position <= chart.getWidth() - hsbWidth - hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
 						position += hsbMove*HSB_FAST_MOVE_MULTIPLIER;
+					} else {
+						position = chart.getWidth() - hsbWidth;
 					}
 				} else {
 					if (position <= chart.getWidth() - hsbWidth - hsbMove) {
 						position += hsbMove;
+					} else {
+						position = chart.getWidth() - hsbWidth;
 					}
 				}
 				chart.drawChart();
