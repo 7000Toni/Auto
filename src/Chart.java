@@ -24,8 +24,8 @@ public class Chart {
 	private final int PRICE_DASH_MARGIN = 5;
 	
 	//CrossHair
-	private int crossHairX = 0;
-	private int crossHairY = 0;
+	private double crossHairX = 0;
+	private double crossHairY = 0;
 	private boolean crossHairVisible = false;
 	
 	
@@ -110,7 +110,7 @@ public class Chart {
 		gc.strokeLine(crossHairX, CHT_MARGIN, crossHairX, height - HSB_HEIGHT - CHT_MARGIN);
 		
 		double price = ((((chartHeight - (CHT_DATA_MARGIN*2)) - (crossHairY - CHT_MARGIN - CHT_DATA_MARGIN))/ (double)(chartHeight - (CHT_DATA_MARGIN*2))) * range) + lowest;
-		double roundedPrice = Math.round(price * Math.pow(10, numDecimalPts)) / Math.pow(10, numDecimalPts);
+		double roundedPrice = roundDownToTick(price);
 		
 		gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - fontSize/2, 100, fontSize);
 		gc.setStroke(Color.WHITE);
@@ -136,8 +136,8 @@ public class Chart {
 	
 	public void onMouseMoved(MouseEvent e) {			
 		if (onChart((int)e.getX(), (int)e.getY())) {	
-			crossHairX = (int)e.getX();
-			crossHairY = (int)e.getY();
+			crossHairX = e.getX();
+			crossHairY = e.getY();
 			crossHairVisible = true;
 		} else {
 			crossHairVisible = false;
@@ -249,6 +249,24 @@ public class Chart {
 		range = highest - lowest;
 	}
 	
+	private double roundDownToTick(double price) {
+		int intPart = (int)price;
+		price = price - intPart;
+		int pow = (int)Math.pow(10, numDecimalPts);
+		price *= pow;
+		int numTicks = (int)(1 / tickSize);
+		int intTick = (int)(pow * tickSize);
+		int testTick = (int)(pow - intTick);		
+		for (int i = 0; i < numTicks; i++) {
+			if (price >= testTick) {
+				price = testTick;
+				break;
+			}
+			testTick -= intTick;
+		}
+		return intPart + price / pow;
+	}	
+	
 	public void drawChart() {		
 		double xDiff = chartWidth / (double)numDataPoints;
 		startIndex = (int)((hsb.position() / (width - HSB_WIDTH)) * (data.size() - numDataPoints - 1));
@@ -261,21 +279,21 @@ public class Chart {
 		double conversionVar = tickSize / tickSizeOnChart;		
 		double startY = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN - (((data.get(startIndex).price - lowest) / range) * (chartHeight - CHT_DATA_MARGIN * 2));		
 		double prevY = startY - ((data.get(startIndex + 1).price - data.get(startIndex).price) / conversionVar);
-		gc.strokeLine(CHT_MARGIN, startY, xDiff+CHT_MARGIN, prevY);		
+		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
 		for (int i = 1; i < numDataPoints; i++) {
-			gc.strokeLine((i*xDiff)+CHT_MARGIN, prevY, ((i+1)*xDiff)+CHT_MARGIN, prevY - ((data.get(startIndex + i + 1).price - data.get(startIndex + i).price) / conversionVar));
+			gc.strokeLine((i * xDiff)+CHT_MARGIN, prevY, ((i + 1) * xDiff)+CHT_MARGIN, prevY - ((data.get(startIndex + i + 1).price - data.get(startIndex + i).price) / conversionVar));
 			prevY = prevY - ((data.get(startIndex + i + 1).price - data.get(startIndex + i).price) / conversionVar);
 		}	
-
-		int spacing =  (chartHeight - CHT_DATA_MARGIN*2) / (PRICE_PTS-1);
-		int index = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN;
+		
+		double spacing = tickSizeOnChart * (int)(((chartHeight - CHT_DATA_MARGIN * 2) / tickSizeOnChart) / (PRICE_PTS - 1));
+		double index = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN;
 		int priceDashPos = chartWidth + CHT_MARGIN;
 		int pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
 		int pricePosYMargin = (int)(gc.getFont().getSize()/3);
-		double diff = Math.round(range*(Math.pow(10, numDecimalPts)) / (PRICE_PTS - 1))/Math.pow(10, numDecimalPts); 
+		double diff = (spacing / tickSizeOnChart) * tickSize;
 		for (int i = 0; i < PRICE_PTS; i++) {
 			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
-			gc.strokeText(((Double)(lowest + (diff*i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+			gc.strokeText(((Double)(lowest + (diff * i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			index -= spacing;
 		}
 		if (crossHairVisible) {
