@@ -155,13 +155,19 @@ public class Chart {
 		onMouseMoved(e);
 	}
 	
-	public void onScroll(ScrollEvent e) {
-		//TODO set boundaries
+	public void onScroll(ScrollEvent e) {	
 		if (e.getDeltaY() > 0) {
 			numDataPoints -= 100;
 		} else {
 			numDataPoints += 100;
 		}
+		double xDiff = chartWidth / (double)numDataPoints;
+		if (xDiff * (data.size() - 1) < chartWidth) {
+			numDataPoints = data.size() - 1; 
+		} else if (numDataPoints < 100) {
+			numDataPoints = 100;
+		}
+		drawChart();
 	}
 	
 	private void readData(String filePath) {
@@ -244,7 +250,7 @@ public class Chart {
 	}
 	
 	public void drawChart() {		
-		double xDiff = (width-PRICE_MARGIN-CHT_MARGIN) / (double)numDataPoints;
+		double xDiff = chartWidth / (double)numDataPoints;
 		startIndex = (int)((hsb.position() / (width - HSB_WIDTH)) * (data.size() - numDataPoints - 1));
 		endIndex = startIndex + numDataPoints;
 		gc.clearRect(0, 0, width, height);
