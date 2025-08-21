@@ -29,8 +29,8 @@ public class HorizontalScrollBar {
 		chart.getCanvas().setOnMouseExited(e -> {
 			if (!dragging) {
 				hovering = false;
-				chart.drawChart();
 			}
+			chart.onMouseExited();
 		});
 		
 		chart.getCanvas().setOnMouseMoved(e -> {			
@@ -46,7 +46,6 @@ public class HorizontalScrollBar {
 			if (inScrollBar((int)e.getX(), (int)e.getY())) {					
 				dragging = true;
 				initPos = (int)e.getX();
-				chart.drawChart();
 			}
 			chart.onMousePressed(e);
 		});
@@ -55,7 +54,6 @@ public class HorizontalScrollBar {
 			if (dragging) {
 				dragging = false;
 				initPos = 0;
-				chart.drawChart();
 			}
 			chart.onMouseReleased(e);
 		});
@@ -71,8 +69,6 @@ public class HorizontalScrollBar {
 					position += posDiff;
 				}
 				initPos = (int)e.getX();
-				
-				chart.drawChart();
 			}
 			chart.onMouseDragged(e);
 		});		
