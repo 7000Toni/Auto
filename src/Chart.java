@@ -19,7 +19,7 @@ public class Chart {
 	private final int CHT_DATA_MARGIN = 10;
 	private final int PRICE_MARGIN = 100;
 	
-	private final int PRICE_PTS = 20;
+	private final int PRICE_DASH_SPACING = 50;
 	private final int PRICE_DASH_SIZE = 5;
 	private final int PRICE_DASH_MARGIN = 5;
 	
@@ -199,7 +199,7 @@ public class Chart {
 				if (in == null) {
 					break;
 				}
-				if (progress == 10000) {
+				if (progress == 1000000) {
 					break;
 				}
 				price = in.substring(0, in.indexOf(' '));
@@ -274,7 +274,7 @@ public class Chart {
 		gc.clearRect(0, 0, width, height);
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		hsb.drawHSB();
-		calculateRange(startIndex, endIndex);
+		calculateRange(startIndex, endIndex + 1);
 		double tickSizeOnChart = (chartHeight - CHT_DATA_MARGIN * 2) / (range / tickSize);
 		double conversionVar = tickSize / tickSizeOnChart;		
 		double startY = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN - (((data.get(startIndex).price - lowest) / range) * (chartHeight - CHT_DATA_MARGIN * 2));		
@@ -285,16 +285,18 @@ public class Chart {
 			prevY = prevY - ((data.get(startIndex + i + 1).price - data.get(startIndex + i).price) / conversionVar);
 		}	
 		
-		double spacing = tickSizeOnChart * (int)(((chartHeight - CHT_DATA_MARGIN * 2) / tickSizeOnChart) / (PRICE_PTS - 1));
+		double spacing = tickSizeOnChart * (int)(PRICE_DASH_SPACING / tickSizeOnChart);
 		double index = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN;
 		int priceDashPos = chartWidth + CHT_MARGIN;
 		int pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
 		int pricePosYMargin = (int)(gc.getFont().getSize()/3);
 		double diff = (spacing / tickSizeOnChart) * tickSize;
-		for (int i = 0; i < PRICE_PTS; i++) {
+		int i = 0;
+		while (index > CHT_MARGIN + gc.getFont().getSize()/3) {
 			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
 			gc.strokeText(((Double)(lowest + (diff * i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			index -= spacing;
+			i++;
 		}
 		if (crossHairVisible) {
 			drawCrosshair();
