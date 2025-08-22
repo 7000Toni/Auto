@@ -154,8 +154,10 @@ public class Chart {
 	}		
 	
 	public void onMousePressed(MouseEvent e) {			
-		if (e.isPrimaryButtonDown() && onChart((int)crossHairX, (int)crossHairY)) {
-			lines.add(crossHairPrice);
+		if (e.isPrimaryButtonDown()) {
+			if (onChart((int)e.getX(), (int)e.getY())) {
+				lines.add(crossHairPrice);
+			}
 		} else {
 			if (!lines.isEmpty()) {
 				lines.removeLast();
