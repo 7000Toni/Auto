@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -225,7 +226,6 @@ public class Chart {
 				dateTime = in.substring(in.indexOf(' '));
 				ldt = LocalDateTime.parse(dateTime, dtf);
 				val = Double.parseDouble(price);
-				
 				data.add(new DataPair(val, ldt));	
 			}
 			
@@ -346,6 +346,9 @@ public class Chart {
 		}	
 		
 		double spacing = tickSizeOnChart * (int)(PRICE_DASH_SPACING / tickSizeOnChart);
+		if (spacing == 0) {
+			spacing = tickSizeOnChart;
+		}
 		double index = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN;
 		int priceDashPos = chartWidth + CHT_MARGIN;
 		int pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
