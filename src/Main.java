@@ -11,10 +11,10 @@ public class Main extends Application{
 	
 	@Override
 	public void start(Stage stage) {
-		ChartPane chart = new ChartPane();
+		ChartPane chart = new ChartPane(stage);
 		Scene scene = new Scene(chart, 1600, 900);	
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> chart.getChart().getHSB().keyPressed(e));
-		stage.setResizable(false);
+		//stage.setResizable(false);
 		stage.setScene(scene);
 		stage.show();
 	}

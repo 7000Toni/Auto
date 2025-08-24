@@ -5,15 +5,20 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Random;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 public class Chart {
+	private final double MIN_WIDTH = 300; 
+	private final double MIN_HEIGHT = 300; 
+	
 	private final int HSB_WIDTH = 100;
 	private final int HSB_HEIGHT = 10;
 	private final int CHT_MARGIN = 5;
@@ -30,12 +35,11 @@ public class Chart {
 	private double crossHairPrice = 0;
 	private boolean crossHairVisible = false;
 	
-	
 	private Canvas canvas;
-	private int width;
-	private int height;
-	private int chartWidth;
-	private int chartHeight;
+	private double width;
+	private double height;
+	private double chartWidth;
+	private double chartHeight;
 	private GraphicsContext gc;
 	private ArrayList<DataPair> data = new ArrayList<DataPair>();
 	private double tickSize;
@@ -51,7 +55,7 @@ public class Chart {
 	private ArrayList<Double> lines = new ArrayList<Double>();
 	
 	private int size = -1;
-	
+		
 	private class DataPair {
 		private double price;
 		private LocalDateTime dateTime;		
@@ -62,20 +66,38 @@ public class Chart {
 		}
 	}
 	
-	public Chart(String filePath, int size, int width, int height, double tickSize, int numDecimalPts) throws Exception {
-		constructorStuff(width, height, tickSize, numDecimalPts);
+	private class WidthListener implements ChangeListener<Number> {
+		@Override
+		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+			width = newValue.intValue();
+			canvas.setWidth(width);
+			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
+			drawChart();
+		}		
+	}
+	
+	private class HeightListener implements ChangeListener<Number> {
+		@Override
+		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+			height = newValue.intValue() - 39;
+			canvas.setHeight(height);
+			chartHeight = height - HSB_HEIGHT - CHT_MARGIN*2; 
+			drawChart();
+		}		
+	}
+	
+	public Chart(String filePath, int size, int width, int height, double tickSize, int numDecimalPts, Stage stage) throws Exception {
 		if (size > 0) {
 			this.size = size;
 		}
-		readData(filePath);
+		constructorStuff(filePath, width, height, tickSize, numDecimalPts, stage);
 	}
 	
-	public Chart(String filePath, int width, int height, double tickSize, int numDecimalPts) throws Exception {
-		constructorStuff(width, height, tickSize, numDecimalPts);		
-		readData(filePath);
+	public Chart(String filePath, int width, int height, double tickSize, int numDecimalPts, Stage stage) throws Exception {
+		constructorStuff(filePath, width, height, tickSize, numDecimalPts, stage);		
 	}
 	
-	private void constructorStuff(int width, int height, double tickSize, int numDecimalPts) throws Exception {
+	private void constructorStuff(String filePath, int width, int height, double tickSize, int numDecimalPts, Stage stage) throws Exception {
 		int val = (int)Math.pow(10, numDecimalPts);
 		if (val % (tickSize * val) != 0) {
 			throw new Exception(val + "(10^numDecimalPts" + ") is not divisible by " + tickSize * val + "(tickSize*" + val + ")");
@@ -87,6 +109,61 @@ public class Chart {
 			numDecimalPts = 0;
 		}
 		this.numDecimalPts = numDecimalPts;
+		stage.setMinWidth(MIN_WIDTH);
+		stage.setMinHeight(MIN_HEIGHT);
+		stage.heightProperty().addListener(new HeightListener());
+		stage.widthProperty().addListener(new WidthListener());
+		readData(filePath);
+	}
+	
+	private void readData(String filePath) {
+		try (FileInputStream fis = new FileInputStream(filePath);
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(" dd/MM/yyyy HH:mm:ss");
+			String in;		
+			String dateTime;
+			String price;
+			in = br.readLine();
+			price = in.substring(0, in.indexOf(' '));
+			dateTime = in.substring(in.indexOf(' '));
+			LocalDateTime ldt = LocalDateTime.parse(dateTime, dtf);
+			double val = Double.parseDouble(price);
+			data.add(new DataPair(val, ldt));								
+			int progress = 0;
+			
+			while (true) {
+				progress++;
+				in = br.readLine();
+				if (size != -1) {
+					int percent = (int)((double)progress/size*100);
+					if (percent > 100) {
+						System.out.println("99%");
+					} else {
+						System.out.println(percent + "%");
+					}
+				}
+				if (in == null) {
+					break;
+				}
+				if (progress == 100000) {
+					break;
+				}
+				price = in.substring(0, in.indexOf(' '));
+				dateTime = in.substring(in.indexOf(' '));
+				ldt = LocalDateTime.parse(dateTime, dtf);
+				val = Double.parseDouble(price);
+				data.add(new DataPair(val, ldt));	
+			}
+			
+			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
+			chartHeight = height - HSB_HEIGHT - CHT_MARGIN*2;
+			canvas = new Canvas(width, height);
+			hsb = new HorizontalScrollBar(this, HSB_HEIGHT, HSB_WIDTH, data.size(), numDataPoints);
+			gc = canvas.getGraphicsContext2D();					
+			drawChart();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Canvas getCanvas() {
@@ -97,16 +174,24 @@ public class Chart {
 		return this.gc;
 	}
 	
-	public int getWidth() {
+	public double getWidth() {
 		return width;
 	}
 	
-	public int getHeight() {
+	public double getHeight() {
 		return height;
 	}
 	
 	public HorizontalScrollBar getHSB() {
 		return hsb;
+	}
+	
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	public void setHeight(int height) {
+		this.height = height;
 	}
 	
 	public void drawCrosshair() {
@@ -188,56 +273,6 @@ public class Chart {
 			numDataPoints = 100;
 		}
 		drawChart();
-	}
-	
-	private void readData(String filePath) {
-		try (FileInputStream fis = new FileInputStream(filePath);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(" dd/MM/yyyy HH:mm:ss");
-			String in;		
-			String dateTime;
-			String price;
-			in = br.readLine();
-			price = in.substring(0, in.indexOf(' '));
-			dateTime = in.substring(in.indexOf(' '));
-			LocalDateTime ldt = LocalDateTime.parse(dateTime, dtf);
-			double val = Double.parseDouble(price);
-			data.add(new DataPair(val, ldt));								
-			int progress = 0;
-			
-			while (true) {
-				progress++;
-				in = br.readLine();
-				if (size != -1) {
-					int percent = (int)((double)progress/size*100);
-					if (percent > 100) {
-						System.out.println("99%");
-					} else {
-						System.out.println(percent + "%");
-					}
-				}
-				if (in == null) {
-					break;
-				}
-				if (progress == 100000) {
-					break;
-				}
-				price = in.substring(0, in.indexOf(' '));
-				dateTime = in.substring(in.indexOf(' '));
-				ldt = LocalDateTime.parse(dateTime, dtf);
-				val = Double.parseDouble(price);
-				data.add(new DataPair(val, ldt));	
-			}
-			
-			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
-			chartHeight = height - HSB_HEIGHT - CHT_MARGIN*2;
-			canvas = new Canvas(width, height);
-			hsb = new HorizontalScrollBar(this, HSB_HEIGHT, HSB_WIDTH, data.size(), numDataPoints);
-			gc = canvas.getGraphicsContext2D();					
-			drawChart();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}		
 	
 	public boolean onChart(int x, int y) {
@@ -350,8 +385,8 @@ public class Chart {
 			spacing = tickSizeOnChart;
 		}
 		double index = chartHeight - CHT_DATA_MARGIN + CHT_MARGIN;
-		int priceDashPos = chartWidth + CHT_MARGIN;
-		int pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
+		double priceDashPos = chartWidth + CHT_MARGIN;
+		double pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
 		int pricePosYMargin = (int)(gc.getFont().getSize()/3);
 		double diff = (spacing / tickSizeOnChart) * tickSize;
 		int i = 0;
