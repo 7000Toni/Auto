@@ -63,6 +63,7 @@ public class HorizontalScrollBar {
 				int posDiff = (int)e.getX() - initPos;
 				if (position + posDiff > chart.getWidth() - hsbWidth) {
 					position = chart.getWidth() - hsbWidth;
+					System.out.println(position);
 				} else if (position + posDiff < 0) {
 					position = 0;
 				} else {
@@ -133,6 +134,10 @@ public class HorizontalScrollBar {
 	
 	public double position() {
 		return position;
+	}
+	
+	public void setPosition(double position) {
+		this.position = position;
 	}
 	
 	public void drawHSB() {

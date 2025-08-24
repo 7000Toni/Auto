@@ -16,6 +16,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Chart {
+	private final double WIDTH_EXTRA = 16;
+	private final double HEIGHT_EXTRA = 39;
+	
 	private final double MIN_WIDTH = 300; 
 	private final double MIN_HEIGHT = 300; 
 	
@@ -68,10 +71,12 @@ public class Chart {
 	
 	private class WidthListener implements ChangeListener<Number> {
 		@Override
-		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-			width = newValue.intValue();
+		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {			
+			double newHSBPos = (hsb.position() / (width - HSB_WIDTH)) * (newValue.doubleValue() - WIDTH_EXTRA - HSB_WIDTH);	
+			width = newValue.intValue() - WIDTH_EXTRA;
 			canvas.setWidth(width);
 			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
+			hsb.setPosition(newHSBPos);
 			drawChart();
 		}		
 	}
@@ -79,7 +84,7 @@ public class Chart {
 	private class HeightListener implements ChangeListener<Number> {
 		@Override
 		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-			height = newValue.intValue() - 39;
+			height = newValue.intValue() - HEIGHT_EXTRA;
 			canvas.setHeight(height);
 			chartHeight = height - HSB_HEIGHT - CHT_MARGIN*2; 
 			drawChart();
@@ -260,7 +265,7 @@ public class Chart {
 		onMouseMoved(e);
 	}
 	
-	public void onScroll(ScrollEvent e) {	
+	public void onScroll(ScrollEvent e) {			
 		if (e.getDeltaY() > 0) {
 			numDataPoints -= 100;
 		} else {
@@ -272,6 +277,11 @@ public class Chart {
 		} else if (numDataPoints < 100) {
 			numDataPoints = 100;
 		}
+		double newHSBPOS = (width - HSB_WIDTH) * ((double)startIndex /(data.size() - numDataPoints - 1));
+		if (newHSBPOS > width - HSB_WIDTH) {
+			newHSBPOS = width - HSB_WIDTH;
+		}
+		hsb.setPosition(newHSBPOS);
 		drawChart();
 	}		
 	
