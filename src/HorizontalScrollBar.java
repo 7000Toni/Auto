@@ -33,8 +33,12 @@ public class HorizontalScrollBar {
 			chart.onMouseExited();
 		});
 		
+		chart.getCanvas().setOnMouseEntered(e -> {
+			chart.onMouseEntered();
+		});
+		
 		chart.getCanvas().setOnMouseMoved(e -> {			
-			if (inScrollBar((int)e.getX(), (int)e.getY())) {					
+			if (inScrollBar(e.getX(), e.getY())) {					
 				hovering = true;
 			} else {
 				hovering = false;
@@ -43,7 +47,7 @@ public class HorizontalScrollBar {
 		});		
 		
 		chart.getCanvas().setOnMousePressed(e -> {
-			if (inScrollBar((int)e.getX(), (int)e.getY())) {					
+			if (inScrollBar(e.getX(), e.getY())) {					
 				dragging = true;
 				initPos = (int)e.getX();
 			}
@@ -60,10 +64,9 @@ public class HorizontalScrollBar {
 		
 		chart.getCanvas().setOnMouseDragged(e -> {			
 			if (dragging) {
-				int posDiff = (int)e.getX() - initPos;
-				if (position + posDiff > chart.getWidth() - hsbWidth) {
-					position = chart.getWidth() - hsbWidth;
-					System.out.println(position);
+				double posDiff = e.getX() - initPos;
+				if (position + posDiff > chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN) {
+					position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
 				} else if (position + posDiff < 0) {
 					position = 0;
 				} else {
@@ -80,7 +83,7 @@ public class HorizontalScrollBar {
 	}
 	
 	public void updateHSBMove(int dataSize, int numDataPoints) {
-		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth))/(dataSize - numDataPoints - 1);
+		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN))/(dataSize - numDataPoints - 1);
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -103,16 +106,16 @@ public class HorizontalScrollBar {
 				break;
 			case KeyCode.RIGHT:				
 				if (e.isControlDown()) {
-					if (position <= chart.getWidth() - hsbWidth - hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
+					if (position <= chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN - hsbMove*HSB_FAST_MOVE_MULTIPLIER) {
 						position += hsbMove*HSB_FAST_MOVE_MULTIPLIER;
 					} else {
-						position = chart.getWidth() - hsbWidth;
+						position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
 					}
 				} else {
-					if (position <= chart.getWidth() - hsbWidth - hsbMove) {
+					if (position <= chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN - hsbMove) {
 						position += hsbMove;
 					} else {
-						position = chart.getWidth() - hsbWidth;
+						position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
 					}
 				}
 				chart.drawChart();
@@ -121,7 +124,7 @@ public class HorizontalScrollBar {
 		}
 	}
 	
-	private boolean inScrollBar(int x, int y) {
+	private boolean inScrollBar(double x, double y) {
 		int height = (int)chart.getCanvas().getHeight();
 		if (y <= height && y >= height - hsbHeight) {
 			if (x <= position + hsbWidth && x >= position) {
