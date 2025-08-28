@@ -260,7 +260,7 @@ public class Chart {
 				gc.setStroke(Color.BLACK);
 			}
 			if (crossHairDateIndex >= startIndex && crossHairDateIndex <= endIndex) {
-				int indexRange = endIndex - startIndex + 1;
+				int indexRange = endIndex - startIndex;
 				double percOfRange = (crossHairDateIndex - startIndex) / (double)indexRange;
 				double xPos = chartWidth * percOfRange + CHT_MARGIN;
 				gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
