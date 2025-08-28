@@ -10,6 +10,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
@@ -312,7 +313,9 @@ public class Chart {
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, width, height);
 			charts.add(c.getChart());
-			s.setScene(new Scene(c));
+			Scene scene = new Scene(c);
+			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().getHSB().keyPressed(ev));
+			s.setScene(scene);
 			s.setOnCloseRequest(ev -> {
 				charts.remove(c.getChart());
 			});
@@ -339,15 +342,15 @@ public class Chart {
 	
 	public void onScroll(ScrollEvent e) {			
 		if (e.getDeltaY() > 0) {
-			numDataPoints -= 100;
+			setNumDataPoints(numDataPoints - 100);
 		} else {
-			numDataPoints += 100;
+			setNumDataPoints(numDataPoints + 100);
 		}
 		double xDiff = chartWidth / (double)numDataPoints;
 		if (xDiff * (data.size() - 1) < chartWidth) {
-			numDataPoints = data.size() - 1; 
+			setNumDataPoints(data.size() - 1);
 		} else if (numDataPoints < 100) {
-			numDataPoints = 100;
+			setNumDataPoints(100);
 		}
 		double newHSBPOS = (width - HSB_WIDTH - PRICE_MARGIN) * ((double)startIndex /(data.size() - numDataPoints - 1));
 		if (newHSBPOS > width - HSB_WIDTH - PRICE_MARGIN) {
@@ -515,6 +518,12 @@ public class Chart {
 	
 	public void setNumDataPoints(int numDataPoints) {
 		this.numDataPoints = numDataPoints;
-		hsb.updateHSBMove(numDataPoints, numDataPoints);
+		hsb.updateHSBMove(data.size(), numDataPoints);
 	}	
+	
+	public static void drawCharts() {
+		for (Chart c : charts) {
+			c.drawChart();
+		}
+	}
 }

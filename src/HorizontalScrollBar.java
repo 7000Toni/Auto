@@ -83,7 +83,7 @@ public class HorizontalScrollBar {
 	}
 	
 	public void updateHSBMove(int dataSize, int numDataPoints) {
-		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN))/(dataSize - numDataPoints - 1);
+		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth))/(dataSize - numDataPoints - 1);
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -102,7 +102,7 @@ public class HorizontalScrollBar {
 						position = 0;
 					}
 				}
-				chart.drawChart();
+				Chart.drawCharts();
 				break;
 			case KeyCode.RIGHT:				
 				if (e.isControlDown()) {
@@ -118,7 +118,7 @@ public class HorizontalScrollBar {
 						position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
 					}
 				}
-				chart.drawChart();
+				Chart.drawCharts();
 				break;
 			default:				
 		}
