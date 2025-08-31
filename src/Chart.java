@@ -51,6 +51,7 @@ public class Chart {
 	private static int numDecimalPts;
 	private static boolean init = false;
 	private static boolean focusedOnChart = false;	
+	private static boolean darkMode = false;
 	private static double tickSize;
 	
 	private boolean focusedChart = false;
@@ -73,6 +74,7 @@ public class Chart {
 	private double xDiff;
 	private boolean newCHT_BTN_Hover = false;
 	private boolean drawCandlesticksHover = false;
+	private boolean darkModeHover = false;
 	private boolean drawCandlesticks = false;
 	private double candlestickWidth;
 	private double candlestickSpacing;
@@ -150,7 +152,7 @@ public class Chart {
 		constructorStuff(filePath, width, height, tickSize, numDecimalPts, stage);		
 	}
 	
-	private void constructorStuff(String filePath, double width, double height, double tickSize, int numDecimalPts, Stage stage) throws Exception {
+	private void constructorStuff(String filePath, double width, double height, double tickSize, int numDecimalPts, Stage stage) throws Exception {		
 		if (numDecimalPts < 0) {
 			throw new Exception("numDecimalPts cannot be less than 0");
 		}			
@@ -309,7 +311,9 @@ public class Chart {
 				gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - fontSize/2, 100, fontSize);
 				gc.setStroke(Color.WHITE);
 				gc.strokeText(((Double)(roundToNearestTick(crossHairPrice))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, crossHairY + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
-				gc.setStroke(Color.BLACK);
+				if (!darkMode) {
+					gc.setStroke(Color.BLACK);
+				}
 				
 				double stub;
 				if (drawCandlesticks) {
@@ -342,7 +346,9 @@ public class Chart {
 				} else {
 					gc.strokeText(data.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
 				}
-				gc.setStroke(Color.BLACK);
+				if (!darkMode) {
+					gc.setStroke(Color.BLACK);
+				}
 			}
 		} else if (focusedOnChart) {						
 			if (crossHairPrice >= lowest - dataMarginSize && crossHairPrice <= highest + dataMarginSize) {					
@@ -351,7 +357,9 @@ public class Chart {
 				gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, 100, fontSize);
 				gc.setStroke(Color.WHITE);
 				gc.strokeText(((Double)(roundToNearestTick(crossHairPrice))).toString().replace('T', ' '), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
-				gc.setStroke(Color.BLACK);
+				if (!darkMode) {
+					gc.setStroke(Color.BLACK);
+				}
 			}
 			if (crossHairDateIndex >= startIndex && crossHairDateIndex <= endIndex && !drawCandlesticks) {
 				if (chdi_IsForCandle) {
@@ -385,7 +393,9 @@ public class Chart {
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
 						gc.strokeText(data.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
-						gc.setStroke(Color.BLACK);
+						if (!darkMode) {
+							gc.setStroke(Color.BLACK);
+						}
 					}
 				} else {
 					int indexRange = endIndex - startIndex;
@@ -404,7 +414,9 @@ public class Chart {
 					gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 					gc.setStroke(Color.WHITE);
 					gc.strokeText(data.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
-					gc.setStroke(Color.BLACK);
+					if (!darkMode) {
+						gc.setStroke(Color.BLACK);
+					}
 				}
 			} else if (drawCandlesticks) {
 				if (chdi_IsForCandle) {
@@ -423,7 +435,9 @@ public class Chart {
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
 						gc.strokeText(m1Candles.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
-						gc.setStroke(Color.BLACK);
+						if (!darkMode) {
+							gc.setStroke(Color.BLACK);
+						}
 					}
 				} else {
 					long startEpochMin = (int)(m1Candles.get(startIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
@@ -458,7 +472,9 @@ public class Chart {
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
 						gc.strokeText(m1Candles.get(crossHairDateIndex_Candle).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
-						gc.setStroke(Color.BLACK);
+						if (!darkMode) {
+							gc.setStroke(Color.BLACK);
+						}
 					}
 				}
 			}
@@ -469,6 +485,7 @@ public class Chart {
 		focusedChart = false;
 		newCHT_BTN_Hover = false;
 		drawCandlesticksHover = false;
+		darkModeHover = false;
 		for (Chart c : charts) {
 			c.drawChart();
 		}
@@ -485,15 +502,20 @@ public class Chart {
 	public void onMouseMoved(MouseEvent e) {
 		crossHairX = e.getX();
 		crossHairY = e.getY();
-		if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 2 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+		if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 3 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
 			newCHT_BTN_Hover = true;
 		} else {
 			newCHT_BTN_Hover = false;
 		}
-		if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 2 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+		if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 3 + 1 && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
 			drawCandlesticksHover = true;
 		} else {
 			drawCandlesticksHover = false;
+		}
+		if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 3 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+			darkModeHover = true;
+		} else {
+			darkModeHover = false;
 		}
 		for (Chart c : charts) {
 			c.drawChart();
@@ -505,27 +527,34 @@ public class Chart {
 			if (onChart(e.getX(), e.getY())) {
 				lines.add(crossHairPrice);
 			}
-		} else if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 2 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
-			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, width, height);
-			charts.add(c.getChart());
-			Scene scene = new Scene(c);
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().getHSB().keyPressed(ev));
-			s.setScene(scene);
-			s.setOnCloseRequest(ev -> {
-				charts.remove(c.getChart());
-			});
-			s.show();
-		} else if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 2 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
-			if (drawCandlesticks) {
-				drawCandlesticks = false;
-				if (focusedChart) {
-					chdi_IsForCandle = false;
+			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 3 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+				Stage s = new Stage();
+				ChartPane c = new ChartPane(s, width, height);
+				charts.add(c.getChart());
+				Scene scene = new Scene(c);
+				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().getHSB().keyPressed(ev));
+				s.setScene(scene);
+				s.setOnCloseRequest(ev -> {
+					charts.remove(c.getChart());
+				});
+				s.show();
+			} else if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 3 + 1 && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+				if (drawCandlesticks) {
+					drawCandlesticks = false;
+					if (focusedChart) {
+						chdi_IsForCandle = false;
+					}
+				} else {
+					drawCandlesticks = true;
+					if (focusedChart) {
+						chdi_IsForCandle = true;
+					}
 				}
-			} else {
-				drawCandlesticks = true;
-				if (focusedChart) {
-					chdi_IsForCandle = true;
+			} else if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 3 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
+				if (darkMode) {
+					darkMode = false;
+				} else {
+					darkMode = true;
 				}
 			}
 		} else {
@@ -687,26 +716,31 @@ public class Chart {
 				gc.setStroke(Color.WHITE);
 				gc.strokeText(((Double)(roundUpToTick(d))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 				gc.setFill(Color.BLACK);
-				gc.setStroke(Color.BLACK);
+				if (darkMode) {
+					gc.setStroke(Color.WHITE);
+				} else {
+					gc.setStroke(Color.BLACK);
+				}
 			}
 		}
 	}
 	
 	public void drawCandleStick(Candlestick candle, double xPos, double yPos) {
 		//TODO Re-factor/Optimise
+		int num = 0;
 		if (candle.open < candle.close) {
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close - candle.open) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high - candle.close) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.close - candle.open) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.close - candle.low) / conversionVar);
-			gc.setFill(Color.GREEN);
-			gc.fillRect(xPos + 1, yPos + 1, candlestickWidth - 2, (candle.close - candle.open) / conversionVar - 2);
+			gc.setFill(Color.CORNFLOWERBLUE);
+			gc.fillRect(xPos, yPos, candlestickWidth - num, (candle.close - candle.open) / conversionVar - num);
 			gc.setFill(Color.BLACK);
 		} else {
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.open - candle.close) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high - candle.open) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open - candle.close) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open - candle.low) / conversionVar);
-			gc.setFill(Color.RED);
-			gc.fillRect(xPos + 1, yPos + 1, candlestickWidth - 2, (candle.open - candle.close) / conversionVar - 2);
+			gc.setFill(Color.ORANGE);
+			gc.fillRect(xPos + num, yPos + num, candlestickWidth - num, (candle.open - candle.close) / conversionVar - num);
 			gc.setFill(Color.BLACK);
 		}
 	}
@@ -716,15 +750,24 @@ public class Chart {
 		startIndex = (int)((hsb.position() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.size() - numDataPoints - 1));
 		endIndex = startIndex + numDataPoints;
 		gc.clearRect(0, 0, width, height);
+		gc.setStroke(Color.BLACK);
+		if (darkMode) {			
+			gc.fillRect(0, 0, width, height);
+			gc.setStroke(Color.WHITE);
+		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
-		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
+		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
+		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
 		if (newCHT_BTN_Hover) {
-			gc.fillRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN / 2, HSB_HEIGHT + CHT_MARGIN);
+			gc.fillRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
 		}
 		if (drawCandlesticksHover) {
-			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN + chartHeight, PRICE_MARGIN / 2, HSB_HEIGHT + CHT_MARGIN);
+			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
+		}
+		if (darkModeHover) {
+			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
 		}
 		
 		hsb.drawHSB();
@@ -766,15 +809,24 @@ public class Chart {
 		startIndex = (int)((hsb.position() / (width - HSB_WIDTH - PRICE_MARGIN)) * (m1Candles.size() - numCandlesticks - 1));
 		endIndex = startIndex + numCandlesticks;
 		gc.clearRect(0, 0, width, height);
+		gc.setStroke(Color.BLACK);
+		if (darkMode) {			
+			gc.fillRect(0, 0, width, height);
+			gc.setStroke(Color.WHITE);
+		}		
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
-		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
+		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
+		gc.strokeLine(CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight, CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN * 2 + chartHeight + HSB_HEIGHT);
 		if (newCHT_BTN_Hover) {
-			gc.fillRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN / 2, HSB_HEIGHT + CHT_MARGIN);
+			gc.fillRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
 		}
 		if (drawCandlesticksHover) {
-			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN / 2, CHT_MARGIN + chartHeight, PRICE_MARGIN / 2, HSB_HEIGHT + CHT_MARGIN);
+			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN / 3, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
+		}
+		if (darkModeHover) {
+			gc.fillRect(CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight, PRICE_MARGIN / 3, HSB_HEIGHT + CHT_MARGIN);
 		}
 		
 		hsb.drawHSB();
