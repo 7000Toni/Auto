@@ -407,39 +407,59 @@ public class Chart {
 					gc.setStroke(Color.BLACK);
 				}
 			} else if (drawCandlesticks) {
-				long startEpochMin = (int)(m1Candles.get(startIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				long endEpochMin = (int)(m1Candles.get(endIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				long chdiEpochMin = (int)(data.get(crossHairDateIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-					int crossHairDateIndex_Candle = 0;
-					for (int i = startIndex; i < endIndex; i++) {
-						long ldtEpochMin = (int)(m1Candles.get(i).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-						if (ldtEpochMin == chdiEpochMin) {
-							crossHairDateIndex_Candle = i;
-							break;
-						} else if (chdiEpochMin < ldtEpochMin) {
-							break;
+				if (chdi_IsForCandle) {
+					if (crossHairDateIndex >= startIndex && crossHairDateIndex <= endIndex) {
+						double xPos = (crossHairDateIndex - startIndex) * (candlestickWidth + candlestickSpacing) + (candlestickWidth + candlestickSpacing) / 2 + CHT_MARGIN;
+						gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
+						
+						if (xPos < CHT_MARGIN + dateBarHalfWidth) {
+							dateBarX = CHT_MARGIN;
+						} else if (xPos > chartWidth + CHT_MARGIN - dateBarHalfWidth) {
+							dateBarX = chartWidth + CHT_MARGIN - dateBarHalfWidth*2;
+						} else {
+							dateBarX = xPos - dateBarHalfWidth;
 						}
-						crossHairDateIndex_Candle = i;
+						
+						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
+						gc.setStroke(Color.WHITE);
+						gc.strokeText(m1Candles.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
+						gc.setStroke(Color.BLACK);
 					}
-					int indexRange = endIndex - startIndex;
-					double percOfRange = (crossHairDateIndex_Candle - startIndex) / (double)indexRange;
-					double stub = chartWidth - ((int)(chartWidth / (candlestickWidth + candlestickSpacing)) * (candlestickWidth + candlestickSpacing));
-					double xPos = (chartWidth - stub) * percOfRange + CHT_MARGIN + candlestickWidth / 2;
-					gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
-					
-					if (xPos < CHT_MARGIN + dateBarHalfWidth) {
-						dateBarX = CHT_MARGIN;
-					} else if (xPos > chartWidth + CHT_MARGIN - dateBarHalfWidth) {
-						dateBarX = chartWidth + CHT_MARGIN - dateBarHalfWidth*2;
-					} else {
-						dateBarX = xPos - dateBarHalfWidth;
+				} else {
+					long startEpochMin = (int)(m1Candles.get(startIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+					long endEpochMin = (int)(m1Candles.get(endIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+					long chdiEpochMin = (int)(data.get(crossHairDateIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+					if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
+						int crossHairDateIndex_Candle = 0;
+						for (int i = startIndex; i < endIndex; i++) {
+							long ldtEpochMin = (int)(m1Candles.get(i).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+							if (ldtEpochMin == chdiEpochMin) {
+								crossHairDateIndex_Candle = i;
+								break;
+							} else if (chdiEpochMin < ldtEpochMin) {
+								break;
+							}
+							crossHairDateIndex_Candle = i;
+						}
+						int indexRange = endIndex - startIndex;
+						double percOfRange = (crossHairDateIndex_Candle - startIndex) / (double)indexRange;
+						double stub = chartWidth - ((int)(chartWidth / (candlestickWidth + candlestickSpacing)) * (candlestickWidth + candlestickSpacing));
+						double xPos = (chartWidth - stub) * percOfRange + CHT_MARGIN + candlestickWidth / 2;
+						gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
+						
+						if (xPos < CHT_MARGIN + dateBarHalfWidth) {
+							dateBarX = CHT_MARGIN;
+						} else if (xPos > chartWidth + CHT_MARGIN - dateBarHalfWidth) {
+							dateBarX = chartWidth + CHT_MARGIN - dateBarHalfWidth*2;
+						} else {
+							dateBarX = xPos - dateBarHalfWidth;
+						}
+						
+						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
+						gc.setStroke(Color.WHITE);
+						gc.strokeText(m1Candles.get(crossHairDateIndex_Candle).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
+						gc.setStroke(Color.BLACK);
 					}
-					
-					gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
-					gc.setStroke(Color.WHITE);
-					gc.strokeText(m1Candles.get(crossHairDateIndex_Candle).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
-					gc.setStroke(Color.BLACK);
 				}
 			}
 		}
