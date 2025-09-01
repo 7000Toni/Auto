@@ -73,6 +73,7 @@ public class HorizontalScrollBar {
 					position += posDiff;
 				}
 				initPos = (int)e.getX();
+				chart.disableRoundUp();
 			}
 			chart.onMouseDragged(e);
 		});		
