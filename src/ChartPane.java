@@ -6,9 +6,9 @@ public class ChartPane extends GridPane {
 	
 	public ChartPane(Stage stage, double width, double height) {					
 		try {
-			//chart = new Chart("res/enqu.txt", 14209282, width, height, 0.25, 2, stage);
-			chart = new Chart("res/mesu.txt", 24104933, width, height, 0.25, 2, stage);
-			//chart = new Chart("res/ymu.txt", 1652574, width, height, 1, 0, stage);
+			//chart = new Chart("res/enqu.txt", 14209282, width, height, 0.25, 2, stage, "ENQU25");
+			chart = new Chart("res/mesu.txt", 24104933, width, height, 0.25, 2, stage, "MESU25");
+			//chart = new Chart("res/ymu.txt", 1652574, width, height, 1, 0, stage, YMU25);
 			this.add(chart.getCanvas(), 0, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
