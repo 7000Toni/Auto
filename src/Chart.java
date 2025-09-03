@@ -382,18 +382,20 @@ public class Chart {
 					long endEpochMin = (int)(data.get(endIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 					long chdiEpochMin = (int)(m1Candles.get(crossHairDateIndex).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 					if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
+						int chdi = crossHairDateIndex;
 						for (int i = startIndex; i < endIndex; i++) {
 							long ldtEpochMin = (int)(data.get(i).dateTime.atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+							
 							if (ldtEpochMin == chdiEpochMin) {
-								crossHairDateIndex = i;
+								chdi = i;
 								break;
 							} else if (chdiEpochMin < ldtEpochMin) {
 								break;
 							}
-							crossHairDateIndex = i;
+							chdi = i;
 						}
 						int indexRange = endIndex - startIndex;
-						double percOfRange = (crossHairDateIndex - startIndex) / (double)indexRange;
+						double percOfRange = (chdi - startIndex) / (double)indexRange;
 						double xPos = chartWidth * percOfRange + CHT_MARGIN;
 						gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
 						
@@ -407,7 +409,7 @@ public class Chart {
 						
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
-						gc.strokeText(data.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
+						gc.strokeText(data.get(chdi).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
 						if (!darkMode) {
 							gc.setStroke(Color.BLACK);
 						}
