@@ -352,13 +352,7 @@ public class Chart {
 					gc.setStroke(Color.BLACK);
 				}
 				
-				double stub;
-				if (drawCandlesticks) {
-					stub = chartWidth - ((int)(chartWidth / (candlestickWidth + candlestickSpacing)) * (candlestickWidth + candlestickSpacing));
-				} else {
-					stub = 0;
-				}
-				crossHairDateIndex = startIndex + (int)(((crossHairX-CHT_MARGIN)/(chartWidth - stub)) * (endIndex-startIndex));
+				crossHairDateIndex = startIndex + (int)(((crossHairX-CHT_MARGIN) / chartWidth) * (endIndex-startIndex));
 				if (drawCandlesticks) {
 					String ohlc = "O: " + m1Candles.get(crossHairDateIndex).open;
 					ohlc += "  H: " + m1Candles.get(crossHairDateIndex).high;
@@ -459,7 +453,7 @@ public class Chart {
 			} else if (drawCandlesticks) {
 				if (chdi_IsForCandle) {
 					if (crossHairDateIndex >= startIndex && crossHairDateIndex <= endIndex) {
-						double xPos = (crossHairDateIndex - startIndex) * (candlestickWidth + candlestickSpacing) + (candlestickWidth + candlestickSpacing) / 2 + CHT_MARGIN;
+						double xPos = (crossHairDateIndex - startIndex) * (candlestickWidth + candlestickSpacing) + candlestickWidth / 2 + CHT_MARGIN;
 						gc.strokeLine(xPos, CHT_MARGIN, xPos, height - HSB_HEIGHT - CHT_MARGIN);
 						
 						if (xPos < CHT_MARGIN + dateBarHalfWidth) {
@@ -470,6 +464,11 @@ public class Chart {
 							dateBarX = xPos - dateBarHalfWidth;
 						}
 						
+						String ohlc = "O: " + m1Candles.get(crossHairDateIndex).open;
+						ohlc += "  H: " + m1Candles.get(crossHairDateIndex).high;
+						ohlc += "  L: " + m1Candles.get(crossHairDateIndex).low;
+						ohlc += "  C: " + m1Candles.get(crossHairDateIndex).close;
+						gc.strokeText(ohlc, CHT_MARGIN * 3 + fontSize * name.length(), CHT_MARGIN + fontSize);
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
 						gc.strokeText(m1Candles.get(crossHairDateIndex).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
@@ -512,6 +511,12 @@ public class Chart {
 							dateBarX = xPos - dateBarHalfWidth;
 						}
 						
+						int convertedCHDI = (int)((xPos - CHT_MARGIN) / (candlestickWidth + candlestickSpacing));
+						String ohlc = "O: " + m1Candles.get(convertedCHDI).open;
+						ohlc += "  H: " + m1Candles.get(convertedCHDI).high;
+						ohlc += "  L: " + m1Candles.get(convertedCHDI).low;
+						ohlc += "  C: " + m1Candles.get(convertedCHDI).close;
+						gc.strokeText(ohlc, CHT_MARGIN * 3 + fontSize * name.length(), CHT_MARGIN + fontSize);
 						gc.fillRect(dateBarX, chartHeight - CHT_MARGIN - 1, dateBarHalfWidth*2, fontSize);
 						gc.setStroke(Color.WHITE);
 						gc.strokeText(m1Candles.get(crossHairDateIndex_Candle).dateTime.toString().replace('T', ' '), dateBarX + fontSize / 3, chartHeight + CHT_MARGIN - 1, dateBarHalfWidth*2);
