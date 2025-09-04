@@ -57,7 +57,6 @@ public class HorizontalScrollBar {
 		chart.getCanvas().setOnMouseReleased(e -> {
 			if (dragging) {
 				dragging = false;
-				initPos = 0;
 			}
 			chart.onMouseReleased(e);
 		});
