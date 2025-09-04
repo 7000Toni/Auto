@@ -21,8 +21,9 @@ public class HorizontalScrollBar {
 		this.chart = chart;
 		this.hsbHeight = hsbHeight;
 		this.hsbWidth = hsbWidth;
-		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth))/(dataSize - numDataPoints - 1);
-		if (hsbMove == 0.0) {
+		updateHSBMove(dataSize, numDataPoints);
+		//this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth)) / (dataSize - numDataPoints - 1);
+		if (hsbMove == 0.0) {			
 			hsbMove = Double.MIN_VALUE;
 		}
 		
@@ -83,7 +84,11 @@ public class HorizontalScrollBar {
 	}
 	
 	public void updateHSBMove(int dataSize, int numDataPoints) {
-		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth))/(dataSize - numDataPoints - 1);
+		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth)) / (dataSize - numDataPoints - 1);
+	}
+	
+	public double hsbMove() {
+		return hsbMove;
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -140,7 +145,13 @@ public class HorizontalScrollBar {
 	}
 	
 	public void setPosition(double position) {
-		this.position = position;
+		if (position > chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN) {
+			this.position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
+		} else if (position < 0) {
+			this.position = 0;
+		} else {
+			this.position = position;
+		}
 	}
 	
 	public void drawHSB() {
