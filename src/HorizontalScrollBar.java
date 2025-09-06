@@ -1,9 +1,13 @@
+import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 public class HorizontalScrollBar {
+	private static final long NANO_TO_MILLI = 1000000; 
+	
 	private final double HSB_MOVE_INDEX = 5;
 	private final double HSB_FAST_MOVE_MULTIPLIER = 10;	
 	
@@ -15,7 +19,8 @@ public class HorizontalScrollBar {
 	private double position = 0;	
 	private boolean dragging = false;
 	private boolean hovering = false;
-	private int initPos = 0;
+	private boolean clickedInScrollBarArea = false;
+	private double initPos = 0;
 	
 	public HorizontalScrollBar(Chart chart, int hsbHeight, int hsbWidth, int dataSize, int numDataPoints) {
 		this.chart = chart;
@@ -26,65 +31,93 @@ public class HorizontalScrollBar {
 		if (hsbMove == 0.0) {			
 			hsbMove = Double.MIN_VALUE;
 		}
-		
-		chart.getCanvas().setOnMouseExited(e -> {
-			if (!dragging) {
-				hovering = false;
-			}
-			chart.onMouseExited();
-		});
-		
-		chart.getCanvas().setOnMouseEntered(e -> {
-			chart.onMouseEntered();
-		});
-		
-		chart.getCanvas().setOnMouseMoved(e -> {			
-			if (inScrollBar(e.getX(), e.getY())) {					
-				hovering = true;
-			} else {
-				hovering = false;
-			}
-			chart.onMouseMoved(e);
-		});		
-		
-		chart.getCanvas().setOnMousePressed(e -> {
-			if (inScrollBar(e.getX(), e.getY())) {					
-				dragging = true;
-				initPos = (int)e.getX();
-			}
-			chart.onMousePressed(e);
-		});
-		
-		chart.getCanvas().setOnMouseReleased(e -> {
-			if (dragging) {
-				dragging = false;
-			}
-			chart.onMouseReleased(e);
-		});
-		
-		chart.getCanvas().setOnMouseDragged(e -> {			
-			if (dragging) {
-				double posDiff = e.getX() - initPos;
-				if (position + posDiff > chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN) {
-					position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
-				} else if (position + posDiff < 0) {
-					position = 0;
-				} else {
-					position += posDiff;
-				}
-				initPos = (int)e.getX();
-				chart.disableRoundUp();
-			}
-			chart.onMouseDragged(e);
-		});		
-		
-		chart.getCanvas().setOnScroll(e -> {
-			chart.onScroll(e);
-		});
 	}
 	
-	public void updateHSBMove(int dataSize, int numDataPoints) {
-		this.hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth)) / (dataSize - numDataPoints - 1);
+	public void onMouseReleased() {
+		dragging = false;
+		clickedInScrollBarArea = false;
+	}
+	
+	public void onMousePressed(MouseEvent e) {
+		if (inScrollBar(e.getX(), e.getY())) {					
+			dragging = true;
+			initPos = e.getX();
+		} else if (inScrollBarArea(e.getX(), e.getY())) {
+			clickedInScrollBarArea = true;
+			initPos = e.getX();
+			new AnimationTimer() {
+				long lastTick = 0;
+				boolean add;
+				
+				@Override
+				public void handle(long now) {
+					if (lastTick == 0) {
+						if (initPos > position) {
+							add = true;
+						} else {
+							add = false;
+						}
+						lastTick = now;
+						return;
+					}
+					
+					if (!clickedInScrollBarArea) {
+						this.stop();
+					}
+					
+					if (initPos >= position && initPos <= position + hsbWidth) {
+						this.stop();
+					}
+					
+					if (now - lastTick >= NANO_TO_MILLI*16) {						
+						lastTick = now;		
+						if (add) {
+							setPosition(position + hsbWidth / 2);
+							chart.drawChart();
+						} else {
+							setPosition(position - hsbWidth / 2);
+							chart.drawChart();
+						}
+					} 
+				}
+			}.start();
+		}
+	}
+	
+	public void onMouseExited() {
+		if (!dragging) {
+			hovering = false;
+		}
+	}
+	
+	public void onMouseMoved(MouseEvent e) {
+		if (inScrollBar(e.getX(), e.getY())) {					
+			hovering = true;
+		} else {
+			hovering = false;
+		}
+	}
+	
+	public void onMouseDragged(MouseEvent e) {
+		if (dragging) {
+			double posDiff = e.getX() - initPos;
+			if (position + posDiff > chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN) {
+				position = chart.getWidth() - hsbWidth - Chart.PRICE_MARGIN;
+			} else if (position + posDiff < 0) {
+				position = 0;
+			} else {
+				position += posDiff;
+			}
+			initPos = (int)e.getX();
+			chart.disableRoundUp();
+		}
+	}
+	
+	public void updateHSBMove(int dataSize, int numDataPoints) {	
+		hsbMove = (HSB_MOVE_INDEX * (chart.getWidth() - hsbWidth)) / (dataSize - numDataPoints - 1);
+		if (!chart.drawCandlesticks()) {
+			hsbMove *= 10;
+		}
 	}
 	
 	public double hsbMove() {
@@ -130,9 +163,20 @@ public class HorizontalScrollBar {
 	}
 	
 	private boolean inScrollBar(double x, double y) {
-		int height = (int)chart.getCanvas().getHeight();
+		double height = chart.getCanvas().getHeight();
 		if (y <= height && y >= height - hsbHeight) {
 			if (x <= position + hsbWidth && x >= position) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean inScrollBarArea(double x, double y) {		
+		double height = chart.getCanvas().getHeight();
+		if (y <= height && y >= height - hsbHeight) {
+			if (x <= chart.getWidth() - Chart.PRICE_MARGIN && x >= 0) {				
 				return true;
 			}
 		}

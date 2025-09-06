@@ -142,9 +142,10 @@ public class Chart {
 			width = newValue.doubleValue() - WIDTH_EXTRA;
 			canvas.setWidth(width);
 			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
-			if (drawCandlesticks) {
-				setCandleStickVars(numCandlesticks);
+			if (!drawCandlesticks) {
+				hsb.updateHSBMove(data.size(), numDataPoints);
 			}
+			setCandleStickVars(numCandlesticks);
 			hsb.setPosition(newHSBPos);
 			drawChart();
 		}		
@@ -211,9 +212,20 @@ public class Chart {
 			candlestickWidth = chartWidth * CNDL_WDTH_COEF;
 			candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 			numCandlesticks = (int)(chartWidth / (candlestickWidth + candlestickSpacing));
-			chtDataMargin = CHT_MARGIN + fontSize;
-			drawChart();
-		}		
+			chtDataMargin = CHT_MARGIN + fontSize;			
+		}	
+		setEventHandlers();
+		drawChart();
+	}
+	
+	private void setEventHandlers() {
+		canvas.setOnMouseDragged(e -> onMouseDragged(e));
+		canvas.setOnMouseEntered(e -> onMouseEntered());
+		canvas.setOnMouseExited(e -> onMouseExited());
+		canvas.setOnMousePressed(e -> onMousePressed(e));
+		canvas.setOnMouseReleased(e -> onMouseReleased(e));
+		canvas.setOnMouseMoved(e -> onMouseMoved(e));
+		canvas.setOnScroll(e -> onScroll(e));
 	}
 	
 	private void readData(String filePath) {
@@ -299,7 +311,6 @@ public class Chart {
 			chtDataMargin = CHT_MARGIN + fontSize;
 			charts.add(this);
 			this.focusedChart = true;
-			drawChart();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -347,7 +358,7 @@ public class Chart {
 				gc.strokeLine(CHT_MARGIN, crossHairY, width - PRICE_MARGIN, crossHairY);
 				gc.strokeLine(crossHairX, CHT_MARGIN, crossHairX, height - HSB_HEIGHT - CHT_MARGIN);
 				
-				crossHairPrice = ((((chartHeight - (chtDataMargin*2)) - (crossHairY - CHT_MARGIN - chtDataMargin))/ (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;		
+				crossHairPrice = ((((chartHeight - (chtDataMargin*2)) - (crossHairY - CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;		
 				
 				gc.fillRect(chartWidth + CHT_MARGIN, crossHairY - fontSize/2, 100, fontSize);
 				gc.setStroke(Color.WHITE);
@@ -534,6 +545,7 @@ public class Chart {
 	}
 	
 	public void onMouseExited() {
+		hsb.onMouseExited();
 		focusedChart = false;
 		newCHT_BTN_Hover = false;
 		drawCandlesticksHover = false;
@@ -553,6 +565,7 @@ public class Chart {
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
+		hsb.onMouseMoved(e);
 		crossHairX = e.getX();
 		crossHairY = e.getY();
 		if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 3 - 1 && e.getY() >= CHT_MARGIN + chartHeight) {
@@ -576,6 +589,7 @@ public class Chart {
 	}		
 	
 	public void onMousePressed(MouseEvent e) {		
+		hsb.onMousePressed(e);
 		if (e.getButton() == MouseButton.MIDDLE) {
 			if (onChart(e.getX(), e.getY())) {
 				lines.add(crossHairPrice);
@@ -632,6 +646,7 @@ public class Chart {
 	}
 	
 	public void onMouseReleased(MouseEvent e) {	
+		hsb.onMouseReleased();
 		newCHT_BTN_Clicked = false;
 		drawCandlesticksClicked = false;
 		darkModeClicked = false;
@@ -643,6 +658,7 @@ public class Chart {
 	}
 	
 	public void onMouseDragged(MouseEvent e) {	
+		hsb.onMouseDragged(e);
 		if (priceDragging) {
 			double posDiff = e.getY() - priceInitPos;
 			if (posDiff < 0) {
@@ -1060,8 +1076,14 @@ public class Chart {
 	public void setCandleStickVars(int numCandlesticks) {		
 		candlestickWidth = (chartWidth / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
-		hsb.updateHSBMove(m1Candles.size(), numCandlesticks);
+		if (drawCandlesticks) {
+			hsb.updateHSBMove(m1Candles.size(), numCandlesticks);
+		}
 	}	
+	
+	public boolean drawCandlesticks() {
+		return this.drawCandlesticks;
+	}
 	
 	public void disableRoundUp() {
 		roundUp = false;
