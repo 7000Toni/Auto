@@ -8,9 +8,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class DataSet {
-	private static String name;
-	private static ArrayList<DataPair> tickData;
-	private static ArrayList<Candlestick> m1Candles;
+	private String name;
+	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
+	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
+	private ArrayList<Double> lines = new ArrayList<Double>();
 	
 	class DataPair {
 		private double price;
@@ -77,12 +78,12 @@ public class DataSet {
 	}
 	
 	public DataSet(String filePath, String name) {
-		DataSet.name = name;
+		this.name = name;
 		readData(filePath, -1);
 	}
 	
 	public DataSet(String filePath, String name, int size) {
-		DataSet.name = name;
+		this.name = name;
 		readData(filePath, size);
 	}
 	
@@ -168,22 +169,26 @@ public class DataSet {
 		return (int)((ldt2EpochSec - ldt1EpochSec) / 60.0); 
 	}
 	
-	public String getName() {
-		return DataSet.name;
+	public String name() {
+		return this.name;
 	}
 	
-	public ArrayList<DataPair> getTickData() {
-		return DataSet.tickData;
+	public ArrayList<DataPair> tickData() {
+		return this.tickData;
 	}
 	
-	public ArrayList<Candlestick> getM1Candles() {
-		return DataSet.m1Candles;
+	public ArrayList<Candlestick> m1Candles() {
+		return this.m1Candles;
+	}
+	
+	public ArrayList<Double> lines() {
+		return this.lines;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof DataSet) {
-			if (DataSet.name.equals(((DataSet)obj).getName())) {
+			if (this.name.equals(((DataSet)obj).name())) {
 				return true;
 			} else {
 				return false;
