@@ -220,6 +220,9 @@ public class Chart {
 				}
 				
 				crossHairDateIndex = startIndex + (int)(((crossHairX-CHT_MARGIN) / chartWidth) * (endIndex-startIndex));
+				if (crossHairDateIndex >= endIndex) {
+					crossHairDateIndex--;
+				}
 				if (drawCandlesticks) {
 					String ohlc = "O: " + data.m1Candles().get(crossHairDateIndex).open();
 					ohlc += "  H: " + data.m1Candles().get(crossHairDateIndex).high();
@@ -682,8 +685,8 @@ public class Chart {
 	
 	private void drawLines() {
 		//TODO check for inaccuracy		
-		double trueLowest = roundUpToTick(lowest - dataMarginSize);
-		double trueHighest = roundDownToTick(highest + dataMarginSize);
+		double trueLowest = lowest - dataMarginSize;
+		double trueHighest = highest + dataMarginSize;
 		for (Double d : data.lines()) {
 			if (d >= trueLowest && d <= trueHighest) {
 				double fontSize = gc.getFont().getSize();
@@ -817,12 +820,12 @@ public class Chart {
 	private void candlestickChartProc() {		
 		startIndex = (int)((hsb.position() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
 		if (roundUp) {
-			if (startIndex + numCandlesticks <= data.m1Candles().size()) {
+			if (startIndex + numCandlesticks < data.m1Candles().size()) {
 				startIndex += 1;
 			}
 		}
 		endIndex = startIndex + numCandlesticks;
-		if (endIndex >= data.m1Candles().size()) {
+		if (endIndex > data.m1Candles().size()) {
 			endIndex = data.m1Candles().size() - 1;
 		}
 		gc.clearRect(0, 0, width, height);
