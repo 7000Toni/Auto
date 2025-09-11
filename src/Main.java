@@ -15,7 +15,7 @@ public class Main extends Application{
 		double height = 900;
 		ChartPane chart = new ChartPane(stage, width, height);
 		Scene scene = new Scene(chart, width, height);	
-		scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> chart.getChart().getHSB().keyPressed(e));
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> chart.getChart().hsb().keyPressed(e));
 		stage.setScene(scene);
 		stage.show();
 	}
