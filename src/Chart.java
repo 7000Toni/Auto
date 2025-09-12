@@ -13,6 +13,9 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 
 public class Chart {
+	public final static double HSB_WIDTH = 100;
+	public final static double HSB_HEIGHT = 10;
+	
 	//TODO consider a function to calculate the price given a y coordinate
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
@@ -52,7 +55,7 @@ public class Chart {
 	private double range;	
 	private double lowest;
 	private double highest;
-	private HorizontalScrollBar hsb;
+	private ScrollBar hsb;
 	private int numDataPoints = 1495;//299	
 	private int startIndex;
 	private int endIndex;
@@ -84,15 +87,16 @@ public class Chart {
 	private class WidthListener implements ChangeListener<Number> {
 		@Override
 		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {			
-			double newHSBPos = (hsb.position() / (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN)) * (newValue.doubleValue() - WIDTH_EXTRA - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN);	
+			double newHSBPos = (hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (newValue.doubleValue() - WIDTH_EXTRA - hsb.sbWidth() - PRICE_MARGIN);	
 			width = newValue.doubleValue() - WIDTH_EXTRA;
 			canvas.setWidth(width);
 			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
 			if (!drawCandlesticks) {
-				hsb.updateHSBMove(data.tickData().size(), numDataPoints);
-			}
+				hsb.setSBMove(data.tickData().size(), numDataPoints);				
+			}			
 			setCandleStickVars(numCandlesticks);
-			hsb.setPosition(newHSBPos);
+			hsb.setMaxPos(width - PRICE_MARGIN);
+			hsb.setPosition(newHSBPos, false);
 			drawChart();
 		}		
 	}
@@ -102,7 +106,7 @@ public class Chart {
 		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 			height = newValue.doubleValue() - HEIGHT_EXTRA;
 			canvas.setHeight(height);
-			chartHeight = height - HorizontalScrollBar.HSB_HEIGHT - CHT_MARGIN * 2; 
+			chartHeight = height - hsb.sbHeight() - CHT_MARGIN * 2; 
 			if (chtDataMargin > chartHeight * CHT_DATA_MARGIN_COEF) {
 				chtDataMargin = chartHeight * CHT_DATA_MARGIN_COEF;
 			} else {
@@ -111,6 +115,7 @@ public class Chart {
 					chtDataMargin = (newValue.doubleValue() - HEIGHT_EXTRA) * ratio;
 				}
 			}
+			hsb.setYPos(height - HSB_HEIGHT);
 			drawChart();
 		}		
 	}
@@ -139,12 +144,12 @@ public class Chart {
 		stage.heightProperty().addListener(new HeightListener());
 		stage.widthProperty().addListener(new WidthListener());
 		canvas = new Canvas(width, height);
-		hsb = new HorizontalScrollBar(this, HorizontalScrollBar.HSB_HEIGHT, HorizontalScrollBar.HSB_WIDTH, data.tickData().size(), numDataPoints);		
+		hsb = new ScrollBar(this, data.tickData().size(), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, false, height - HSB_HEIGHT);		
 		gc = canvas.getGraphicsContext2D();	
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
 		chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
-		chartHeight = height - HorizontalScrollBar.HSB_HEIGHT - CHT_MARGIN*2;
+		chartHeight = height - hsb.sbHeight() - CHT_MARGIN*2;
 		candlestickWidth = chartWidth * CNDL_WDTH_COEF;
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 		numCandlesticks = (int)(chartWidth / (candlestickWidth + candlestickSpacing));
@@ -245,8 +250,8 @@ public class Chart {
 	}
 		
 	
-	public HorizontalScrollBar hsb() {
-		return hsb;
+	public ScrollBar hsb() {
+		return this.hsb;
 	}
 	
 	public void setWidth(int width) {
@@ -340,11 +345,11 @@ public class Chart {
 				if (drawCandlesticks) {
 					drawCandlesticks = false;
 					CrossHair.setIsForCandle(false);
-					hsb.updateHSBMove(data.tickData().size(), numDataPoints);
+					hsb.setSBMove(data.tickData().size(), numDataPoints);
 				} else {
 					drawCandlesticks = true;	
 					CrossHair.setIsForCandle(true);
-					hsb.updateHSBMove(data.m1Candles().size(), numCandlesticks);
+					hsb.setSBMove(data.m1Candles().size(), numCandlesticks);
 				}
 			} else if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 3 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
 				darkModeClicked = true;
@@ -387,7 +392,7 @@ public class Chart {
 		priceInitPos = e.getY();
 		if (chartDragging) {
 			double posDiff = e.getX() - chartInitPos;
-			hsb.setPosition(hsb.position() - (posDiff * hsb.hsbMove() / 10));
+			hsb.setPosition(hsb.xPos() - (posDiff * hsb.hsbMove() / 10), false);
 		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);
@@ -407,17 +412,17 @@ public class Chart {
 					setCandleStickVars(numCandlesticks);
 				}				
 			}
-			double newHSBPos = (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN) * ((double)startIndex /(data.m1Candles().size() - numCandlesticks));		
-			int si = (int)((newHSBPos / (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1Candles().size() - numCandlesticks));		
+			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
 			if (si < startIndex) {
 				roundUp = true;
 			} else {
 				roundUp = false;
 			}
-			if (newHSBPos > width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN) {
-				newHSBPos = width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN;
+			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
+				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
 			}
-			hsb.setPosition(newHSBPos);
+			hsb.setPosition(newHSBPos, false);
 		} else {
 			if (e.getDeltaY() > 0) {
 				setNumDataPoints(numDataPoints - 100);
@@ -430,11 +435,11 @@ public class Chart {
 			} else if (numDataPoints < 100) {
 				setNumDataPoints(100);
 			}
-			double newHSBPos = (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN) * ((double)startIndex /(data.tickData().size() - numDataPoints - 1));
-			if (newHSBPos > width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN) {
-				newHSBPos = width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN;
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickData().size() - numDataPoints - 1));
+			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
+				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
 			}
-			hsb.setPosition(newHSBPos);
+			hsb.setPosition(newHSBPos, false);
 		}
 		for (Chart c : charts) {
 			c.drawChart();
@@ -590,7 +595,7 @@ public class Chart {
 	
 	private void lineChartProc() {		
 		xDiff = chartWidth / (double)numDataPoints;
-		startIndex = (int)((hsb.position() / (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
+		startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
 		endIndex = startIndex + numDataPoints;
 		if (endIndex >= data.tickData().size()) {
 			endIndex = data.tickData().size() - 1;
@@ -604,7 +609,7 @@ public class Chart {
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
 		
-		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN);
+		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, hsb.sbHeight() + CHT_MARGIN);
 		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
 		gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
 		if (!darkMode) {
@@ -616,7 +621,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		if (drawCandlesticksHover) {
 			if (drawCandlesticksClicked) {
@@ -624,7 +629,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		if (darkModeHover) {
 			if (darkModeClicked) {
@@ -632,7 +637,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		gc.setFill(Color.BLACK);
 		
@@ -678,7 +683,7 @@ public class Chart {
 	}
 	
 	private void candlestickChartProc() {		
-		startIndex = (int)((hsb.position() / (width - HorizontalScrollBar.HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+		startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
 		if (roundUp) {
 			if (startIndex + numCandlesticks < data.m1Candles().size()) {
 				startIndex += 1;
@@ -697,7 +702,7 @@ public class Chart {
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		gc.strokeText(data.name() + "  M1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
 		
-		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN);
+		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, hsb.sbHeight() + CHT_MARGIN);
 		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
 		gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
 		if (!darkMode) {
@@ -709,7 +714,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		if (drawCandlesticksHover) {
 			if (drawCandlesticksClicked) {
@@ -717,7 +722,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		if (darkModeHover) {
 			if (darkModeClicked) {
@@ -725,7 +730,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, HorizontalScrollBar.HSB_HEIGHT + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
 		gc.setFill(Color.BLACK);
 		
@@ -785,14 +790,14 @@ public class Chart {
 	
 	public void setNumDataPoints(int numDataPoints) {		
 		this.numDataPoints = numDataPoints;
-		hsb.updateHSBMove(data.tickData().size(), numDataPoints);
+		hsb.setSBMove(data.tickData().size(), numDataPoints);
 	}	
 	
 	public void setCandleStickVars(int numCandlesticks) {		
 		candlestickWidth = (chartWidth / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 		if (drawCandlesticks) {
-			hsb.updateHSBMove(data.m1Candles().size(), numCandlesticks);
+			hsb.setSBMove(data.m1Candles().size(), numCandlesticks);
 		}
 	}	
 	

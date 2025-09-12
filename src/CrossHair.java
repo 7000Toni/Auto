@@ -81,7 +81,7 @@ public class CrossHair {
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
-		chart.graphicsContext().strokeLine(xPos, Chart.CHT_MARGIN, xPos, chart.height() - HorizontalScrollBar.HSB_HEIGHT - Chart.CHT_MARGIN);
+		chart.graphicsContext().strokeLine(xPos, Chart.CHT_MARGIN, xPos, chart.height() - chart.hsb().sbHeight() - Chart.CHT_MARGIN);
 		setDateBarX(xPos);
 		drawDateBox(index);
 	}
@@ -110,75 +110,90 @@ public class CrossHair {
 		drawVerticalLine(x, dateIndex);
 	}	
 	
+	private int calculateCHDI(long chdiEpochMin, boolean toCandle) {
+		int chdi = 0;
+		for (int i = chart.startIndex(); i < chart.endIndex(); i++) {
+			long ldtEpochMin;
+			if (toCandle) {
+				ldtEpochMin = (int)(chart.tickData().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+			} else {
+				ldtEpochMin = (int)(chart.m1Candles().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+			}
+			if (ldtEpochMin == chdiEpochMin) {
+				chdi = i;
+				break;
+			} else if (chdiEpochMin < ldtEpochMin) {
+				break;
+			}
+			chdi = i;
+		}		
+		return chdi;
+	}
+	
+	private void drawUnfocusedTickToTick() {
+		int indexRange = chart.endIndex() - chart.startIndex();
+		double percOfRange = (dateIndex - chart.startIndex()) / (double)indexRange;
+		double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;			
+		drawVerticalLine(xPos, dateIndex);
+	}
+	
+	private void drawUnfocusedTickToCandle() {
+		long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
+			int chdi = calculateCHDI(chdiEpochMin, true);
+			int indexRange = chart.endIndex() - chart.startIndex();
+			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
+			double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;				
+			drawVerticalLine(xPos, chdi);
+		}
+	}
+
+	private void drawUnfocusedCandleToCandle() {
+		double xPos = (dateIndex - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + Chart.CHT_MARGIN;				
+		drawOHLC(dateIndex);					
+		drawVerticalLine(xPos, dateIndex);
+	}
+
+	private void drawUnfocusedCandleToTick() {
+		long startEpochMin = (int)(chart.m1Candles().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long endEpochMin;
+		if (chart.endIndex() == chart.m1Candles().size()) {
+			endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()-1).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		} else {
+			endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		}
+		long chdiEpochMin = (int)(chart.tickData().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
+			int chdi = calculateCHDI(chdiEpochMin, false);
+			int indexRange = chart.endIndex() - chart.startIndex();
+			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
+			double stub = chart.chartWidth() - ((int)(chart.chartWidth() / (chart.candlestickWidth() + chart.candlestickSpacing())) * (chart.candlestickWidth() + chart.candlestickSpacing()));
+			double xPos = (chart.chartWidth() - stub) * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
+			int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
+			drawOHLC(convertedCHDI);					
+			drawVerticalLine(xPos, chdi);				
+		}
+	}
+	
 	private void drawUnfocusedChartCrossHair() {
 		if (price >= chart.lowest() - chart.dataMarginSize() && price <= chart.highest() + chart.dataMarginSize()) {					
 			drawHorizontalLine(false);
 		}
 		if (!chart.drawCandlesticks()) {
 			if (isForCandle) {
-				long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-					int chdi = dateIndex;
-					for (int i = chart.startIndex(); i < chart.endIndex(); i++) {
-						long ldtEpochMin = (int)(chart.tickData().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-						
-						if (ldtEpochMin == chdiEpochMin) {
-							chdi = i;
-							break;
-						} else if (chdiEpochMin < ldtEpochMin) {
-							break;
-						}
-						chdi = i;
-					}
-					int indexRange = chart.endIndex() - chart.startIndex();
-					double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
-					double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;				
-					drawVerticalLine(xPos, chdi);
-				}
+				drawUnfocusedTickToCandle();
 			} else if (dateIndex >= chart.startIndex() && dateIndex <= chart.endIndex()) {
-				int indexRange = chart.endIndex() - chart.startIndex();
-				double percOfRange = (dateIndex - chart.startIndex()) / (double)indexRange;
-				double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;			
-				drawVerticalLine(xPos, dateIndex);
+				drawUnfocusedTickToTick();
 			}
 		} else if (chart.drawCandlesticks()) {
 			if (isForCandle) {
 				if (dateIndex >= chart.startIndex() && dateIndex <= chart.endIndex()) {
-					double xPos = (dateIndex - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + Chart.CHT_MARGIN;				
-					drawOHLC(dateIndex);					
-					drawVerticalLine(xPos, dateIndex);
+					drawUnfocusedCandleToCandle();
 				}
 			} else {
-				long startEpochMin = (int)(chart.m1Candles().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				long endEpochMin;
-				if (chart.endIndex() == chart.m1Candles().size()) {
-					endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()-1).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				} else {
-					endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				}
-				long chdiEpochMin = (int)(chart.tickData().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-				if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-					int dateIndex_Candle = 0;
-					for (int i = chart.startIndex(); i < chart.endIndex(); i++) {
-						long ldtEpochMin = (int)(chart.m1Candles().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-						if (ldtEpochMin == chdiEpochMin) {
-							dateIndex_Candle = i;
-							break;
-						} else if (chdiEpochMin < ldtEpochMin) {
-							break;
-						}
-						dateIndex_Candle = i;
-					}
-					int indexRange = chart.endIndex() - chart.startIndex();
-					double percOfRange = (dateIndex_Candle - chart.startIndex()) / (double)indexRange;
-					double stub = chart.chartWidth() - ((int)(chart.chartWidth() / (chart.candlestickWidth() + chart.candlestickSpacing())) * (chart.candlestickWidth() + chart.candlestickSpacing()));
-					double xPos = (chart.chartWidth() - stub) * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
-					int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
-					drawOHLC(convertedCHDI);					
-					drawVerticalLine(xPos, dateIndex_Candle);				
-				}
+				drawUnfocusedCandleToTick();
 			}
 		}
 	}
