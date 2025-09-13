@@ -347,10 +347,22 @@ public class Chart {
 				if (drawCandlesticks) {
 					drawCandlesticks = false;
 					CrossHair.setIsForCandle(false);
+					int convertedIndex = (int)(((double)startIndex / data.m1Candles().size()) * data.tickData().size());
+					double newHSBPos = ((double)convertedIndex / (data.tickData().size() - numDataPoints - 1)) * (width - HSB_WIDTH - PRICE_MARGIN);
+					hsb.setPosition(newHSBPos, false);
 					hsb.setSBMove(data.tickData().size(), numDataPoints);
 				} else {
 					drawCandlesticks = true;	
 					CrossHair.setIsForCandle(true);
+					int convertedIndex = (int)(((double)startIndex / data.tickData().size()) * data.m1Candles().size());
+					double newHSBPos = ((double)convertedIndex / (data.m1Candles().size() - numCandlesticks)) * (width - HSB_WIDTH - PRICE_MARGIN);
+					int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+					if (si < startIndex) {
+						roundUp = true;
+					} else {
+						roundUp = false;
+					}
+					hsb.setPosition(newHSBPos, false);
 					hsb.setSBMove(data.m1Candles().size(), numCandlesticks);
 				}
 			} else if (e.getX() >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 3 + 1 && e.getY() >= CHT_MARGIN + chartHeight) {
@@ -564,7 +576,7 @@ public class Chart {
 
 	private void calculateIndices() {
 		if (drawCandlesticks) {
-			startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
 			if (roundUp) {
 				if (startIndex + numCandlesticks < data.m1Candles().size()) {
 					startIndex += 1;
@@ -575,7 +587,7 @@ public class Chart {
 				endIndex = data.m1Candles().size() - 1;
 			}
 		} else {
-			startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
 			endIndex = startIndex + numDataPoints;
 		}		
 	}
@@ -593,8 +605,12 @@ public class Chart {
 			gc.setStroke(Color.BLACK);
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
-		gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);		
-		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, hsb.sbHeight() + CHT_MARGIN);
+		if (drawCandlesticks) {
+			gc.strokeText(data.name() + "  M1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
+		} else {
+			gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
+		}
+		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
 		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
 		gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
 	}	
@@ -606,7 +622,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
+			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HSB_HEIGHT + CHT_MARGIN - 2);
 		}
 	}
 	
@@ -617,7 +633,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, HSB_HEIGHT + CHT_MARGIN - 2);
 		}
 	}
 
@@ -628,7 +644,7 @@ public class Chart {
 			} else {
 				gc.setFill(Color.GRAY);
 			}			
-			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, hsb.sbHeight() + CHT_MARGIN - 2);
+			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, HSB_HEIGHT + CHT_MARGIN - 2);
 		}
 	}
 	
