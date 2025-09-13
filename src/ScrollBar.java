@@ -265,6 +265,9 @@ public class ScrollBar {
 	}
 	
 	public void setPosition(double pos, boolean increment) {
+		if (Double.isNaN(pos)) {
+			return;
+		}
 		if (vertical) {
 			if (pos > maxPos - sbHeight) {
 				this.yPos = maxPos - sbHeight;

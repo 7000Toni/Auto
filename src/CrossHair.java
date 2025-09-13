@@ -46,23 +46,25 @@ public class CrossHair {
 		if (xPos < Chart.CHT_MARGIN + dateBarHalfWidth) {
 			dateBarX = Chart.CHT_MARGIN;
 		} else if (xPos > chart.chartWidth() + Chart.CHT_MARGIN - dateBarHalfWidth) {
-			dateBarX = chart.chartWidth() + Chart.CHT_MARGIN - dateBarHalfWidth*2;
+			dateBarX = chart.chartWidth() + Chart.CHT_MARGIN - dateBarHalfWidth * 2;
 		} else {
 			dateBarX = xPos - dateBarHalfWidth;
 		}
 	}
 	
 	private void drawOHLC(int index) {
-		String ohlc = "O: " + chart.m1Candles().get(index).open();
-		ohlc += "  H: " + chart.m1Candles().get(index).high();
-		ohlc += "  L: " + chart.m1Candles().get(index).low();
-		ohlc += "  C: " + chart.m1Candles().get(index).close();
-		if (Chart.darkMode()) {
-			chart.graphicsContext().setStroke(Color.WHITE);
-		} else {
-			chart.graphicsContext().setStroke(Color.BLACK);
+		if (index != -1) {
+			String ohlc = "O: " + chart.m1Candles().get(index).open();
+			ohlc += "  H: " + chart.m1Candles().get(index).high();
+			ohlc += "  L: " + chart.m1Candles().get(index).low();
+			ohlc += "  C: " + chart.m1Candles().get(index).close();
+			if (Chart.darkMode()) {
+				chart.graphicsContext().setStroke(Color.WHITE);
+			} else {
+				chart.graphicsContext().setStroke(Color.BLACK);
+			}
+			chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
 		}
-		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
 	private void drawHorizontalLine(boolean focusedChart) {
@@ -113,20 +115,36 @@ public class CrossHair {
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
 		chart.graphicsContext().fillRect(dateBarX, chart.chartHeight() - Chart.CHT_MARGIN - 1, dateBarHalfWidth*2, chart.fontSize());
-		if (chart.drawCandlesticks()) {
-			chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+		if (index != -1) {
+			if (chart.drawCandlesticks()) {
+				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+			} else {
+				chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+			}
 		} else {
-			chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+			chart.graphicsContext().strokeText("DONTBEDUMB", dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
 		}
 	}
 	
 	private void drawFocusedChartCrossHair() {		
 		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();
-		drawHorizontalLine(true);		
-		dateIndex = chart.startIndex() + (int)(((x-Chart.CHT_MARGIN) / chart.chartWidth()) * (chart.endIndex()-chart.startIndex()));		
-		if (dateIndex >= chart.endIndex()) {
-			dateIndex--;
+		drawHorizontalLine(true);
+		double width = chart.chartWidth();
+		if (chart.endMargin()) {
+			if (chart.drawCandlesticks()) {
+				width = (chart.candlestickWidth() + chart.candlestickSpacing()) * (chart.endIndex() - chart.startIndex()); 
+			} else {
+				width = chart.xDiff() * (chart.endIndex() - chart.startIndex()); 
+			}
 		}
+		dateIndex = chart.startIndex() + (int)(((x - Chart.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex()));
+		if (dateIndex >= chart.endIndex()) {
+			if (chart.endMargin()) {
+				dateIndex = -1;
+			} else {				
+				dateIndex--;				
+			}
+		} 
 		
 		if (chart.drawCandlesticks()) {
 			drawOHLC(dateIndex);
