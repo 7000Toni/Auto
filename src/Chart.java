@@ -680,9 +680,11 @@ public class Chart {
 			spacing = tickSizeOnChart;
 		}
 		double index = chartHeight - chtDataMargin + CHT_MARGIN;
+		int i = 0;
 		while (true) {
 			if (index + spacing < chartHeight + CHT_MARGIN - gc.getFont().getSize() / 2) {
 				index += spacing;
+				i -= 1;
 			} else {
 				break;
 			}			
@@ -690,8 +692,7 @@ public class Chart {
 		double priceDashPos = chartWidth + CHT_MARGIN;
 		double pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
 		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
-		double diff = (spacing / tickSizeOnChart) * tickSize;
-		int i = 0;
+		double diff = (spacing / tickSizeOnChart) * tickSize;		
 		if (darkMode) {
 			gc.setStroke(Color.WHITE);
 		} else {

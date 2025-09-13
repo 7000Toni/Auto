@@ -121,7 +121,7 @@ public class CrossHair {
 	}
 	
 	private void drawFocusedChartCrossHair() {		
-		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();		
+		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();
 		drawHorizontalLine(true);		
 		dateIndex = chart.startIndex() + (int)(((x-Chart.CHT_MARGIN) / chart.chartWidth()) * (chart.endIndex()-chart.startIndex()));		
 		if (dateIndex >= chart.endIndex()) {
