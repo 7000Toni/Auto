@@ -293,7 +293,7 @@ public class ScrollBar {
 		
 	}		
 	
-	public void drawHSB() {
+	public void drawHSB() {		
 		GraphicsContext gc = chart.graphicsContext();
 		if (hovering) {			
 			if (dragging) {
@@ -305,6 +305,5 @@ public class ScrollBar {
 			gc.setFill(Color.DARKGRAY);
 		}
 		gc.fillRect(xPos, yPos, sbWidth, sbHeight);
-		gc.setFill(Color.BLACK);
 	}
 }

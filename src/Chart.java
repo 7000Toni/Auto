@@ -25,7 +25,8 @@ public class Chart {
 	
 	public final static int CHT_MARGIN = 5;
 	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
-	public final static int PRICE_MARGIN = 100;
+	public final static double PRICE_MARGIN = 100;
+	public final static double CHT_END_MARGIN = 50;
 	
 	public final static int PRICE_DASH_SPACING = 50;
 	public final static int PRICE_DASH_SIZE = 5;
@@ -69,6 +70,7 @@ public class Chart {
 	private double priceInitPos;
 	private boolean chartDragging = false;
 	private double chartInitPos;
+	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
 	private boolean drawCandlesticksHover = false;
@@ -498,24 +500,6 @@ public class Chart {
 		}
 	}
 	
-	private double roundDownToTick(double price) {
-		int intPart = (int)price;
-		price = price - intPart;
-		int pow = (int)Math.pow(10, numDecimalPts);
-		price *= pow;
-		int numTicks = (int)(1 / tickSize);
-		int intTick = (int)(pow * tickSize);
-		int testTick = (int)(pow - intTick);	
-		for (int i = 0; i < numTicks; i++) {
-			if (price >= testTick) {
-				price = testTick;
-				break;
-			}
-			testTick -= intTick;
-		}
-		return intPart + price / pow;
-	}	
-	
 	public double roundToNearestTick(double price) {
 		int intPart = (int)price;
 		price = price - intPart;
@@ -529,24 +513,6 @@ public class Chart {
 		}
 		return intPart + (intTick * quotient) / (double)pow;
 	}
-	
-	private double roundUpToTick(double price) {
-		int intPart = (int)price;
-		price = price - intPart;
-		int pow = (int)Math.pow(10, numDecimalPts);
-		price *= pow;
-		int numTicks = (int)(1 / tickSize);
-		int intTick = (int)(pow * tickSize);
-		int testTick = 0;		
-		for (int i = 0; i < numTicks + 1; i++) {
-			if (price <= testTick) {
-				price = testTick;
-				break;
-			}
-			testTick += intTick;
-		}
-		return intPart + price / pow;
-	}	
 	
 	private void drawLines() {
 		//TODO check for inaccuracy		
@@ -576,45 +542,64 @@ public class Chart {
 	public void drawCandleStick(DataSet.Candlestick candle, double xPos, double yPos) {
 		//TODO Re-factor/Optimise
 		int num = 0;
+		if (darkMode) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
 		if (candle.open() < candle.close()) {
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.close() - candle.open()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.close() - candle.low()) / conversionVar);
 			gc.setFill(Color.CORNFLOWERBLUE);
 			gc.fillRect(xPos, yPos, candlestickWidth - num, (candle.close() - candle.open()) / conversionVar - num);
-			gc.setFill(Color.BLACK);
 		} else {
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open() - candle.close()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open() - candle.low()) / conversionVar);
 			gc.setFill(Color.ORANGE);
 			gc.fillRect(xPos + num, yPos + num, candlestickWidth - num, (candle.open() - candle.close()) / conversionVar - num);
-			gc.setFill(Color.BLACK);
 		}
 	}
+
+	private void calculateIndices() {
+		if (drawCandlesticks) {
+			startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+			if (roundUp) {
+				if (startIndex + numCandlesticks < data.m1Candles().size()) {
+					startIndex += 1;
+				}
+			}
+			endIndex = startIndex + numCandlesticks;
+			if (endIndex > data.m1Candles().size()) {
+				endIndex = data.m1Candles().size() - 1;
+			}
+		} else {
+			startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
+			endIndex = startIndex + numDataPoints;
+		}		
+	}
 	
-	private void lineChartProc() {		
-		xDiff = chartWidth / (double)numDataPoints;
-		startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.tickData().size() - numDataPoints - 1));
-		endIndex = startIndex + numDataPoints;
+	private void drawFrame() {
 		if (endIndex >= data.tickData().size()) {
 			endIndex = data.tickData().size() - 1;
 		}
-		gc.clearRect(0, 0, width, height);
-		gc.setStroke(Color.BLACK);
+		gc.clearRect(0, 0, width, height);		
 		if (darkMode) {			
+			gc.setFill(Color.BLACK);
 			gc.fillRect(0, 0, width, height);
 			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
-		gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
-		
+		gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);		
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, hsb.sbHeight() + CHT_MARGIN);
 		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
 		gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
-		if (!darkMode) {
-			gc.setFill(Color.WHITE);
-		}
+	}	
+	
+	private void checkNewChtBtn() {
 		if (newCHT_BTN_Hover) {
 			if (newCHT_BTN_Clicked) {
 				gc.setFill(Color.DIMGRAY);
@@ -623,6 +608,9 @@ public class Chart {
 			}			
 			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
+	}
+	
+	private void checkChartTypeBtn() {
 		if (drawCandlesticksHover) {
 			if (drawCandlesticksClicked) {
 				gc.setFill(Color.DIMGRAY);
@@ -631,6 +619,9 @@ public class Chart {
 			}			
 			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
+	}
+
+	private void checkDarkModeBtn() {
 		if (darkModeHover) {
 			if (darkModeClicked) {
 				gc.setFill(Color.DIMGRAY);
@@ -639,106 +630,37 @@ public class Chart {
 			}			
 			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, hsb.sbHeight() + CHT_MARGIN - 2);
 		}
-		gc.setFill(Color.BLACK);
-		
-		hsb.drawHSB();
-		calculateRange(startIndex, endIndex + 1);		
-		tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
-		dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
-		double conversionVar = tickSize / tickSizeOnChart;		
+	}
+	
+	private void setPreDrawVars() {
+		if (drawCandlesticks) {
+			tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
+			dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
+			conversionVar = tickSize / tickSizeOnChart;	
+		} else {
+			xDiff = chartWidth / (double)numDataPoints;	
+			tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
+			dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
+			conversionVar = tickSize / tickSizeOnChart;	
+		}
+	}
+	
+	private void drawLineChart() {
 		double startY = chartHeight - chtDataMargin + CHT_MARGIN - (((data.tickData().get(startIndex).price() - lowest) / range) * (chartHeight - chtDataMargin * 2));		
 		double prevY = startY - ((data.tickData().get(startIndex + 1).price() - data.tickData().get(startIndex).price()) / conversionVar);
+		if (darkMode) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
 		for (int i = 1; i < numDataPoints; i++) {
 			gc.strokeLine((i * xDiff)+CHT_MARGIN, prevY, ((i + 1) * xDiff)+CHT_MARGIN, prevY - ((data.tickData().get(startIndex + i + 1).price() - data.tickData().get(startIndex + i).price()) / conversionVar));
 			prevY = prevY - ((data.tickData().get(startIndex + i + 1).price() - data.tickData().get(startIndex + i).price()) / conversionVar);
 		}	
-		double spacing = tickSizeOnChart * (int)(PRICE_DASH_SPACING / tickSizeOnChart);
-		if (spacing == 0) {
-			spacing = tickSizeOnChart;
-		}
-		double index = chartHeight - chtDataMargin + CHT_MARGIN;
-		while (true) {
-			if (index + spacing < chartHeight + CHT_MARGIN - gc.getFont().getSize() / 2) {
-				index += spacing;
-			} else {
-				break;
-			}			
-		}
-		double priceDashPos = chartWidth + CHT_MARGIN;
-		double pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
-		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
-		double diff = (spacing / tickSizeOnChart) * tickSize;
-		int i = 0;
-		while (index > CHT_MARGIN + gc.getFont().getSize() / 3) {
-			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
-			gc.strokeText(((Double)(lowest + (diff * i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
-			index -= spacing;
-			i++;
-		}
-		if (!data.lines().isEmpty()) {
-			drawLines();
-		}
-		crossHair.drawCrossHair();
 	}
 	
-	private void candlestickChartProc() {		
-		startIndex = (int)((hsb.xPos() / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
-		if (roundUp) {
-			if (startIndex + numCandlesticks < data.m1Candles().size()) {
-				startIndex += 1;
-			}
-		}
-		endIndex = startIndex + numCandlesticks;
-		if (endIndex > data.m1Candles().size()) {
-			endIndex = data.m1Candles().size() - 1;
-		}
-		gc.clearRect(0, 0, width, height);
-		gc.setStroke(Color.BLACK);
-		if (darkMode) {			
-			gc.fillRect(0, 0, width, height);
-			gc.setStroke(Color.WHITE);
-		}		
-		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
-		gc.strokeText(data.name() + "  M1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
-		
-		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, hsb.sbHeight() + CHT_MARGIN);
-		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
-		gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
-		if (!darkMode) {
-			gc.setFill(Color.WHITE);
-		}
-		if (newCHT_BTN_Hover) {
-			if (newCHT_BTN_Clicked) {
-				gc.setFill(Color.DIMGRAY);
-			} else {
-				gc.setFill(Color.GRAY);
-			}			
-			gc.fillRect(CHT_MARGIN + chartWidth + 1, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
-		}
-		if (drawCandlesticksHover) {
-			if (drawCandlesticksClicked) {
-				gc.setFill(Color.DIMGRAY);
-			} else {
-				gc.setFill(Color.GRAY);
-			}			
-			gc.fillRect(width - PRICE_MARGIN * 2 / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 2, hsb.sbHeight() + CHT_MARGIN - 2);
-		}
-		if (darkModeHover) {
-			if (darkModeClicked) {
-				gc.setFill(Color.DIMGRAY);
-			} else {
-				gc.setFill(Color.GRAY);
-			}			
-			gc.fillRect(width - PRICE_MARGIN / 3, CHT_MARGIN + chartHeight + 1, PRICE_MARGIN / 3 - 1, hsb.sbHeight() + CHT_MARGIN - 2);
-		}
-		gc.setFill(Color.BLACK);
-		
-		hsb.drawHSB();
-		calculateRange(startIndex, endIndex);
-		tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
-		dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
-		conversionVar = tickSize / tickSizeOnChart;	
+	private void drawCandlestickChart() {
 		for (int i = 0; i < numCandlesticks; i++) {
 			DataSet.Candlestick c = data.m1Candles().get(startIndex + i); 
 			double xPos = CHT_MARGIN + (candlestickWidth + candlestickSpacing) * i;
@@ -750,7 +672,9 @@ public class Chart {
 			}
 			drawCandleStick(c, xPos, yPos);
 		}
-		
+	}
+	
+	private void drawPriceDashes() {
 		double spacing = tickSizeOnChart * (int)(PRICE_DASH_SPACING / tickSizeOnChart);
 		if (spacing == 0) {
 			spacing = tickSizeOnChart;
@@ -768,6 +692,11 @@ public class Chart {
 		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
 		double diff = (spacing / tickSizeOnChart) * tickSize;
 		int i = 0;
+		if (darkMode) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
 		while (index > CHT_MARGIN + gc.getFont().getSize() / 3) {
 			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
 			gc.strokeText(((Double)(lowest + (diff * i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
@@ -778,14 +707,23 @@ public class Chart {
 			drawLines();
 		}
 		crossHair.drawCrossHair();
-	}
+	}	
 	
 	public void drawChart() {		
+		calculateIndices();
+		drawFrame();		
+		checkNewChtBtn();
+		checkChartTypeBtn();
+		checkDarkModeBtn();
+		hsb.drawHSB();
+		calculateRange(startIndex, endIndex);
+		setPreDrawVars();
 		if (drawCandlesticks) {
-			candlestickChartProc();
-		} else {
-			lineChartProc();
+			drawCandlestickChart();
+		} else {		
+			drawLineChart();
 		}
+		drawPriceDashes();
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {		

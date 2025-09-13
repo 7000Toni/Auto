@@ -57,6 +57,11 @@ public class CrossHair {
 		ohlc += "  H: " + chart.m1Candles().get(index).high();
 		ohlc += "  L: " + chart.m1Candles().get(index).low();
 		ohlc += "  C: " + chart.m1Candles().get(index).close();
+		if (Chart.darkMode()) {
+			chart.graphicsContext().setStroke(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.BLACK);
+		}
 		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
@@ -67,28 +72,47 @@ public class CrossHair {
 		} else {
 			yPos = ((chart.highest() + chart.dataMarginSize() - price) / (chart.range() + chart.dataMarginSize() * 2)) * chart.chartHeight() + Chart.CHT_MARGIN;
 		}
+		if (Chart.darkMode()) {
+			chart.graphicsContext().setStroke(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.BLACK);
+		}
 		chart.graphicsContext().strokeLine(Chart.CHT_MARGIN, yPos, chart.width() - Chart.PRICE_MARGIN, yPos);
 		drawPriceBox(yPos);
 	}
 	
 	private void drawPriceBox(double yPos) {
-		chart.graphicsContext().fillRect(chart.chartWidth() + Chart.CHT_MARGIN, yPos - chart.fontSize()/2, 100, chart.fontSize());
-		chart.graphicsContext().setStroke(Color.WHITE);
-		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price))).toString(), chart.chartWidth() + Chart.CHT_MARGIN + Chart.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, Chart.PRICE_MARGIN - Chart.PRICE_DASH_SIZE - Chart.PRICE_DASH_MARGIN);
-		if (!Chart.darkMode()) {
+		if (Chart.darkMode()) {
 			chart.graphicsContext().setStroke(Color.BLACK);
+			chart.graphicsContext().setFill(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.WHITE);
+			chart.graphicsContext().setFill(Color.BLACK);
 		}
+		chart.graphicsContext().fillRect(chart.chartWidth() + Chart.CHT_MARGIN, yPos - chart.fontSize()/2, 100, chart.fontSize());
+		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price))).toString(), chart.chartWidth() + Chart.CHT_MARGIN + Chart.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, Chart.PRICE_MARGIN - Chart.PRICE_DASH_SIZE - Chart.PRICE_DASH_MARGIN);
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
+		if (Chart.darkMode()) {
+			chart.graphicsContext().setStroke(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.BLACK);
+		}
 		chart.graphicsContext().strokeLine(xPos, Chart.CHT_MARGIN, xPos, chart.height() - chart.hsb().sbHeight() - Chart.CHT_MARGIN);
 		setDateBarX(xPos);
 		drawDateBox(index);
 	}
 	
-	private void drawDateBox(int index) {		
+	private void drawDateBox(int index) {	
+		if (Chart.darkMode()) {
+			chart.graphicsContext().setStroke(Color.BLACK);
+			chart.graphicsContext().setFill(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.WHITE);
+			chart.graphicsContext().setFill(Color.BLACK);
+		}
 		chart.graphicsContext().fillRect(dateBarX, chart.chartHeight() - Chart.CHT_MARGIN - 1, dateBarHalfWidth*2, chart.fontSize());
-		chart.graphicsContext().setStroke(Color.WHITE);
 		if (chart.drawCandlesticks()) {
 			chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
 		} else {
@@ -205,9 +229,6 @@ public class CrossHair {
 			}
 		} else if (Chart.focusedOnChart()) {						
 			drawUnfocusedChartCrossHair();
-		}
-		if (!Chart.darkMode()) {
-			chart.graphicsContext().setStroke(Color.BLACK);
 		}
 	}
 }
