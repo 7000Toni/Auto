@@ -269,27 +269,39 @@ public class ScrollBar {
 			return;
 		}
 		if (vertical) {
-			if (pos > maxPos - sbHeight) {
-				this.yPos = maxPos - sbHeight;
-			} else if (pos < minPos && !increment) {				
-				this.yPos = minPos;
-			} else {
-				if (increment) {
-					this.yPos += pos;
+			if (increment) {
+				if (pos + yPos > maxPos - sbHeight) {
+					yPos = maxPos - sbHeight;
+				} else if (pos + yPos < minPos) {	
+					yPos = minPos;
 				} else {
-					this.yPos = pos;
+					yPos += pos;
+				}
+			} else {
+				if (pos > maxPos - sbHeight) {
+					yPos = maxPos - sbHeight;
+				} else if (pos < minPos) {	
+					yPos = minPos;
+				} else {
+					yPos = pos;
 				}
 			}
 		} else {
-			if (pos > maxPos - sbWidth) {
-				this.xPos = maxPos - sbWidth;
-			} else if (pos < minPos && !increment) {
-				this.xPos = minPos;
-			} else {
-				if (increment) {
-					this.xPos += pos;
+			if (increment) {
+				if (pos + xPos > maxPos - sbWidth) {
+					xPos = maxPos - sbWidth;
+				} else if (pos + xPos < minPos) {	
+					xPos = minPos;
 				} else {
-					this.xPos = pos;
+					xPos += pos;
+				}
+			} else {
+				if (pos > maxPos - sbWidth) {
+					xPos = maxPos - sbWidth;
+				} else if (pos < minPos) {	
+					xPos = minPos;
+				} else {
+					xPos = pos;
 				}
 			}
 		}

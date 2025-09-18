@@ -26,6 +26,7 @@ public class Chart {
 	public final static int CHT_MARGIN = 5;
 	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
 	public final static double PRICE_MARGIN = 100;
+	public final static double END_MARGIN_COEF = 1/1.5;
 	
 	public final static int PRICE_DASH_SPACING = 50;
 	public final static int PRICE_DASH_SIZE = 5;
@@ -402,7 +403,7 @@ public class Chart {
 				drawCandlesticks = false;
 				CrossHair.setIsForCandle(false);
 				int convertedIndex = (int)(((double)startIndex / data.m1Candles().size()) * data.tickData().size());
-				double newHSBPos = ((double)convertedIndex / (data.tickData().size() - numDataPoints - 1)) * (width - HSB_WIDTH - PRICE_MARGIN);
+				double newHSBPos = ((double)convertedIndex / (data.tickData().size() - (numDataPoints - 1)  * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
 				hsb.setPosition(newHSBPos, false);
 				hsb.setSBMove(data.tickData().size(), numDataPoints);
 			} else {
@@ -412,8 +413,8 @@ public class Chart {
 				drawCandlesticks = true;	
 				CrossHair.setIsForCandle(true);
 				int convertedIndex = (int)(((double)startIndex / data.tickData().size()) * data.m1Candles().size());
-				double newHSBPos = ((double)convertedIndex / (data.m1Candles().size() - numCandlesticks)) * (width - HSB_WIDTH - PRICE_MARGIN);
-				int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+				double newHSBPos = ((double)convertedIndex / (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
+				int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
 				if (si < startIndex) {
 					roundUp = true;
 				} else {
@@ -472,8 +473,8 @@ public class Chart {
 					setCandleStickVars(numCandlesticks);
 				}				
 			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1Candles().size() - numCandlesticks));		
-			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks));
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));		
+			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
 			if (si < startIndex) {
 				roundUp = true;
 			} else {
@@ -495,7 +496,7 @@ public class Chart {
 			} else if (numDataPoints < 100) {
 				setNumDataPoints(100);
 			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickData().size() - numDataPoints - 1));
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickData().size() - (numDataPoints - 1) * END_MARGIN_COEF));
 			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
 				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
 			}
@@ -647,7 +648,7 @@ public class Chart {
 	
 	private void calculateIndices() {
 		if (drawCandlesticks) {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks / 1.5));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
 			if (roundUp) {
 				if (startIndex + numCandlesticks < data.m1Candles().size()) {
 					startIndex += 1;
@@ -658,7 +659,7 @@ public class Chart {
 				endIndex = data.m1Candles().size();
 			}
 		} else {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickData().size() - (numDataPoints - 1) / 1.5));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickData().size() - (numDataPoints - 1) * END_MARGIN_COEF));
 			endIndex = startIndex + numDataPoints;
 			if (endIndex >= data.tickData().size()) {
 				endIndex = data.tickData().size() - 1;

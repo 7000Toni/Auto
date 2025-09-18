@@ -53,18 +53,19 @@ public class CrossHair {
 	}
 	
 	private void drawOHLC(int index) {
-		if (index != -1) {
-			String ohlc = "O: " + chart.m1Candles().get(index).open();
-			ohlc += "  H: " + chart.m1Candles().get(index).high();
-			ohlc += "  L: " + chart.m1Candles().get(index).low();
-			ohlc += "  C: " + chart.m1Candles().get(index).close();
-			if (Chart.darkMode()) {
-				chart.graphicsContext().setStroke(Color.WHITE);
-			} else {
-				chart.graphicsContext().setStroke(Color.BLACK);
-			}
-			chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
+		if (dateIndex == -1) {
+			return;
 		}
+		String ohlc = "O: " + chart.m1Candles().get(index).open();
+		ohlc += "  H: " + chart.m1Candles().get(index).high();
+		ohlc += "  L: " + chart.m1Candles().get(index).low();
+		ohlc += "  C: " + chart.m1Candles().get(index).close();
+		if (Chart.darkMode()) {
+			chart.graphicsContext().setStroke(Color.WHITE);
+		} else {
+			chart.graphicsContext().setStroke(Color.BLACK);
+		}
+		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
 	private void drawHorizontalLine(boolean focusedChart) {
@@ -126,9 +127,7 @@ public class CrossHair {
 		}
 	}
 	
-	private void drawFocusedChartCrossHair() {		
-		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();
-		drawHorizontalLine(true);
+	private double getWidth() {
 		double width = chart.chartWidth();
 		if (chart.endMargin()) {
 			if (chart.drawCandlesticks()) {
@@ -137,6 +136,13 @@ public class CrossHair {
 				width = chart.xDiff() * (chart.endIndex() - chart.startIndex()); 
 			}
 		}
+		return width;
+	}
+	
+	private void drawFocusedChartCrossHair() {		
+		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();
+		drawHorizontalLine(true);
+		double width = getWidth();
 		dateIndex = chart.startIndex() + (int)(((x - Chart.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex()));
 		if (dateIndex >= chart.endIndex()) {
 			if (chart.endMargin()) {
@@ -173,32 +179,43 @@ public class CrossHair {
 	}
 	
 	private void drawUnfocusedTickToTick() {
+		if (dateIndex == -1) {
+			return;
+		}
 		int indexRange = chart.endIndex() - chart.startIndex();
 		double percOfRange = (dateIndex - chart.startIndex()) / (double)indexRange;
-		double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;			
+		double width = getWidth();
+		double xPos = width * percOfRange + Chart.CHT_MARGIN;			
 		drawVerticalLine(xPos, dateIndex);
 	}
 	
 	private void drawUnfocusedTickToCandle() {
+		if (dateIndex == -1) {
+			return;
+		}
 		long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
 			int chdi = calculateCHDI(chdiEpochMin, true);
-			int indexRange = chart.endIndex() - chart.startIndex();
-			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
-			double xPos = chart.chartWidth() * percOfRange + Chart.CHT_MARGIN;				
+			double xPos = (chdiEpochMin - startEpochMin) * (chart.candlestickWidth() + chart.candlestickSpacing());
 			drawVerticalLine(xPos, chdi);
 		}
 	}
 
 	private void drawUnfocusedCandleToCandle() {
+		if (dateIndex == -1) {
+			return;
+		}
 		double xPos = (dateIndex - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + Chart.CHT_MARGIN;				
 		drawOHLC(dateIndex);					
 		drawVerticalLine(xPos, dateIndex);
 	}
 
 	private void drawUnfocusedCandleToTick() {
+		if (dateIndex == -1) {
+			return;
+		}
 		long startEpochMin = (int)(chart.m1Candles().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long endEpochMin;
 		if (chart.endIndex() == chart.m1Candles().size()) {
@@ -211,8 +228,9 @@ public class CrossHair {
 			int chdi = calculateCHDI(chdiEpochMin, false);
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
-			double stub = chart.chartWidth() - ((int)(chart.chartWidth() / (chart.candlestickWidth() + chart.candlestickSpacing())) * (chart.candlestickWidth() + chart.candlestickSpacing()));
-			double xPos = (chart.chartWidth() - stub) * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
+			double width = getWidth();
+			double stub = width - ((int)(width / (chart.candlestickWidth() + chart.candlestickSpacing())) * (chart.candlestickWidth() + chart.candlestickSpacing()));
+			double xPos = (width - stub) * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
 			int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
 			drawOHLC(convertedCHDI);					
 			drawVerticalLine(xPos, chdi);				
