@@ -71,6 +71,7 @@ public class Chart {
 	private boolean chartDragging = false;
 	private double chartInitPos;
 	private boolean endMargin = false;
+	private Stage stage;
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -145,7 +146,11 @@ public class Chart {
 		stage.setMinWidth(MIN_WIDTH);
 		stage.setMinHeight(MIN_HEIGHT);
 		stage.heightProperty().addListener(new HeightListener());
-		stage.widthProperty().addListener(new WidthListener());
+		stage.widthProperty().addListener(new WidthListener());	
+		stage.setOnCloseRequest(ev -> {
+			charts.remove(this);
+		});
+		this.stage = stage;
 		canvas = new Canvas(width, height);
 		hsb = new ScrollBar(this, data.tickData().size(), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, false, height - HSB_HEIGHT);		
 		gc = canvas.getGraphicsContext2D();	
@@ -248,10 +253,28 @@ public class Chart {
 		return this.data.tickData();
 	}
 	
+	public void close() {
+		stage.close();
+	}
+	
 	public static boolean darkMode() {
 		return Chart.darkMode;
 	}
-		
+	
+	public static void closeAll(String name) {
+		Object[] chts = charts.toArray();
+		int i = 0;
+		for (Object c : chts) {
+			Chart cht = (Chart)c;
+			if (cht.name().equals(name)) {
+				Chart ch = charts.get(i);
+				ch.close();
+				charts.remove(i);
+				i--;
+			}
+			i++;
+		}
+	}
 	
 	public ScrollBar hsb() {
 		return this.hsb;
@@ -288,6 +311,7 @@ public class Chart {
 		focusedChart = true;
 		CrossHair.setIsForCandle(drawCandlesticks);
 		CrossHair.setDateIndex(0);
+		CrossHair.setName(data.name());
 		for (Chart c : charts) {
 			c.drawChart();
 		}
@@ -388,14 +412,10 @@ public class Chart {
 		if (newCHT_BTN_Clicked && checkNewChtBtn(e.getX(), e.getY())) {
 			newCHT_BTN_Clicked = false;
 			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, width, height);
-			charts.add(c.getChart());
+			ChartPane c = new ChartPane(s, width, height, data);
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
-			s.setOnCloseRequest(ev -> {
-				charts.remove(c.getChart());
-			});
 			s.show();
 		} else if (drawCandlesticksClicked && checkChartTypeBtn(e.getX(), e.getY())) {
 			drawCandlesticksClicked = false;

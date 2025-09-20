@@ -60,7 +60,7 @@ public class ScrollBar {
 	}
 	
 	public void onMousePressed(MouseEvent e) {
-		if (inScrollBar(e.getX(), e.getY())) {					
+		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
 			initPos = e.getX();
 		} else if (inScrollBarArea(e.getX(), e.getY())) {
@@ -112,7 +112,7 @@ public class ScrollBar {
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
-		if (inScrollBar(e.getX(), e.getY())) {					
+		if (onScrollBar(e.getX(), e.getY())) {					
 			hovering = true;
 		} else {
 			hovering = false;
@@ -227,7 +227,7 @@ public class ScrollBar {
 		}
 	}
 	
-	private boolean inScrollBar(double x, double y) {
+	private boolean onScrollBar(double x, double y) {
 		if (y <= yPos + sbHeight && y >= yPos) {
 			if (x <= xPos + sbWidth && x >= xPos) {
 				return true;
@@ -305,7 +305,6 @@ public class ScrollBar {
 				}
 			}
 		}
-		
 	}		
 	
 	public void drawHSB() {		

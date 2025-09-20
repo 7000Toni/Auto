@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 
 public class DataSet {
 	private String name;
+	private int size;
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Double> lines = new ArrayList<Double>();
@@ -77,23 +79,24 @@ public class DataSet {
 		}
 	}
 	
-	public DataSet(String filePath, String name) {
-		this.name = name;
-		readData(filePath, -1);
+	public DataSet(File file) {
+		readData(file);
 	}
 	
-	public DataSet(String filePath, String name, int size) {
-		this.name = name;
-		readData(filePath, size);
+	public int size() {
+		return this.size;
 	}
 	
-	private void readData(String filePath, int size) {
-		try (FileInputStream fis = new FileInputStream(filePath);
+	private void readData(File file) {
+		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(" dd/MM/yyyy HH:mm:ss");
 			String in;		
 			String dateTime;
 			String price;
+			in = br.readLine();
+			size = Integer.parseInt(in.substring(0, in.indexOf(' ')));
+			name = in.substring(in.indexOf(' '));
 			in = br.readLine();
 			price = in.substring(0, in.indexOf(' '));
 			dateTime = in.substring(in.indexOf(' '));

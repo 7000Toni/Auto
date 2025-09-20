@@ -10,13 +10,19 @@ public class Main extends Application{
 	}
 	
 	@Override
-	public void start(Stage stage) {
+	public void start(Stage stage) {/*
 		double width = 1600;
 		double height = 900;
 		ChartPane chart = new ChartPane(stage, width, height);
 		Scene scene = new Scene(chart, width, height);	
-		scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> chart.getChart().hsb().keyPressed(e));
-		stage.setScene(scene);
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> chart.getChart().hsb().keyPressed(e));*/
+		MenuPane mp = new MenuPane(640, 360);
+		Scene scene2 = new Scene(mp, 640, 360);			
+		stage.setScene(scene2);
+		stage.setResizable(false);
+		stage.setOnCloseRequest(e -> {
+			System.exit(0);
+		});
 		stage.show();
 	}
 }

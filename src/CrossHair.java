@@ -8,6 +8,7 @@ public class CrossHair {
 	private static double price = 0;
 	private static int dateIndex = 0;
 	private static boolean isForCandle = false;
+	private static String name;
 	
 	private Chart chart;
 	private double dateBarHalfWidth;
@@ -40,6 +41,10 @@ public class CrossHair {
 	
 	public static void setIsForCandle(boolean isForCandle) {
 		CrossHair.isForCandle = isForCandle;
+	}
+	
+	public static void setName(String name) {
+		CrossHair.name = name;
 	}
 	
 	private void setDateBarX(double xPos) {
@@ -263,7 +268,7 @@ public class CrossHair {
 			if (chart.onChart(x, y)) {
 				drawFocusedChartCrossHair();
 			}
-		} else if (Chart.focusedOnChart()) {						
+		} else if (Chart.focusedOnChart() && chart.name().equals(name)) {						
 			drawUnfocusedChartCrossHair();
 		}
 	}
