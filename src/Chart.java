@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,7 +24,7 @@ public class Chart {
 	public final static double MIN_WIDTH = 500; 
 	public final static double MIN_HEIGHT = 300; 
 	
-	public final static double CHT_MARGIN = 50;
+	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;
 	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
 	public final static double PRICE_MARGIN = 100;
@@ -72,6 +73,7 @@ public class Chart {
 	private double chartInitPos;
 	private boolean endMargin = false;
 	private Stage stage;
+	private boolean replayMode = false;
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -96,7 +98,7 @@ public class Chart {
 			canvas.setWidth(width);
 			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
 			if (!drawCandlesticks) {
-				hsb.setSBMove(data.tickData().size(), numDataPoints);				
+				hsb.setSBMove(data.tickDataSize(replayMode), numDataPoints);				
 			}			
 			setCandleStickVars(numCandlesticks);
 			hsb.setMaxPos(width - PRICE_MARGIN);
@@ -146,7 +148,7 @@ public class Chart {
 		});
 		this.stage = stage;
 		canvas = new Canvas(width, height);
-		hsb = new ScrollBar(this, data.tickData().size(), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, false, height - HSB_HEIGHT);		
+		hsb = new ScrollBar(this, data.tickDataSize(this.replayMode), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, false, height - HSB_HEIGHT);		
 		gc = canvas.getGraphicsContext2D();	
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
@@ -177,6 +179,10 @@ public class Chart {
 	
 	public GraphicsContext graphicsContext() {
 		return this.gc;
+	}
+	
+	public DataSet data() {
+		return this.data;
 	}
 	
 	public double width() {
@@ -253,6 +259,14 @@ public class Chart {
 	
 	public static boolean darkMode() {
 		return Chart.darkMode;
+	}
+	
+	public void setReplayMode(boolean replayMode) {
+		this.replayMode = replayMode;
+	}
+	
+	public boolean replayMode() {
+		return this.replayMode;
 	}
 	
 	public static void closeAll(String name) {
@@ -416,26 +430,26 @@ public class Chart {
 			if (drawCandlesticks) {
 				drawCandlesticks = false;
 				CrossHair.setIsForCandle(false);
-				int convertedIndex = (int)(((double)startIndex / data.m1Candles().size()) * data.tickData().size());
-				double newHSBPos = ((double)convertedIndex / (data.tickData().size() - (numDataPoints - 1)  * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
+				int convertedIndex = (int)(((double)startIndex / data.m1CandlesDataSize(this.replayMode)) * data.tickDataSize(this.replayMode));
+				double newHSBPos = ((double)convertedIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1)  * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
 				hsb.setPosition(newHSBPos, false);
-				hsb.setSBMove(data.tickData().size(), numDataPoints);
+				hsb.setSBMove(data.tickDataSize(this.replayMode), numDataPoints);
 			} else {
 				if (m1Candles().isEmpty()) {
 					return;
 				}
 				drawCandlesticks = true;	
 				CrossHair.setIsForCandle(true);
-				int convertedIndex = (int)(((double)startIndex / data.tickData().size()) * data.m1Candles().size());
-				double newHSBPos = ((double)convertedIndex / (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
-				int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
+				int convertedIndex = (int)(((double)startIndex / data.tickDataSize(this.replayMode)) * data.m1CandlesDataSize(this.replayMode));
+				double newHSBPos = ((double)convertedIndex / (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
+				int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 				if (si < startIndex) {
 					roundUp = true;
 				} else {
 					roundUp = false;
 				}
 				hsb.setPosition(newHSBPos, false);
-				hsb.setSBMove(data.m1Candles().size(), numCandlesticks);
+				hsb.setSBMove(data.m1CandlesDataSize(this.replayMode), numCandlesticks);
 			}
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
 			darkModeClicked = false;	
@@ -482,13 +496,13 @@ public class Chart {
 					setCandleStickVars(numCandlesticks);
 				}
 			} else {
-				if (numCandlesticks + 5 <= data.m1Candles().size() - 5) {
+				if (numCandlesticks + 5 <= data.m1CandlesDataSize(this.replayMode) - 5) {
 					numCandlesticks += 5;
 					setCandleStickVars(numCandlesticks);
 				}				
 			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));		
-			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));		
+			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 			if (si < startIndex) {
 				roundUp = true;
 			} else {
@@ -505,12 +519,12 @@ public class Chart {
 				setNumDataPoints(numDataPoints + 100);
 			}
 			double xDiff = chartWidth / (double)numDataPoints;
-			if (xDiff * (data.tickData().size() - 1) < chartWidth) {
-				setNumDataPoints(data.tickData().size() - 1);
+			if (xDiff * (data.tickDataSize(this.replayMode) - 1) < chartWidth) {
+				setNumDataPoints(data.tickDataSize(this.replayMode) - 1);
 			} else if (numDataPoints < 100) {
 				setNumDataPoints(100);
 			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickData().size() - (numDataPoints - 1) * END_MARGIN_COEF));
+			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
 				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
 			}
@@ -662,21 +676,21 @@ public class Chart {
 	
 	private void calculateIndices() {
 		if (drawCandlesticks) {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1Candles().size() - numCandlesticks * END_MARGIN_COEF));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 			if (roundUp) {
-				if (startIndex + numCandlesticks < data.m1Candles().size()) {
+				if (startIndex + numCandlesticks < data.m1CandlesDataSize(this.replayMode)) {
 					startIndex += 1;
 				}
 			}
 			endIndex = startIndex + numCandlesticks;
-			if (endIndex > data.m1Candles().size()) {
-				endIndex = data.m1Candles().size();
+			if (endIndex > data.m1CandlesDataSize(this.replayMode)) {
+				endIndex = data.m1CandlesDataSize(this.replayMode);
 			}
 		} else {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickData().size() - (numDataPoints - 1) * END_MARGIN_COEF));
+			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 			endIndex = startIndex + numDataPoints;
-			if (endIndex >= data.tickData().size()) {
-				endIndex = data.tickData().size() - 1;
+			if (endIndex >= data.tickDataSize(this.replayMode)) {
+				endIndex = data.tickDataSize(this.replayMode) - 1;
 			}
 		}		
 	}
@@ -725,7 +739,7 @@ public class Chart {
 		}
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
 		for (int i = 1; i < numDataPoints; i++) {
-			if (startIndex + i > data.tickData().size() - 2) {
+			if (startIndex + i > data.tickDataSize(this.replayMode) - 2) {
 				endMargin = true;
 				break;
 			}
@@ -737,7 +751,7 @@ public class Chart {
 	private void drawCandlestickChart() {
 		endMargin = false;
 		for (int i = 0; i < numCandlesticks; i++) {
-			if (startIndex + i > data.m1Candles().size() - 1) {
+			if (startIndex + i > data.m1CandlesDataSize(this.replayMode) - 1) {
 				endMargin = true;
 				break;
 			}
@@ -797,7 +811,13 @@ public class Chart {
 		fillDarkModeBtn();
 		hsb.drawHSB();
 		calculateRange(startIndex, endIndex);
-		setPreDrawVars();
+		setPreDrawVars();/*
+		Random r = new Random();
+		int x = r.nextInt(0, 250);
+		int y = r.nextInt(0, 250);
+		gc.setFill(Color.ALICEBLUE);
+		gc.fillRect(x, y, 50, 50);
+		System.out.println(x+ " "+y);*/
 		if (drawCandlesticks) {
 			drawCandlestickChart();
 		} else {		
@@ -808,14 +828,14 @@ public class Chart {
 	
 	public void setNumDataPoints(int numDataPoints) {		
 		this.numDataPoints = numDataPoints;
-		hsb.setSBMove(data.tickData().size(), numDataPoints);
+		hsb.setSBMove(data.tickDataSize(this.replayMode), numDataPoints);
 	}	
 	
 	public void setCandleStickVars(int numCandlesticks) {		
 		candlestickWidth = (chartWidth / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 		if (drawCandlesticks) {
-			hsb.setSBMove(data.m1Candles().size(), numCandlesticks);
+			hsb.setSBMove(data.m1CandlesDataSize(this.replayMode), numCandlesticks);
 		}
 	}	
 	

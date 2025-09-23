@@ -12,6 +12,8 @@ public class DataSet {
 	private String name;
 	private String signature;
 	private int size;
+	private int replayTickDataSize;
+	private int replayM1CandlesDataSize;
 	private double tickSize;
 	private int numDecimalPts;
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
@@ -86,8 +88,28 @@ public class DataSet {
 		readData(file);
 	}
 	
-	public int size() {
-		return this.size;
+	public int tickDataSize(boolean replayMode) {
+		if (replayMode) {
+			return this.replayTickDataSize;
+		} else {
+			return this.tickData.size();
+		}
+	}
+	
+	public void setReplayTickDataSize(int replayTickDataSize) {
+		this.replayTickDataSize = replayTickDataSize;
+	}
+	
+	public int m1CandlesDataSize(boolean replayMode) {
+		if (replayMode) {
+			return this.replayM1CandlesDataSize;
+		} else {
+			return this.m1Candles.size();
+		}
+	}
+	
+	public void setReplayM1CandlesDataSize(int replayM1CandlesDataSize) {
+		this.replayM1CandlesDataSize = replayM1CandlesDataSize;
 	}
 	
 	public double tickSize() {
@@ -154,10 +176,10 @@ public class DataSet {
 				}
 				if (in == null) {
 					break;
-				}/*
+				}
 				if (progress == 100000) {
 					break;
-				}*/
+				}
 				price = in.substring(0, in.indexOf(' '));
 				dateTime = in.substring(in.indexOf(' '));
 				ldt = LocalDateTime.parse(dateTime, dtf);

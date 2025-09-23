@@ -31,6 +31,11 @@ public class Menu {
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
 		canvas.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseExited(e -> onMouseExited(e));
+		
+		datasets.add(new DataSet(new File("res/mesu.txt")));
+		DataSet ds = datasets.get(datasets.size() - 1);
+		dsButtons.add(new DataSetButton(canvas.getGraphicsContext2D(), 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 10, 10));
+		
 		drawMenu();
 	}	
 	
@@ -86,7 +91,7 @@ public class Menu {
 					if (add) {
 						datasets.add(new DataSet(file));
 						DataSet ds = datasets.get(datasets.size() - 1);
-						dsButtons.add(new DataSetButton(canvas.getGraphicsContext2D(), 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.size(), 10, 10));
+						dsButtons.add(new DataSetButton(canvas.getGraphicsContext2D(), 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 10, 10));
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -105,6 +110,8 @@ public class Menu {
 					}
 					Stage s = new Stage();
 					ChartPane c = new ChartPane(s, width, height, datasets.get(index));
+					MarketReplay m = new MarketReplay(c.getChart(), 3000);
+					m.run();
 					Scene scene = new Scene(c);
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);

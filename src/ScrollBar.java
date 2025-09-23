@@ -6,7 +6,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 public class ScrollBar {
-	private static final long NANO_TO_MILLI = 1000000; 
+	public static final long NANO_TO_MILLI = 1000000; 
 	
 	private final double SB_MOVE_INDEX = 5;
 	private final double SB_FAST_MOVE_MULTIPLIER = 10;	
@@ -237,8 +237,7 @@ public class ScrollBar {
 		return false;
 	}
 	
-	private boolean inScrollBarArea(double x, double y) {		
-		//double height = chart.canvas().getHeight();
+	private boolean inScrollBarArea(double x, double y) {	
 		if (vertical) {			
 			if (x <= xPos + sbWidth && x >= xPos) {	
 				if (y <= maxPos && y >= minPos) {
