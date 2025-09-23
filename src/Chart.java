@@ -23,29 +23,29 @@ public class Chart {
 	public final static double MIN_WIDTH = 500; 
 	public final static double MIN_HEIGHT = 300; 
 	
-	public final static int CHT_MARGIN = 5;
+	public final static double CHT_MARGIN = 50;
+	public final static double INFO_MARGIN = 5;
 	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
 	public final static double PRICE_MARGIN = 100;
 	public final static double END_MARGIN_COEF = 1/1.5;
 	
-	public final static int PRICE_DASH_SPACING = 50;
-	public final static int PRICE_DASH_SIZE = 5;
-	public final static int PRICE_DASH_MARGIN = 5;
+	public final static double PRICE_DASH_SPACING = 50;
+	public final static double PRICE_DASH_SIZE = 5;
+	public final static double PRICE_DASH_MARGIN = 5;
 	
 	public final static double CNDL_WDTH_COEF = 0.005;
 	public final static double CNDL_SPAC_COEF = 0.4;
 	
 	//ChartType
 	private static ArrayList<Chart> charts = new ArrayList<Chart>();	
-	private static int numDecimalPts;
-	private static boolean init = false;
 	private static boolean focusedOnChart = false;	
 	private static boolean darkMode = false;
-	private static double tickSize;
 	
 	private DataSet data;
 	private CrossHair crossHair;
 	
+	private int numDecimalPts;
+	private double tickSize;
 	private boolean focusedChart = false;
 	private Canvas canvas;	
 	private double width;
@@ -124,22 +124,16 @@ public class Chart {
 		}		
 	}
 	
-	public Chart(double width, double height, double tickSize, int numDecimalPts, Stage stage, DataSet data) throws Exception {
-		constructorStuff(width, height, tickSize, numDecimalPts, stage, data);
+	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
+		constructorStuff(width, height, stage, data);
 	}
 	
-	private void constructorStuff(double width, double height, double tickSize, int numDecimalPts, Stage stage, DataSet data) throws Exception {		
+	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {		
 		if (numDecimalPts < 0) {
 			throw new Exception("numDecimalPts cannot be less than 0");
-		}			
-		if (!Chart.init) {
-			int val = (int)Math.pow(10, numDecimalPts);
-			if (val % (tickSize * val) != 0) {
-				throw new Exception(val + "(10^numDecimalPts" + ") is not divisible by " + tickSize * val + "(tickSize*" + val + ")");
-			}
-			Chart.tickSize = tickSize;
-			Chart.numDecimalPts = numDecimalPts;
-		}	
+		}
+		this.numDecimalPts = data.numDecimalPts();
+		this.tickSize = data.tickSize();
 		this.width = width;
 		this.height = height;
 		this.data = data;
@@ -698,9 +692,9 @@ public class Chart {
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		if (drawCandlesticks) {
-			gc.strokeText(data.name() + "  M1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
+			gc.strokeText(data.name() + "  M1", CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 		} else {
-			gc.strokeText(data.name() + "  T1", CHT_MARGIN * 2, CHT_MARGIN + fontSize);
+			gc.strokeText(data.name() + "  T1", CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 		}
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
 		gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);

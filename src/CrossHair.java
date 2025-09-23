@@ -70,7 +70,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
+		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN + Chart.INFO_MARGIN * 3 + chart.fontSize() * chart.name().length(), Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
 	private void drawHorizontalLine(boolean focusedChart) {
@@ -120,7 +120,7 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(dateBarX, chart.chartHeight() - Chart.CHT_MARGIN - 1, dateBarHalfWidth*2, chart.fontSize());
+		chart.graphicsContext().fillRect(dateBarX, chart.chartHeight() + Chart.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize());
 		if (index != -1) {
 			if (chart.drawCandlesticks()) {
 				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);

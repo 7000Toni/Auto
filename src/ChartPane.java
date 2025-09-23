@@ -3,13 +3,13 @@ import javafx.stage.Stage;
 
 public class ChartPane extends GridPane {
 	private Chart chart;
-	//private static DataSet ch = new DataSet(new File("res/enqu.txt"), "ENQU25", 27633688);
-	//private static DataSet ch = new DataSet(new File("res/mesu.txt"), "MESU25", 28154855);
-	//private static DataSet ch = new DataSet(new File("res/ymu.txt", "YMU25"), 2412479);
+	//private static DataSet ch = new DataSet(new File("res/enqu.txt"));
+	//private static DataSet ch = new DataSet(new File("res/mesu.txt"));
+	//private static DataSet ch = new DataSet(new File("res/ymu.txt"));
 	
 	public ChartPane(Stage stage, double width, double height, DataSet ch) {					
 		try {
-			chart = new Chart(width, height, 0.25, 2, stage, ch);
+			chart = new Chart(width, height, stage, ch);
 			this.add(chart.canvas(), 0, 0);
 		} catch (Exception e) {
 			e.printStackTrace();

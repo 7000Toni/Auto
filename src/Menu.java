@@ -78,7 +78,7 @@ public class Menu {
 					String in = br.readLine();
 					boolean add = true;
 					for (DataSet d : datasets) {
-						if (in.substring(in.indexOf(' ')).equals(d.name())) {
+						if (in.equals(d.signature())) {
 							add = false;
 							break;
 						}
@@ -99,7 +99,7 @@ public class Menu {
 			for (Object obj : dsbs) {
 				DataSetButton dsb = (DataSetButton)obj;
 				if (dsb.clicked()) {
-					int index = (int)((y - 10) / 58);
+					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
 					}

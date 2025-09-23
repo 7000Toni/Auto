@@ -1,5 +1,4 @@
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
 public class MenuPane extends GridPane {	
 	private Menu menu;

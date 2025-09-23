@@ -10,7 +10,10 @@ import java.util.ArrayList;
 
 public class DataSet {
 	private String name;
+	private String signature;
 	private int size;
+	private double tickSize;
+	private int numDecimalPts;
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Double> lines = new ArrayList<Double>();
@@ -87,6 +90,18 @@ public class DataSet {
 		return this.size;
 	}
 	
+	public double tickSize() {
+		return this.tickSize;
+	}
+	
+	public int numDecimalPts() {
+		return this.numDecimalPts;
+	}
+	
+	public String signature() {
+		return this.signature;
+	}
+	
 	private void readData(File file) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
@@ -95,8 +110,14 @@ public class DataSet {
 			String dateTime;
 			String price;
 			in = br.readLine();
+			signature = in;
 			size = Integer.parseInt(in.substring(0, in.indexOf(' ')));
-			name = in.substring(in.indexOf(' '));
+			in = in.substring(in.indexOf(' ') + 1);
+			name = in.substring(0, in.indexOf(' '));
+			in = in.substring(in.indexOf(' ') + 1);
+			tickSize = Double.parseDouble(in.substring(0, in.indexOf(' ')));
+			in = in.substring(in.indexOf(' ') + 1);
+			numDecimalPts = Integer.parseInt(in);
 			in = br.readLine();
 			price = in.substring(0, in.indexOf(' '));
 			dateTime = in.substring(in.indexOf(' '));
@@ -133,10 +154,10 @@ public class DataSet {
 				}
 				if (in == null) {
 					break;
-				}
+				}/*
 				if (progress == 100000) {
 					break;
-				}
+				}*/
 				price = in.substring(0, in.indexOf(' '));
 				dateTime = in.substring(in.indexOf(' '));
 				ldt = LocalDateTime.parse(dateTime, dtf);
