@@ -6,8 +6,10 @@ import java.util.ArrayList;
 
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -15,6 +17,7 @@ public class Menu {
 	private final double MARGIN = 10;
 	
 	private Canvas canvas;
+	private GraphicsContext gc;
 	private CanvasButton loadData;
 	private double width;
 	private double height;
@@ -23,9 +26,14 @@ public class Menu {
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
+		this.gc = canvas.getGraphicsContext2D();
 		this.width = width;
 		this.height = height;
-		this.loadData = new CanvasButton(canvas.getGraphicsContext2D(), 100, 48, MARGIN, MARGIN, "load", 2, 22);
+		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37, null);
+		this.loadData.setVanGogh((x, y, gc) -> {
+			gc.setFont(new Font(37));
+			loadData.defaultDrawButton();			
+		});
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
@@ -34,7 +42,12 @@ public class Menu {
 		
 		datasets.add(new DataSet(new File("res/mesu.txt")));
 		DataSet ds = datasets.get(datasets.size() - 1);
-		dsButtons.add(new DataSetButton(canvas.getGraphicsContext2D(), 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 10, 10));
+		DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
+		dsb.setVanGogh((x, y, gc) -> {
+			gc.setFont(new Font(37));
+			dsb.defaultDrawButton();		
+		});
+		dsButtons.add(dsb);
 		
 		drawMenu();
 	}	
@@ -91,7 +104,12 @@ public class Menu {
 					if (add) {
 						datasets.add(new DataSet(file));
 						DataSet ds = datasets.get(datasets.size() - 1);
-						dsButtons.add(new DataSetButton(canvas.getGraphicsContext2D(), 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 10, 10));
+						DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
+						dsb.setVanGogh((x2, y2, gc) -> {
+							gc.setFont(new Font(37));
+							dsb.defaultDrawButton();		
+						});
+						dsButtons.add(dsb);
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -110,8 +128,6 @@ public class Menu {
 					}
 					Stage s = new Stage();
 					ChartPane c = new ChartPane(s, width, height, datasets.get(index));
-					MarketReplay m = new MarketReplay(c.getChart(), 3000);
-					m.run();
 					Scene scene = new Scene(c);
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);

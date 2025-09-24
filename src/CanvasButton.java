@@ -13,8 +13,9 @@ public class CanvasButton {
 	protected boolean hover = false;
 	protected boolean clicked = false;
 	protected double fontSize;
+	protected ButtonVanGogh bvg;
 	
-	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
+	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
 		this.gc = gc;
 		this.width = width;
 		this.height = height;
@@ -24,6 +25,7 @@ public class CanvasButton {
 		this.textXOffset = textXOffset;
 		this.textYOffset = textYOffset;
 		this.fontSize = gc.getFont().getSize();
+		this.bvg = bvg;
 	}
 	
 	public boolean hover() {
@@ -58,16 +60,31 @@ public class CanvasButton {
 		this.y = y;
 	}
 	
-	public void drawButton() {
+	public void setVanGogh(ButtonVanGogh bvg) {
+		this.bvg = bvg;
+	}
+	
+	public void defaultDrawButton() {
 		gc.setStroke(Color.BLACK);
+		gc.setFill(Color.BLACK);
 		if (hover) {
 			gc.setStroke(Color.GRAY);
+			gc.setFill(Color.GRAY);
 		}
 		if (clicked) {
 			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
 		}
 		gc.strokeRect(x, y, width, height);
-		gc.strokeText(text, x + textXOffset, y + textYOffset);
+		gc.fillText(text, x + textXOffset, y + textYOffset);
+	}
+	
+	public void drawButton() {
+		if (bvg == null) {
+			defaultDrawButton();
+		} else {
+			bvg.drawButton(x, y, gc);
+		}
 	}
 	
 	public boolean onButton(double x, double y) {

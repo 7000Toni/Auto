@@ -20,27 +20,20 @@ public class MarketReplay {
 	}
 	
 	private int timeToNextTick(int index) {
-		return (int)(data.tickData().get(index + 1).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli() - data.tickData().get(index).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli())/100;
+		return (int)(data.tickData().get(index + 1).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli() - data.tickData().get(index).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli());
 	}
 	
 	public void run() {
 		new AnimationTimer() {
 			long lastTick = 0;
 			int timeToNextTick = timeToNextTick(index);
-			int i = 0;
 			@Override
 			public void handle(long now) {
 				if (lastTick == 0) {
 					lastTick = now;
 					return;
 				}
-				long diff = (now - lastTick) / ScrollBar.NANO_TO_MILLI;/*
-				System.out.println("+" + diff);
-				if (i == 10) {
-				System.exit(0);
-				}
-				i++;*/
-				System.out.println(diff + "\n" + timeToNextTick + "\n");
+				long diff = (now - lastTick) / ScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick) {					
 					while (true) {
 						index++;
@@ -49,9 +42,7 @@ public class MarketReplay {
 						data.setReplayTickDataSize(index);
 						chart.hsb().setPosition(Integer.MAX_VALUE, false);
 						chart.drawChart();
-						System.out.println(data.tickData().get(index).price());
 						if (diff < timeToNextTick) {
-							System.out.println("out");
 							break;
 						}
 					}
