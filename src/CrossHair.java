@@ -78,7 +78,7 @@ public class CrossHair {
 		if (focusedChart) {
 			yPos = y;
 		} else {
-			yPos = ((chart.highest() + chart.dataMarginSize() - price) / (chart.range() + chart.dataMarginSize() * 2)) * chart.chartHeight() + Chart.CHT_MARGIN;
+			yPos = ((chart.highest() + chart.dataMarginTickSize() - price) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.chartHeight() + Chart.CHT_MARGIN;
 		}
 		if (Chart.darkMode()) {
 			chart.graphicsContext().setStroke(Color.WHITE);
@@ -125,7 +125,7 @@ public class CrossHair {
 			if (chart.drawCandlesticks()) {
 				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
 			} else {
-				chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+				chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().minusNanos(chart.tickData().get(index).dateTime().getNano()).toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
 			}
 		} else {
 			chart.graphicsContext().strokeText("DONTBEDUMB", dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
@@ -243,7 +243,7 @@ public class CrossHair {
 	}
 	
 	private void drawUnfocusedChartCrossHair() {
-		if (price >= chart.lowest() - chart.dataMarginSize() && price <= chart.highest() + chart.dataMarginSize()) {					
+		if (price >= chart.lowest() - chart.dataMarginTickSize() && price <= chart.highest() + chart.dataMarginTickSize()) {					
 			drawHorizontalLine(false);
 		}
 		if (!chart.drawCandlesticks()) {

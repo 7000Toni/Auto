@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -63,13 +62,14 @@ public class Chart {
 	private int endIndex;
 	private double tickSizeOnChart;
 	private double conversionVar;
-	private double dataMarginSize;
+	private double dataMarginTickSize;
 	private double xDiff;
 	private double fontSize;
 	private double chtDataMargin;
 	private boolean priceDragging = false;
 	private double priceInitPos;
 	private boolean chartDragging = false;
+	private boolean chartDataMarginDragging = false;
 	private double chartInitPos;
 	private boolean endMargin = false;
 	private Stage stage;
@@ -225,8 +225,8 @@ public class Chart {
 		return this.chtDataMargin;
 	}
 
-	public double dataMarginSize() {
-		return this.dataMarginSize;
+	public double dataMarginTickSize() {
+		return this.dataMarginTickSize;
 	}
 	
 	public double candlestickWidth() {
@@ -379,6 +379,13 @@ public class Chart {
 		return false;
 	}
 	
+	private boolean onDataMargin(double x, double y) {
+		if (x >= CHT_MARGIN && x <= CHT_MARGIN + chartWidth && y >= CHT_MARGIN + chartHeight - chtDataMargin && y <= CHT_MARGIN + chartHeight) {
+			return true;
+		}
+		return false;
+	}
+	
 	public void onMousePressed(MouseEvent e) {		
 		hsb.onMousePressed(e);
 		if (e.getButton() == MouseButton.MIDDLE) {
@@ -396,8 +403,12 @@ public class Chart {
 				priceInitPos = e.getY();
 			}
 			if (onChart(e.getX(), e.getY())) {
-				chartDragging = true;
 				chartInitPos = e.getX();
+				if (onDataMargin(e.getX(), e.getY())) {
+					chartDataMarginDragging = true;
+				} else {
+					chartDragging = true;					
+				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
 				newCHT_BTN_Clicked = true;
@@ -461,6 +472,7 @@ public class Chart {
 		}						
 		priceDragging = false;
 		chartDragging = false;
+		chartDataMarginDragging = false;
 		for (Chart c : charts) {
 			c.drawChart();
 		}
@@ -483,52 +495,67 @@ public class Chart {
 			double posDiff = e.getX() - chartInitPos;
 			hsb.setPosition(hsb.xPos() - (posDiff * hsb.hsbMove() / 10), false);
 		}
+		if (chartDataMarginDragging) {			
+			if (drawCandlesticks) {
+				zoomCandlesticks(e.getX() - chartInitPos);
+			} else {
+				zoomTicks(e.getX() - chartInitPos);
+			}
+		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);
+	}
+	
+	private void zoomCandlesticks(double delta) {
+		if (delta > 0) {
+			if (numCandlesticks - 5 >= 10) {
+				numCandlesticks -= 5;
+				setCandleStickVars(numCandlesticks);
+			}
+		} else {
+			if (numCandlesticks + 5 <= data.m1CandlesDataSize(this.replayMode) - 5) {
+				numCandlesticks += 5;
+				setCandleStickVars(numCandlesticks);
+			}				
+		}
+		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));		
+		int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
+		if (si < startIndex) {
+			roundUp = true;
+		} else {
+			roundUp = false;
+		}
+		if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
+			newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
+		}
+		hsb.setPosition(newHSBPos, false);
+	}
+	
+	private void zoomTicks(double delta) {
+		if (delta > 0) {
+			setNumDataPoints(numDataPoints - 100);
+		} else {
+			setNumDataPoints(numDataPoints + 100);
+		}
+		double xDiff = chartWidth / (double)numDataPoints;
+		if (xDiff * (data.tickDataSize(this.replayMode) - 1) < chartWidth) {
+			setNumDataPoints(data.tickDataSize(this.replayMode) - 1);
+		} else if (numDataPoints < 100) {
+			setNumDataPoints(100);
+		}
+		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
+		if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
+			newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
+		}
+		hsb.setPosition(newHSBPos, false);
 	}
 	
 	public void onScroll(ScrollEvent e) {	
 		//TODO Re-factor/optimise. Remove hard coded values
 		if (drawCandlesticks) {
-			if (e.getDeltaY() > 0) {
-				if (numCandlesticks - 5 >= 10) {
-					numCandlesticks -= 5;
-					setCandleStickVars(numCandlesticks);
-				}
-			} else {
-				if (numCandlesticks + 5 <= data.m1CandlesDataSize(this.replayMode) - 5) {
-					numCandlesticks += 5;
-					setCandleStickVars(numCandlesticks);
-				}				
-			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));		
-			int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
-			if (si < startIndex) {
-				roundUp = true;
-			} else {
-				roundUp = false;
-			}
-			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
-				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
-			}
-			hsb.setPosition(newHSBPos, false);
+			zoomCandlesticks(e.getDeltaY());
 		} else {
-			if (e.getDeltaY() > 0) {
-				setNumDataPoints(numDataPoints - 100);
-			} else {
-				setNumDataPoints(numDataPoints + 100);
-			}
-			double xDiff = chartWidth / (double)numDataPoints;
-			if (xDiff * (data.tickDataSize(this.replayMode) - 1) < chartWidth) {
-				setNumDataPoints(data.tickDataSize(this.replayMode) - 1);
-			} else if (numDataPoints < 100) {
-				setNumDataPoints(100);
-			}
-			double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
-			if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
-				newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
-			}
-			hsb.setPosition(newHSBPos, false);
+			zoomTicks(e.getDeltaY());
 		}
 		for (Chart c : charts) {
 			c.drawChart();
@@ -599,8 +626,8 @@ public class Chart {
 	}
 	
 	private void drawLines() {
-		double trueLowest = lowest - dataMarginSize;
-		double trueHighest = highest + dataMarginSize;
+		double trueLowest = lowest - dataMarginTickSize;
+		double trueHighest = highest + dataMarginTickSize;
 		for (Double d : data.lines()) {
 			if (d >= trueLowest && d <= trueHighest) {
 				double fontSize = gc.getFont().getSize();
@@ -628,14 +655,16 @@ public class Chart {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
-		}
+		}		;
 		if (candle.open() < candle.close()) {
+			gc.setStroke(Color.CORNFLOWERBLUE);
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.close() - candle.open()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.close() - candle.low()) / conversionVar);
 			gc.setFill(Color.CORNFLOWERBLUE);
 			gc.fillRect(xPos, yPos, candlestickWidth - num, (candle.close() - candle.open()) / conversionVar - num);
 		} else {
+			gc.setStroke(Color.ORANGE);
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open() - candle.close()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open() - candle.low()) / conversionVar);
@@ -718,12 +747,12 @@ public class Chart {
 	private void setPreDrawVars() {
 		if (drawCandlesticks) {
 			tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
-			dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
+			dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * tickSize;
 			conversionVar = tickSize / tickSizeOnChart;	
 		} else {
 			xDiff = chartWidth / (double)numDataPoints;	
 			tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
-			dataMarginSize = (chtDataMargin / tickSizeOnChart) * tickSize;
+			dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * tickSize;
 			conversionVar = tickSize / tickSizeOnChart;	
 		}
 	}

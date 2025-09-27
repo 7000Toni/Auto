@@ -40,7 +40,9 @@ public class Menu {
 		canvas.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
-		datasets.add(new DataSet(new File("res/mesu.txt")));
+		datasets.add(new DataSet(new File("res/20221208_Optimized.csv"), new OptimizedMarketTickFileReader()));
+		//MarketTickFileOptimizer.optimize("res/20221208.csv");
+		//datasets.add(new DataSet(new File("res/enqu.txt"), new OriginalTickFileReader()));
 		DataSet ds = datasets.get(datasets.size() - 1);
 		DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
 		dsb.setVanGogh((x, y, gc) -> {
@@ -102,7 +104,8 @@ public class Menu {
 						}
 					}				
 					if (add) {
-						datasets.add(new DataSet(file));
+						datasets.add(new DataSet(file, new OptimizedMarketTickFileReader()));
+						//datasets.add(new DataSet(file, new OriginalTickFileReader()));
 						DataSet ds = datasets.get(datasets.size() - 1);
 						DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
 						dsb.setVanGogh((x2, y2, gc) -> {
@@ -127,8 +130,10 @@ public class Menu {
 						index = 0;
 					}
 					Stage s = new Stage();
-					ChartPane c = new ChartPane(s, width, height, datasets.get(index));
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index));
 					Scene scene = new Scene(c);
+					//MarketReplay mr = new MarketReplay(c.getChart(), 62596);
+					//mr.run();
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
 					s.show();

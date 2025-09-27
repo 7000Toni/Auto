@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class DataSet {
 	private String name;
@@ -19,6 +20,7 @@ public class DataSet {
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Double> lines = new ArrayList<Double>();
+	private long startEpochMinutes;
 	
 	class DataPair {
 		private double price;
@@ -44,13 +46,15 @@ public class DataSet {
 		private double low;
 		private double close;
 		private LocalDateTime dateTime;
+		private boolean complete;
 		
-		public Candlestick(double open, double high, double low, double close, LocalDateTime dateTime) {
+		public Candlestick(double open, double high, double low, double close, LocalDateTime dateTime, boolean complete) {
 			this.open = open;
 			this.high = high;
 			this.low = low;
 			this.close = close;
 			this.dateTime = dateTime;
+			this.complete = complete;
 		}
 		
 		public double open() {
@@ -73,6 +77,10 @@ public class DataSet {
 			return this.dateTime;
 		}
 		
+		public boolean complete() {
+			return this.complete;
+		}
+		
 		@Override
 		public String toString() {
 			String ret = "open:\t" + open;
@@ -84,8 +92,29 @@ public class DataSet {
 		}
 	}
 	
-	public DataSet(File file) {
-		readData(file);
+	class ReadFileVars {
+		DateTimeFormatter dtf;
+		String in;		
+		String dateTime;
+		String price;
+		StringTokenizer tokens;
+		LocalDateTime ldt;
+		BufferedReader br;	
+		double val;
+		boolean add;
+		double open;
+		double high;
+		double low;
+		double close;
+		LocalDateTime ldtPrev;
+		double prevPrice;
+		int progress;
+		boolean changed = true;
+		int last = 0;
+	}
+	
+	public DataSet(File file, TickDataFileReader tdfr) {
+		readData(file, tdfr);
 	}
 	
 	public int tickDataSize(boolean replayMode) {
@@ -124,95 +153,110 @@ public class DataSet {
 		return this.signature;
 	}
 	
-	private void readData(File file) {
-		try (FileInputStream fis = new FileInputStream(file);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(" dd/MM/yyyy HH:mm:ss");
-			String in;		
-			String dateTime;
-			String price;
-			in = br.readLine();
-			signature = in;
-			size = Integer.parseInt(in.substring(0, in.indexOf(' ')));
-			in = in.substring(in.indexOf(' ') + 1);
-			name = in.substring(0, in.indexOf(' '));
-			in = in.substring(in.indexOf(' ') + 1);
-			tickSize = Double.parseDouble(in.substring(0, in.indexOf(' ')));
-			in = in.substring(in.indexOf(' ') + 1);
-			numDecimalPts = Integer.parseInt(in);
-			in = br.readLine();
-			price = in.substring(0, in.indexOf(' '));
-			dateTime = in.substring(in.indexOf(' '));
-			LocalDateTime ldt = LocalDateTime.parse(dateTime, dtf);
-			double val = Double.parseDouble(price);
-			tickData.add(new DataPair(val, ldt));								
-			int progress = 0;			
-			
-			double open = val;
-			double high = val;
-			double low = val;
-			double close = val;
-			LocalDateTime ldtPrev = ldt;
-			double prevPrice = val;
-			
-			boolean changed = true;
-			int last = 0;
-			while (true) {
-				progress++;
-				in = br.readLine();
-				if (size != -1) {
-					int percent = (int)((double)progress/size*100);
-					if (last < percent) {
-						changed = true;
-					}
-					last = percent;
-					if (percent > 100 && changed) {
-						System.out.println("99%");
-						changed = false;
-					} else if (changed) {
-						System.out.println(percent + "%");
-						changed = false;
-					}
-				}
-				if (in == null) {
-					break;
-				}
-				if (progress == 100000) {
-					break;
-				}
-				price = in.substring(0, in.indexOf(' '));
-				dateTime = in.substring(in.indexOf(' '));
-				ldt = LocalDateTime.parse(dateTime, dtf);
-				val = Double.parseDouble(price);
-				tickData.add(new DataPair(val, ldt));
-				
-				int diff = getDiffInMinutes(ldtPrev, ldt);
-				if (ldtPrev.getMinute() == ldt.getMinute()) {
-					if (val > high) {
-						high = val;
-					} else if (val < low) {
-						low = val;
-					}
-				} else {
-					close = prevPrice;					
-					m1Candles.add(new Candlestick(open, high, low, close, ldt.minusSeconds(ldt.getSecond()).minusMinutes(diff)));
-					open = val;
-					high = val;
-					low = val;
-					close = val;
-					ldtPrev = ldt;
-				}
-				prevPrice = val;
-			}
+	public long startEpochMinutes() {
+		return this.startEpochMinutes;
+	}
+	
+	private void readSignature(ReadFileVars rfv) {
+		try {
+			rfv.in = rfv.br.readLine();
+			signature = rfv.in;
+			size = Integer.parseInt(rfv.in.substring(0, rfv.in.indexOf(' ')));
+			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
+			name = rfv.in.substring(0, rfv.in.indexOf(' '));
+			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
+			tickSize = Double.parseDouble(rfv.in.substring(0, rfv.in.indexOf(' ')));
+			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
+			numDecimalPts = Integer.parseInt(rfv.in);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}		
+	}
+	
+	private void setInitCandlestickVars(ReadFileVars rfv) {
+		rfv.open = rfv.val;
+		rfv.high = rfv.val;
+		rfv.low = rfv.val;
+		rfv.close = rfv.val;
+		rfv.ldtPrev = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		rfv.prevPrice = rfv.val;
+		startEpochMinutes = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
+	}
+	
+	private void showPercentage(ReadFileVars rfv) {
+		int percent = (int)((double)rfv.progress/size*100);
+		if (rfv.last < percent) {
+			rfv.changed = true;
+		}
+		rfv.last = percent;
+		if (rfv.changed) {
+			System.out.println(percent + "%");
+			rfv.changed = false;
 		}
 	}
 	
-	private int getDiffInMinutes(LocalDateTime ldt1, LocalDateTime ldt2) {
-		long ldt1EpochSec = ldt1.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
-		long ldt2EpochSec = ldt2.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
-		return (int)((ldt2EpochSec - ldt1EpochSec) / 60.0); 
+	private void addCandlestick(ReadFileVars rfv, boolean complete) {
+		rfv.close = rfv.prevPrice;					
+		m1Candles.add(new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldtPrev, complete));
+	}
+	
+	private void checkAddCandlestick(ReadFileVars rfv) {
+		long ldtPrevEpochSec = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
+		long ldtEpochSec = rfv.ldt.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
+		int diff = (int)((ldtEpochSec - ldtPrevEpochSec) / 60.0);
+		if (diff == 0) {
+			if (rfv.val > rfv.high) {
+				rfv.high = rfv.val;
+			} else if (rfv.val < rfv.low) {
+				rfv.low = rfv.val;
+			}
+		} else {
+			addCandlestick(rfv, true);
+			rfv.open = rfv.val;
+			rfv.high = rfv.val;
+			rfv.low = rfv.val;
+			rfv.close = rfv.val;
+			rfv.ldtPrev = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		}
+		rfv.prevPrice = rfv.val;
+	}
+	
+	private void readData(File file, TickDataFileReader tdfr) {
+		try (FileInputStream fis = new FileInputStream(file);
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+			ReadFileVars rfv = new ReadFileVars();
+			rfv.br = br;
+			readSignature(rfv);
+			tdfr.readFirstTick(rfv);			
+			if (!rfv.add) {
+				return;
+			}
+			tickData.add(new DataPair(rfv.val, rfv.ldt));												
+			setInitCandlestickVars(rfv);
+			rfv.progress = 1;
+			rfv.changed = true;
+			rfv.last = 0;
+			for (int i = 1; i < size; i++) {
+				rfv.progress++;
+				showPercentage(rfv);
+				/*
+				if (progress == 100000) {
+					break;
+				}*/
+				tdfr.readNextTick(rfv);		
+				if (rfv.in == null) {
+					break;
+				}
+				if (!rfv.add) {
+					continue;
+				}				
+				tickData.add(new DataPair(rfv.val, rfv.ldt));			
+				checkAddCandlestick(rfv);				
+			}
+			addCandlestick(rfv, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public String name() {
