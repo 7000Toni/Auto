@@ -2,46 +2,87 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class CanvasNumberChooser {
-	protected GraphicsContext gc;
-	protected double width;
-	protected double height;
-	protected double x;
-	protected double y;
-	protected String text;
-	protected double textXOffset;
-	protected double textYOffset;
-	protected boolean hover = false;
-	protected boolean clicked = false;
-	protected double fontSize;
-	protected ButtonVanGogh bvg;
+	private GraphicsContext gc;
+	private double width;
+	private double height;
+	private double x;
+	private double y;
+	private int value = 0;
+	private boolean upHover = false;
+	private boolean upClicked = false;
+	private boolean downHover = false;
+	private boolean downClicked = false;
 	
-	public CanvasNumberChooser(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
+	private boolean l1 = true;
+	private boolean l2 = true;
+	private boolean l3 = true;
+	private boolean l4 = true;
+	private boolean l5 = true;
+	private boolean l6 = true;
+	private boolean l7 = false;
+	
+	public CanvasNumberChooser(GraphicsContext gc, double width, double height, double x, double y) {
 		this.gc = gc;
 		this.width = width;
 		this.height = height;
 		this.x = x;
 		this.y = y;
-		this.text = text;
-		this.textXOffset = textXOffset;
-		this.textYOffset = textYOffset;
-		this.fontSize = gc.getFont().getSize();
-		this.bvg = bvg;
 	}
 	
-	public boolean hover() {
-		return hover;
+	public boolean upHover() {
+		return upHover;
 	}
 	
-	public boolean clicked() {
-		return clicked;
+	public boolean upClicked() {
+		return upClicked;
 	}
 	
-	public void setHover(boolean hover) {
-		this.hover = hover;
+	public boolean downHover() {
+		return downHover;
 	}
 	
-	public void setClicked(boolean clicked) {
-		this.clicked = clicked;
+	public boolean downClicked() {
+		return downClicked;
+	}
+	
+	public int value() {
+		return value;
+	}
+	
+	public void setUpHover(boolean upHover) {
+		if (upHover) {
+			upClicked = false;
+			downHover = false;
+			downClicked = false;
+		}
+		this.upHover = upHover;
+	}
+	
+	public void setUpClicked(boolean upClicked) {
+		if (upClicked) {
+			upHover = false;
+			downHover = false;
+			downClicked = false;
+		}
+		this.upClicked = upClicked;
+	}
+	
+	public void setDownHover(boolean downHover) {
+		if (downHover) {
+			downClicked = false;
+			upHover = false;
+			upClicked = false;
+		}
+		this.downHover = downHover;
+	}
+	
+	public void setDownClicked(boolean downClicked) {
+		if (downClicked) {
+			downHover = false;
+			upHover = false;
+			upClicked = false;
+		}
+		this.downClicked = downClicked;
 	}
 	
 	public double x() {
@@ -60,38 +101,219 @@ public class CanvasNumberChooser {
 		this.y = y;
 	}
 	
-	public void setVanGogh(ButtonVanGogh bvg) {
-		this.bvg = bvg;
+	public void setValue(int value) {
+		this.value = value % 10;
+		if (value < 0) {
+			value = 10 - value;
+		}
 	}
 	
-	public void defaultDrawButton() {
-		gc.setStroke(Color.BLACK);
-		gc.setFill(Color.BLACK);
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (clicked) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
-		gc.fillText(text, x + textXOffset, y + textYOffset);
+	public void incrementValue() {
+		value = (value + 1) % 10;
 	}
 	
-	public void drawButton() {
-		if (bvg == null) {
-			defaultDrawButton();
+	public void decrementValue() {
+		value -= 1;
+		if (value < 0) {
+			value = 9;
+		}
+	}
+	
+	private void setVars() {
+		switch (value) {
+			case 0:
+				l1 = true;
+				l2 = true;
+				l3 = true;
+				l4 = true;
+				l5 = true;
+				l6 = true;
+				l7 = false;
+				break;
+			case 1:
+				l1 = false;
+				l2 = true;
+				l3 = true;
+				l4 = false;
+				l5 = false;
+				l6 = false;
+				l7 = false;
+				break;
+			case 2:
+				l1 = true;
+				l2 = true;
+				l3 = false;
+				l4 = true;
+				l5 = true;
+				l6 = false;
+				l7 = true;
+				break;
+			case 3:
+				l1 = true;
+				l2 = true;
+				l3 = true;
+				l4 = true;
+				l5 = false;
+				l6 = false;
+				l7 = true;
+				break;
+			case 4:
+				l1 = false;
+				l2 = true;
+				l3 = true;
+				l4 = false;
+				l5 = false;
+				l6 = true;
+				l7 = true;
+				break;
+			case 5:
+				l1 = true;
+				l2 = false;
+				l3 = true;
+				l4 = true;
+				l5 = false;
+				l6 = true;
+				l7 = true;
+				break;
+			case 6:
+				l1 = true;
+				l2 = false;
+				l3 = true;
+				l4 = true;
+				l5 = true;
+				l6 = true;
+				l7 = true;
+				break;
+			case 7:
+				l1 = true;
+				l2 = true;
+				l3 = true;
+				l4 = false;
+				l5 = false;
+				l6 = false;
+				l7 = false;
+				break;
+			case 8:
+				l1 = true;
+				l2 = true;
+				l3 = true;
+				l4 = true;
+				l5 = true;
+				l6 = true;
+				l7 = true;
+				break;
+			case 9:
+				l1 = true;
+				l2 = true;
+				l3 = true;
+				l4 = false;
+				l5 = false;
+				l6 = true;
+				l7 = true;
+				break;
+			default:
+		}
+	}
+	
+	public void drawCanvasNumberChooser() {
+		double t = 0.125*height;
+		setVars();
+		if (l1) {
+			gc.setFill(Color.BLACK);
 		} else {
-			bvg.drawButton(x, y, gc);
+			gc.setFill(Color.LIGHTGRAY);
 		}
+		double[] x1 = {x,x+width,x+width-t*1.2,x+t*1.2,x};
+		double[] y1 = {y,y,y+t,y+t,y};
+		gc.fillPolygon(x1, y1, 5);
+		if (l2) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x2 = {x+width-t,x+width,x+width,x+width-t,x+width-t};
+		double[] y2 = {y+t*1.2,y,y+height/2,y+height/2-t*1.2,y+t*1.2};
+		gc.fillPolygon(x2, y2, 5);
+		if (l3) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x3 = {x+width-t,x+width,x+width,x+width-t,x+width-t};
+		double[] y3 = {y+height/2+t*0.3,y+height/2,y+height-t,y+height-t*2.2,y+height/2+t*1.2};
+		gc.fillPolygon(x3, y3, 5);
+		if (l4) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x4 = {x,x+t*1.2,x+width-t*1.2,x+width,x};
+		double[] y4 = {y+height-t,y+height-t*2,y+height-t*2,y+height-t,y+height-t};
+		gc.fillPolygon(x4, y4, 5);
+		if (l5) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x5 = {x,x+t,x+t,x,x};
+		double[] y5 = {y+height/2,y+height/2+t*0.3,y+height-t*2.2,y+height-t,y+height/2};
+		gc.fillPolygon(x5, y5, 5);
+		if (l6) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x6 = {x,x+t,x+t,x,x};
+		double[] y6 = {y,y+t*1.2,y+height/2-t*1.2,y+height/2,y};
+		gc.fillPolygon(x6, y6, 5);
+		if (l7) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		double[] x7 = {x,x+t*1.2,x+width-t*1.2,x+width,0};
+		double[] y7 = {y+height/2,y+height/2-t,y+height/2-t,y+height/2,y+height/2};
+		gc.fillPolygon(x7, y7, 5);
+
+		if (upHover) {
+			gc.setFill(Color.GRAY);
+		} else if (upClicked) {
+			gc.setFill(Color.DIMGRAY);
+		} else {
+			gc.setFill(Color.BLACK);
+		}
+		double[] x8 = {x,x+width/2,x+width,x};
+		double[] y8 = {y-t*0.3,y-t*1.3,y-t*0.3,y-t*0.3};
+		gc.fillPolygon(x8, y8, 4);
+		if (downHover) {
+			gc.setFill(Color.GRAY);
+		} else if (downClicked) {
+			gc.setFill(Color.DIMGRAY);
+		} else {
+			gc.setFill(Color.BLACK);
+		}
+		double[] x9 = {x,x+width,x+width/2,x};
+		double[] y9 = {y+height-t+t*0.3,y+height-t+t*0.3,y+height-t+t*1.3,y+height-t+t*0.3};
+		gc.fillPolygon(x9, y9, 4);
 	}
 	
-	public boolean onButton(double x, double y) {
+	public boolean onUp(double x, double y) {
+		double t = 0.125*height;		
 		if (x > this.x + width || x < this.x) {
 			return false;
 		}
-		if (y > this.y + height || y < this.y) {
+		if (y < this.y - t * 1.3 || y > this.y) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean onDown(double x, double y) {
+		double t = 0.125*height;
+		if (x > this.x + width || x < this.x) {
+			return false;
+		}
+		if (y < this.y + height - t || y > this.y + height - t + t * 1.3) {
 			return false;
 		}
 		return true;

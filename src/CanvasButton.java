@@ -12,7 +12,6 @@ public class CanvasButton {
 	protected double textYOffset;
 	protected boolean hover = false;
 	protected boolean clicked = false;
-	protected double fontSize;
 	protected ButtonVanGogh bvg;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
@@ -24,7 +23,6 @@ public class CanvasButton {
 		this.text = text;
 		this.textXOffset = textXOffset;
 		this.textYOffset = textYOffset;
-		this.fontSize = gc.getFont().getSize();
 		this.bvg = bvg;
 	}
 	
@@ -37,10 +35,16 @@ public class CanvasButton {
 	}
 	
 	public void setHover(boolean hover) {
+		if (hover) {
+			clicked = false;
+		}
 		this.hover = hover;
 	}
 	
 	public void setClicked(boolean clicked) {
+		if (clicked) {
+			hover = false;
+		}
 		this.clicked = clicked;
 	}
 	

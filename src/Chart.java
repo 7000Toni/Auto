@@ -13,6 +13,12 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 
 public class Chart {
+	public final static double CNDL_MOVE_COEF = 0.01;
+	public final static int CNDL_INDX_MOVE_COEF = 2;
+	
+	public final static double TICK_MOVE_COEF = 0.01;
+	public final static int TICK_INDX_MOVE_COEF = 5;
+	
 	public final static double HSB_WIDTH = 100;
 	public final static double HSB_HEIGHT = 10;
 	
@@ -35,7 +41,6 @@ public class Chart {
 	
 	public final static double CNDL_WDTH_COEF = 0.005;
 	public final static double CNDL_SPAC_COEF = 0.4;
-	
 	//ChartType
 	private static ArrayList<Chart> charts = new ArrayList<Chart>();	
 	private static boolean focusedOnChart = false;	
@@ -97,9 +102,6 @@ public class Chart {
 			width = newValue.doubleValue() - WIDTH_EXTRA;
 			canvas.setWidth(width);
 			chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
-			if (!drawCandlesticks) {
-				hsb.setSBMove(data.tickDataSize(replayMode), numDataPoints);				
-			}			
 			setCandleStickVars(numCandlesticks);
 			hsb.setMaxPos(width - PRICE_MARGIN);
 			hsb.setPosition(newHSBPos, false);
@@ -241,6 +243,14 @@ public class Chart {
 		return this.data.name();
 	}
 	
+	public int numDataPoints() {
+		return this.numDataPoints;
+	}
+	
+	public int numCandlesticks() {
+		return this.numCandlesticks;
+	}
+	
 	public static boolean focusedOnChart() {
 		return Chart.focusedOnChart;
 	}
@@ -294,6 +304,22 @@ public class Chart {
 	
 	public void setHeight(int height) {
 		this.height = height;
+	}
+	
+	public void setStartIndex(int startIndex) {
+		if (startIndex < 0) {
+			this.startIndex = 0;
+			return;
+		}
+		if (drawCandlesticks && startIndex >= data.m1CandlesDataSize(false)) {
+			this.startIndex = data.m1CandlesDataSize(replayMode) - 1;
+			return;
+		}
+		if (!drawCandlesticks && startIndex >= data.tickDataSize(false)) {
+			this.startIndex = data.tickDataSize(replayMode) - 1;
+			return;
+		}
+		this.startIndex = startIndex;
 	}
 	
 	public boolean endMargin() {
@@ -444,7 +470,6 @@ public class Chart {
 				int convertedIndex = (int)(((double)startIndex / data.m1CandlesDataSize(this.replayMode)) * data.tickDataSize(this.replayMode));
 				double newHSBPos = ((double)convertedIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1)  * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
 				hsb.setPosition(newHSBPos, false);
-				hsb.setSBMove(data.tickDataSize(this.replayMode), numDataPoints);
 			} else {
 				if (m1Candles().isEmpty()) {
 					return;
@@ -460,7 +485,6 @@ public class Chart {
 					roundUp = false;
 				}
 				hsb.setPosition(newHSBPos, false);
-				hsb.setSBMove(data.m1CandlesDataSize(this.replayMode), numCandlesticks);
 			}
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
 			darkModeClicked = false;	
@@ -492,8 +516,25 @@ public class Chart {
 		}
 		priceInitPos = e.getY();
 		if (chartDragging) {
+			int coef;
 			double posDiff = e.getX() - chartInitPos;
-			hsb.setPosition(hsb.xPos() - (posDiff * hsb.hsbMove() / 10), false);
+			double newHSBPos;
+			if (drawCandlesticks) {
+				coef = (int)(numCandlesticks * CNDL_MOVE_COEF);
+				if (coef < CNDL_INDX_MOVE_COEF) {
+					coef = CNDL_INDX_MOVE_COEF;
+				}
+				startIndex -= coef * posDiff;	
+				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
+			} else {
+				coef = (int)(numDataPoints * TICK_MOVE_COEF);
+				if (coef < TICK_INDX_MOVE_COEF) {
+					coef = TICK_INDX_MOVE_COEF;
+				}
+				startIndex -= coef * posDiff;	
+				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - numDataPoints * END_MARGIN_COEF));
+			}			
+			hsb.setPosition(newHSBPos, false);
 		}
 		if (chartDataMarginDragging) {			
 			if (drawCandlesticks) {
@@ -857,15 +898,11 @@ public class Chart {
 	
 	public void setNumDataPoints(int numDataPoints) {		
 		this.numDataPoints = numDataPoints;
-		hsb.setSBMove(data.tickDataSize(this.replayMode), numDataPoints);
 	}	
 	
 	public void setCandleStickVars(int numCandlesticks) {		
 		candlestickWidth = (chartWidth / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
-		if (drawCandlesticks) {
-			hsb.setSBMove(data.m1CandlesDataSize(this.replayMode), numCandlesticks);
-		}
 	}	
 	
 	public boolean drawCandlesticks() {

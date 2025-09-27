@@ -8,11 +8,7 @@ import javafx.scene.paint.Color;
 public class ScrollBar {
 	public static final long NANO_TO_MILLI = 1000000; 
 	
-	private final double SB_MOVE_INDEX = 5;
-	private final double SB_FAST_MOVE_MULTIPLIER = 10;	
-	
 	private Chart chart;
-	private double sbMove;
 	
 	private double xPos = 0;
 	private double yPos = 0;
@@ -39,10 +35,6 @@ public class ScrollBar {
 		} else {
 			xPos = minPos;
 			yPos = pos;
-		}
-		setSBMove(dataSize, numDataPoints);
-		if (sbMove == 0.0) {			
-			sbMove = Double.MIN_VALUE;
 		}
 	}
 	
@@ -134,13 +126,6 @@ public class ScrollBar {
 		}
 	}
 	
-	public void setSBMove(int dataSize, int numDataPoints) {	
-		sbMove = ((SB_MOVE_INDEX * maxPos) - (SB_MOVE_INDEX * minPos)) / (dataSize - numDataPoints - 1);
-		if (!chart.drawCandlesticks()) {
-			sbMove *= 10;
-		}
-	}
-	
 	public void setMaxPos(double maxPos) {
 		this.maxPos = maxPos;
 	}
@@ -165,51 +150,55 @@ public class ScrollBar {
 		}
 	}
 	
-	public double hsbMove() {
-		return sbMove;
+	private void moveChartLeft(boolean fast) {
+		int speed = 10;
+		if (fast) {
+			speed *= 2;
+		}
+		double newHSBPos;
+		int startIndex = chart.startIndex();
+		if (chart.drawCandlesticks()) {
+			startIndex -= Chart.CNDL_INDX_MOVE_COEF * speed;	
+			newHSBPos = (chart.width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(chart.data().m1CandlesDataSize(chart.replayMode()) - chart.numCandlesticks() * Chart.END_MARGIN_COEF));
+		} else {
+			startIndex -= Chart.TICK_INDX_MOVE_COEF * speed;	
+			newHSBPos = (chart.width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(chart.data().tickDataSize(chart.replayMode()) - chart.numDataPoints() * Chart.END_MARGIN_COEF));
+		}			
+		chart.setStartIndex(startIndex);
+		setPosition(newHSBPos, false);
+	}
+	
+	private void moveChartRight(boolean fast) {
+		int speed = 10;
+		if (fast) {
+			speed *= 2;
+		}
+		double newHSBPos;
+		int startIndex = chart.startIndex();
+		if (chart.drawCandlesticks()) {
+			startIndex += Chart.CNDL_INDX_MOVE_COEF * speed;
+			newHSBPos = (chart.width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(chart.data().m1CandlesDataSize(chart.replayMode()) - chart.numCandlesticks() * Chart.END_MARGIN_COEF));
+		} else {
+			startIndex += Chart.TICK_INDX_MOVE_COEF * speed;	
+			newHSBPos = (chart.width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(chart.data().tickDataSize(chart.replayMode()) - chart.numDataPoints() * Chart.END_MARGIN_COEF));
+		}			
+		chart.setStartIndex(startIndex);
+		setPosition(newHSBPos, false);
 	}
 	
 	private void reduceSBPos(KeyEvent e) {
-		double checkPos;
-		if (vertical) {
-			checkPos = yPos;
-		} else {
-			checkPos = xPos;
-		}
 		if (e.isControlDown()) {
-			if (checkPos >= sbMove * SB_FAST_MOVE_MULTIPLIER + minPos) {
-				setPosition(-(sbMove * SB_FAST_MOVE_MULTIPLIER + minPos), true);
-			} else {
-				setPosition(minPos, false);
-			}
+			moveChartLeft(true);
 		} else {
-			if (checkPos >= sbMove + minPos) {
-				setPosition(-(sbMove + minPos), true);
-			} else {
-				setPosition(minPos, false);
-			}
+			moveChartLeft(false);
 		}
 	}
 	
 	private void increaseSBPos(KeyEvent e) {
-		double checkPos;
-		if (vertical) {
-			checkPos = yPos;
-		} else {
-			checkPos = xPos;
-		}
 		if (e.isControlDown()) {
-			if (checkPos <= maxPos - sbWidth - sbMove*SB_FAST_MOVE_MULTIPLIER) {
-				setPosition(sbMove * SB_FAST_MOVE_MULTIPLIER, true);
-			} else {
-				setPosition(maxPos - sbWidth, false);
-			}
+			moveChartRight(true);
 		} else {
-			if (checkPos <= maxPos - sbWidth - sbMove) {
-				setPosition(sbMove, true);
-			} else {
-				setPosition(maxPos - sbWidth, false);
-			}
+			moveChartRight(false);
 		}
 	}
 	
