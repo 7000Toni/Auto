@@ -206,11 +206,11 @@ public class ScrollBar {
 		switch (e.getCode()) {
 			case KeyCode.LEFT:				
 				reduceSBPos(e);
-				Chart.drawCharts();
+				Chart.drawCharts(chart.name());
 				break;
 			case KeyCode.RIGHT:				
 				increaseSBPos(e);
-				Chart.drawCharts();
+				Chart.drawCharts(chart.name());
 				break;
 			default:				
 		}

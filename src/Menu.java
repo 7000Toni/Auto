@@ -45,8 +45,8 @@ public class Menu {
 		
 		cnc = new CanvasNumberChooser(gc, 50, 75, 10, 100);
 		if (openChartOnStart) {
-			datasets.add(new DataSet(new File("res/20241021_Optimized.csv"), new OptimizedMarketTickFileReader()));
-			//MarketTickFileOptimizer.optimize("res/20240125.csv");
+			datasets.add(new DataSet(new File("res/20240610_Optimized.csv"), new OptimizedMarketTickFileReader()));
+			//MarketTickFileOptimizer.optimize("res/20240610.csv");
 			//System.exit(0);
 			//datasets.add(new DataSet(new File("res/enqu.txt"), new OriginalTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);

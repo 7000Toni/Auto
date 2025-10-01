@@ -13,11 +13,11 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 
 public class Chart {
-	public final static double CNDL_MOVE_COEF = 0.01;
+	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
-	public final static double TICK_MOVE_COEF = 0.01;
-	public final static int TICK_INDX_MOVE_COEF = 5;
+	public final static double TICK_MOVE_COEF = 0.001;
+	public final static int TICK_INDX_MOVE_COEF = 3;
 	
 	public final static double HSB_WIDTH = 100;
 	public final static double HSB_HEIGHT = 10;
@@ -79,6 +79,7 @@ public class Chart {
 	private boolean endMargin = false;
 	private Stage stage;
 	private boolean replayMode = false;
+	//private boolean entered = false;	
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -330,15 +331,22 @@ public class Chart {
 		return this.xDiff;
 	}
 	
+	public static void drawCharts(String name) {
+		for (Chart c : charts) {
+			if (c.name().equals(name)) {
+				c.drawChart();
+			}
+		}
+	}
+	
 	public void onMouseExited() {
 		hsb.onMouseExited();
 		focusedChart = false;
+		focusedOnChart = false;
 		newCHT_BTN_Hover = false;
 		drawCandlesticksHover = false;
 		darkModeHover = false;
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}
 	
 	public void onMouseEntered() {
@@ -346,15 +354,16 @@ public class Chart {
 		CrossHair.setIsForCandle(drawCandlesticks);
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}
 	
-	public void onMouseMoved(MouseEvent e) {
+	public void onMouseMoved(MouseEvent e) {		
 		hsb.onMouseMoved(e);
+		focusedChart = true;
+		CrossHair.setIsForCandle(drawCandlesticks);
+		CrossHair.setName(data.name());
 		CrossHair.setX(e.getX());
-		CrossHair.setY(e.getY());
+		CrossHair.setY(e.getY());	
 		if (checkNewChtBtn(e.getX(), e.getY())) {
 			if (!newCHT_BTN_Clicked) {
 				newCHT_BTN_Hover = true;
@@ -379,9 +388,7 @@ public class Chart {
 			darkModeHover = false;
 			darkModeClicked = false;
 		}
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}				
 	
 	private boolean checkNewChtBtn(double x, double y) {
@@ -447,9 +454,7 @@ public class Chart {
 				darkModeHover = false;
 			}
 		} 				
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}
 	
 	public void onMouseReleased(MouseEvent e) {	
@@ -497,9 +502,7 @@ public class Chart {
 		priceDragging = false;
 		chartDragging = false;
 		chartDataMarginDragging = false;
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}
 	
 	public void onMouseDragged(MouseEvent e) {	
@@ -524,7 +527,7 @@ public class Chart {
 				if (coef < CNDL_INDX_MOVE_COEF) {
 					coef = CNDL_INDX_MOVE_COEF;
 				}
-				startIndex -= coef * posDiff;	
+				startIndex -= coef * posDiff;
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 			} else {
 				coef = (int)(numDataPoints * TICK_MOVE_COEF);
@@ -598,9 +601,7 @@ public class Chart {
 		} else {
 			zoomTicks(e.getDeltaY());
 		}
-		for (Chart c : charts) {
-			c.drawChart();
-		}
+		drawCharts(this.name());
 	}		
 	
 	public boolean onChart(double x, double y) {
@@ -881,13 +882,7 @@ public class Chart {
 		fillDarkModeBtn();
 		hsb.drawHSB();
 		calculateRange(startIndex, endIndex);
-		setPreDrawVars();/*
-		Random r = new Random();
-		int x = r.nextInt(0, 250);
-		int y = r.nextInt(0, 250);
-		gc.setFill(Color.ALICEBLUE);
-		gc.fillRect(x, y, 50, 50);
-		System.out.println(x+ " "+y);*/
+		setPreDrawVars();
 		if (drawCandlesticks) {
 			drawCandlestickChart();
 		} else {		
@@ -919,11 +914,5 @@ public class Chart {
 	
 	public double fontSize() {
 		return this.fontSize;
-	}
-	
-	public static void drawCharts() {
-		for (Chart c : charts) {
-			c.drawChart();
-		}
 	}
 }
