@@ -16,7 +16,7 @@ public class DataSetButton extends CanvasButton {
 				gc2.setFill(Color.GRAY);
 				gc2.setStroke(Color.GRAY);
 			}
-			if (close.clicked) {
+			if (close.pressed) {
 				gc2.setFill(Color.RED);
 				gc2.setStroke(Color.RED);
 			}			
@@ -44,7 +44,7 @@ public class DataSetButton extends CanvasButton {
 			gc.setStroke(Color.GRAY);
 			gc.setFill(Color.GRAY);
 		}
-		if (clicked) {
+		if (pressed) {
 			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
 		}

@@ -19,6 +19,7 @@ public class Menu {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	private CanvasButton loadData;
+	private CanvasButton optimize;
 	private double width;
 	private double height;
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
@@ -37,16 +38,21 @@ public class Menu {
 			gc.setFont(new Font(37));
 			loadData.defaultDrawButton();			
 		});
+		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32, null);
+		this.optimize.setVanGogh((x, y, gc) -> {
+			gc.setFont(new Font(22));
+			optimize.defaultDrawButton();			
+		});
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
 		canvas.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
-		cnc = new CanvasNumberChooser(gc, 50, 75, 10, 100);
+		cnc = new CanvasNumberChooser(gc, 50, 75, 10, 200);
 		if (openChartOnStart) {
 			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
-			//MarketTickFileOptimizer.optimize("res/20241126.csv", "20241126 0.25 2\n");
+			//MarketTickFileOptimizer.optimize("res/20241126.csv", true);
 			//System.exit(0);
 			//datasets.add(new DataSet(new File("res/enqu.txt"), new OriginalTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
@@ -76,7 +82,7 @@ public class Menu {
 	public void drawMenu() {	
 		canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 		loadData.drawButton();
-		
+		optimize.drawButton();
 		cnc.drawCanvasNumberChooser();
 		for (DataSetButton dsb : dsButtons) {
 			dsb.drawButton();
@@ -87,19 +93,21 @@ public class Menu {
 		double x = e.getX();
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
-			loadData.setClicked(true);
+			loadData.setPressed(true);
+		} else if (optimize.onButton(x, y)) {
+			optimize.setPressed(true);
 		} else if (cnc.onDown(x, y)) {
-			cnc.setDownClicked(true);
+			cnc.setDownPressed(true);
 		} else if (cnc.onUp(x, y)) {
-			cnc.setUpClicked(true);
+			cnc.setUpPressed(true);
 		} else {
 			for (DataSetButton dsb : dsButtons) {
 				CanvasButton close = dsb.closeButton();
 				if (close.onButton(x, y)) {
-					close.setClicked(true);
+					close.setPressed(true);
 					break;
 				} else if (dsb.onButton(x, y)) {
-					dsb.setClicked(true);
+					dsb.setPressed(true);
 					break;
 				}
 			}
@@ -111,7 +119,7 @@ public class Menu {
 		double x = e.getX();
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
-			if (loadData.clicked()) {
+			if (loadData.pressed()) {
 				FileChooser fc = new FileChooser();
 				fc.setInitialDirectory(new File("./res/"));
 				File file = fc.showOpenDialog(null);		
@@ -142,13 +150,23 @@ public class Menu {
 					}				
 				}
 			}
-			loadData.setClicked(false);
+			loadData.setPressed(false);
+		} else if (optimize.onButton(x, y)) { 
+			if (optimize.pressed()) {
+				FileChooser fc = new FileChooser();
+				fc.setInitialDirectory(new File("./res/"));
+				File file = fc.showOpenDialog(null);		
+				if (file != null) {
+					MarketTickFileOptimizer.optimize(file, true);			
+				}
+			}
+			optimize.setPressed(false);
 		} else if (cnc.onDown(x, y)) {
-			if (cnc.downClicked()) {
+			if (cnc.downPressed()) {
 				cnc.decrementValue();
 			}
 		} else if (cnc.onUp(x, y)) {
-			if (cnc.upClicked()) {
+			if (cnc.upPressed()) {
 				cnc.incrementValue();
 			}
 		} else	{
@@ -156,7 +174,7 @@ public class Menu {
 			Object[] dsbs = dsButtons.toArray();
 			for (Object obj : dsbs) {
 				DataSetButton dsb = (DataSetButton)obj;
-				if (dsb.clicked()) {
+				if (dsb.pressed()) {
 					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
@@ -169,9 +187,9 @@ public class Menu {
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
 					s.show();
-					dsb.setClicked(false);
+					dsb.setPressed(false);
 					break;
-				} else if (dsb.closeButton().clicked()) {
+				} else if (dsb.closeButton().pressed()) {
 					dsButtons.remove(i);
 					for (int j = i; j < dsButtons.size(); j++) {					
 						dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
@@ -179,7 +197,7 @@ public class Menu {
 					Chart.closeAll(datasets.get(i).name());
 					datasets.remove(i);
 					i--;
-					dsb.closeButton().setClicked(false);
+					dsb.closeButton().setPressed(false);
 					break;
 				}
 				i++;
@@ -190,12 +208,12 @@ public class Menu {
 	
 	private boolean mouseButtonHoverCheck(CanvasButton button, double x, double y) {
 		if (button.onButton(x, y)) {
-			if (!button.clicked()) {
+			if (!button.pressed()) {
 				button.setHover(true);				
 			}
 			return true;
 		} else {
-			button.setClicked(false);
+			button.setPressed(false);
 			button.setHover(false);
 			return false;
 		}
@@ -203,12 +221,12 @@ public class Menu {
 	
 	private boolean mouseNumberChooserUpCheck(CanvasNumberChooser cnc, double x, double y) {
 		if (cnc.onUp(x, y)) {
-			if (!cnc.upClicked()) {
+			if (!cnc.upPressed()) {
 				cnc.setUpHover(true);				
 			}
 			return true;
 		} else {
-			cnc.setUpClicked(false);
+			cnc.setUpPressed(false);
 			cnc.setUpHover(false);
 			return false;
 		}		
@@ -216,12 +234,12 @@ public class Menu {
 	
 	private boolean mouseNumberChooserDownCheck(CanvasNumberChooser cnc, double x, double y) {
 		if (cnc.onDown(x, y)) {
-			if (!cnc.downClicked()) {
+			if (!cnc.downPressed()) {
 				cnc.setDownHover(true);				
 			}
 			return true;
 		} else {
-			cnc.setDownClicked(false);
+			cnc.setDownPressed(false);
 			cnc.setDownHover(false);
 			return false;
 		}
@@ -231,12 +249,13 @@ public class Menu {
 		double x = e.getX();
 		double y = e.getY();
 		mouseButtonHoverCheck(loadData, x, y);
+		mouseButtonHoverCheck(optimize, x, y);
 		mouseNumberChooserDownCheck(cnc, x, y);
 		mouseNumberChooserUpCheck(cnc, x, y);
 		for (DataSetButton dsb : dsButtons) {
 			CanvasButton close = dsb.closeButton();
 			if (mouseButtonHoverCheck(close, x, y)) {
-				dsb.setClicked(false);
+				dsb.setPressed(false);
 				dsb.setHover(false);
 			} else {
 				mouseButtonHoverCheck(dsb, x, y);

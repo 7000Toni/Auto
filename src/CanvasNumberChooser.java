@@ -9,9 +9,9 @@ public class CanvasNumberChooser {
 	private double y;
 	private int value = 0;
 	private boolean upHover = false;
-	private boolean upClicked = false;
+	private boolean upPressed = false;
 	private boolean downHover = false;
-	private boolean downClicked = false;
+	private boolean downPressed = false;
 	
 	private boolean l1 = true;
 	private boolean l2 = true;
@@ -33,16 +33,16 @@ public class CanvasNumberChooser {
 		return upHover;
 	}
 	
-	public boolean upClicked() {
-		return upClicked;
+	public boolean upPressed() {
+		return upPressed;
 	}
 	
 	public boolean downHover() {
 		return downHover;
 	}
 	
-	public boolean downClicked() {
-		return downClicked;
+	public boolean downPressed() {
+		return downPressed;
 	}
 	
 	public int value() {
@@ -51,38 +51,38 @@ public class CanvasNumberChooser {
 	
 	public void setUpHover(boolean upHover) {
 		if (upHover) {
-			upClicked = false;
+			upPressed = false;
 			downHover = false;
-			downClicked = false;
+			downPressed = false;
 		}
 		this.upHover = upHover;
 	}
 	
-	public void setUpClicked(boolean upClicked) {
+	public void setUpPressed(boolean upClicked) {
 		if (upClicked) {
 			upHover = false;
 			downHover = false;
-			downClicked = false;
+			downPressed = false;
 		}
-		this.upClicked = upClicked;
+		this.upPressed = upClicked;
 	}
 	
 	public void setDownHover(boolean downHover) {
 		if (downHover) {
-			downClicked = false;
+			downPressed = false;
 			upHover = false;
-			upClicked = false;
+			upPressed = false;
 		}
 		this.downHover = downHover;
 	}
 	
-	public void setDownClicked(boolean downClicked) {
+	public void setDownPressed(boolean downClicked) {
 		if (downClicked) {
 			downHover = false;
 			upHover = false;
-			upClicked = false;
+			upPressed = false;
 		}
-		this.downClicked = downClicked;
+		this.downPressed = downClicked;
 	}
 	
 	public double x() {
@@ -277,7 +277,7 @@ public class CanvasNumberChooser {
 
 		if (upHover) {
 			gc.setFill(Color.GRAY);
-		} else if (upClicked) {
+		} else if (upPressed) {
 			gc.setFill(Color.DIMGRAY);
 		} else {
 			gc.setFill(Color.BLACK);
@@ -287,7 +287,7 @@ public class CanvasNumberChooser {
 		gc.fillPolygon(x8, y8, 4);
 		if (downHover) {
 			gc.setFill(Color.GRAY);
-		} else if (downClicked) {
+		} else if (downPressed) {
 			gc.setFill(Color.DIMGRAY);
 		} else {
 			gc.setFill(Color.BLACK);

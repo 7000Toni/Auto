@@ -11,7 +11,7 @@ public class CanvasButton {
 	protected double textXOffset;
 	protected double textYOffset;
 	protected boolean hover = false;
-	protected boolean clicked = false;
+	protected boolean pressed = false;
 	protected ButtonVanGogh bvg;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
@@ -30,22 +30,22 @@ public class CanvasButton {
 		return hover;
 	}
 	
-	public boolean clicked() {
-		return clicked;
+	public boolean pressed() {
+		return pressed;
 	}
 	
 	public void setHover(boolean hover) {
 		if (hover) {
-			clicked = false;
+			pressed = false;
 		}
 		this.hover = hover;
 	}
 	
-	public void setClicked(boolean clicked) {
+	public void setPressed(boolean clicked) {
 		if (clicked) {
 			hover = false;
 		}
-		this.clicked = clicked;
+		this.pressed = clicked;
 	}
 	
 	public double x() {
@@ -75,7 +75,7 @@ public class CanvasButton {
 			gc.setStroke(Color.GRAY);
 			gc.setFill(Color.GRAY);
 		}
-		if (clicked) {
+		if (pressed) {
 			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
 		}

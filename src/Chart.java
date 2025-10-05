@@ -79,7 +79,6 @@ public class Chart {
 	private boolean endMargin = false;
 	private Stage stage;
 	private boolean replayMode = false;
-	//private boolean entered = false;	
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;

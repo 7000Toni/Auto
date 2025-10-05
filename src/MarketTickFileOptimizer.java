@@ -9,17 +9,22 @@ import java.util.StringTokenizer;
 
 public class MarketTickFileOptimizer {
 	
-	private static void work(File file, String outSignature) {
+	private static void work(File file, String outSignature, boolean autoSignature) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 				FileOutputStream fos = new FileOutputStream(new File("./res/" + file.getName().substring(0, file.getName().indexOf('.')) + "_Optimized.csv"), true)) {			
 			String in; 
 			int size = -1;
-			if (outSignature == null) {
+			if (autoSignature) {				
+				outSignature = file.getName().substring(0, file.getName().lastIndexOf('.'));
+				outSignature += " 0.25 2\n";
+			} else if (outSignature == null) {
 				in = br.readLine() + "\n";
 				size = Integer.parseInt(in.substring(0, in.indexOf(' ')));			
 				outSignature = in.substring(in.indexOf(' ') + 1);
-			}			
+			} else {
+				outSignature += '\n';
+			}
 			ArrayList<String> ticks = new ArrayList<String>();
 			in = br.readLine();
 			int progress = 0;
@@ -75,19 +80,37 @@ public class MarketTickFileOptimizer {
 		}
 	}
 	
-	public static void optimize(File file, String outSignature) {
-		work(file, outSignature);
+	public static boolean optimize(File file, String outSignature) {
+		if (Signature.validPartial(outSignature)) {
+			work(file, outSignature, false);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
-	public static void optimize(String file, String outSignature) {
-		work(new File(file), outSignature);
+	public static boolean optimize(String file, String outSignature) {
+		if (Signature.validPartial(outSignature)) {
+			work(new File(file), outSignature, false);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static void optimize(File file) {
-		work(file, null);
+		work(file, null, false);
 	}
 	
 	public static void optimize(String file) {
-		work(new File(file), null);
+		work(new File(file), null, false);
+	}
+	
+	public static void optimize(File file, boolean autoSignature) {
+		work(file, null, autoSignature);
+	}
+	
+	public static void optimize(String file, boolean autoSignature) {
+		work(new File(file), null, autoSignature);
 	}
 }
