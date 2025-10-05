@@ -5,7 +5,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public class ScrollBar {
+public class HorizontalChartScrollBar {
 	public static final long NANO_TO_MILLI = 1000000; 
 	
 	private Chart chart;
@@ -20,22 +20,16 @@ public class ScrollBar {
 	private double minPos;
 	private double sbWidth;
 	private double sbHeight;
-	private boolean vertical;	
+	//private boolean vertical;	
 	
-	public ScrollBar(Chart chart, int dataSize, int numDataPoints, double minPos, double maxPos, double sbWidth, double sbHeight, boolean vertical, double pos) {
+	public HorizontalChartScrollBar(Chart chart, int dataSize, int numDataPoints, double minPos, double maxPos, double sbWidth, double sbHeight, double pos) {
 		this.chart = chart;
 		this.minPos = minPos;
 		this.maxPos = maxPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		this.vertical = vertical;
-		if (vertical) {
-			xPos = pos;
-			yPos = minPos;
-		} else {
-			xPos = minPos;
-			yPos = pos;
-		}
+		xPos = minPos;
+		yPos = pos;
 	}
 	
 	public double sbWidth() {
@@ -135,19 +129,11 @@ public class ScrollBar {
 	}
 	
 	public void setXPos(double xPos) {
-		if (!vertical) {
-			setPosition(xPos, false);
-		} else {
-			this.xPos = xPos;
-		}
+		setPosition(xPos, false);
 	}
 
 	public void setYPos(double yPos) {
-		if (vertical) {
-			setPosition(yPos, false);
-		} else {
-			this.yPos = yPos;
-		}
+		this.yPos = yPos;
 	}
 	
 	private void moveChartLeft(boolean fast) {
@@ -227,17 +213,9 @@ public class ScrollBar {
 	}
 	
 	private boolean inScrollBarArea(double x, double y) {	
-		if (vertical) {			
-			if (x <= xPos + sbWidth && x >= xPos) {	
-				if (y <= maxPos && y >= minPos) {
-					return true;
-				}
-			}	
-		} else {
-			if (y <= yPos + sbHeight && y >= yPos) {
-				if (x <= maxPos && x >= minPos) {				
-					return true;
-				}
+		if (y <= yPos + sbHeight && y >= yPos) {
+			if (x <= maxPos && x >= minPos) {				
+				return true;
 			}
 		}
 		
@@ -256,41 +234,21 @@ public class ScrollBar {
 		if (Double.isNaN(pos)) {
 			return;
 		}
-		if (vertical) {
-			if (increment) {
-				if (pos + yPos > maxPos - sbHeight) {
-					yPos = maxPos - sbHeight;
-				} else if (pos + yPos < minPos) {	
-					yPos = minPos;
-				} else {
-					yPos += pos;
-				}
+		if (increment) {
+			if (pos + xPos > maxPos - sbWidth) {
+				xPos = maxPos - sbWidth;
+			} else if (pos + xPos < minPos) {	
+				xPos = minPos;
 			} else {
-				if (pos > maxPos - sbHeight) {
-					yPos = maxPos - sbHeight;
-				} else if (pos < minPos) {	
-					yPos = minPos;
-				} else {
-					yPos = pos;
-				}
+				xPos += pos;
 			}
 		} else {
-			if (increment) {
-				if (pos + xPos > maxPos - sbWidth) {
-					xPos = maxPos - sbWidth;
-				} else if (pos + xPos < minPos) {	
-					xPos = minPos;
-				} else {
-					xPos += pos;
-				}
+			if (pos > maxPos - sbWidth) {
+				xPos = maxPos - sbWidth;
+			} else if (pos < minPos) {	
+				xPos = minPos;
 			} else {
-				if (pos > maxPos - sbWidth) {
-					xPos = maxPos - sbWidth;
-				} else if (pos < minPos) {	
-					xPos = minPos;
-				} else {
-					xPos = pos;
-				}
+				xPos = pos;
 			}
 		}
 	}		

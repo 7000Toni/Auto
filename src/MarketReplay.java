@@ -33,7 +33,7 @@ public class MarketReplay {
 					lastTick = now;
 					return;
 				}
-				long diff = (now - lastTick) / ScrollBar.NANO_TO_MILLI;
+				long diff = (now - lastTick) / HorizontalChartScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick) {					
 					while (true) {
 						index++;

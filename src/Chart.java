@@ -61,7 +61,7 @@ public class Chart {
 	private double range;	
 	private double lowest;
 	private double highest;
-	private ScrollBar hsb;
+	private HorizontalChartScrollBar hsb;
 	private int numDataPoints = 1495;//299	
 	private int startIndex;
 	private int endIndex;
@@ -151,7 +151,7 @@ public class Chart {
 		});
 		this.stage = stage;
 		canvas = new Canvas(width, height);
-		hsb = new ScrollBar(this, data.tickDataSize(this.replayMode), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, false, height - HSB_HEIGHT);		
+		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);		
 		gc = canvas.getGraphicsContext2D();	
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
@@ -295,7 +295,7 @@ public class Chart {
 		}
 	}
 	
-	public ScrollBar hsb() {
+	public HorizontalChartScrollBar hsb() {
 		return this.hsb;
 	}
 	

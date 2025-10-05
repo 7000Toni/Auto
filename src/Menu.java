@@ -25,7 +25,7 @@ public class Menu {
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	
 	private CanvasNumberChooser cnc;
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
@@ -45,8 +45,8 @@ public class Menu {
 		
 		cnc = new CanvasNumberChooser(gc, 50, 75, 10, 100);
 		if (openChartOnStart) {
-			datasets.add(new DataSet(new File("res/20240610_Optimized.csv"), new OptimizedMarketTickFileReader()));
-			//MarketTickFileOptimizer.optimize("res/20240610.csv");
+			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
+			//MarketTickFileOptimizer.optimize("res/20241126.csv", "20241126 0.25 2\n");
 			//System.exit(0);
 			//datasets.add(new DataSet(new File("res/enqu.txt"), new OriginalTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
