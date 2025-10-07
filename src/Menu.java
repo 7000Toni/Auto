@@ -9,6 +9,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -20,12 +21,15 @@ public class Menu {
 	private GraphicsContext gc;
 	private CanvasButton loadData;
 	private CanvasButton optimize;
+	private CanvasButton marketTickReader;
+	private CanvasButton marketTickOReader;
+	private CanvasButton originalReader;
 	private double width;
 	private double height;
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
+	private TickDataFileReader reader;
 	
-	private CanvasNumberChooser cnc;
 	private boolean openChartOnStart = false;
 	
 	public Menu(double width, double height) {
@@ -43,18 +47,22 @@ public class Menu {
 			gc.setFont(new Font(22));
 			optimize.defaultDrawButton();			
 		});
+		this.marketTickReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4, "MT READER", 2, 23, null);
+		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
+		this.marketTickOReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4 + 37, "MTO READER", 2, 22, null);
+		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16));
+		this.originalReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4 + 74, "OG READER", 2, 23, null);
+		this.originalReader.setVanGogh(readerVG(originalReader, 18));
+		marketTickOReader.setPressed(true);
+		reader = new OptimizedMarketTickFileReader();
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
 		canvas.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
-		cnc = new CanvasNumberChooser(gc, 50, 75, 10, 200);
 		if (openChartOnStart) {
 			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
-			//MarketTickFileOptimizer.optimize("res/20241126.csv", true);
-			//System.exit(0);
-			//datasets.add(new DataSet(new File("res/enqu.txt"), new OriginalTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
 			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);		
 			dsb.setVanGogh((x, y, gc) -> {
@@ -63,43 +71,72 @@ public class Menu {
 			});
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0));
-			Scene scene = new Scene(c);
+			Scene scene = new Scene(c);			
 			//MarketReplay mr = new MarketReplay(c.getChart(), 1000);
 			//mr.run();
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
-			dsButtons.add(dsb);
+			dsButtons.add(dsb);						
 		}
 		
-		drawMenu();
+		draw();
 	}	
+	
+	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
+		return (x, y, gc) -> {
+			gc.setFont(new Font(fontSize));
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+			if (cb.pressed) {
+				if (cb.hover) {
+					gc.setStroke(Color.DARKORANGE);
+					gc.setFill(Color.DARKORANGE);
+				} else {
+					gc.setStroke(Color.ORANGE);
+					gc.setFill(Color.ORANGE);
+				}
+			} else if (cb.hover) {
+				gc.setStroke(Color.GRAY);
+				gc.setFill(Color.GRAY);
+			}
+			gc.strokeRect(x, y, cb.width, cb.height);
+			gc.fillText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
+		};
+	}
 	
 	public Canvas canvas() {
 		return this.canvas;
 	}
 	
-	public void drawMenu() {	
+	private void draw() {	
 		canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-		loadData.drawButton();
-		optimize.drawButton();
-		cnc.drawCanvasNumberChooser();
+		loadData.draw();
+		optimize.draw();
+		marketTickReader.draw();
+		marketTickOReader.draw();
+		originalReader.draw();
 		for (DataSetButton dsb : dsButtons) {
-			dsb.drawButton();
+			dsb.draw();
 		}
 	}
 	
-	public void onMousePressed(MouseEvent e) {
+	private void onMousePressed(MouseEvent e) {
 		double x = e.getX();
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
 			loadData.setPressed(true);
 		} else if (optimize.onButton(x, y)) {
 			optimize.setPressed(true);
-		} else if (cnc.onDown(x, y)) {
-			cnc.setDownPressed(true);
-		} else if (cnc.onUp(x, y)) {
-			cnc.setUpPressed(true);
+		} else if (marketTickReader.onButton(x, y)) {
+			marketTickReader.setPressed(true);
+			reader = new MarketTickFileReader();
+		} else if (marketTickOReader.onButton(x, y)) {
+			marketTickOReader.setPressed(true);
+			reader = new OptimizedMarketTickFileReader();
+		} else if (originalReader.onButton(x, y)) {
+			originalReader.setPressed(true);
+			reader = new OriginalTickFileReader();
 		} else {
 			for (DataSetButton dsb : dsButtons) {
 				CanvasButton close = dsb.closeButton();
@@ -112,10 +149,10 @@ public class Menu {
 				}
 			}
 		}
-		drawMenu();
+		draw();
 	}
 	
-	public void onMouseReleased(MouseEvent e) {
+	private void onMouseReleased(MouseEvent e) {
 		double x = e.getX();
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
@@ -135,8 +172,7 @@ public class Menu {
 							}
 						}				
 						if (add) {
-							datasets.add(new DataSet(file, new OptimizedMarketTickFileReader()));						
-							//datasets.add(new DataSet(file, new OriginalTickFileReader()));
+							datasets.add(new DataSet(file, reader));
 							DataSet ds = datasets.get(datasets.size() - 1);
 							DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
 							dsb.setVanGogh((x2, y2, gc) -> {
@@ -151,6 +187,21 @@ public class Menu {
 				}
 			}
 			loadData.setPressed(false);
+		} else if (marketTickReader.onButton(x, y)) {
+			if (marketTickReader.pressed()) {
+				marketTickOReader.setPressed(false);
+				originalReader.setPressed(false);
+			}			
+		} else if (marketTickOReader.onButton(x, y)) {
+			if (marketTickOReader.pressed()) {
+				marketTickReader.setPressed(false);
+				originalReader.setPressed(false);
+			}
+		} else if (originalReader.onButton(x, y)) {
+			if (originalReader.pressed()) {
+				marketTickReader.setPressed(false);
+				marketTickOReader.setPressed(false);
+			}
 		} else if (optimize.onButton(x, y)) { 
 			if (optimize.pressed()) {
 				FileChooser fc = new FileChooser();
@@ -161,15 +212,7 @@ public class Menu {
 				}
 			}
 			optimize.setPressed(false);
-		} else if (cnc.onDown(x, y)) {
-			if (cnc.downPressed()) {
-				cnc.decrementValue();
-			}
-		} else if (cnc.onUp(x, y)) {
-			if (cnc.upPressed()) {
-				cnc.incrementValue();
-			}
-		} else	{
+		} else {
 			int i = 0;
 			Object[] dsbs = dsButtons.toArray();
 			for (Object obj : dsbs) {
@@ -203,65 +246,27 @@ public class Menu {
 				i++;
 			}
 		}
-		drawMenu();
-	}
-	
-	private boolean mouseButtonHoverCheck(CanvasButton button, double x, double y) {
-		if (button.onButton(x, y)) {
-			if (!button.pressed()) {
-				button.setHover(true);				
-			}
-			return true;
-		} else {
-			button.setPressed(false);
-			button.setHover(false);
-			return false;
-		}
-	}
-	
-	private boolean mouseNumberChooserUpCheck(CanvasNumberChooser cnc, double x, double y) {
-		if (cnc.onUp(x, y)) {
-			if (!cnc.upPressed()) {
-				cnc.setUpHover(true);				
-			}
-			return true;
-		} else {
-			cnc.setUpPressed(false);
-			cnc.setUpHover(false);
-			return false;
-		}		
-	}
-	
-	private boolean mouseNumberChooserDownCheck(CanvasNumberChooser cnc, double x, double y) {
-		if (cnc.onDown(x, y)) {
-			if (!cnc.downPressed()) {
-				cnc.setDownHover(true);				
-			}
-			return true;
-		} else {
-			cnc.setDownPressed(false);
-			cnc.setDownHover(false);
-			return false;
-		}
+		draw();
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
 		double x = e.getX();
 		double y = e.getY();
-		mouseButtonHoverCheck(loadData, x, y);
-		mouseButtonHoverCheck(optimize, x, y);
-		mouseNumberChooserDownCheck(cnc, x, y);
-		mouseNumberChooserUpCheck(cnc, x, y);
+		ButtonChecks.mouseButtonHoverCheck(loadData, x, y);
+		ButtonChecks.mouseButtonHoverCheck(optimize, x, y);
+		ButtonChecks.mouseButtonSwitchHoverCheck(marketTickReader, x, y);
+		ButtonChecks.mouseButtonSwitchHoverCheck(marketTickOReader, x, y);
+		ButtonChecks.mouseButtonSwitchHoverCheck(originalReader, x, y);
 		for (DataSetButton dsb : dsButtons) {
 			CanvasButton close = dsb.closeButton();
-			if (mouseButtonHoverCheck(close, x, y)) {
+			if (ButtonChecks.mouseButtonHoverCheck(close, x, y)) {
 				dsb.setPressed(false);
 				dsb.setHover(false);
 			} else {
-				mouseButtonHoverCheck(dsb, x, y);
+				ButtonChecks.mouseButtonHoverCheck(dsb, x, y);
 			}
 		}		
-		drawMenu();
+		draw();
 	}
 	
 	public void onMouseDragged(MouseEvent e) {

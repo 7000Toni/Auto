@@ -33,7 +33,7 @@ public class MarketReplay {
 					lastTick = now;
 					return;
 				}
-				long diff = (now - lastTick) / HorizontalChartScrollBar.NANO_TO_MILLI;
+				long diff = (now - lastTick) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick) {					
 					while (true) {
 						index++;
@@ -41,7 +41,7 @@ public class MarketReplay {
 						timeToNextTick = timeToNextTick(index);
 						data.setReplayTickDataSize(index);
 						chart.hsb().setPosition(Integer.MAX_VALUE, false);
-						chart.drawChart();
+						chart.draw();
 						if (diff < timeToNextTick) {
 							break;
 						}

@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
-public class Chart {
+public class Chart implements ScrollBarOwner, Drawable {
 	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
@@ -105,7 +105,7 @@ public class Chart {
 			setCandleStickVars(numCandlesticks);
 			hsb.setMaxPos(width - PRICE_MARGIN);
 			hsb.setPosition(newHSBPos, false);
-			drawChart();
+			draw();
 		}		
 	}
 	
@@ -124,7 +124,7 @@ public class Chart {
 				}
 			}
 			hsb.setYPos(height - HSB_HEIGHT);
-			drawChart();
+			draw();
 		}		
 	}
 	
@@ -150,7 +150,7 @@ public class Chart {
 		});
 		this.stage = stage;
 		canvas = new Canvas(width, height);
-		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode), numDataPoints, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);		
+		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);		
 		gc = canvas.getGraphicsContext2D();	
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
@@ -162,7 +162,7 @@ public class Chart {
 		chtDataMargin = CHT_MARGIN + fontSize;		
 		Chart.charts.add(this);
 		setEventHandlers();		
-		drawChart();
+		draw();
 	}
 	
 	private void setEventHandlers() {
@@ -333,7 +333,7 @@ public class Chart {
 	public static void drawCharts(String name) {
 		for (Chart c : charts) {
 			if (c.name().equals(name)) {
-				c.drawChart();
+				c.draw();
 			}
 		}
 	}
@@ -873,13 +873,13 @@ public class Chart {
 		crossHair.drawCrossHair();
 	}	
 	
-	public void drawChart() {		
+	public void draw() {		
 		calculateIndices();
 		drawFrame();		
 		fillNewChtBtn();
 		fillChartTypeBtn();
 		fillDarkModeBtn();
-		hsb.drawHSB();
+		hsb.draw();
 		calculateRange(startIndex, endIndex);
 		setPreDrawVars();
 		if (drawCandlesticks) {

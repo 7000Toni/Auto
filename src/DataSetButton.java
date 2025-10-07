@@ -3,13 +3,10 @@ import javafx.scene.paint.Color;
 
 public class DataSetButton extends CanvasButton {
 	private CanvasButton close;
-	private ButtonVanGogh drawCross;
 	
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
-		super(gc, width, height, x, y, text, textXOffset, textYOffset, bvg);	/*	
-		double x2 = x + width - 42;
-		double y2 = y + 6;*/
-		drawCross = (x2, y2, gc2) -> {
+		super(gc, width, height, x, y, text, textXOffset, textYOffset, bvg);
+		ButtonVanGogh drawCross = (x2, y2, gc2) -> {
 			gc2.setFill(Color.BLACK);
 			gc2.setStroke(Color.BLACK);
 			if (close.hover) {
@@ -50,11 +47,11 @@ public class DataSetButton extends CanvasButton {
 		}
 		gc.strokeRect(x, y, width, height);
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 48);
-		close.drawButton();
+		close.draw();
 	}
 	
 	@Override
-	public void drawButton() {
+	public void draw() {
 		if (bvg == null) {
 			defaultDrawButton();
 		} else {

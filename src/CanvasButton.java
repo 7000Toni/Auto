@@ -1,7 +1,7 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class CanvasButton {
+public class CanvasButton implements Drawable {
 	protected GraphicsContext gc;
 	protected double width;
 	protected double height;
@@ -35,16 +35,10 @@ public class CanvasButton {
 	}
 	
 	public void setHover(boolean hover) {
-		if (hover) {
-			pressed = false;
-		}
 		this.hover = hover;
 	}
 	
 	public void setPressed(boolean clicked) {
-		if (clicked) {
-			hover = false;
-		}
 		this.pressed = clicked;
 	}
 	
@@ -83,7 +77,7 @@ public class CanvasButton {
 		gc.fillText(text, x + textXOffset, y + textYOffset);
 	}
 	
-	public void drawButton() {
+	public void draw() {
 		if (bvg == null) {
 			defaultDrawButton();
 		} else {
@@ -91,7 +85,7 @@ public class CanvasButton {
 		}
 	}
 	
-	public boolean onButton(double x, double y) {
+	public boolean onButton(double x, double y) {		
 		if (x > this.x + width || x < this.x) {
 			return false;
 		}

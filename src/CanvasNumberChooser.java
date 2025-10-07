@@ -1,7 +1,7 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class CanvasNumberChooser {
+public class CanvasNumberChooser implements Drawable {
 	private GraphicsContext gc;
 	private double width;
 	private double height;
@@ -24,9 +24,21 @@ public class CanvasNumberChooser {
 	public CanvasNumberChooser(GraphicsContext gc, double width, double height, double x, double y) {
 		this.gc = gc;
 		this.width = width;
-		this.height = height;
+		this.height = height/(1+0.125*1.3);
 		this.x = x;
-		this.y = y;
+		this.y = y + this.height*0.125*1.3;
+	}
+	
+	public static double numberHeight(double height) {
+		return height - 2*0.125*1.3*(height/(1+0.125*1.3));
+	}
+	
+	public static double buttonHeight(double height) {
+		return 0.125*1.3*(height/(1+0.125*1.3));
+	}
+	
+	public static double getHeightForDesiredNumberHight(double height) {
+		return height + 2*0.125*1.3*(height/(1+0.125*1.3));
 	}
 	
 	public boolean upHover() {
@@ -50,38 +62,18 @@ public class CanvasNumberChooser {
 	}
 	
 	public void setUpHover(boolean upHover) {
-		if (upHover) {
-			upPressed = false;
-			downHover = false;
-			downPressed = false;
-		}
 		this.upHover = upHover;
 	}
 	
 	public void setUpPressed(boolean upClicked) {
-		if (upClicked) {
-			upHover = false;
-			downHover = false;
-			downPressed = false;
-		}
 		this.upPressed = upClicked;
 	}
 	
 	public void setDownHover(boolean downHover) {
-		if (downHover) {
-			downPressed = false;
-			upHover = false;
-			upPressed = false;
-		}
 		this.downHover = downHover;
 	}
 	
 	public void setDownPressed(boolean downClicked) {
-		if (downClicked) {
-			downHover = false;
-			upHover = false;
-			upPressed = false;
-		}
 		this.downPressed = downClicked;
 	}
 	
@@ -215,7 +207,7 @@ public class CanvasNumberChooser {
 		}
 	}
 	
-	public void drawCanvasNumberChooser() {
+	public void draw() {
 		double t = 0.125*height;
 		setVars();
 		if (l1) {
@@ -274,23 +266,23 @@ public class CanvasNumberChooser {
 		double[] x7 = {x,x+t*1.2,x+width-t*1.2,x+width,0};
 		double[] y7 = {y+height/2,y+height/2-t,y+height/2-t,y+height/2,y+height/2};
 		gc.fillPolygon(x7, y7, 5);
-
+		
+		gc.setFill(Color.BLACK);
 		if (upHover) {
 			gc.setFill(Color.GRAY);
-		} else if (upPressed) {
+		}
+		if (upPressed) {
 			gc.setFill(Color.DIMGRAY);
-		} else {
-			gc.setFill(Color.BLACK);
 		}
 		double[] x8 = {x,x+width/2,x+width,x};
 		double[] y8 = {y-t*0.3,y-t*1.3,y-t*0.3,y-t*0.3};
 		gc.fillPolygon(x8, y8, 4);
+		gc.setFill(Color.BLACK);
 		if (downHover) {
 			gc.setFill(Color.GRAY);
-		} else if (downPressed) {
+		}
+		if (downPressed) {
 			gc.setFill(Color.DIMGRAY);
-		} else {
-			gc.setFill(Color.BLACK);
 		}
 		double[] x9 = {x,x+width,x+width/2,x};
 		double[] y9 = {y+height-t+t*0.3,y+height-t+t*0.3,y+height-t+t*1.3,y+height-t+t*0.3};
