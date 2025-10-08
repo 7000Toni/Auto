@@ -562,7 +562,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (startIndex < 0) {
 				startIndex = 0;
 			}
-			if (dragDiffAccum == 0) {
+			if (dragDiffAccum == 0 && posDiff != 0) {
 				if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
 					keepStartIndex = true;
 				} else {
