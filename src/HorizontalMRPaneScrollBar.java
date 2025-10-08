@@ -1,3 +1,4 @@
+import javafx.scene.input.MouseEvent;
 
 public class HorizontalMRPaneScrollBar extends HorizontalScrollBar {
 
@@ -5,6 +6,14 @@ public class HorizontalMRPaneScrollBar extends HorizontalScrollBar {
 		super(sbo, dataSize, minPos, maxPos, sbWidth, sbHeight, yPos);
 	}
 
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		if (onScrollBar(e.getX(), e.getY())) {					
+			dragging = true;
+			initPos = e.getX();
+		}	
+	}
+	
 	@Override
 	protected void moveOwnerLeft(boolean fast) {
 		int speed = 2;

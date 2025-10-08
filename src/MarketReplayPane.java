@@ -1,12 +1,17 @@
 import java.util.ArrayList;
 
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 public class MarketReplayPane extends GridPane implements ScrollBarOwner {
+	private Stage stage;
 	private MarketReplay mr;
 	private Canvas canvas;
 	private GraphicsContext gc;
@@ -16,6 +21,20 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private boolean bPlay = true;
 	private boolean bLive = true;
 	
+	private CanvasButton newChart;
+	private ButtonVanGogh nvg = (x, y, gc) -> {
+		gc.setFill(Color.WHITE);
+		gc.setStroke(Color.BLACK);
+		if (newChart.hover) {
+			gc.setFill(Color.GRAY);
+			gc.setStroke(Color.GRAY);
+		}
+		if (newChart.pressed) {
+			gc.setFill(Color.DIMGRAY);
+		}
+		gc.strokeRect(x, y, 40, 20);
+		gc.fillRect(x + 1, y + 1, 38, 18);
+	};
 	private CanvasButton pausePlay;
 	private ButtonVanGogh pvg = (x, y, gc) -> {
 		gc.setFill(Color.BLACK);
@@ -78,11 +97,11 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 			gc.setStroke(Color.GRAY);
 		}
 		if (bLive) {
-			gc.setFill(Color.GRAY);
+			gc.setFill(Color.RED);
 			gc.strokeRect(x, y, 40, 40);	
 			gc.fillOval(x + 15, y + 15, 10, 10);
 		} else {
-			gc.setFill(Color.RED);
+			gc.setFill(Color.GRAY);
 			gc.strokeRect(x, y, 40, 40);	
 			gc.fillOval(x + 15, y + 15, 10, 10);
 		}
@@ -97,14 +116,19 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private CanvasNumberChooser s2;
 	private CanvasNumberChooser s3;
 	
-	public MarketReplayPane(Chart chart, int index) {					
-		//mr = new MarketReplay(chart, index);		
+	public MarketReplayPane(Chart chart, int index, Stage stage) {
+		this.stage = stage;
+		stage.setOnCloseRequest(e -> {
+			endReplay();
+		});
+		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
-		hsb = new HorizontalMRPaneScrollBar(this, 100, 0, 399, 50, 10, 90);
+		hsb = new HorizontalMRPaneScrollBar(this, chart.tickData().size(), 0, 399, 50, 10, 90);
 		drawables = new ArrayList<Drawable>();
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
+		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0, nvg);
 		pausePlay = new CanvasButton(gc, 40, 40, 10, 40, null, 0, 0, pvg);
 		back = new CanvasButton(gc, 40, 40, 60, 40, null, 0, 0, bvg);
 		forward = new CanvasButton(gc, 40, 40, 210, 40, null, 0, 0, fvg);
@@ -124,11 +148,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		s1 = new CanvasNumberChooser(gc, 25, h, 260, y);
 		s2 = new CanvasNumberChooser(gc, 25, h, 287, y);
 		s3 = new CanvasNumberChooser(gc, 25, h, 314, y);
+		s3.setValue(1);
 		numbers.add(s1);
 		numbers.add(s2);
 		numbers.add(s3);
 		
 		drawables.add(hsb);
+		drawables.add(newChart);
 		drawables.add(pausePlay);
 		drawables.add(back);
 		drawables.add(forward);
@@ -148,12 +174,26 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		this.add(canvas, 0, 0);
+		mr.run();
 		draw();
+	}
+	
+	public HorizontalMRPaneScrollBar hsb() {
+		return this.hsb;
 	}
 	
 	@Override
 	public void draw() {
 		gc.clearRect(0, 0, 399, 100);
+		gc.setFont(new Font(20));
+		int percent = (int)(mr.index() * 100 / (double)(mr.maxSize() - 1));
+		if (percent > 100) {
+			percent = 100;
+		} else if (percent < 0) {
+			percent = 0;
+		}
+		gc.fillText(mr.charts().get(0).name() + "  " + percent + "%", 10, 25, 240);
+		gc.fillText("SPEED", 260, 25);
 		for (Drawable d : drawables) {
 			d.draw();
 		}
@@ -168,7 +208,9 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		hsb.onMousePressed(e);
 		double x = e.getX();
 		double y = e.getY();
-		if (pausePlay.onButton(x, y)) {
+		if (newChart.onButton(x, y)) {
+			newChart.setPressed(true);
+		} else if (pausePlay.onButton(x, y)) {
 			pausePlay.setPressed(true);
 		} else if (back.onButton(x, y)) {
 			back.setPressed(true);
@@ -194,31 +236,50 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		hsb.onMouseReleased();
 		double x = e.getX();
 		double y = e.getY();
-		if (pausePlay.onButton(x, y)) {
+		if (newChart.onButton(x, y)) {
+			if (newChart.pressed()) {
+				Stage s = new Stage();
+				ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr);
+				Scene scene = new Scene(c);	
+				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+				s.setScene(scene);
+				s.show();
+			}
+		} else if (pausePlay.onButton(x, y)) {
 			if (pausePlay.pressed()) {
 				if (bPlay) {
 					bPlay = false;
+					mr.togglePause();
 				} else {
 					bPlay = true;
+					mr.togglePause();
 				}
 			}
 			pausePlay.setPressed(false);
 		} else if (back.onButton(x, y)) {
 			if (back.pressed()) {
-				
+				mr.setIndex(-moveNumber(), true);
+				for (Chart c : mr.charts()) {
+					c.draw();
+				}
 			}
 			back.setPressed(false);
 		} else if (forward.onButton(x, y)) {
 			if (forward.pressed()) {
-				
+				mr.setIndex(moveNumber(), true);
+				for (Chart c : mr.charts()) {
+					c.draw();
+				}
 			}
 			forward.setPressed(false);
 		} else if (live.onButton(x, y)) {
 			if (live.pressed()) {
 				if (bLive) {
 					bLive = false;
+					mr.toggleLive();
 				} else {
 					bLive = true;
+					mr.toggleLive();
 				}
 			}
 			live.setPressed(false);
@@ -230,6 +291,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 						if (speedNumber() == 0) {
 							s3.incrementValue();
 						}
+						mr.setSpeed(speedNumber());
 					}
 					c.setDownPressed(false);
 					break;
@@ -239,6 +301,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 						if (speedNumber() == 0) {
 							s3.incrementValue();
 						}
+						mr.setSpeed(speedNumber());
 					}
 					c.setUpPressed(false);
 					break;
@@ -248,10 +311,16 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		draw();
 	}
 	
+	private void endReplay() {
+		Chart.closeAll(mr.charts().get(0).name(), true);
+		stage.close();
+	}
+	
 	private void onMouseMoved(MouseEvent e) {
 		hsb.onMouseMoved(e);
 		double x = e.getX();
 		double y = e.getY();
+		ButtonChecks.mouseButtonHoverCheck(newChart, x, y);
 		ButtonChecks.mouseButtonHoverCheck(pausePlay, x, y);
 		ButtonChecks.mouseButtonHoverCheck(back, x, y);
 		ButtonChecks.mouseButtonHoverCheck(forward, x, y);
@@ -265,12 +334,12 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	
 	private void onMouseDragged(MouseEvent e) {
 		hsb.onMouseDragged(e);
-		onMouseMoved(e);
+		draw();
 	}
 	
 	private void onMouseExited(MouseEvent e) {
 		hsb.onMouseExited();
-		onMouseMoved(e);
+		draw();
 	}
 	
 	private int moveNumber() {

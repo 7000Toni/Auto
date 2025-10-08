@@ -163,26 +163,6 @@ public class CrossHair {
 		drawVerticalLine(x, dateIndex);
 	}	
 	
-	private int calculateCHDI(long chdiEpochMin, boolean toCandle) {
-		int chdi = 0;
-		for (int i = chart.startIndex(); i < chart.endIndex(); i++) {
-			long ldtEpochMin;
-			if (toCandle) {
-				ldtEpochMin = (int)(chart.tickData().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-			} else {
-				ldtEpochMin = (int)(chart.m1Candles().get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-			}
-			if (ldtEpochMin == chdiEpochMin) {
-				chdi = i;
-				break;
-			} else if (chdiEpochMin < ldtEpochMin) {
-				break;
-			}
-			chdi = i;
-		}		
-		return chdi;
-	}
-	
 	private void drawUnfocusedTickToTick() {
 		if (dateIndex == -1) {
 			return;
@@ -202,8 +182,8 @@ public class CrossHair {
 		long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-			int chdi = calculateCHDI(chdiEpochMin, true);
-			double xPos = (chdiEpochMin - startEpochMin) * (chart.candlestickWidth() + chart.candlestickSpacing());
+			int chdi = chart.m1Candles().get(dateIndex).firstTickIndex();
+			double xPos = (chdi - chart.startIndex()) * chart.xDiff() + Chart.CHT_MARGIN;
 			drawVerticalLine(xPos, chdi);
 		}
 	}
@@ -230,7 +210,7 @@ public class CrossHair {
 		}
 		long chdiEpochMin = (int)(chart.tickData().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-			int chdi = calculateCHDI(chdiEpochMin, false);
+			int chdi = chart.tickData().get(dateIndex).candleIndex();
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
 			double width = getWidth();

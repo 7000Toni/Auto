@@ -79,6 +79,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean endMargin = false;
 	private Stage stage;
 	private boolean replayMode = false;
+	private boolean keepStartIndex = false;
+	private MarketReplay mr;
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -93,7 +95,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double candlestickWidth;
 	private double candlestickSpacing;
 	private int numCandlesticks;
-	private boolean roundUp = false;
 	
 	private class WidthListener implements ChangeListener<Number> {
 		@Override
@@ -132,10 +133,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		constructorStuff(width, height, stage, data);
 	}
 	
-	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {		
-		if (numDecimalPts < 0) {
-			throw new Exception("numDecimalPts cannot be less than 0");
-		}
+	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {
 		this.numDecimalPts = data.numDecimalPts();
 		this.tickSize = data.tickSize();
 		this.width = width;
@@ -162,6 +160,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		chtDataMargin = CHT_MARGIN + fontSize;		
 		Chart.charts.add(this);
 		setEventHandlers();		
+		if (replayMode) {
+			mr.addChart(this);
+		}
 		draw();
 	}
 	
@@ -271,20 +272,31 @@ public class Chart implements ScrollBarOwner, Drawable {
 		return Chart.darkMode;
 	}
 	
-	public void setReplayMode(boolean replayMode) {
-		this.replayMode = replayMode;
+	public void enableReplayMode(MarketReplay mr) {
+		this.replayMode = true;
+		this.mr = mr;
+		mr.addChart(this);
+	}
+	
+	public void disableReplayMode() {
+		this.replayMode = false;
+		mr.removeChart(this);
+		this.mr = null;		
 	}
 	
 	public boolean replayMode() {
 		return this.replayMode;
 	}
 	
-	public static void closeAll(String name) {
+	public static void closeAll(String name, boolean replayOnly) {
 		Object[] chts = charts.toArray();
 		int i = 0;
 		for (Object c : chts) {
 			Chart cht = (Chart)c;
 			if (cht.name().equals(name)) {
+				if (replayOnly && !cht.replayMode()) {
+					continue;
+				}
 				Chart ch = charts.get(i);
 				ch.close();
 				charts.remove(i);
@@ -304,6 +316,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public void setHeight(int height) {
 		this.height = height;
+	}
+	
+	public void setKeepStartIndex(boolean keepStartIndex) {
+		this.keepStartIndex = keepStartIndex;
+	}
+	
+	public boolean keepStartIndex() {
+		return this.keepStartIndex;
 	}
 	
 	public void setStartIndex(int startIndex) {
@@ -461,7 +481,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (newCHT_BTN_Clicked && checkNewChtBtn(e.getX(), e.getY())) {
 			newCHT_BTN_Clicked = false;
 			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, width, height, data);
+			ChartPane c = new ChartPane(s, width, height, data, replayMode, mr);			
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
@@ -471,23 +491,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (drawCandlesticks) {
 				drawCandlesticks = false;
 				CrossHair.setIsForCandle(false);
-				int convertedIndex = (int)(((double)startIndex / data.m1CandlesDataSize(this.replayMode)) * data.tickDataSize(this.replayMode));
-				double newHSBPos = ((double)convertedIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1)  * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
+				double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(m1Candles().get(startIndex).firstTickIndex()) /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
 			} else {
 				if (m1Candles().isEmpty()) {
 					return;
 				}
 				drawCandlesticks = true;	
-				CrossHair.setIsForCandle(true);
-				int convertedIndex = (int)(((double)startIndex / data.tickDataSize(this.replayMode)) * data.m1CandlesDataSize(this.replayMode));
-				double newHSBPos = ((double)convertedIndex / (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF)) * (width - HSB_WIDTH - PRICE_MARGIN);
-				int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
-				if (si < startIndex) {
-					roundUp = true;
-				} else {
-					roundUp = false;
-				}
+				CrossHair.setIsForCandle(true);				
+				double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(tickData().get(startIndex).candleIndex()) /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
 			}
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
@@ -528,13 +540,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 				startIndex -= coef * posDiff;
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
+				keepStartIndex = false;
 			} else {
 				coef = (int)(numDataPoints * TICK_MOVE_COEF);
 				if (coef < TICK_INDX_MOVE_COEF) {
 					coef = TICK_INDX_MOVE_COEF;
 				}
 				startIndex -= coef * posDiff;	
-				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - numDataPoints * END_MARGIN_COEF));
+				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
+				keepStartIndex = false;
 			}			
 			hsb.setPosition(newHSBPos, false);
 		}
@@ -561,16 +575,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 				setCandleStickVars(numCandlesticks);
 			}				
 		}
-		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));		
-		int si = (int)((newHSBPos / (width - hsb.sbWidth() - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
-		if (si < startIndex) {
-			roundUp = true;
-		} else {
-			roundUp = false;
-		}
-		if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
-			newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
-		}
+		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
+		keepStartIndex = true;
 		hsb.setPosition(newHSBPos, false);
 	}
 	
@@ -587,9 +593,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			setNumDataPoints(100);
 		}
 		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
-		if (newHSBPos > width - hsb.sbWidth() - PRICE_MARGIN) {
-			newHSBPos = width - hsb.sbWidth() - PRICE_MARGIN;
-		}
+		keepStartIndex = true;
 		hsb.setPosition(newHSBPos, false);
 	}
 	
@@ -624,8 +628,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (drawCandlesticks) {
 			lowest = data.m1Candles().get(beginIndex).low();
 			highest = data.m1Candles().get(beginIndex).high();				
-			
-			for (int i = beginIndex; i < endIndex; i++) {			
+			int ei = endIndex;
+			if (replayMode) {
+				ei--;
+			}
+			for (int i = beginIndex; i < ei; i++) {			
 				double low = data.m1Candles().get(i).low();
 				double high = data.m1Candles().get(i).high();				
 				if (high > highest) {
@@ -634,7 +641,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (low < lowest) {					
 					lowest = low;
 				}
-			}			
+			}	
+			if (replayMode) {
+				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(data.m1CandlesDataSize(replayMode) - 1).firstTickIndex());
+				if (c.high() > highest) {
+					highest = c.high();
+				} 
+				if (c.low() < lowest) {					
+					lowest = c.low();
+				}
+			}
 			range = highest - lowest;
 		} else {
 			lowest = data.tickData().get(beginIndex).price();
@@ -746,10 +762,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void calculateIndices() {
 		if (drawCandlesticks) {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
-			if (roundUp) {
-				if (startIndex + numCandlesticks < data.m1CandlesDataSize(this.replayMode)) {
-					startIndex += 1;
+			if (!keepStartIndex) {
+				if (data.m1CandlesDataSize(this.replayMode) < numCandlesticks * END_MARGIN_COEF) {
+					startIndex = 0;
+				} else {
+					startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 				}
 			}
 			endIndex = startIndex + numCandlesticks;
@@ -757,10 +774,18 @@ public class Chart implements ScrollBarOwner, Drawable {
 				endIndex = data.m1CandlesDataSize(this.replayMode);
 			}
 		} else {
-			startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
+			if (!keepStartIndex) {
+				if (data.tickDataSize(this.replayMode) < (numDataPoints - 1) * END_MARGIN_COEF) {
+					startIndex = 0;
+				} else {
+					startIndex = (int)((hsb.xPos() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
+				}
+			}
 			endIndex = startIndex + numDataPoints;
-			if (endIndex >= data.tickDataSize(this.replayMode)) {
-				endIndex = data.tickDataSize(this.replayMode) - 1;
+			if (endIndex >= data.tickDataSize(false)) {
+				endIndex = data.tickDataSize(false) - 1;
+			} else if (replayMode && endIndex >= data.tickDataSize(true)) {
+				endIndex = data.tickDataSize(true);
 			}
 		}		
 	}
@@ -825,7 +850,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 				endMargin = true;
 				break;
 			}
-			DataSet.Candlestick c = data.m1Candles().get(startIndex + i); 
+			DataSet.Candlestick c;
+			if (replayMode && startIndex + i == data.m1CandlesDataSize(this.replayMode) - 1) {
+				c = data.makeLastReplayCandlestick(m1Candles().get(data.m1CandlesDataSize(replayMode) - 1).firstTickIndex());
+			} else {
+				c = data.m1Candles().get(startIndex + i);
+			}
 			double xPos = CHT_MARGIN + (candlestickWidth + candlestickSpacing) * i;
 			double yPos;
 			if (c.open() < c.close()) {
@@ -901,10 +931,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public boolean drawCandlesticks() {
 		return this.drawCandlesticks;
-	}
-	
-	public void disableRoundUp() {
-		roundUp = false;
 	}
 	
 	public boolean focusedChart() {

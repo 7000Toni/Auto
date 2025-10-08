@@ -3,6 +3,7 @@ import javafx.scene.paint.Color;
 
 public class DataSetButton extends CanvasButton {
 	private CanvasButton close;
+	private CanvasButton mr;
 	
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset, bvg);
@@ -30,7 +31,29 @@ public class DataSetButton extends CanvasButton {
 			double[] y3 = {y2 + 3, y2 + 3, valy, y2 + 3, y2 + 3, val4y, val3y, val3y, val2y, val3y, val3y, val4y, y2 + 3};
 			gc2.fillPolygon(x3, y3, 13);
 		};
-		close = new CanvasButton(gc, 42, 42, x + width - 3 - 42, y + 3, "", 3, 3, drawCross);		
+		ButtonVanGogh mrvg = (x2, y2, gc2) -> {
+			gc2.setFill(Color.BLACK);
+			gc2.setStroke(Color.BLACK);
+			if (mr.hover) {
+				gc2.setFill(Color.GRAY);
+				gc2.setStroke(Color.GRAY);
+			}
+			if (mr.pressed) {
+				gc2.setFill(Color.DIMGRAY);
+				gc2.setStroke(Color.DIMGRAY);
+			}			
+			gc2.strokeRect(x2, y2, 42, 42);
+			
+			double[] xa = {x2 + 7, x2 + 21, x2 + 21, x2 + 35, x2 + 35, x2 + 7};
+			double[] ya = {y2 + 19, y2 + 9, y2 + 14, y2 + 14, y2 + 19, y2 + 19};
+			gc2.fillPolygon(xa, ya, 6);
+			
+			double[] xa2 = {x2 + 7, x2 + 35, x2 + 21, x2 + 21, x2 + 7, x2 + 7};
+			double[] ya2 = {y2 + 23, y2 + 23, y2 + 33, y2 + 28, y2 + 28, y2 + 23};
+			gc2.fillPolygon(xa2, ya2, 6);
+		};
+		close = new CanvasButton(gc, 42, 42, x + width - 3 - 42, y + 3, null, 3, 3, drawCross);		
+		mr = new CanvasButton(gc, 42, 42, x + width - 3 - 42 - 3 - 42, y + 3, null, 3, 3, mrvg);		
 	}
 	
 	@Override
@@ -46,8 +69,9 @@ public class DataSetButton extends CanvasButton {
 			gc.setFill(Color.DIMGRAY);
 		}
 		gc.strokeRect(x, y, width, height);
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 48);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width - 93);
 		close.draw();
+		mr.draw();
 	}
 	
 	@Override
@@ -75,5 +99,9 @@ public class DataSetButton extends CanvasButton {
 	
 	public CanvasButton closeButton() {
 		return this.close;
+	}
+	
+	public CanvasButton mrButton() {
+		return this.mr;
 	}
 }

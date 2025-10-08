@@ -70,7 +70,7 @@ public class Menu {
 				dsb.defaultDrawButton();		
 			});
 			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0));
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null);
 			Scene scene = new Scene(c);			
 			//MarketReplay mr = new MarketReplay(c.getChart(), 1000);
 			//mr.run();
@@ -140,13 +140,16 @@ public class Menu {
 		} else {
 			for (DataSetButton dsb : dsButtons) {
 				CanvasButton close = dsb.closeButton();
+				CanvasButton mr = dsb.mrButton();
 				if (close.onButton(x, y)) {
 					close.setPressed(true);
 					break;
+				} else if (mr.onButton(x, y)) {
+					mr.setPressed(true);
 				} else if (dsb.onButton(x, y)) {
 					dsb.setPressed(true);
 					break;
-				}
+				} 
 			}
 		}
 		draw();
@@ -223,10 +226,8 @@ public class Menu {
 						index = 0;
 					}
 					Stage s = new Stage();
-					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index));
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
 					Scene scene = new Scene(c);
-					//MarketReplay mr = new MarketReplay(c.getChart(), 62596);
-					//mr.run();
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
 					s.show();
@@ -237,11 +238,29 @@ public class Menu {
 					for (int j = i; j < dsButtons.size(); j++) {					
 						dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
 					}
-					Chart.closeAll(datasets.get(i).name());
+					Chart.closeAll(datasets.get(i).name(), false);
 					datasets.remove(i);
 					i--;
 					dsb.closeButton().setPressed(false);
 					break;
+				} else if (dsb.mrButton().pressed() ) {
+					int index = (int)((y - MARGIN) / 58);
+					if (index < 0) {
+						index = 0;
+					}
+					Stage s = new Stage();
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
+					Scene scene = new Scene(c);	
+					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+					s.setScene(scene);
+					s.show();
+					Stage s2 = new Stage();
+					MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);		
+					s2.setResizable(false);		
+					Scene scene2 = new Scene(mrp);
+					s2.setScene(scene2);
+					s2.show();
+					dsb.mrButton().setPressed(false);
 				}
 				i++;
 			}
@@ -259,9 +278,17 @@ public class Menu {
 		ButtonChecks.mouseButtonSwitchHoverCheck(originalReader, x, y);
 		for (DataSetButton dsb : dsButtons) {
 			CanvasButton close = dsb.closeButton();
+			CanvasButton mr = dsb.mrButton();
 			if (ButtonChecks.mouseButtonHoverCheck(close, x, y)) {
 				dsb.setPressed(false);
 				dsb.setHover(false);
+				mr.setHover(false);
+				mr.setPressed(false);
+			} else if (ButtonChecks.mouseButtonHoverCheck(mr, x, y)) {
+				close.setPressed(false);
+				close.setHover(false);
+				dsb.setHover(false);
+				dsb.setPressed(false);
 			} else {
 				ButtonChecks.mouseButtonHoverCheck(dsb, x, y);
 			}

@@ -13,6 +13,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 	protected double xPos = 0;
 	protected double yPos = 0;
 	protected boolean dragging = false;
+	protected boolean dragged = false;
 	protected boolean hovering = false;
 	protected boolean clickedInScrollBarArea = false;
 	protected double initPos = 0;
@@ -115,7 +116,22 @@ public abstract class HorizontalScrollBar implements Drawable {
 				xPos += posDiff;
 			}
 			initPos = (int)e.getX();
+			dragged = true;
 		}
+	}
+	
+	public double maxPos() {
+		return this.maxPos;
+	}
+	
+	public double minPos() {
+		return this.minPos;
+	}
+	
+	public boolean dragged() {
+		boolean ret = this.dragged;
+		this.dragged = false;
+		return ret;
 	}
 	
 	public void setMaxPos(double maxPos) {
@@ -197,7 +213,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 	}
 	
 	public void setPosition(double pos, boolean increment) {
-		if (Double.isNaN(pos)) {
+		if (Double.isNaN(pos) || dragging) {
 			return;
 		}
 		if (increment) {
@@ -221,15 +237,14 @@ public abstract class HorizontalScrollBar implements Drawable {
 	
 	public void draw() {		
 		GraphicsContext gc = sbo.graphicsContext();
-		if (hovering) {			
-			if (dragging) {
-				gc.setFill(Color.DIMGRAY);
-			} else {
-				gc.setFill(Color.GRAY);
-			}
+		if (hovering) {	
+			gc.setFill(Color.GRAY);
 		} else {
 			gc.setFill(Color.DARKGRAY);
 		}
+		if (dragging) {
+			gc.setFill(Color.DIMGRAY);
+		} 
 		gc.fillRect(xPos, yPos, sbWidth, sbHeight);
 	}
 }

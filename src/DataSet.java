@@ -24,15 +24,21 @@ public class DataSet {
 	
 	class DataPair {
 		private double price;
+		private int candleIndex;
 		private LocalDateTime dateTime;		
 		
-		public DataPair(double price, LocalDateTime dateTime) {
+		public DataPair(double price, LocalDateTime dateTime, int candleIndex) {
 			this.price = price;
+			this.candleIndex = candleIndex;
 			this.dateTime = dateTime;
 		}
 		
 		public double price() {
 			return this.price;
+		}
+		
+		public int candleIndex() {
+			return this.candleIndex;
 		}
 		
 		public LocalDateTime dateTime() {
@@ -45,16 +51,18 @@ public class DataSet {
 		private double high;
 		private double low;
 		private double close;
+		private int firstTickIndex;
 		private LocalDateTime dateTime;
 		private boolean complete;
 		
-		public Candlestick(double open, double high, double low, double close, LocalDateTime dateTime, boolean complete) {
+		public Candlestick(double open, double high, double low, double close, LocalDateTime dateTime, boolean complete, int firstTickIndex) {
 			this.open = open;
 			this.high = high;
 			this.low = low;
 			this.close = close;
 			this.dateTime = dateTime;
 			this.complete = complete;
+			this.firstTickIndex = firstTickIndex;
 		}
 		
 		public double open() {
@@ -71,6 +79,10 @@ public class DataSet {
 		
 		public double close() {
 			return this.close;
+		}
+		
+		public int firstTickIndex() {
+			return this.firstTickIndex;
 		}
 		
 		public LocalDateTime dateTime() {
@@ -100,6 +112,8 @@ public class DataSet {
 		StringTokenizer tokens;
 		LocalDateTime ldt;
 		BufferedReader br;	
+		int firstTickIndex;
+		int candleIndex;
 		double val;
 		boolean add;
 		double open;
@@ -123,6 +137,29 @@ public class DataSet {
 		} else {
 			return this.tickData.size();
 		}
+	}
+	
+	public Candlestick makeLastReplayCandlestick(int startIndex) {
+		ReadFileVars rfv = new ReadFileVars();
+		rfv.val = tickData().get(startIndex).price;
+		rfv.ldt = tickData().get(startIndex).dateTime;
+		rfv.firstTickIndex = startIndex;
+		rfv.open = rfv.val;
+		rfv.high = rfv.val;
+		rfv.low = rfv.val;
+		rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		Candlestick c = null;
+		for (int i = startIndex + 1; i < replayTickDataSize; i++) {
+			rfv.val = tickData().get(i).price;
+			if (rfv.val > rfv.high) {
+				rfv.high = rfv.val;
+			} else if (rfv.val < rfv.low) {
+				rfv.low = rfv.val;
+			}
+		}
+		rfv.close = rfv.val;
+		c = new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldt, false, rfv.firstTickIndex);
+		return c;
 	}
 	
 	public void setReplayTickDataSize(int replayTickDataSize) {
@@ -178,6 +215,7 @@ public class DataSet {
 		rfv.high = rfv.val;
 		rfv.low = rfv.val;
 		rfv.close = rfv.val;
+		rfv.firstTickIndex = 0;
 		rfv.ldtPrev = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
 		rfv.prevPrice = rfv.val;
 		startEpochMinutes = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
@@ -196,8 +234,8 @@ public class DataSet {
 	}
 	
 	private void addCandlestick(ReadFileVars rfv, boolean complete) {
-		rfv.close = rfv.prevPrice;					
-		m1Candles.add(new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldtPrev, complete));
+		rfv.close = rfv.prevPrice;	
+		m1Candles.add(new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldtPrev, complete, rfv.firstTickIndex));
 	}
 	
 	private void checkAddCandlestick(ReadFileVars rfv) {
@@ -212,6 +250,7 @@ public class DataSet {
 			}
 		} else {
 			addCandlestick(rfv, true);
+			rfv.firstTickIndex = rfv.progress - 1;
 			rfv.open = rfv.val;
 			rfv.high = rfv.val;
 			rfv.low = rfv.val;
@@ -231,7 +270,7 @@ public class DataSet {
 			if (!rfv.add) {
 				return;
 			}
-			tickData.add(new DataPair(rfv.val, rfv.ldt));												
+			tickData.add(new DataPair(rfv.val, rfv.ldt, 0));												
 			setInitCandlestickVars(rfv);
 			rfv.progress = 1;
 			rfv.changed = true;
@@ -249,9 +288,9 @@ public class DataSet {
 				}
 				if (!rfv.add) {
 					continue;
-				}				
-				tickData.add(new DataPair(rfv.val, rfv.ldt));			
-				checkAddCandlestick(rfv);				
+				}										
+				checkAddCandlestick(rfv);
+				tickData.add(new DataPair(rfv.val, rfv.ldt, m1Candles.size()));
 			}
 			addCandlestick(rfv, false);
 		} catch (IOException e) {

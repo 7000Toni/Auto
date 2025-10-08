@@ -1,3 +1,4 @@
+import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -6,6 +7,58 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	
 	public HorizontalChartScrollBar(Chart chart, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
 		super(chart, dataSize, minPos, maxPos, sbWidth, sbHeight, yPos);
+	}
+	
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		if (((Chart) sbo).replayMode()) {
+			if (onScrollBar(e.getX(), e.getY())) {
+				dragging = true;
+				initPos = e.getX();
+			}
+		} else if (onScrollBar(e.getX(), e.getY())) {					
+			dragging = true;
+			initPos = e.getX();
+		} else if (inScrollBarArea(e.getX(), e.getY())) {
+			clickedInScrollBarArea = true;
+			initPos = e.getX();
+			new AnimationTimer() {
+				long lastTick = 0;
+				boolean add;
+				
+				@Override
+				public void handle(long now) {
+					if (lastTick == 0) {
+						if (initPos > xPos) {
+							add = true;
+						} else {
+							add = false;
+						}
+						lastTick = now;
+						return;
+					}
+					
+					if (!clickedInScrollBarArea) {
+						this.stop();
+					}
+					
+					if (initPos >= xPos && initPos <= xPos + sbWidth) {
+						this.stop();
+					}
+					
+					if (now - lastTick >= NANO_TO_MILLI*16) {						
+						lastTick = now;		
+						if (add) {
+							setPosition(sbWidth / 2, true);
+							sbo.draw();
+						} else {
+							setPosition(-(sbWidth / 2), true);
+							sbo.draw();
+						}
+					} 
+				}
+			}.start();
+		}
 	}
 	
 	@Override
@@ -20,7 +73,8 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 				xPos += posDiff;
 			}
 			initPos = (int)e.getX();
-			((Chart) sbo).disableRoundUp();
+			((Chart) sbo).setKeepStartIndex(false);
+			dragged = true;
 		}
 	}
 	
@@ -39,7 +93,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			startIndex -= Chart.TICK_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().tickDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numDataPoints() * Chart.END_MARGIN_COEF));
 		}			
-		((Chart) sbo).setStartIndex(startIndex);
+		((Chart) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -58,7 +112,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			startIndex += Chart.TICK_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().tickDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numDataPoints() * Chart.END_MARGIN_COEF));
 		}			
-		((Chart) sbo).setStartIndex(startIndex);
+		((Chart) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	

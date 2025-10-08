@@ -3,13 +3,13 @@ import javafx.stage.Stage;
 
 public class ChartPane extends GridPane {
 	private Chart chart;
-	//private static DataSet ch = new DataSet(new File("res/enqu.txt"));
-	//private static DataSet ch = new DataSet(new File("res/mesu.txt"));
-	//private static DataSet ch = new DataSet(new File("res/ymu.txt"));
 	
-	public ChartPane(Stage stage, double width, double height, DataSet ch) {					
+	public ChartPane(Stage stage, double width, double height, DataSet ch, boolean replayMode, MarketReplay mr) {					
 		try {
 			chart = new Chart(width, height, stage, ch);
+			if (replayMode) {
+				chart.enableReplayMode(mr);
+			}
 			this.add(chart.canvas(), 0, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
