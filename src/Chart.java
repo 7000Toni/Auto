@@ -496,7 +496,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 				startIndex = m1Candles().get(startIndex).firstTickIndex();
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
-				keepStartIndex = true;
 			} else {
 				if (m1Candles().isEmpty()) {
 					return;
