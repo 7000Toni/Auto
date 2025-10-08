@@ -161,7 +161,7 @@ public class Menu {
 		if (loadData.onButton(x, y)) {
 			if (loadData.pressed()) {
 				FileChooser fc = new FileChooser();
-				fc.setInitialDirectory(new File("./res/"));
+				fc.setInitialDirectory(new File("./"));
 				File file = fc.showOpenDialog(null);		
 				if (file != null) {
 					try (FileInputStream fis = new FileInputStream(file);

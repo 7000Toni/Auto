@@ -23,6 +23,10 @@ public class CrossHair {
 		return CrossHair.price;
 	}
 	
+	public static int dateIndex() {
+		return CrossHair.dateIndex;
+	}
+	
 	public static void setX(double x) {
 		CrossHair.x = x;
 	}
@@ -214,8 +218,7 @@ public class CrossHair {
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
 			double width = getWidth();
-			double stub = width - ((int)(width / (chart.candlestickWidth() + chart.candlestickSpacing())) * (chart.candlestickWidth() + chart.candlestickSpacing()));
-			double xPos = (width - stub) * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
+			double xPos = width * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
 			int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
 			drawOHLC(convertedCHDI);					
 			drawVerticalLine(xPos, chdi);				

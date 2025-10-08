@@ -50,9 +50,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 						lastTick = now;		
 						if (add) {
 							setPosition(sbWidth / 2, true);
+							((Chart) sbo).setKeepStartIndex(false);
 							sbo.draw();
 						} else {
 							setPosition(-(sbWidth / 2), true);
+							((Chart) sbo).setKeepStartIndex(false);
 							sbo.draw();
 						}
 					} 
@@ -89,9 +91,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		if (((Chart) sbo).drawCandlesticks()) {
 			startIndex -= Chart.CNDL_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().m1CandlesDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numCandlesticks() * Chart.END_MARGIN_COEF));
+			((Chart) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex -= Chart.TICK_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().tickDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numDataPoints() * Chart.END_MARGIN_COEF));
+			((Chart) sbo).setKeepStartIndex(false);
 		}			
 		((Chart) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
@@ -108,9 +112,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		if (((Chart) sbo).drawCandlesticks()) {
 			startIndex += Chart.CNDL_INDX_MOVE_COEF * speed;
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().m1CandlesDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numCandlesticks() * Chart.END_MARGIN_COEF));
+			((Chart) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex += Chart.TICK_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().tickDataSize(((Chart) sbo).replayMode()) - ((Chart) sbo).numDataPoints() * Chart.END_MARGIN_COEF));
+			((Chart) sbo).setKeepStartIndex(false);
 		}			
 		((Chart) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);

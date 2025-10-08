@@ -186,6 +186,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	public void draw() {
 		gc.clearRect(0, 0, 399, 100);
 		gc.setFont(new Font(20));
+		gc.setFill(Color.BLACK);
 		int percent = (int)(mr.index() * 100 / (double)(mr.maxSize() - 1));
 		if (percent > 100) {
 			percent = 100;
