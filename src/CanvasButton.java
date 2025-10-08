@@ -13,6 +13,7 @@ public class CanvasButton implements Drawable {
 	protected boolean hover = false;
 	protected boolean pressed = false;
 	protected ButtonVanGogh bvg;
+	protected boolean enabled;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
 		this.gc = gc;
@@ -24,6 +25,7 @@ public class CanvasButton implements Drawable {
 		this.textXOffset = textXOffset;
 		this.textYOffset = textYOffset;
 		this.bvg = bvg;
+		this.enabled = true;
 	}
 	
 	public boolean hover() {
@@ -62,6 +64,18 @@ public class CanvasButton implements Drawable {
 		this.bvg = bvg;
 	}
 	
+	public void disable() {
+		this.enabled = false;
+	}
+	
+	public void enable() {
+		this.enabled = true;
+	}
+	
+	public boolean enabled() {
+		return this.enabled;
+	}
+	
 	public void defaultDrawButton() {
 		gc.setStroke(Color.BLACK);
 		gc.setFill(Color.BLACK);
@@ -72,6 +86,10 @@ public class CanvasButton implements Drawable {
 		if (pressed) {
 			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, width, height);
 		gc.fillText(text, x + textXOffset, y + textYOffset);

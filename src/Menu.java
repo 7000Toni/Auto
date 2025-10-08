@@ -71,9 +71,7 @@ public class Menu {
 			});
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null);
-			Scene scene = new Scene(c);			
-			//MarketReplay mr = new MarketReplay(c.getChart(), 1000);
-			//mr.run();
+			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
@@ -110,6 +108,11 @@ public class Menu {
 	}
 	
 	private void draw() {	
+		if (datasets.size() < 6) {
+			loadData.enable();
+		} else {
+			loadData.disable();
+		}
 		canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
 		loadData.draw();
 		optimize.draw();
@@ -159,7 +162,7 @@ public class Menu {
 		double x = e.getX();
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
-			if (loadData.pressed()) {
+			if (loadData.pressed() && loadData.enabled()) {
 				FileChooser fc = new FileChooser();
 				fc.setInitialDirectory(new File("./"));
 				File file = fc.showOpenDialog(null);		

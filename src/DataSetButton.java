@@ -88,6 +88,7 @@ public class DataSetButton extends CanvasButton {
 		double diff = this.x - x;
 		this.x = x;
 		close.setX(close.x - diff);
+		mr.setX(mr.x - diff);
 	}
 	
 	@Override
@@ -95,6 +96,7 @@ public class DataSetButton extends CanvasButton {
 		double diff = this.y - y;
 		this.y = y;
 		close.setY(close.y - diff);
+		mr.setY(mr.y - diff);
 	}
 	
 	public CanvasButton closeButton() {
