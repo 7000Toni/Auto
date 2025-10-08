@@ -28,6 +28,7 @@ public class Menu {
 	private double height;
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
+	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;
 	
 	private boolean openChartOnStart = false;
@@ -241,7 +242,13 @@ public class Menu {
 					for (int j = i; j < dsButtons.size(); j++) {					
 						dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
 					}
-					Chart.closeAll(datasets.get(i).name(), false);
+					String name = datasets.get(i).name();
+					Chart.closeAll(name, false);
+					for (MarketReplayPane mrp : replays) {
+						if (mrp.name().equals(name)) {
+							mrp.endReplay();
+						}
+					}
 					datasets.remove(i);
 					i--;
 					dsb.closeButton().setPressed(false);
@@ -257,8 +264,13 @@ public class Menu {
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
 					s.show();
-					Stage s2 = new Stage();
-					MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);		
+					Stage s2 = new Stage();					
+					MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
+					s2.setOnCloseRequest(ev -> {
+						replays.remove(mrp);
+						mrp.endReplay();
+					});
+					replays.add(mrp);
 					s2.setResizable(false);		
 					Scene scene2 = new Scene(mrp);
 					s2.setScene(scene2);

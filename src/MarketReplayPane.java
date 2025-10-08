@@ -20,6 +20,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private ArrayList<CanvasNumberChooser> numbers;
 	private boolean bPlay = true;
 	private boolean bLive = true;
+	private String name;
 	
 	private CanvasButton newChart;
 	private ButtonVanGogh nvg = (x, y, gc) -> {
@@ -118,9 +119,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	
 	public MarketReplayPane(Chart chart, int index, Stage stage) {
 		this.stage = stage;
-		stage.setOnCloseRequest(e -> {
-			endReplay();
-		});
+		name = chart.name();
 		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
@@ -178,6 +177,10 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		draw();
 	}
 	
+	public String name() {
+		return this.name;
+	}
+	
 	public HorizontalMRPaneScrollBar hsb() {
 		return this.hsb;
 	}
@@ -193,7 +196,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		} else if (percent < 0) {
 			percent = 0;
 		}
-		gc.fillText(mr.charts().get(0).name() + "  " + percent + "%", 10, 25, 240);
+		gc.fillText(name + "  " + percent + "%", 10, 25, 240);
 		gc.fillText("SPEED", 260, 25);
 		for (Drawable d : drawables) {
 			d.draw();
@@ -312,8 +315,9 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		draw();
 	}
 	
-	private void endReplay() {
-		Chart.closeAll(mr.charts().get(0).name(), true);
+	public void endReplay() {
+		Chart.closeAll(name, true);
+		mr.stop();
 		stage.close();
 	}
 	

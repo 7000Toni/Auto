@@ -12,10 +12,10 @@ public class MarketReplay {
 	private boolean live = true;
 	private int speed = 1;
 	private int tickDataSize;
+	private boolean run = false;
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
-		this.charts.add(chart);
 		this.data = chart.data();
 		this.mrp = mrp;
 		this.tickDataSize = data.tickDataSize(false);
@@ -109,12 +109,20 @@ public class MarketReplay {
 		return (int)(data.tickData().get(index + 1).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli() - data.tickData().get(index).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli())/speed;
 	}
 	
+	public void stop() {
+		this.run = false;
+	}
+	
 	public void run() {
+		run = true;
 		new AnimationTimer() {
 			long lastTick = 0;
 			int timeToNextTick = timeToNextTick(index);
 			@Override
 			public void handle(long now) {
+				if (!run) {
+					this.stop();
+				}
 				if (lastTick == 0) {
 					lastTick = now;
 					return;
@@ -143,7 +151,7 @@ public class MarketReplay {
 						if (live) {
 							double newHSBPos = ((double)index / tickDataSize) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);		
-							for (Chart c : charts) {								
+							for (Chart c : charts) {		
 								c.hsb().setPosition(Integer.MAX_VALUE, false);
 							}
 						} else {

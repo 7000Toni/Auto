@@ -145,7 +145,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		stage.heightProperty().addListener(new HeightListener());
 		stage.widthProperty().addListener(new WidthListener());	
 		stage.setOnCloseRequest(ev -> {
-			charts.remove(this);
+			close();
 		});
 		this.stage = stage;
 		canvas = new Canvas(width, height);
@@ -160,10 +160,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		numCandlesticks = (int)(chartWidth / (candlestickWidth + candlestickSpacing));
 		chtDataMargin = CHT_MARGIN + fontSize;		
 		Chart.charts.add(this);
-		setEventHandlers();		
-		if (replayMode) {
-			mr.addChart(this);
-		}
+		setEventHandlers();	
 		draw();
 	}
 	
@@ -266,6 +263,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void close() {
+		disableReplayMode();
+		charts.remove(this);
 		stage.close();
 	}
 	
@@ -274,15 +273,19 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void enableReplayMode(MarketReplay mr) {
-		this.replayMode = true;
-		this.mr = mr;
-		mr.addChart(this);
+		if (!this.replayMode) {
+			this.replayMode = true;
+			this.mr = mr;
+			mr.addChart(this);
+		}
 	}
 	
 	public void disableReplayMode() {
-		this.replayMode = false;
-		mr.removeChart(this);
-		this.mr = null;		
+		if (this.replayMode) {
+			this.replayMode = false;
+			mr.removeChart(this);
+			this.mr = null;
+		}
 	}
 	
 	public boolean replayMode() {
@@ -291,19 +294,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public static void closeAll(String name, boolean replayOnly) {
 		Object[] chts = charts.toArray();
-		int i = 0;
 		for (Object c : chts) {
 			Chart cht = (Chart)c;
-			if (cht.name().equals(name)) {
+			if (cht.name().equals(name)) {				
 				if (replayOnly && !cht.replayMode()) {
 					continue;
 				}
-				Chart ch = charts.get(i);
-				ch.close();
-				charts.remove(i);
-				i--;
+				cht.close();
 			}
-			i++;
 		}
 	}
 	
