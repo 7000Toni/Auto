@@ -74,7 +74,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN + Chart.INFO_MARGIN + chart.fontSize() * chart.name().length() * 0.9, Chart.CHT_MARGIN + chart.fontSize());
+		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN + Chart.INFO_MARGIN + chart.fontSize() * (chart.name().length() + 2) * 0.9, Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
 	private void drawHorizontalLine(boolean focusedChart) {
