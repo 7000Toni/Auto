@@ -152,6 +152,7 @@ public class MarketReplay {
 							double newHSBPos = ((double)index / tickDataSize) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);		
 							for (Chart c : charts) {		
+								c.setKeepStartIndex(false);
 								c.hsb().setPosition(Integer.MAX_VALUE, false);
 							}
 						} else {
