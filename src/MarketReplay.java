@@ -158,7 +158,11 @@ public class MarketReplay {
 						} else {
 							double newHSBPos;
 							for (Chart c : charts) {
-								newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()) - c.numDataPoints() * Chart.END_MARGIN_COEF));
+								if (c.drawCandlesticks()) {
+									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()) - c.numCandlesticks() * Chart.END_MARGIN_COEF));
+								} else {
+									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()) - c.numDataPoints() * Chart.END_MARGIN_COEF));
+								}								
 								c.setKeepStartIndex(true);
 								c.hsb().setPosition(newHSBPos, false);
 							}
