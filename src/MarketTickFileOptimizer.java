@@ -12,7 +12,7 @@ public class MarketTickFileOptimizer {
 	private static void work(File file, String outSignature, boolean autoSignature) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-				FileOutputStream fos = new FileOutputStream(new File("./res/" + file.getName().substring(0, file.getName().indexOf('.')) + "_Optimized.csv"), true)) {			
+				FileOutputStream fos = new FileOutputStream(new File(file.getAbsolutePath().substring(0, file.getAbsolutePath().lastIndexOf('.')) + "_Optimized.csv"), true)) {			
 			String in; 
 			int size = -1;
 			if (autoSignature) {				

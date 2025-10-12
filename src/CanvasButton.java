@@ -44,18 +44,32 @@ public class CanvasButton implements Drawable {
 		this.pressed = clicked;
 	}
 	
+	@Override
+	public GraphicsContext graphicsContext() {
+		return this.gc;
+	}
+	
+	@Override
+	public void setGraphicsContext(GraphicsContext gc) {
+		this.gc = gc;
+	}
+	
+	@Override
 	public double x() {
 		return this.x;
 	}
 	
+	@Override
 	public double y() {
 		return this.y;
 	}
 	
+	@Override
 	public void setX(double x) {
 		this.x = x;
 	}
 	
+	@Override
 	public void setY(double y) {
 		this.y = y;
 	}

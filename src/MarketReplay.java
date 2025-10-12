@@ -26,7 +26,7 @@ public class MarketReplay {
 		}
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex());		
 		this.index = index;
-		chart.enableReplayMode(this);
+		chart.enableReplayMode(this, mrp);
 	}
 	
 	public void addChart(Chart chart) {
@@ -74,6 +74,10 @@ public class MarketReplay {
 	
 	public void setSpeed(int speed) {
 		this.speed = speed;
+	}
+	
+	public boolean live() {
+		return this.live;
 	}
 	
 	public void setIndex(int index, boolean increment) {
@@ -130,7 +134,7 @@ public class MarketReplay {
 				long diff = (now - lastTick) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick) {		
 					if (mrp.hsb().dragged()) {
-						index = (int)((mrp.hsb().xPos() / (mrp.hsb().maxPos() - mrp.hsb().sbWidth())) * tickDataSize);						
+						index = (int)(((mrp.hsb().x() - mrp.hsb().minPos()) / (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos())) * tickDataSize);	
 						data.setReplayTickDataSize(index);
 						int ci = index;
 						if (ci == tickDataSize) {

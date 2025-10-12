@@ -71,7 +71,7 @@ public class Menu {
 				dsb.defaultDrawButton();		
 			});
 			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null);
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
@@ -212,7 +212,7 @@ public class Menu {
 		} else if (optimize.onButton(x, y)) { 
 			if (optimize.pressed()) {
 				FileChooser fc = new FileChooser();
-				fc.setInitialDirectory(new File("./res/"));
+				fc.setInitialDirectory(new File("./"));
 				File file = fc.showOpenDialog(null);		
 				if (file != null) {
 					MarketTickFileOptimizer.optimize(file, true);			
@@ -230,7 +230,7 @@ public class Menu {
 						index = 0;
 					}
 					Stage s = new Stage();
-					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
 					Scene scene = new Scene(c);
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
@@ -259,7 +259,7 @@ public class Menu {
 						index = 0;
 					}
 					Stage s = new Stage();
-					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
 					Scene scene = new Scene(c);	
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);

@@ -10,8 +10,8 @@ public abstract class HorizontalScrollBar implements Drawable {
 	
 	public static final long NANO_TO_MILLI = 1000000; 
 	
-	protected double xPos = 0;
-	protected double yPos = 0;
+	protected double x = 0;
+	protected double y = 0;
 	protected boolean dragging = false;
 	protected boolean dragged = false;
 	protected boolean hovering = false;
@@ -21,15 +21,17 @@ public abstract class HorizontalScrollBar implements Drawable {
 	protected double minPos;
 	protected double sbWidth;
 	protected double sbHeight;
+	protected GraphicsContext gc;
 	
-	public HorizontalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
+	public HorizontalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		this.sbo = sbo;
 		this.minPos = minPos;
 		this.maxPos = maxPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		this.xPos = minPos;
-		this.yPos = yPos;
+		this.x = minPos;
+		this.y = y;
+		this.gc = sbo.graphicsContext();
 	}
 	
 	public double sbWidth() {
@@ -59,7 +61,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > xPos) {
+						if (initPos > x) {
 							add = true;
 						} else {
 							add = false;
@@ -72,7 +74,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 						this.stop();
 					}
 					
-					if (initPos >= xPos && initPos <= xPos + sbWidth) {
+					if (initPos >= x && initPos <= x + sbWidth) {
 						this.stop();
 					}
 					
@@ -108,12 +110,12 @@ public abstract class HorizontalScrollBar implements Drawable {
 	public void onMouseDragged(MouseEvent e) {
 		if (dragging) {
 			double posDiff = e.getX() - initPos;
-			if (xPos + posDiff > maxPos - sbWidth) {
-				xPos = maxPos - sbWidth;
-			} else if (xPos + posDiff < minPos) {
-				xPos = minPos;
+			if (x + posDiff > maxPos - sbWidth) {
+				x = maxPos - sbWidth;
+			} else if (x + posDiff < minPos) {
+				x = minPos;
 			} else {
-				xPos += posDiff;
+				x += posDiff;
 			}
 			initPos = (int)e.getX();
 			dragged = true;
@@ -142,12 +144,14 @@ public abstract class HorizontalScrollBar implements Drawable {
 		this.minPos = minPos;
 	}
 	
-	public void setXPos(double xPos) {
-		setPosition(xPos, false);
+	@Override
+	public void setX(double x) {
+		setPosition(x, false);
 	}
 
-	public void setYPos(double yPos) {
-		this.yPos = yPos;
+	@Override
+	public void setY(double y) {
+		this.y = y;
 	}
 	
 	protected abstract void moveOwnerLeft(boolean fast);
@@ -185,8 +189,8 @@ public abstract class HorizontalScrollBar implements Drawable {
 	}
 	
 	protected boolean onScrollBar(double x, double y) {
-		if (y <= yPos + sbHeight && y >= yPos) {
-			if (x <= xPos + sbWidth && x >= xPos) {
+		if (y <= this.y + sbHeight && y >= this.y) {
+			if (x <= this.x + sbWidth && x >= this.x) {
 				return true;
 			}
 		}
@@ -195,7 +199,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 	}
 	
 	protected boolean inScrollBarArea(double x, double y) {	
-		if (y <= yPos + sbHeight && y >= yPos) {
+		if (y <= this.y + sbHeight && y >= this.y) {
 			if (x <= maxPos && x >= minPos) {				
 				return true;
 			}
@@ -204,39 +208,50 @@ public abstract class HorizontalScrollBar implements Drawable {
 		return false;
 	}
 	
-	public double xPos() {
-		return this.xPos;
+	@Override
+	public GraphicsContext graphicsContext() {
+		return this.gc;
 	}
 	
-	public double yPos() {
-		return this.yPos;
+	@Override
+	public void setGraphicsContext(GraphicsContext gc) {
+		this.gc = gc;
+	}
+	
+	@Override
+	public double x() {
+		return this.x;
+	}
+	
+	@Override
+	public double y() {
+		return this.y;
 	}
 	
 	public void setPosition(double pos, boolean increment) {
-		if (Double.isNaN(pos) || dragging) {
+		if (Double.isNaN(pos)) {
 			return;
 		}
 		if (increment) {
-			if (pos + xPos > maxPos - sbWidth) {
-				xPos = maxPos - sbWidth;
-			} else if (pos + xPos < minPos) {	
-				xPos = minPos;
+			if (pos + x > maxPos - sbWidth) {
+				x = maxPos - sbWidth;
+			} else if (pos + x < minPos) {	
+				x = minPos;
 			} else {
-				xPos += pos;
+				x += pos;
 			}
 		} else {
 			if (pos > maxPos - sbWidth) {
-				xPos = maxPos - sbWidth;
+				x = maxPos - sbWidth;
 			} else if (pos < minPos) {	
-				xPos = minPos;
+				x = minPos;
 			} else {
-				xPos = pos;
+				x = pos;
 			}
 		}
 	}		
 	
 	public void draw() {		
-		GraphicsContext gc = sbo.graphicsContext();
 		if (hovering) {	
 			gc.setFill(Color.GRAY);
 		} else {
@@ -245,6 +260,6 @@ public abstract class HorizontalScrollBar implements Drawable {
 		if (dragging) {
 			gc.setFill(Color.DIMGRAY);
 		} 
-		gc.fillRect(xPos, yPos, sbWidth, sbHeight);
+		gc.fillRect(x, y, sbWidth, sbHeight);
 	}
 }
