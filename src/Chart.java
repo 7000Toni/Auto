@@ -447,7 +447,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.onMouseMoved(me);
-		} else {
+		} else if (replayMode) {
 			mrp.onMouseExited();
 		}
 		drawCharts(this.name());
