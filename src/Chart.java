@@ -499,14 +499,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 			if (onChart(e.getX(), e.getY())) {
 				chartInitPos = e.getX();
-				if (onDataMargin(e.getX(), e.getY())) {
-					chartDataMarginDragging = true;
-				} else if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+				if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					MouseEvent me = new MouseEvent(MouseEvent.MOUSE_PRESSED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 							e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 							e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 							e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 					mrp.onMousePressed(me);
+				} else if (onDataMargin(e.getX(), e.getY())) {
+					chartDataMarginDragging = true;
 				} else {
 					chartDragging = true;					
 				}
