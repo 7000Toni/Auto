@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -212,10 +213,13 @@ public class Menu {
 		} else if (optimize.onButton(x, y)) { 
 			if (optimize.pressed()) {
 				FileChooser fc = new FileChooser();
+				fc.setTitle("Select MarketTick Files");
 				fc.setInitialDirectory(new File("./"));
-				File file = fc.showOpenDialog(null);		
-				if (file != null) {
-					MarketTickFileOptimizer.optimize(file, true);			
+				List<File> files = fc.showOpenMultipleDialog(null);		
+				if (files != null) {
+					for (File f : files) {
+						MarketTickFileOptimizer.optimize(f, true);
+					}
 				}
 			}
 			optimize.setPressed(false);
