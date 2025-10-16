@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.StringTokenizer;
 
 public class DataSet {
@@ -138,11 +137,6 @@ public class DataSet {
 		} else {
 			return this.tickData.size();
 		}
-	}
-	
-	private void random() {
-		Random ran = new Random();
-		
 	}
 	
 	public Candlestick makeLastReplayCandlestick(int startIndex) {
