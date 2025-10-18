@@ -18,7 +18,7 @@ public class CrossHair {
 		this.chart = chart;
 		this.dateBarHalfWidth = chart.fontSize() * 5;
 	}
-	
+		
 	public static double price() {
 		return CrossHair.price;
 	}
@@ -49,6 +49,17 @@ public class CrossHair {
 	
 	public static void setName(String name) {
 		CrossHair.name = name;
+	}
+	
+	@Override
+	public String toString() {
+		String ret = "name: " + name + '\n'; 
+		ret += "price: " + price + '\n';
+		ret += "isForCandle: " + isForCandle + '\n';
+		ret += "dateIndex: " + dateIndex + '\n';
+		ret += "x: " + x + '\n';
+		ret += "y: " + y + '\n';
+		return ret;
 	}
 	
 	private void setDateBarX(double xPos) {

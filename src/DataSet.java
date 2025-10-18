@@ -19,7 +19,7 @@ public class DataSet {
 	private int numDecimalPts;
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
-	private ArrayList<Double> lines = new ArrayList<Double>();
+	private ArrayList<Line> lines = new ArrayList<Line>();
 	private long startEpochMinutes;
 	
 	class DataPair {
@@ -310,7 +310,7 @@ public class DataSet {
 		return this.m1Candles;
 	}
 	
-	public ArrayList<Double> lines() {
+	public ArrayList<Line> lines() {
 		return this.lines;
 	}
 	

@@ -22,6 +22,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public final static double HSB_WIDTH = 100;
 	public final static double HSB_HEIGHT = 10;
 	
+	public final static double PRC_MSRMNT_LENGTH = 100;
+	
 	//TODO consider a function to calculate the price given a y coordinate
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
@@ -95,6 +97,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean newCHT_BTN_Clicked = false;
 	private boolean drawCandlesticksClicked = false;
 	private boolean darkModeClicked = false;
+	
+	//ChartActions
+	private boolean rightPressed = false;
+	private boolean measuring = false;
+	private double startPrice = 0;
+	private double startX = 0;
+	private double startY = 0;
+	private double endX = 0;
+	private double endY = 0;
 	
 	//Candlestick static variables
 	private boolean drawCandlesticks = false;
@@ -416,7 +427,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 		CrossHair.setIsForCandle(drawCandlesticks);
 		CrossHair.setName(data.name());
 		CrossHair.setX(e.getX());
-		CrossHair.setY(e.getY());	
+		CrossHair.setY(e.getY());
+		if (!onChart(e.getX(), e.getY())) {
+			measuring = false;
+		}
 		if (checkNewChtBtn(e.getX(), e.getY())) {
 			if (!newCHT_BTN_Clicked) {
 				newCHT_BTN_Hover = true;
@@ -424,7 +438,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else {
 			newCHT_BTN_Hover = false;
 			newCHT_BTN_Clicked = false;
-		}
+		}		
 		if (checkChartTypeBtn(e.getX(), e.getY())) {
 			if (!drawCandlesticksClicked) {
 				drawCandlesticksHover = true;
@@ -450,6 +464,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (replayMode) {
 			mrp.onMouseExited();
 		}
+		System.out.println(crossHair.toString());
 		drawCharts(this.name());
 	}				
 	
@@ -485,12 +500,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 		hsb.onMousePressed(e);
 		if (e.getButton() == MouseButton.MIDDLE) {
 			if (onChart(e.getX(), e.getY())) {
-				data.lines().add(roundToNearestTick(CrossHair.price()));
+				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY) {
-			if (!data.lines().isEmpty()) {
-				data.lines().removeLast();
-			}
+			rightPressed = true;			
+			startPrice = roundToNearestTick(CrossHair.price());
+			startX = e.getX();
+			startY = e.getY();
 		}
 		if (e.isPrimaryButtonDown()) {			
 			if (e.getX() >= width - PRICE_MARGIN && e.getY() <= chartHeight + CHT_MARGIN) {
@@ -509,6 +525,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 					chartDataMarginDragging = true;
 				} else {
 					chartDragging = true;					
+				}				
+				double price = roundToNearestTick(((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest);
+				for (Line l : data.lines()) {
+					if (l.price() == price) {
+						l.setHighlighted(true);
+					} else {
+						l.setHighlighted(false);
+					}
 				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
@@ -566,6 +590,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 			} else {
 				darkMode = true;
 			}
+		} else if (measuring) {
+			measuring = false;
+		} else if (rightPressed) {
+			for (Line l : data.lines()) {
+				if (l.highlighted()) {
+					data.lines().remove(l);
+					break;
+				}
+			}
 		} else {
 			if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 				MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
@@ -578,6 +611,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		priceDragging = false;
 		chartDragging = false;
 		chartDataMarginDragging = false;
+		rightPressed = false;
 		drawCharts(this.name());
 	}
 	
@@ -593,7 +627,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 				chtDataMargin += posDiff;
 			}
 		}
-		priceInitPos = e.getY();
+		if (rightPressed) {
+			measuring = true;
+			endX = e.getX();
+			endY = e.getY();
+		}
+		priceInitPos = e.getY();		
 		if (chartDragging) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = 0;					
@@ -774,25 +813,23 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void drawLines() {
 		double trueLowest = lowest - dataMarginTickSize;
 		double trueHighest = highest + dataMarginTickSize;
-		for (Double d : data.lines()) {
-			if (d >= trueLowest && d <= trueHighest) {
-				double fontSize = gc.getFont().getSize();
+		for (Line l : data.lines()) {
+			if (l.price() >= trueLowest && l.price() <= trueHighest) {
 				double trueRange = trueHighest - trueLowest;
-				double y = chartHeight + CHT_MARGIN - (((d - trueLowest) / trueRange) * chartHeight);
-				gc.strokeLine(CHT_MARGIN, y, chartWidth + CHT_MARGIN, y);
-				
-				gc.setFill(Color.GRAY);
+				double y = chartHeight + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * chartHeight);
+				if (l.highlighted()) {
+					gc.setFill(Color.RED);
+					gc.setStroke(Color.RED);
+				} else {
+					gc.setFill(Color.GRAY);
+					gc.setStroke(Color.GRAY);
+				}
+				gc.strokeLine(CHT_MARGIN, y, chartWidth + CHT_MARGIN, y);				
 				gc.fillRect(chartWidth + CHT_MARGIN, y - fontSize/2, 100, fontSize);
 				gc.setStroke(Color.WHITE);
-				gc.strokeText(((Double)(roundToNearestTick(d))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
-				gc.setFill(Color.BLACK);
-				if (darkMode) {
-					gc.setStroke(Color.WHITE);
-				} else {
-					gc.setStroke(Color.BLACK);
-				}
+				gc.strokeText(((Double)(roundToNearestTick(l.price()))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			}
-		}
+		}		
 	}
 	
 	public void drawCandleStick(DataSet.Candlestick candle, double xPos, double yPos) {
@@ -992,6 +1029,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 		crossHair.drawCrossHair();
 	}	
 	
+	private void checkMeasuring() {
+		if (measuring) {
+			double endPrice = roundToNearestTick(((((chartHeight - (chtDataMargin*2)) - (endY - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest);
+			if (darkMode) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}
+			gc.strokeLine(startX, startY, endX, endY);
+			if (endX > CHT_MARGIN + chartWidth - PRC_MSRMNT_LENGTH) {
+				endX -= PRC_MSRMNT_LENGTH + 5;
+			}
+			if (endY < CHT_MARGIN + 2 + fontSize) {
+				endY += fontSize + 3;
+			}
+			gc.setStroke(Color.SLATEBLUE);	
+			gc.strokeText(((Double)(endPrice - startPrice)).toString() + " from: " + ((Double)startPrice).toString(), endX + 1, endY - 2, PRC_MSRMNT_LENGTH);
+		}
+	}
+	
 	public void draw() {		
 		calculateIndices();
 		drawFrame();		
@@ -1007,6 +1064,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawLineChart();
 		}
 		drawPriceDashes();
+		checkMeasuring();
 		if (replayMode) {
 			mrp.drawPane(gc, mrpx, mrpy);
 		}
