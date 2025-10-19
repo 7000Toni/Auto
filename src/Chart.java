@@ -1049,14 +1049,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 				gc.setStroke(Color.BLACK);
 			}
 			gc.strokeLine(startX, startY, endX, endY);
+			double ex = endX;
+			double ey = endY;
 			if (endX > CHT_MARGIN + chartWidth - PRC_MSRMNT_LENGTH) {
-				endX -= PRC_MSRMNT_LENGTH + 5;
+				ex -= PRC_MSRMNT_LENGTH + 5;
 			}
 			if (endY < CHT_MARGIN + 2 + fontSize) {
-				endY += fontSize + 3;
+				ey += fontSize + 3;
 			}
 			gc.setStroke(Color.SLATEBLUE);	
-			gc.strokeText(((Double)(endPrice - startPrice)).toString() + " from: " + ((Double)startPrice).toString(), endX + 1, endY - 2, PRC_MSRMNT_LENGTH);
+			gc.strokeText(((Double)(endPrice - startPrice)).toString() + " from: " + ((Double)startPrice).toString(), ex + 1, ey - 2, PRC_MSRMNT_LENGTH);
 		}
 	}
 	
