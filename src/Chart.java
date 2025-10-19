@@ -103,6 +103,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean darkModeClicked = false;
 	
 	//ChartActions
+	private int lineHighlighted = -1;
 	private boolean rightPressed = false;
 	private boolean measuring = false;
 	private double startPrice = 0;
@@ -465,7 +466,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (replayMode) {
 			mrp.onMouseExited();
 		}
-		System.out.println("focusedChart: " + focusedChart);
+		System.out.println("focusedChart: " + focusedChart.get());
 		System.out.println(crossHair.toString());
 		drawCharts(this.name());
 	}				
@@ -501,7 +502,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public void onMousePressed(MouseEvent e) {		
 		hsb.onMousePressed(e);
 		if (e.getButton() == MouseButton.MIDDLE) {
-			if (onChart(e.getX(), e.getY())) {
+			if (lineHighlighted != -1) {
+				data.lines().remove(lineHighlighted);
+				lineHighlighted = -1;
+			} else if (onChart(e.getX(), e.getY())) {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY) {
@@ -534,6 +538,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				int i = -1;
 				int j = 0;
 				double minDiff = Double.MAX_VALUE;
+				lineHighlighted = -1;
 				for (Line l : data.lines()) {
 					double diff = Math.abs(price - l.price());
 					if (l.price() >= lowerPrice && l.price() <= upperPrice && diff < minDiff) {
@@ -545,6 +550,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 				if (i != -1) {
 					data.lines().get(i).setHighlighted(true);
+					lineHighlighted = i;
 				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
@@ -604,13 +610,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		} else if (measuring) {
 			measuring = false;
-		} else if (rightPressed) {
-			for (Line l : data.lines()) {
-				if (l.highlighted()) {
-					data.lines().remove(l);
-					break;
-				}
-			}
 		} else {
 			if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 				MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
