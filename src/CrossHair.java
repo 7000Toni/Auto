@@ -189,7 +189,7 @@ public class CrossHair {
 		drawVerticalLine(xPos, dateIndex);
 	}
 	
-	private void drawUnfocusedTickToCandle() {
+	private void drawUnfocusedCandleToTick() {
 		if (dateIndex == -1) {
 			return;
 		}
@@ -212,7 +212,7 @@ public class CrossHair {
 		drawVerticalLine(xPos, dateIndex);
 	}
 
-	private void drawUnfocusedCandleToTick() {
+	private void drawUnfocusedTickToCandle() {
 		if (dateIndex == -1) {
 			return;
 		}
@@ -242,7 +242,7 @@ public class CrossHair {
 		}
 		if (!chart.drawCandlesticks()) {
 			if (isForCandle) {
-				drawUnfocusedTickToCandle();
+				drawUnfocusedCandleToTick();
 			} else if (dateIndex >= chart.startIndex() && dateIndex <= chart.endIndex()) {
 				drawUnfocusedTickToTick();
 			}
@@ -252,7 +252,7 @@ public class CrossHair {
 					drawUnfocusedCandleToCandle();
 				}
 			} else {
-				drawUnfocusedCandleToTick();
+				drawUnfocusedTickToCandle();
 			}
 		}
 	}
