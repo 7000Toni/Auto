@@ -8,11 +8,12 @@ public class MarketReplay {
 	private DataSet data;
 	private MarketReplayPane mrp;
 	private int index;	
-	private boolean pause = false;
+	private boolean paused = false;
 	private boolean live = true;
 	private int speed = 1;
 	private int tickDataSize;
 	private boolean run = false;
+	private int timeToNextTick; 
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -42,10 +43,10 @@ public class MarketReplay {
 	}
 	
 	public void togglePause() {
-		if (pause) {
-			pause = false;
+		if (paused) {
+			paused = false;
 		} else {
-			pause = true;
+			paused = true;
 		}
 	}
 	
@@ -98,12 +99,16 @@ public class MarketReplay {
 				this.index = index;
 			}
 		}
+		timeToNextTick = timeToNextTick(index);
 		data.setReplayTickDataSize(this.index);
 		int ci = this.index;
 		if (ci == tickDataSize) {
 			ci--;							
 		}		
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
+		for (Chart c : charts) {
+			c.draw();
+		}
 	}
 	
 	private int timeToNextTick(int index) {
@@ -111,6 +116,10 @@ public class MarketReplay {
 			index = tickDataSize - 2;
 		}
 		return (int)(data.tickData().get(index + 1).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli() - data.tickData().get(index).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli())/speed;
+	}
+	
+	public boolean paused() {
+		return this.paused;
 	}
 	
 	public void stop() {
@@ -121,7 +130,6 @@ public class MarketReplay {
 		run = true;
 		new AnimationTimer() {
 			long lastTick = 0;
-			int timeToNextTick = timeToNextTick(index);
 			@Override
 			public void handle(long now) {
 				if (!run) {
@@ -129,12 +137,13 @@ public class MarketReplay {
 				}
 				if (lastTick == 0) {
 					lastTick = now;
+					timeToNextTick = timeToNextTick(index);
 					return;
 				}
 				long diff = (now - lastTick) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick) {		
 					if (mrp.hsb().dragged()) {
-						index = (int)(((mrp.hsb().x() - mrp.hsb().minPos()) / (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos())) * tickDataSize);	
+						index = (int)(((mrp.hsb().x() - mrp.hsb().minPos()) / (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos())) * tickDataSize);							
 						data.setReplayTickDataSize(index);
 						int ci = index;
 						if (ci == tickDataSize) {
@@ -142,7 +151,7 @@ public class MarketReplay {
 						}		
 						data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 					} 
-					while (!pause && index < tickDataSize) {
+					while (!paused && index < tickDataSize) {
 						index++;
 						diff -= timeToNextTick;
 						timeToNextTick = timeToNextTick(index);

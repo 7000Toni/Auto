@@ -148,13 +148,20 @@ public class DataSet {
 		rfv.high = rfv.val;
 		rfv.low = rfv.val;
 		rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		long ldtPrevEpochSec = rfv.ldt.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 		Candlestick c = null;
-		for (int i = startIndex + 1; i < replayTickDataSize; i++) {
-			rfv.val = tickData().get(i).price;
-			if (rfv.val > rfv.high) {
-				rfv.high = rfv.val;
-			} else if (rfv.val < rfv.low) {
-				rfv.low = rfv.val;
+		for (int i = startIndex + 1; i < replayTickDataSize; i++) {			
+			long ldtEpochSec = tickData.get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
+			int diff = (int)((ldtEpochSec - ldtPrevEpochSec) / 60.0);
+			if (diff == 0) {
+				rfv.val = tickData().get(i).price;
+				if (rfv.val > rfv.high) {
+					rfv.high = rfv.val;
+				} else if (rfv.val < rfv.low) {
+					rfv.low = rfv.val;
+				}
+			} else {
+				break;
 			}
 		}
 		rfv.close = rfv.val;
@@ -278,10 +285,6 @@ public class DataSet {
 			for (int i = 1; i < size; i++) {
 				rfv.progress++;
 				showPercentage(rfv);
-				/*
-				if (progress == 100000) {
-					break;
-				}*/
 				tdfr.readNextTick(rfv);		
 				if (rfv.in == null) {
 					break;

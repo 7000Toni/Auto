@@ -24,6 +24,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public final static double PRC_MSRMNT_LENGTH = 100;
 	
+	public final static double LINE_PRESS_MARGIN = 5;
+	
 	//TODO consider a function to calculate the price given a y coordinate
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
@@ -526,13 +528,23 @@ public class Chart implements ScrollBarOwner, Drawable {
 				} else {
 					chartDragging = true;					
 				}				
-				double price = roundToNearestTick(((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest);
+				double price = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
+				double upperPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
+				double lowerPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
+				int i = -1;
+				int j = 0;
+				double minDiff = Double.MAX_VALUE;
 				for (Line l : data.lines()) {
-					if (l.price() == price) {
-						l.setHighlighted(true);
-					} else {
-						l.setHighlighted(false);
+					double diff = Math.abs(price - l.price());
+					if (l.price() >= lowerPrice && l.price() <= upperPrice && diff < minDiff) {
+						i = j;						
+						minDiff = diff;
 					}
+					l.setHighlighted(false);					
+					j++;
+				}
+				if (i != -1) {
+					data.lines().get(i).setHighlighted(true);
 				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
@@ -752,15 +764,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	
 	
-	private void calculateRange(int beginIndex, int endIndex) {
+	private void calculateRange() {		
 		if (drawCandlesticks) {
-			lowest = data.m1Candles().get(beginIndex).low();
-			highest = data.m1Candles().get(beginIndex).high();				
+			lowest = data.m1Candles().get(startIndex).low();
+			highest = data.m1Candles().get(startIndex).high();				
 			int ei = endIndex;
 			if (replayMode) {
 				ei--;
 			}
-			for (int i = beginIndex; i < ei; i++) {			
+			for (int i = startIndex; i < ei; i++) {			
 				double low = data.m1Candles().get(i).low();
 				double high = data.m1Candles().get(i).high();				
 				if (high > highest) {
@@ -769,9 +781,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (low < lowest) {					
 					lowest = low;
 				}
-			}	
-			if (replayMode && mr.live()) {
-				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(data.m1CandlesDataSize(replayMode) - 1).firstTickIndex());
+			}
+			if (replayMode) {
+				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(ei).firstTickIndex());
 				if (c.high() > highest) {
 					highest = c.high();
 				} 
@@ -781,10 +793,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 			range = highest - lowest;
 		} else {
-			lowest = data.tickData().get(beginIndex).price();
-			highest = data.tickData().get(beginIndex).price();				
+			lowest = data.tickData().get(startIndex).price();
+			highest = data.tickData().get(startIndex).price();				
 			
-			for (int i = beginIndex; i < endIndex; i++) {			
+			for (int i = startIndex; i < endIndex; i++) {			
 				double val = data.tickData().get(i).price();
 				if (val > highest) {
 					highest = val;
@@ -1056,7 +1068,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		fillChartTypeBtn();
 		fillDarkModeBtn();
 		hsb.draw();
-		calculateRange(startIndex, endIndex);
+		calculateRange();
 		setPreDrawVars();
 		if (drawCandlesticks) {
 			drawCandlestickChart();
