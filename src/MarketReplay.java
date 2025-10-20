@@ -99,7 +99,7 @@ public class MarketReplay {
 				this.index = index;
 			}
 		}
-		timeToNextTick = timeToNextTick(index);
+		timeToNextTick = timeToNextTick(this.index);
 		data.setReplayTickDataSize(this.index);
 		int ci = this.index;
 		if (ci == tickDataSize) {

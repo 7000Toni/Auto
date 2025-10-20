@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import javafx.scene.Scene;
@@ -118,8 +119,9 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private CanvasNumberChooser s3;
 	
 	public MarketReplayPane(Chart chart, int index, Stage stage) {
-		this.stage = stage;		
+		this.stage = stage;				
 		name = chart.name();
+		stage.setTitle(name + " Replay");
 		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
@@ -203,7 +205,15 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		} else if (percent < 0) {
 			percent = 0;
 		}
-		gc.fillText(name + "  " + percent + "%", x + 10, y + 25, 240);
+		DataSet data = mr.data();		
+		int index = data.tickDataSize(true) - 1;
+		LocalDateTime tick = null;
+		String time = "";
+		if (index > -1) {
+			tick = data.tickData().get(index).dateTime();
+			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
+		}
+		gc.fillText(percent + "%" + " " + time, x + 10, y + 25, 240);
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
