@@ -213,7 +213,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 			tick = data.tickData().get(index).dateTime();
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
-		gc.fillText(percent + "%" + " " + time, x + 10, y + 25, 240);
+		gc.fillText(percent + "%  " + time, x + 10, y + 25, 240);
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
