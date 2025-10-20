@@ -104,6 +104,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	//ChartActions
 	private int lineHighlighted = -1;
+	private boolean lineMovable = false;
+	private boolean lineDragging = false;
 	private boolean rightPressed = false;
 	private boolean measuring = false;
 	private double startPrice = 0;
@@ -505,6 +507,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (lineHighlighted != -1) {
 				data.lines().remove(lineHighlighted);
 				lineHighlighted = -1;
+				lineMovable = false;
 			} else if (onChart(e.getX(), e.getY())) {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
@@ -538,6 +541,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				int i = -1;
 				int j = 0;
 				double minDiff = Double.MAX_VALUE;
+				int lh = lineHighlighted;
 				lineHighlighted = -1;
 				for (Line l : data.lines()) {
 					double diff = Math.abs(price - l.price());
@@ -551,6 +555,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (i != -1) {
 					data.lines().get(i).setHighlighted(true);
 					lineHighlighted = i;
+					if (i == lh) {
+						lineDragging = true;
+					}
+				}
+				if (i != lh) {
+					lineMovable = false;
+					lineDragging = false;
 				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
@@ -610,15 +621,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		} else if (measuring) {
 			measuring = false;
-		} else {
-			if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
-				MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-						e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-						e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-						e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-				mrp.onMouseReleased(me);
-			}
+		} else if (lineHighlighted != -1) {
+			lineMovable = true;
+		} else if (replayMode && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
+					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
+					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
+					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
+			mrp.onMouseReleased(me);
 		}
+		lineDragging = false;
 		priceDragging = false;
 		chartDragging = false;
 		chartDataMarginDragging = false;
@@ -638,13 +650,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 				chtDataMargin += posDiff;
 			}
 		}
+		if (lineMovable) {
+			double price = roundToNearestTick(((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest); 
+			data.lines().get(lineHighlighted).setPrice(price);
+		}
 		if (rightPressed) {
 			measuring = true;
 			endX = e.getX();
 			endY = e.getY();
 		}
 		priceInitPos = e.getY();		
-		if (chartDragging) {
+		if (chartDragging && !lineDragging) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = 0;					
 			int diff;
