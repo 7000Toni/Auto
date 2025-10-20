@@ -1078,12 +1078,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 				break;
 			}
 			gc.strokeLine((i * xDiff)+CHT_MARGIN, prevY, ((i + 1) * xDiff)+CHT_MARGIN, prevY - ((data.tickData().get(startIndex + i + 1).price() - data.tickData().get(startIndex + i).price()) / conversionVar));
-			prevY = prevY - ((data.tickData().get(startIndex + i + 1).price() - data.tickData().get(startIndex + i).price()) / conversionVar);			
-		}	
+			prevY = prevY - ((data.tickData().get(startIndex + i + 1).price() - data.tickData().get(startIndex + i).price()) / conversionVar);	
+		}
 	}
 	
 	private void drawCandlestickChart() {
-		endMargin = false;
+		endMargin = false;						
 		for (int i = 0; i < numCandlesticks; i++) {
 			if (startIndex + i > data.m1CandlesDataSize(this.replayMode) - 1) {
 				endMargin = true;
@@ -1094,16 +1094,39 @@ public class Chart implements ScrollBarOwner, Drawable {
 				c = data.makeLastReplayCandlestick(m1Candles().get(data.m1CandlesDataSize(replayMode) - 1).firstTickIndex());
 			} else {
 				c = data.m1Candles().get(startIndex + i);
-			}
-			double xPos = CHT_MARGIN + (candlestickWidth + candlestickSpacing) * i;
+			}		
 			double yPos;
+			double xPos = CHT_MARGIN + (candlestickWidth + candlestickSpacing) * i;
 			if (c.open() < c.close()) {
 				yPos = ((highest - c.close()) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			} else {
 				yPos = ((highest - c.open()) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			}
 			drawCandleStick(c, xPos, yPos);			
+		}		
+	}
+	
+	private void drawCurrentPrice() {		
+		if (data.tickDataSize(true) < 2) {
+			return;
 		}
+		int i = data.tickDataSize(true);
+		double price = tickData().get(i - 1).price();
+		if (price > highest || price < lowest) {
+			return;
+		}
+		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;				
+		if (price < tickData().get(i - 2).price()) {
+			gc.setStroke(Color.ORANGE);
+			gc.setFill(Color.ORANGE);
+		} else {
+			gc.setStroke(Color.CORNFLOWERBLUE);
+			gc.setFill(Color.CORNFLOWERBLUE);
+		}
+		gc.strokeLine(CHT_MARGIN, yPos, width - PRICE_MARGIN, yPos);		
+		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
+		gc.setStroke(Color.WHITE);
+		gc.strokeText(((Double)(price)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 	}
 	
 	private void drawPriceDashes() {
@@ -1139,7 +1162,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (!data.lines().isEmpty()) {
 			drawLines();
 		}
-		crossHair.drawCrossHair();
+		if (replayMode) {
+			drawCurrentPrice();
+		}
+		crossHair.drawCrossHair();		
 	}	
 	
 	private void checkMeasuring() {
