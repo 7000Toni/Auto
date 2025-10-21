@@ -842,7 +842,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			lowest = data.tickData().get(startIndex).price();
 			highest = data.tickData().get(startIndex).price();				
 			
-			for (int i = startIndex; i < endIndex; i++) {			
+			for (int i = startIndex; i < endIndex + 1; i++) {			
 				double val = data.tickData().get(i).price();
 				if (val > highest) {
 					highest = val;
@@ -1115,14 +1115,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (price > highest || price < lowest) {
 			return;
 		}
-		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;				
-		if (price < tickData().get(i - 2).price()) {
-			gc.setStroke(Color.ORANGE);
-			gc.setFill(Color.ORANGE);
-		} else {
-			gc.setStroke(Color.CORNFLOWERBLUE);
-			gc.setFill(Color.CORNFLOWERBLUE);
-		}
+		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+		gc.setStroke(Color.SLATEBLUE);
+		gc.setFill(Color.SLATEBLUE);
 		gc.strokeLine(CHT_MARGIN, yPos, width - PRICE_MARGIN, yPos);		
 		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
 		gc.setStroke(Color.WHITE);
@@ -1155,7 +1150,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		while (index > CHT_MARGIN + gc.getFont().getSize() / 3) {
 			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
-			gc.strokeText(((Double)(lowest + (diff * i))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+			gc.strokeText(((Double)(Round.round(lowest + (diff * i), numDecimalPts))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			index -= spacing;
 			i++;
 		}
@@ -1184,6 +1179,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 			if (endY < CHT_MARGIN + 2 + fontSize) {
 				ey += fontSize + 3;
+				if (ex == endX) {
+					ex += 15;
+				}
 			}
 			gc.setStroke(Color.SLATEBLUE);	
 			gc.strokeText(((Double)(endPrice - startPrice)).toString() + " from: " + ((Double)startPrice).toString(), ex + 1, ey - 2, PRC_MSRMNT_LENGTH);

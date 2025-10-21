@@ -25,6 +25,7 @@ public class Menu {
 	private CanvasButton marketTickReader;
 	private CanvasButton marketTickOReader;
 	private CanvasButton originalReader;
+	private CanvasButton dukasNodeReader;
 	private double width;
 	private double height;
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
@@ -49,12 +50,14 @@ public class Menu {
 			gc.setFont(new Font(22));
 			optimize.defaultDrawButton();			
 		});
-		this.marketTickReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4, "MT READER", 2, 23, null);
+		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24, null);
 		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
-		this.marketTickOReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4 + 37, "MTO READER", 2, 22, null);
+		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23, null);
 		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16));
-		this.originalReader = new CanvasButton(gc, 100, 32, MARGIN, MARGIN + 58*4 + 74, "OG READER", 2, 23, null);
+		this.originalReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 86, "OG READER", 2, 24, null);
 		this.originalReader.setVanGogh(readerVG(originalReader, 18));
+		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24, null);
+		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
 		marketTickOReader.setPressed(true);
 		reader = new OptimizedMarketTickFileReader();
 		canvas.setOnMousePressed(e -> onMousePressed(e));
@@ -121,6 +124,7 @@ public class Menu {
 		marketTickReader.draw();
 		marketTickOReader.draw();
 		originalReader.draw();
+		dukasNodeReader.draw();
 		for (DataSetButton dsb : dsButtons) {
 			dsb.draw();
 		}
@@ -134,14 +138,13 @@ public class Menu {
 		} else if (optimize.onButton(x, y)) {
 			optimize.setPressed(true);
 		} else if (marketTickReader.onButton(x, y)) {
-			marketTickReader.setPressed(true);
-			reader = new MarketTickFileReader();
+			marketTickReader.setPressed(true);			
 		} else if (marketTickOReader.onButton(x, y)) {
-			marketTickOReader.setPressed(true);
-			reader = new OptimizedMarketTickFileReader();
-		} else if (originalReader.onButton(x, y)) {
-			originalReader.setPressed(true);
-			reader = new OriginalTickFileReader();
+			marketTickOReader.setPressed(true);			
+		} else if (originalReader.onButton(x, y)) {	
+			originalReader.setPressed(true);			
+		} else if (dukasNodeReader.onButton(x, y)) {
+			dukasNodeReader.setPressed(true);
 		} else {
 			for (DataSetButton dsb : dsButtons) {
 				CanvasButton close = dsb.closeButton();
@@ -197,20 +200,33 @@ public class Menu {
 			loadData.setPressed(false);
 		} else if (marketTickReader.onButton(x, y)) {
 			if (marketTickReader.pressed()) {
+				reader = new MarketTickFileReader();
 				marketTickOReader.setPressed(false);
 				originalReader.setPressed(false);
+				dukasNodeReader.setPressed(false);
 			}			
 		} else if (marketTickOReader.onButton(x, y)) {
 			if (marketTickOReader.pressed()) {
+				reader = new OptimizedMarketTickFileReader();
 				marketTickReader.setPressed(false);
 				originalReader.setPressed(false);
+				dukasNodeReader.setPressed(false);
 			}
 		} else if (originalReader.onButton(x, y)) {
 			if (originalReader.pressed()) {
+				reader = new OriginalTickFileReader();
 				marketTickReader.setPressed(false);
 				marketTickOReader.setPressed(false);
+				dukasNodeReader.setPressed(false);
 			}
-		} else if (optimize.onButton(x, y)) { 
+		} else if (dukasNodeReader.onButton(x, y)) {
+			if (dukasNodeReader.pressed()) {
+				reader = new DukascopyNodeReader();
+				marketTickReader.setPressed(false);
+				marketTickOReader.setPressed(false);
+				originalReader.setPressed(false);
+			}
+		} else if (optimize.onButton(x, y)) { 		
 			if (optimize.pressed()) {
 				FileChooser fc = new FileChooser();
 				fc.setTitle("Select MarketTick Files");
@@ -284,6 +300,23 @@ public class Menu {
 				i++;
 			}
 		}
+		if (reader instanceof OriginalTickFileReader) {
+			marketTickReader.setPressed(false);
+			marketTickOReader.setPressed(false);
+			dukasNodeReader.setPressed(false);
+		} else if (reader instanceof MarketTickFileReader) {
+			marketTickOReader.setPressed(false);
+			originalReader.setPressed(false);
+			dukasNodeReader.setPressed(false);
+		} else if (reader instanceof OptimizedMarketTickFileReader) {
+			originalReader.setPressed(false);
+			marketTickReader.setPressed(false);
+			dukasNodeReader.setPressed(false);
+		} else if (reader instanceof DukascopyNodeReader) {
+			originalReader.setPressed(false);
+			marketTickReader.setPressed(false);
+			marketTickOReader.setPressed(false);
+		}
 		draw();
 	}
 	
@@ -295,6 +328,7 @@ public class Menu {
 		ButtonChecks.mouseButtonSwitchHoverCheck(marketTickReader, x, y);
 		ButtonChecks.mouseButtonSwitchHoverCheck(marketTickOReader, x, y);
 		ButtonChecks.mouseButtonSwitchHoverCheck(originalReader, x, y);
+		ButtonChecks.mouseButtonSwitchHoverCheck(dukasNodeReader, x, y);
 		for (DataSetButton dsb : dsButtons) {
 			CanvasButton close = dsb.closeButton();
 			CanvasButton mr = dsb.mrButton();
