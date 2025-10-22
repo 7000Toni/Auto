@@ -628,7 +628,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (drawCandlesticks) {
 				drawCandlesticks = false;
 				CrossHair.setIsForCandle(false);
-				startIndex = m1Candles().get(startIndex).firstTickIndex();
+				if (endIndex >= m1Candles().size()) {
+					startIndex = tickData().size() - numDataPoints;
+				} else {
+					startIndex = m1Candles().get(endIndex).firstTickIndex() - 1 - numDataPoints;
+				}
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
 			} else {
@@ -636,8 +643,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 					return;
 				}
 				drawCandlesticks = true;	
-				CrossHair.setIsForCandle(true);			
-				startIndex = tickData().get(startIndex).candleIndex();
+				CrossHair.setIsForCandle(true);	
+				if (endIndex >= tickData().size()) {
+					startIndex = m1Candles().size() - numCandlesticks;
+				} else {
+					startIndex = tickData().get(endIndex).candleIndex() + 1 - numCandlesticks;
+				}
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
 			}
@@ -723,7 +737,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				hsb.setPosition(newHSBPos, false);
 			}
 		}
-		if (chartDataMarginDragging) {			
+		if (chartDataMarginDragging && !lineDragging) {			
 			if (drawCandlesticks) {
 				zoomCandlesticks(e.getX() - chartInitPos);
 			} else {
