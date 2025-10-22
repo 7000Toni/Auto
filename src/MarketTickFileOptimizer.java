@@ -10,13 +10,14 @@ import java.util.StringTokenizer;
 public class MarketTickFileOptimizer {
 	
 	private static void work(File file, String outSignature, boolean autoSignature) {
-		if (file.exists()) {
+		File outFile = new File(file.getAbsolutePath().substring(0, file.getAbsolutePath().lastIndexOf('.')) + "_Optimized.csv");
+		if (outFile.exists()) {
 			System.out.println("file already exists. fuhgeddaboudit");
 			return;
 		}
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-				FileOutputStream fos = new FileOutputStream(new File(file.getAbsolutePath().substring(0, file.getAbsolutePath().lastIndexOf('.')) + "_Optimized.csv"), true)) {			
+				FileOutputStream fos = new FileOutputStream(outFile, true)) {			
 			String in; 
 			int size = -1;
 			if (autoSignature) {				
