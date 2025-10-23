@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.Canvas;
@@ -49,7 +47,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public final static double CNDL_SPAC_COEF = 0.4;
 	//ChartType
 	private static ArrayList<Chart> charts = new ArrayList<Chart>();	
-	private static BooleanProperty focusedOnChart = new SimpleBooleanProperty(false);	
+	private static boolean focusedOnChart = false;	
 	private static boolean darkMode = false;
 	
 	private DataSet data;
@@ -57,7 +55,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private int numDecimalPts;
 	private double tickSize;
-	private BooleanProperty focusedChart = new SimpleBooleanProperty(false);
+	private boolean focusedChart = false;
 	private Canvas canvas;	
 	private double width;
 	private double height;
@@ -87,13 +85,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean replayMode = false;
 	private boolean keepStartIndex = false;
 	private MarketReplay mr;
-	MarketReplayPane mrp;
+	private MarketReplayPane mrp;
 	private boolean drawMRP = false;
 	private double dragDiffAccum = 0;
 	private double x = 0;
 	private double y = 0;	
-	double mrpx;
-	double mrpy;
+	private double mrpx;
+	private double mrpy;
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -304,7 +302,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public static boolean focusedOnChart() {
-		return Chart.focusedOnChart.get();
+		return Chart.focusedOnChart;
 	}
 	
 	public ArrayList<DataSet.Candlestick> m1Candles() {
@@ -414,8 +412,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public void onMouseExited() {
 		hsb.onMouseExited();
-		focusedChart.set(false);
-		focusedOnChart.set(false);
+		focusedChart = false;
+		focusedOnChart = false;
 		newCHT_BTN_Hover = false;
 		drawCandlesticksHover = false;
 		darkModeHover = false;
@@ -424,7 +422,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void onMouseEntered() {
-		focusedChart.set(true);
+		focusedChart = true;
 		CrossHair.setIsForCandle(drawCandlesticks);
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
@@ -812,14 +810,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public boolean onChart(double x, double y) {
 		if (y <= chartHeight + CHT_MARGIN && y >= CHT_MARGIN) {
 			if (x <= chartWidth + CHT_MARGIN && x >= CHT_MARGIN) {
-				if (focusedChart.get()) {
-					focusedOnChart.set(true);
+				if (focusedChart) {
+					focusedOnChart = true;
 				}
 				return true;
 			}
 		}
-		if (focusedChart.get()) {
-			focusedOnChart.set(false);
+		if (focusedChart) {
+			focusedOnChart = false;
 		}
 		return false;
 	}
@@ -1242,7 +1240,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public boolean focusedChart() {
-		return this.focusedChart.get();		
+		return this.focusedChart;		
 	}
 	
 	public double fontSize() {
