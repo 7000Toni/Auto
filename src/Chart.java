@@ -1047,11 +1047,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			gc.setStroke(Color.BLACK);
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
-		if (drawCandlesticks) {
-			gc.strokeText(data.name() + "  M1", CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
-		} else {
-			gc.strokeText(data.name() + "  T1", CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
-		}
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
 		if (replayMode) {
 			gc.strokeLine(width - PRICE_MARGIN * 3 / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 3 / 4 - 1, height);
@@ -1202,6 +1197,24 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 	}
 	
+	private void drawTopRightText() {
+		if (darkMode) {			
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
+		if (drawCandlesticks) {
+			String trt = data.name() + "  M1  ";
+			if (crossHair.ohlc() != null) {
+				trt += crossHair.ohlc();
+			}
+			gc.strokeText(trt, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
+		} else {
+			gc.strokeText(data.name() + "  T1", CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
+		}
+		crossHair.resetOHLC();
+	}
+	
 	public void draw() {		
 		calculateIndices();
 		drawFrame();		
@@ -1220,6 +1233,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawLineChart();
 		}
 		drawPriceDashes();
+		drawTopRightText();
 		checkMeasuring();
 		if (drawMRP) {
 			mrp.drawPane(gc, mrpx, mrpy);

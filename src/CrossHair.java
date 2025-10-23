@@ -13,6 +13,7 @@ public class CrossHair {
 	private Chart chart;
 	private double dateBarHalfWidth;
 	private double dateBarX;
+	private String ohlc;
 
 	public CrossHair(Chart chart) {
 		this.chart = chart;
@@ -51,6 +52,14 @@ public class CrossHair {
 		CrossHair.name = name;
 	}
 	
+	public String ohlc() {
+		return ohlc;
+	}
+	
+	public void resetOHLC() {
+		ohlc = null;
+	}
+	
 	@Override
 	public String toString() {
 		String ret = "name: " + name + '\n'; 
@@ -72,20 +81,14 @@ public class CrossHair {
 		}
 	}
 	
-	private void drawOHLC(int index) {
+	private void setOHLC(int index) {
 		if (dateIndex == -1) {
 			return;
 		}
-		String ohlc = "O: " + chart.m1Candles().get(index).open();
+		ohlc = "O: " + chart.m1Candles().get(index).open();
 		ohlc += "  H: " + chart.m1Candles().get(index).high();
 		ohlc += "  L: " + chart.m1Candles().get(index).low();
 		ohlc += "  C: " + chart.m1Candles().get(index).close();
-		if (Chart.darkMode()) {
-			chart.graphicsContext().setStroke(Color.WHITE);
-		} else {
-			chart.graphicsContext().setStroke(Color.BLACK);
-		}
-		chart.graphicsContext().strokeText(ohlc, Chart.CHT_MARGIN + Chart.INFO_MARGIN + chart.fontSize() * (chart.name().length() + 2) * 0.9, Chart.CHT_MARGIN + chart.fontSize());
 	}
 	
 	private void drawHorizontalLine(boolean focusedChart) {
@@ -173,7 +176,7 @@ public class CrossHair {
 		} 
 		
 		if (chart.drawCandlesticks()) {
-			drawOHLC(dateIndex);
+			setOHLC(dateIndex);
 		}					
 		drawVerticalLine(x, dateIndex);
 	}	
@@ -208,7 +211,7 @@ public class CrossHair {
 			return;
 		}
 		double xPos = (dateIndex - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + Chart.CHT_MARGIN;				
-		drawOHLC(dateIndex);					
+		setOHLC(dateIndex);					
 		drawVerticalLine(xPos, dateIndex);
 	}
 
@@ -231,7 +234,7 @@ public class CrossHair {
 			double width = getWidth();
 			double xPos = width * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
 			int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
-			drawOHLC(convertedCHDI);					
+			setOHLC(convertedCHDI);					
 			drawVerticalLine(xPos, chdi);				
 		}
 	}
