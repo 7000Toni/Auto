@@ -479,8 +479,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (drawMRP) {
 			mrp.onMouseExited();
 		}
-		System.out.println("focusedChart: " + focusedChart.get());
-		System.out.println(crossHair.toString());
 		drawCharts(this.name());
 	}				
 	
@@ -638,6 +636,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode) - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
+				CrossHair.setIsForCandle(drawCandlesticks);
+				CrossHair.setDateIndex(0);
 			} else {
 				if (m1Candles().isEmpty()) {
 					return;
@@ -654,6 +654,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode) - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);
+				CrossHair.setIsForCandle(drawCandlesticks);
+				CrossHair.setDateIndex(0);
 			}
 			if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
 				keepStartIndex = true;
