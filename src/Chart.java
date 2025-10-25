@@ -92,6 +92,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double y = 0;	
 	private double mrpx;
 	private double mrpy;
+	private ArrayList<Trade> trades = new ArrayList<Trade>(); 
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -102,6 +103,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean drawCandlesticksClicked = false;
 	private boolean darkModeClicked = false;
 	private boolean drawMRPClicked = false;
+	private CanvasButton buy;
+	private CanvasButton sell;
+	private CanvasNumberChooser volUnits;
+	private CanvasNumberChooser volTens;
 	
 	//ChartActions
 	private int lineHighlighted = -1;
@@ -119,6 +124,38 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double candlestickWidth;
 	private double candlestickSpacing;
 	private int numCandlesticks;
+	
+	ButtonVanGogh buyVG = (x, y, gc) -> {
+		gc.setStroke(Color.WHITE);
+		gc.setFill(Color.DODGERBLUE);
+		if (buy.hover) {
+			gc.setFill(Color.STEELBLUE);
+		}
+		if (buy.pressed) {
+			gc.setFill(Color.DARKBLUE);
+		}
+		if (!buy.enabled) {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.fillRect(x, y, buy.width, buy.height);
+		gc.strokeText(buy.text, x + buy.textXOffset, y + buy.textYOffset);
+	};
+	
+	ButtonVanGogh sellVG = (x, y, gc) -> {
+		gc.setStroke(Color.WHITE);
+		gc.setFill(Color.ORANGERED);
+		if (sell.hover) {
+			gc.setFill(Color.INDIANRED);
+		}
+		if (sell.pressed) {
+			gc.setFill(Color.DARKRED);
+		}
+		if (!sell.enabled) {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.fillRect(x, y, sell.width, sell.height);
+		gc.strokeText(sell.text, x + sell.textXOffset, y + sell.textYOffset);
+	};
 	
 	private class WidthListener implements ChangeListener<Number> {
 		@Override
@@ -328,8 +365,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 			this.replayMode = true;
 			this.mr = mr;
 			this.mrp = mrp;
+			double bw = 40;
+			double ncw = 20;
+			double bh = 30;
+			double mgn = 5;
+			double initx = CHT_MARGIN + INFO_MARGIN;
+			double inity = 30;
+			this.buy = new CanvasButton(gc, bw, bh, initx, inity, "BUY", 9, fontSize + 7, buyVG);
+			this.sell = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "SELL", 9, fontSize + 7, sellVG);
+			double h = CanvasNumberChooser.getHeightForDesiredNumberHight(bh);
+			double y = bh - CanvasNumberChooser.buttonHeight(h);
+			this.volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
+			this.volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
+			volUnits.setValue(1);
 			mr.addChart(this);
 		}
+	}
+	
+	private int tradeVolume() {
+		CanvasNumberChooser[] c = {volTens, volUnits};
+		return CanvasNumberChooser.number(c);
 	}
 	
 	public void disableReplayMode() {
@@ -429,6 +484,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 		drawCharts(this.name());
 	}
 	
+	private void tradeButtonHoverChecks(double x, double y) {
+		ButtonChecks.mouseButtonHoverCheck(buy, x, y);
+		ButtonChecks.mouseButtonHoverCheck(sell, x, y);
+		ButtonChecks.mouseNumberChooserDownHoverCheck(volTens, x, y);
+		ButtonChecks.mouseNumberChooserUpHoverCheck(volTens, x, y);
+		ButtonChecks.mouseNumberChooserDownHoverCheck(volUnits, x, y);
+		ButtonChecks.mouseNumberChooserUpHoverCheck(volUnits, x, y);
+	}
+	
 	public void onMouseMoved(MouseEvent e) {		
 		hsb.onMouseMoved(e);
 		CrossHair.setX(e.getX());
@@ -467,6 +531,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else {
 			drawMRPClicked = false;
 			drawMRPHover = false;
+		}
+		if (replayMode) {
+			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_MOVED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
@@ -530,6 +597,24 @@ public class Chart implements ScrollBarOwner, Drawable {
 		return false;
 	}
 	
+	private void tradeButtonPressChecks(double x, double y) {
+		if (sell.onButton(x, y)) {
+			sell.setPressed(true);
+		} else if (buy.onButton(x, y)) {
+			buy.setPressed(true);
+		} else if (volTens.onUp(x, y)) {
+			volTens.setUpPressed(true);
+		} else if (volTens.onDown(x, y)) {
+			volTens.setDownPressed(true);
+		} else if (volUnits.onUp(x, y)) {
+			volUnits.setUpPressed(true);
+		} else if (volUnits.onDown(x, y)) {
+			volUnits.setDownPressed(true);
+		} else {
+			chartDragging = true;
+		}
+	}
+	
 	public void onMousePressed(MouseEvent e) {		
 		hsb.onMousePressed(e);
 		if (e.getButton() == MouseButton.MIDDLE) {
@@ -561,8 +646,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 				} else if (onDataMargin(e.getX(), e.getY())) {
 					chartDataMarginDragging = true;
 				} else {
-					chartDragging = true;					
-				}				
+					if (replayMode) {
+						tradeButtonPressChecks(e.getX(), e.getY());
+					} else {
+						chartDragging = true;
+					}
+				}								
 				double price = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 				double upperPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 				double lowerPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
@@ -606,6 +695,52 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		} 					
 		drawCharts(this.name());
+	}
+	
+	private void tradeButtonReleaseChecks(double x, double y) {
+		if (sell.onButton(x, y)) {
+			if (sell.pressed()) {
+				trades.add(new Trade(data, data.tickDataSize(true) - 1, false, tradeVolume()));
+			}
+			sell.setPressed(false);
+		} else if (buy.onButton(x, y)) {
+			if (buy.pressed()) {
+				trades.add(new Trade(data, data.tickDataSize(true) - 1, true, tradeVolume()));
+			}
+			buy.setPressed(false);
+		} else if (volTens.onUp(x, y)) {
+			if (volTens.upPressed()) {
+				volTens.incrementValue();
+				if (tradeVolume() == 0) {
+					volUnits.incrementValue();
+				}
+			}
+			volTens.setUpPressed(false);
+		} else if (volTens.onDown(x, y)) {
+			if (volTens.downPressed()) {
+				volTens.decrementValue();
+				if (tradeVolume() == 0) {
+					volUnits.incrementValue();
+				}
+			}
+			volTens.setDownPressed(false);
+		} else if (volUnits.onUp(x, y)) {
+			if (volUnits.upPressed()) {
+				volUnits.incrementValue();
+				if (tradeVolume() == 0) {
+					volUnits.incrementValue();
+				}
+			}
+			volUnits.setUpPressed(false);
+		} else if (volUnits.onDown(x, y)) {
+			if (volUnits.downPressed()) {
+				volUnits.decrementValue();
+				if (tradeVolume() == 0) {
+					volUnits.incrementValue();
+				}
+			}
+			volUnits.setDownPressed(false);
+		}
 	}
 	
 	public void onMouseReleased(MouseEvent e) {	
@@ -674,6 +809,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.onMouseReleased(me);
+		} else {
+			tradeButtonReleaseChecks(e.getX(), e.getY());
 		}
 		lineDragging = false;
 		priceDragging = false;
@@ -1215,15 +1352,43 @@ public class Chart implements ScrollBarOwner, Drawable {
 		crossHair.resetOHLC();
 	}
 	
+	private void drawTradeButtons() {
+		buy.draw();
+		sell.draw();
+		volTens.draw();
+		volUnits.draw();
+	}
+	
+	public double priceToYCoord(double price) {
+		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * chartHeight + Chart.CHT_MARGIN;
+	}
+	
+	private void drawTrades() {
+		double x1 = CHT_MARGIN + chartWidth / 2;
+		double x2 = width - PRICE_MARGIN;
+		gc.setStroke(Color.MAGENTA);
+		for (Trade t : trades) {
+			double entryY = priceToYCoord(t.entryPrice());
+			double slY = priceToYCoord(t.sl());
+			double tpY = priceToYCoord(t.tp());
+			if (onChart(CHT_MARGIN + 1, entryY)) {
+				gc.strokeLine(x1, entryY, x2, entryY);
+			}
+			if (onChart(CHT_MARGIN + 1, slY)) {
+				gc.strokeLine(x1, slY, x2, slY);
+			}
+			if (onChart(CHT_MARGIN + 1, tpY)) {
+				gc.strokeLine(x1, tpY, x2, tpY);
+			}
+		}		
+	}
+	
 	public void draw() {		
 		calculateIndices();
 		drawFrame();		
 		fillNewChtBtn();
 		fillChartTypeBtn();
-		fillDarkModeBtn();
-		if (replayMode) {
-			fillDrawMRPBtn();
-		}
+		fillDarkModeBtn();		
 		hsb.draw();
 		calculateRange();
 		setPreDrawVars();
@@ -1231,13 +1396,18 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawCandlestickChart();
 		} else {		
 			drawLineChart();
-		}
+		}		
 		drawPriceDashes();
 		drawTopRightText();
 		checkMeasuring();
-		if (drawMRP) {
-			mrp.drawPane(gc, mrpx, mrpy);
-		}
+		if (replayMode) {
+			fillDrawMRPBtn();
+			drawTradeButtons();
+			drawTrades();
+			if (drawMRP) {
+				mrp.drawPane(gc, mrpx, mrpy);
+			}
+		}		
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {		

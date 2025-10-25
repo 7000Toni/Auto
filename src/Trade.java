@@ -8,26 +8,30 @@ public class Trade implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private DataSet data;
 	private double entryPrice;
+	private int currentPriceIndex;
 	private double sl;
 	private double tp;
 	private double exitPrice;
 	private LocalDateTime entryTime;
 	private LocalDateTime exitTime;
 	private boolean buy;
+	private boolean closed = false;
 	private double volume;
 	private double profit;
 	
-	public Trade(double entryPrice, double sl, double tp, boolean buy, double volume) {
-		constructorStuff(entryPrice, sl, tp, buy, volume);
+	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	
-	public Trade(double entryPrice, boolean buy, double volume) {
-		constructorStuff(entryPrice, -1, -1, buy, volume);
+	public Trade(DataSet data, int currentPriceIndex, boolean buy, double volume) {
+		constructorStuff(data, currentPriceIndex, -1, -1, buy, volume);
 	}
 	
-	private void constructorStuff(double entryPrice, double sl, double tp, boolean buy, double volume) {
-		this.entryPrice = entryPrice;
+	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+		this.data = data;
+		this.entryPrice = data.tickData().get(currentPriceIndex).price();
 		this.sl = sl;
 		this.tp = tp;
 		this.buy = buy;
@@ -35,26 +39,74 @@ public class Trade implements Serializable {
 		this.entryTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Z"));
 		this.exitTime = null;
 		this.exitPrice = -1;
+		this.currentPriceIndex = currentPriceIndex;
 	}
 	
-	public void close(double exitPrice) {
-		this.exitPrice = exitPrice;
+	public void close(int currentPriceIndex) {
+		this.currentPriceIndex = currentPriceIndex;
+		this.exitPrice = data.tickData().get(currentPriceIndex).price();
+		profit();
 		this.exitTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Z"));
+		this.closed = true;
 	}
 	
 	public void cancelSL() {
-		sl = -1;
+		if (closed) {
+			return;
+		}
+		sl = -1;		
 	}
 	
 	public void cancelTP() {
-		tp = -1;
+		if (closed) {
+			return;
+		}
+		tp = -1;		
+	}
+	
+	public double profit() {
+		if (closed) {
+			return this.profit;
+		}
+		double diff = data.tickData().get(currentPriceIndex).price() - entryPrice;
+		if (!buy) {
+			diff = -diff;
+		}
+		profit = diff * volume;
+		return this.profit;
+	}
+	
+	public void updateTrade(int currentPriceIndex) {
+		if (closed) {
+			return;
+		}
+		for (int i = this.currentPriceIndex; i < currentPriceIndex + 1; i++) {
+			double price = data.tickData().get(currentPriceIndex).price();
+			if (buy) {
+				if (price > tp || price < sl) {
+					close(i);
+					break;
+				}
+			} else {
+				if (price < tp || price > sl) {
+					close(i);
+					break;
+				}
+			}
+		}
 	}
 	
 	public void setSL(double sl) {
-		this.sl = sl;
+		if (closed) {
+			return;
+		}
+		this.sl = sl;		
 	}
 	
 	public void setTP(double tp) {
+		if (closed) {
+			return;
+		}
 		this.tp = tp;
 	}
 	

@@ -297,6 +297,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 				s.setScene(scene);
 				s.show();
 			}
+			newChart.setPressed(false);
 		} else if (pausePlay.onButton(x2, y2)) {
 			if (pausePlay.pressed()) {
 				if (bPlay) {
@@ -396,17 +397,12 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	}
 	
 	private int moveNumber() {
-		String num = ((Integer) bf1.value()).toString();
-		num += ((Integer) bf2.value()).toString();
-		num += ((Integer) bf3.value()).toString();
-		num += ((Integer) bf4.value()).toString();
-		return Integer.parseInt(num);
+		CanvasNumberChooser[] c = {bf1, bf2, bf3, bf4};
+		return CanvasNumberChooser.number(c);
 	}
 	
 	private int speedNumber() {
-		String num = ((Integer) s1.value()).toString();
-		num += ((Integer) s2.value()).toString();
-		num += ((Integer) s3.value()).toString();
-		return Integer.parseInt(num);
+		CanvasNumberChooser[] c = {s1, s2, s3};
+		return CanvasNumberChooser.number(c);
 	}
 }

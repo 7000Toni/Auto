@@ -29,6 +29,14 @@ public class CanvasNumberChooser implements Drawable {
 		this.y = y + this.height*0.125*1.3;
 	}
 	
+	public static int number(CanvasNumberChooser[] numbers) {	
+		String num = "";
+		for (CanvasNumberChooser c : numbers) {
+			num += ((Integer) c.value()).toString();
+		}		
+		return Integer.parseInt(num);
+	}
+	
 	public static double numberHeight(double height) {
 		return height - 2*0.125*1.3*(height/(1+0.125*1.3));
 	}
