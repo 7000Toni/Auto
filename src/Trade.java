@@ -4,22 +4,23 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 public class Trade implements Serializable {
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private DataSet data;
-	private double entryPrice;
-	private int currentPriceIndex;
-	private double sl;
-	private double tp;
-	private double exitPrice;
-	private LocalDateTime entryTime;
-	private LocalDateTime exitTime;
-	private boolean buy;
-	private boolean closed = false;
-	private double volume;
-	private double profit;
+	protected DataSet data;
+	protected double entryPrice;
+	protected int currentPriceIndex;
+	protected double sl;
+	protected double tp;
+	protected double exitPrice;
+	protected LocalDateTime entryTime;
+	protected LocalDateTime exitTime;
+	protected boolean buy;
+	protected boolean closed = false;
+	protected double volume;
+	protected double profit;
 	
 	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);

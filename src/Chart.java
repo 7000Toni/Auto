@@ -108,6 +108,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private CanvasNumberChooser volUnits;
 	private CanvasNumberChooser volTens;
 	
+	//TradeButtons
+	CanvasButton close;
+	CanvasButton cancelTP;
+	CanvasButton cancelSL;
+	CanvasButton sl;
+	CanvasButton tp;
+	CanvasButton setSL;
+	CanvasButton setTP;
+	
 	//ChartActions
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
@@ -125,7 +134,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double candlestickSpacing;
 	private int numCandlesticks;
 	
-	ButtonVanGogh buyVG = (x, y, gc) -> {
+	private ButtonVanGogh buyVG = (x, y, gc) -> {
 		gc.setStroke(Color.WHITE);
 		gc.setFill(Color.DODGERBLUE);
 		if (buy.hover) {
@@ -141,7 +150,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		gc.strokeText(buy.text, x + buy.textXOffset, y + buy.textYOffset);
 	};
 	
-	ButtonVanGogh sellVG = (x, y, gc) -> {
+	private ButtonVanGogh sellVG = (x, y, gc) -> {
 		gc.setStroke(Color.WHITE);
 		gc.setFill(Color.ORANGERED);
 		if (sell.hover) {
@@ -157,6 +166,132 @@ public class Chart implements ScrollBarOwner, Drawable {
 		gc.strokeText(sell.text, x + sell.textXOffset, y + sell.textYOffset);
 	};
 	
+	private ButtonVanGogh closeVG = (x, y, gc) -> {
+		Color textColour = Color.RED;
+		Color boxColour = Color.RED;
+		if (close.hover) {
+			textColour = Color.DARKRED;
+			boxColour = Color.DARKRED;
+		}
+		if (close.pressed) {
+			textColour = Color.MAROON;
+			boxColour = Color.MAROON;
+		}
+		if (!close.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, close.width, fontSize * 2, close.textXOffset, close.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh cancelTpVG = (x, y, gc) -> {
+		Color textColour = Color.CORNFLOWERBLUE;
+		Color boxColour = Color.CORNFLOWERBLUE;
+		if (cancelTP.hover) {
+			textColour = Color.STEELBLUE;
+			boxColour = Color.STEELBLUE;
+		}
+		if (cancelTP.pressed) {
+			textColour = Color.NAVY;
+			boxColour = Color.NAVY;
+		}
+		if (!cancelTP.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, cancelTP.width, fontSize * 2, cancelTP.textXOffset, cancelTP.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh cancelSlVG = (x, y, gc) -> {
+		Color textColour = Color.ORANGE;
+		Color boxColour = Color.ORANGE;
+		if (cancelSL.hover) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (cancelSL.pressed) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (!cancelSL.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, cancelSL.width, fontSize * 2, cancelSL.textXOffset, cancelSL.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh slVG = (x, y, gc) -> {
+		Color textColour = Color.ORANGE;
+		Color boxColour = Color.ORANGE;
+		if (sl.hover) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (sl.pressed) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (!sl.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, sl.width, fontSize * 2, sl.textXOffset, sl.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh tpVG = (x, y, gc) -> {
+		Color textColour = Color.CORNFLOWERBLUE;
+		Color boxColour = Color.CORNFLOWERBLUE;
+		if (tp.hover) {
+			textColour = Color.STEELBLUE;
+			boxColour = Color.STEELBLUE;
+		}
+		if (tp.pressed) {
+			textColour = Color.NAVY;
+			boxColour = Color.NAVY;
+		}
+		if (!tp.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, tp.width, fontSize * 2, tp.textXOffset, tp.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh setSlVG = (x, y, gc) -> {
+		Color textColour = Color.ORANGE;
+		Color boxColour = Color.ORANGE;
+		if (setSL.hover) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (setSL.pressed) {
+			textColour = Color.DARKORANGE;
+			boxColour = Color.DARKORANGE;
+		}
+		if (!setSL.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, setSL.width, fontSize * 2, setSL.textXOffset, setSL.text, textColour, boxColour);
+	};
+	
+	private ButtonVanGogh setTpVG = (x, y, gc) -> {
+		Color textColour = Color.CORNFLOWERBLUE;
+		Color boxColour = Color.CORNFLOWERBLUE;
+		if (setTP.hover) {
+			textColour = Color.STEELBLUE;
+			boxColour = Color.STEELBLUE;
+		}
+		if (setTP.pressed) {
+			textColour = Color.NAVY;
+			boxColour = Color.NAVY;
+		}
+		if (!setTP.enabled) {
+			textColour = Color.LIGHTGRAY;
+			boxColour = Color.LIGHTGRAY;
+		}
+		drawTradeBox(x, y, setTP.width, fontSize * 2, setTP.textXOffset, setTP.text, textColour, boxColour);
+	};
+	
 	private class WidthListener implements ChangeListener<Number> {
 		@Override
 		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {			
@@ -168,6 +303,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 			hsb.setMaxPos(width - PRICE_MARGIN);
 			hsb.setPosition(newHSBPos, false);
 			mrpx = CHT_MARGIN + 5;			
+			
+			if (replayMode) {
+				close.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
+				cancelTP.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
+				cancelSL.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
+				sl.setX(CHT_MARGIN + chartWidth / 2 - 100);
+				tp.setX(CHT_MARGIN + chartWidth / 2 - 100);
+				setSL.setX(CHT_MARGIN + chartWidth / 2 + 10);
+				setTP.setX(CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+			}
+			
 			draw();
 		}		
 	}
@@ -378,6 +524,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 			this.volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
 			this.volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
 			volUnits.setValue(1);
+			setNumberChooserColours();
+			
+			this.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, closeVG);
+			this.cancelTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, cancelTpVG);
+			this.cancelSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, cancelSlVG);
+			this.sl = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, slVG);
+			this.tp = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, tpVG);
+			this.setSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3, setSlVG);
+			this.setTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3, setTpVG);
+			
 			mr.addChart(this);
 		}
 	}
@@ -798,6 +954,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
 			darkModeClicked = false;	
 			darkMode = !darkMode;
+			if (replayMode) {
+				setNumberChooserColours();
+			}
 		} else if (drawMRPClicked && checkDrawMRPBtn(e.getX(), e.getY())) {
 			drawMRPClicked = false;
 			drawMRP = !drawMRP;
@@ -943,6 +1102,18 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		drawCharts(this.name());
 	}		
+	
+	private void setNumberChooserColours() {
+		if (darkMode) {
+			volTens.setOnColour(Color.RED);
+			volUnits.setOnColour(Color.RED);
+			volTens.setOffColour(Color.MAROON);
+			volUnits.setOffColour(Color.MAROON);
+		} else {
+			volTens.resetColours();
+			volUnits.resetColours();
+		}
+	}
 	
 	public boolean onChart(double x, double y) {
 		if (y <= chartHeight + CHT_MARGIN && y >= CHT_MARGIN) {
@@ -1252,7 +1423,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}		
 	}
 	
-	private void drawCurrentPrice() {		
+	private void drawCurrentPriceBox() {
 		if (data.tickDataSize(true) < 2) {
 			return;
 		}
@@ -1260,14 +1431,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 		double price = tickData().get(i - 1).price();
 		if (price > highest || price < lowest) {
 			return;
-		}
+		}	
 		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
-		gc.setStroke(Color.SLATEBLUE);
-		gc.setFill(Color.SLATEBLUE);
-		gc.strokeLine(CHT_MARGIN, yPos, width - PRICE_MARGIN, yPos);		
+		gc.setFill(Color.SLATEBLUE);		
 		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
 		gc.setStroke(Color.WHITE);
 		gc.strokeText(((Double)(price)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+	}
+	
+	private void drawCurrentPriceLine() {		
+		if (data.tickDataSize(true) < 2) {
+			return;
+		}
+		int i = data.tickDataSize(true);
+		double price = tickData().get(i - 1).price();
+		if (price > highest || price < lowest) {
+			return;
+		}		
+		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+		gc.setStroke(Color.SLATEBLUE);
+		gc.strokeLine(CHT_MARGIN, yPos, width - PRICE_MARGIN, yPos);	
 	}
 	
 	private void drawPriceDashes() {
@@ -1302,9 +1485,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		if (!data.lines().isEmpty()) {
 			drawLines();
-		}
-		if (replayMode) {
-			drawCurrentPrice();
 		}
 		crossHair.drawCrossHair();		
 	}	
@@ -1360,25 +1540,70 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public double priceToYCoord(double price) {
-		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * chartHeight + Chart.CHT_MARGIN;
+		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * chartHeight + CHT_MARGIN;
+	}
+	
+	private void drawPriceBox(double yPos, double price, Color textColour, Color boxColour) {
+		gc.setStroke(textColour);
+		gc.setFill(boxColour);
+		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
+		gc.strokeText(((Double)(roundToNearestTick(price))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+	}
+	
+	private void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {			
+		gc.setFill(Color.WHITE);
+		gc.fillRect(xPos, yPos - fontSize, width, fontSize * 2);
+		gc.setStroke(boxColour);
+		gc.strokeRect(xPos, yPos - fontSize, width, fontSize * 2);
+		gc.setStroke(textColour);	
+		gc.strokeText(text, xPos + textMargin, yPos + fontSize/3, textMaxWidth);
 	}
 	
 	private void drawTrades() {
 		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = width - PRICE_MARGIN;
-		gc.setStroke(Color.MAGENTA);
+		double x2 = width - PRICE_MARGIN;		
 		for (Trade t : trades) {
 			double entryY = priceToYCoord(t.entryPrice());
 			double slY = priceToYCoord(t.sl());
 			double tpY = priceToYCoord(t.tp());
+			t.setSL(t.entryPrice() - 9);
+			t.setTP(t.entryPrice() + 10.5);
 			if (onChart(CHT_MARGIN + 1, entryY)) {
+				Color boxColour;
+				if (t.buy()) {
+					boxColour = Color.LIMEGREEN;
+					gc.setStroke(Color.LIMEGREEN);
+				} else {
+					boxColour = Color.RED;
+					gc.setStroke(Color.RED);
+				}
 				gc.strokeLine(x1, entryY, x2, entryY);
+				drawPriceBox(entryY, t.entryPrice(), Color.WHITE, boxColour);
+				drawTradeBox(x1 - 100, entryY, 100, 90, 5, ((Double)(trades.get(0).volume())).toString() + "\t$" + ((Double)(roundToNearestTick(250))).toString(), Color.LIMEGREEN, boxColour);
+				setSL.setY(entryY);
+				setTP.setY(entryY);
+				close.setY(entryY);
+				setSL.draw();
+				setTP.draw();
+				close.draw();
 			}
 			if (onChart(CHT_MARGIN + 1, slY)) {
+				gc.setStroke(Color.ORANGE);
 				gc.strokeLine(x1, slY, x2, slY);
+				drawPriceBox(slY, t.sl(), Color.WHITE, Color.ORANGE);
+				tp.setY(tpY);
+				cancelTP.setY(tpY);
+				tp.draw();
+				cancelTP.draw();
 			}
 			if (onChart(CHT_MARGIN + 1, tpY)) {
+				gc.setStroke(Color.CORNFLOWERBLUE);
 				gc.strokeLine(x1, tpY, x2, tpY);
+				drawPriceBox(tpY, t.tp(), Color.WHITE, Color.CORNFLOWERBLUE);
+				sl.setY(slY);
+				cancelSL.setY(slY);
+				sl.draw();
+				cancelSL.draw();
 			}
 		}		
 	}
@@ -1403,7 +1628,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (replayMode) {
 			fillDrawMRPBtn();
 			drawTradeButtons();
+			drawCurrentPriceLine();
 			drawTrades();
+			drawCurrentPriceBox();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}
