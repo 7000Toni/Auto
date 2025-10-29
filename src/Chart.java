@@ -1587,19 +1587,19 @@ public class Chart implements ScrollBarOwner, Drawable {
 				setTP.draw();
 				close.draw();
 			}
-			if (onChart(CHT_MARGIN + 1, slY)) {
-				gc.setStroke(Color.ORANGE);
-				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, t.sl(), Color.WHITE, Color.ORANGE);
+			if (onChart(CHT_MARGIN + 1, tpY)) {
+				gc.setStroke(Color.CORNFLOWERBLUE);
+				gc.strokeLine(x1, tpY, x2, tpY);
+				drawPriceBox(tpY, t.tp(), Color.WHITE, Color.CORNFLOWERBLUE);
 				tp.setY(tpY);
 				cancelTP.setY(tpY);
 				tp.draw();
 				cancelTP.draw();
 			}
-			if (onChart(CHT_MARGIN + 1, tpY)) {
-				gc.setStroke(Color.CORNFLOWERBLUE);
-				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, t.tp(), Color.WHITE, Color.CORNFLOWERBLUE);
+			if (onChart(CHT_MARGIN + 1, slY)) {
+				gc.setStroke(Color.ORANGE);
+				gc.strokeLine(x1, slY, x2, slY);
+				drawPriceBox(slY, t.sl(), Color.WHITE, Color.ORANGE);
 				sl.setY(slY);
 				cancelSL.setY(slY);
 				sl.draw();
