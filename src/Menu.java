@@ -33,7 +33,7 @@ public class Menu {
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
