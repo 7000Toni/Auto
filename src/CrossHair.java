@@ -162,7 +162,7 @@ public class CrossHair {
 		return width;
 	}
 	
-	private void drawFocusedChartCrossHair() {		
+	private void drawFocusedChartCrossHair() {				
 		price = ((((chart.chartHeight() - (chart.chtDataMargin()*2)) - (y - Chart.CHT_MARGIN - chart.chtDataMargin())) / (double)(chart.chartHeight() - (chart.chtDataMargin()*2))) * chart.range()) + chart.lowest();
 		drawHorizontalLine(true);
 		double width = getWidth();
@@ -194,6 +194,10 @@ public class CrossHair {
 	
 	private void drawUnfocusedCandleToTick() {
 		if (dateIndex == -1) {
+			return;
+		}
+		//TODO find a better fix
+		if (chart.drawCandlesticks() && dateIndex >= chart.data().m1CandlesDataSize(chart.replayMode())) {
 			return;
 		}
 		long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);

@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 
 import javafx.beans.value.ChangeListener;
@@ -92,7 +93,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double y = 0;	
 	private double mrpx;
 	private double mrpy;
-	private ArrayList<Trade> trades = new ArrayList<Trade>(); 
+	private Trade trade = null; 
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -109,13 +110,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private CanvasNumberChooser volTens;
 	
 	//TradeButtons
-	CanvasButton close;
-	CanvasButton cancelTP;
-	CanvasButton cancelSL;
-	CanvasButton sl;
-	CanvasButton tp;
-	CanvasButton setSL;
-	CanvasButton setTP;
+	private CanvasButton close;
+	private CanvasButton cancelTP;
+	private CanvasButton cancelSL;
+	private CanvasButton sl;
+	private CanvasButton tp;
+	private CanvasButton setSL;
+	private CanvasButton setTP;
+	private boolean slDragging = false;
+	private boolean tpDragging = false;
+	private double slPrice = -1;
+	private double tpPrice = -1;
 	
 	//ChartActions
 	private int lineHighlighted = -1;
@@ -235,7 +240,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			textColour = Color.LIGHTGRAY;
 			boxColour = Color.LIGHTGRAY;
 		}
-		drawTradeBox(x, y, sl.width, fontSize * 2, sl.textXOffset, sl.text, textColour, boxColour);
+		drawTradeBox(x, y, sl.width, 90, sl.textXOffset, sl.text, textColour, boxColour);
 	};
 	
 	private ButtonVanGogh tpVG = (x, y, gc) -> {
@@ -253,7 +258,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			textColour = Color.LIGHTGRAY;
 			boxColour = Color.LIGHTGRAY;
 		}
-		drawTradeBox(x, y, tp.width, fontSize * 2, tp.textXOffset, tp.text, textColour, boxColour);
+		drawTradeBox(x, y, tp.width, 90, tp.textXOffset, tp.text, textColour, boxColour);
 	};
 	
 	private ButtonVanGogh setSlVG = (x, y, gc) -> {
@@ -526,9 +531,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			volUnits.setValue(1);
 			setNumberChooserColours();
 			
-			this.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, closeVG);
-			this.cancelTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, cancelTpVG);
-			this.cancelSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "X", 9, fontSize/3, cancelSlVG);
+			this.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3, closeVG);
+			this.cancelTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3, cancelTpVG);
+			this.cancelSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3, cancelSlVG);
 			this.sl = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, slVG);
 			this.tp = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, tpVG);
 			this.setSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3, setSlVG);
@@ -643,13 +648,28 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void tradeButtonHoverChecks(double x, double y) {
 		ButtonChecks.mouseButtonHoverCheck(buy, x, y);
 		ButtonChecks.mouseButtonHoverCheck(sell, x, y);
+		ButtonChecks.mouseButtonHoverCheck(sl, x, y);
+		ButtonChecks.mouseButtonHoverCheck(setSL, x, y);
+		ButtonChecks.mouseButtonHoverCheck(tp, x, y);
+		ButtonChecks.mouseButtonHoverCheck(setTP, x, y);
+		ButtonChecks.mouseButtonHoverCheck(cancelSL, x, y);
+		ButtonChecks.mouseButtonHoverCheck(cancelTP, x, y);
+		ButtonChecks.mouseButtonHoverCheck(close, x, y);
 		ButtonChecks.mouseNumberChooserDownHoverCheck(volTens, x, y);
 		ButtonChecks.mouseNumberChooserUpHoverCheck(volTens, x, y);
 		ButtonChecks.mouseNumberChooserDownHoverCheck(volUnits, x, y);
 		ButtonChecks.mouseNumberChooserUpHoverCheck(volUnits, x, y);
 	}
 	
-	public void onMouseMoved(MouseEvent e) {		
+	public void onMouseMoved(MouseEvent e) {	
+		//TODO find a better fix
+		focusedChart = true;
+		CrossHair.setIsForCandle(drawCandlesticks);
+		if (CrossHair.dateIndex() >= data.m1CandlesDataSize(replayMode)) {
+			CrossHair.setDateIndex(0);
+		}
+		CrossHair.setName(data.name());
+		
 		hsb.onMouseMoved(e);
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
@@ -698,6 +718,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.onMouseMoved(me);
 		} else if (drawMRP) {
+			mrp.hsb().onMouseReleased();
 			mrp.onMouseExited();
 		}
 		drawCharts(this.name());
@@ -758,6 +779,24 @@ public class Chart implements ScrollBarOwner, Drawable {
 			sell.setPressed(true);
 		} else if (buy.onButton(x, y)) {
 			buy.setPressed(true);
+		} else if (tp.onButton(x, y)) {
+			tp.setPressed(true);
+			tpDragging = true;
+		} else if (sl.onButton(x, y)) {
+			sl.setPressed(true);
+			slDragging = true;
+		} else if (setTP.onButton(x, y)) {
+			setTP.setPressed(true);
+			tpDragging = true;
+		} else if (setSL.onButton(x, y)) {
+			setSL.setPressed(true);
+			slDragging = true;
+		} else if (cancelTP.onButton(x, y)) {
+			cancelTP.setPressed(true);
+		} else if (cancelSL.onButton(x, y)) {
+			cancelSL.setPressed(true);
+		} else if (close.onButton(x, y)) {
+			close.setPressed(true);
 		} else if (volTens.onUp(x, y)) {
 			volTens.setUpPressed(true);
 		} else if (volTens.onDown(x, y)) {
@@ -856,12 +895,38 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void tradeButtonReleaseChecks(double x, double y) {
 		if (sell.onButton(x, y)) {
 			if (sell.pressed()) {
-				trades.add(new Trade(data, data.tickDataSize(true) - 1, false, tradeVolume()));
+				if (trade == null) {
+					trade = new Trade(data, data.tickDataSize(true) - 1, false, tradeVolume());
+				} else {
+					if (trade.buy()) {
+						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
+						System.out.println(trade.toString() + '\n');
+						trade.writeToFile(new File("./trades.txt"));
+						if (trade.closed()) {
+							trade = null;
+						}
+					} else {
+						trade.scaleIn(tradeVolume(), data.tickDataSize(true) - 1);
+					}
+				}
 			}
 			sell.setPressed(false);
 		} else if (buy.onButton(x, y)) {
 			if (buy.pressed()) {
-				trades.add(new Trade(data, data.tickDataSize(true) - 1, true, tradeVolume()));
+				if (trade == null) {
+					trade = new Trade(data, data.tickDataSize(true) - 1, true, tradeVolume());
+				} else {
+					if (trade.buy()) {
+						trade.scaleIn(tradeVolume(), data.tickDataSize(true) - 1);
+					} else {
+						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
+						System.out.println(trade.toString() + '\n');
+						trade.writeToFile(new File("./trades.txt"));
+						if (trade.closed()) {
+							trade = null;
+						}
+					}
+				}
 			}
 			buy.setPressed(false);
 		} else if (volTens.onUp(x, y)) {
@@ -896,6 +961,52 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 			}
 			volUnits.setDownPressed(false);
+		}
+		
+		if (trade != null) {
+			if (tp.onButton(x, y)) {
+				tp.setPressed(false);
+			} else if (sl.onButton(x, y)) {
+				sl.setPressed(false);
+			} else if (cancelTP.onButton(x, y)) {
+				if (cancelTP.pressed()) {
+					trade.cancelTP();
+					tpPrice = -1;
+				}
+				cancelTP.setPressed(false);
+			} else if (cancelSL.onButton(x, y)) {
+				if (cancelSL.pressed()) {
+					trade.cancelSL();
+					slPrice = -1;
+				}
+				cancelSL.setPressed(false);
+			} else if (setTP.onButton(x, y)) {			
+				setTP.setPressed(false);
+			} else if (setSL.onButton(x, y)) {			
+				setSL.setPressed(false);
+			} else if (close.onButton(x, y)) {
+				if (close.pressed()) {
+					trade.close(data.tickDataSize(true) - 1);
+					System.out.println(trade.toString() + '\n');
+					trade.writeToFile(new File("./trades.txt"));
+					trade = null;
+					tpPrice = -1;
+					slPrice = -1;
+				}
+				close.setPressed(false);
+			}
+			
+			if (slDragging) {						
+				trade.setSL(slPrice);
+				slPrice = trade.sl();
+			} else if (tpDragging) {			
+				trade.setTP(tpPrice);
+				tpPrice = trade.tp();
+			}
+			sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(slPrice));
+			tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(tpPrice));
+			slDragging = false;
+			tpDragging = false;
 		}
 	}
 	
@@ -969,7 +1080,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.onMouseReleased(me);
 		} else {
-			tradeButtonReleaseChecks(e.getX(), e.getY());
+			if (replayMode) {
+				tradeButtonReleaseChecks(e.getX(), e.getY());
+			}
 		}
 		lineDragging = false;
 		priceDragging = false;
@@ -999,6 +1112,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 			measuring = true;
 			endX = e.getX();
 			endY = e.getY();
+		}
+		if (tpDragging) {
+			tpPrice = roundToNearestTick(yCoordToPrice(e.getY()));
+			tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
+		}
+		if (slDragging) {
+			slPrice = roundToNearestTick(yCoordToPrice(e.getY()));
+			sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
 		}
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
@@ -1539,6 +1660,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 		volUnits.draw();
 	}
 	
+	public double yCoordToPrice(double y) {
+		return ((((chartHeight - (chtDataMargin*2)) - (y - CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
+	}
+	
 	public double priceToYCoord(double price) {
 		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * chartHeight + CHT_MARGIN;
 	}
@@ -1550,62 +1675,76 @@ public class Chart implements ScrollBarOwner, Drawable {
 		gc.strokeText(((Double)(roundToNearestTick(price))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 	}
 	
-	private void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {			
-		gc.setFill(Color.WHITE);
-		gc.fillRect(xPos, yPos - fontSize, width, fontSize * 2);
+	private void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
+		if (darkMode) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.WHITE);
+		}		
+		gc.fillRect(xPos, yPos, width, fontSize * 2);
 		gc.setStroke(boxColour);
-		gc.strokeRect(xPos, yPos - fontSize, width, fontSize * 2);
+		gc.strokeRect(xPos, yPos, width, fontSize * 2);
 		gc.setStroke(textColour);	
-		gc.strokeText(text, xPos + textMargin, yPos + fontSize/3, textMaxWidth);
+		gc.strokeText(text, xPos + textMargin, yPos + 4*fontSize/3, textMaxWidth);
 	}
 	
 	private void drawTrades() {
+		if (trade == null || trade.closed()) {
+			return;
+		}
 		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = width - PRICE_MARGIN;		
-		for (Trade t : trades) {
-			double entryY = priceToYCoord(t.entryPrice());
-			double slY = priceToYCoord(t.sl());
-			double tpY = priceToYCoord(t.tp());
-			t.setSL(t.entryPrice() - 9);
-			t.setTP(t.entryPrice() + 10.5);
-			if (onChart(CHT_MARGIN + 1, entryY)) {
-				Color boxColour;
-				if (t.buy()) {
-					boxColour = Color.LIMEGREEN;
-					gc.setStroke(Color.LIMEGREEN);
-				} else {
-					boxColour = Color.RED;
-					gc.setStroke(Color.RED);
-				}
-				gc.strokeLine(x1, entryY, x2, entryY);
-				drawPriceBox(entryY, t.entryPrice(), Color.WHITE, boxColour);
-				drawTradeBox(x1 - 100, entryY, 100, 90, 5, ((Double)(trades.get(0).volume())).toString() + "\t$" + ((Double)(roundToNearestTick(250))).toString(), Color.LIMEGREEN, boxColour);
-				setSL.setY(entryY);
-				setTP.setY(entryY);
-				close.setY(entryY);
-				setSL.draw();
-				setTP.draw();
-				close.draw();
+		double x2 = width - PRICE_MARGIN;	
+		
+		double entryY = priceToYCoord(roundToNearestTick(trade.entryPrice()));
+		double slY = priceToYCoord(slPrice);
+		double tpY = priceToYCoord(tpPrice);
+		if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3)) {
+			gc.setStroke(Color.CORNFLOWERBLUE);
+			gc.strokeLine(x1, tpY, x2, tpY);
+			drawPriceBox(tpY, tpPrice, Color.WHITE, Color.CORNFLOWERBLUE);
+			tp.setY(tpY - fontSize);
+			cancelTP.setY(tpY - fontSize);
+			tp.draw();
+			cancelTP.draw();
+		}
+		if (onChart(CHT_MARGIN + 1, slY + fontSize + 3) && onChart(CHT_MARGIN + 1, slY - fontSize - 3)) {
+			gc.setStroke(Color.ORANGE);
+			gc.strokeLine(x1, slY, x2, slY);
+			drawPriceBox(slY, slPrice, Color.WHITE, Color.ORANGE);
+			sl.setY(slY - fontSize);
+			cancelSL.setY(slY - fontSize);
+			sl.draw();
+			cancelSL.draw();
+		}
+		if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3)) {
+			Color boxColour;
+			Color textColour;
+			if (trade.buy()) {
+				boxColour = Color.FORESTGREEN;
+				gc.setStroke(Color.FORESTGREEN);
+			} else {
+				boxColour = Color.RED;
+				gc.setStroke(Color.RED);
 			}
-			if (onChart(CHT_MARGIN + 1, tpY)) {
-				gc.setStroke(Color.CORNFLOWERBLUE);
-				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, t.tp(), Color.WHITE, Color.CORNFLOWERBLUE);
-				tp.setY(tpY);
-				cancelTP.setY(tpY);
-				tp.draw();
-				cancelTP.draw();
+			double profit = trade.profit();
+			if (profit > 0) {
+				textColour = Color.FORESTGREEN;
+			} else if (profit < 0) {
+				textColour = Color.RED;
+			} else {
+				textColour = Color.GRAY;
 			}
-			if (onChart(CHT_MARGIN + 1, slY)) {
-				gc.setStroke(Color.ORANGE);
-				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, t.sl(), Color.WHITE, Color.ORANGE);
-				sl.setY(slY);
-				cancelSL.setY(slY);
-				sl.draw();
-				cancelSL.draw();
-			}
-		}		
+			gc.strokeLine(x1, entryY, x2, entryY);
+			
+			drawPriceBox(entryY, roundToNearestTick(trade.entryPrice()), Color.WHITE, boxColour);
+			drawTradeBox(x1 - 100, entryY - fontSize, 100, 90, 5, ((Double)(trade.volume())).toString() + "\t$" + ((Double)(trade.profit())).toString(), textColour, boxColour);
+			setSL.setY(entryY - fontSize);
+			setTP.setY(entryY - fontSize);
+			close.setY(entryY - fontSize);
+			setSL.draw();
+			setTP.draw();
+			close.draw();
+		}	
 	}
 	
 	public void draw() {		
@@ -1626,13 +1765,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 		drawTopRightText();
 		checkMeasuring();
 		if (replayMode) {
-			fillDrawMRPBtn();
-			drawTradeButtons();
+			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
+			drawTradeButtons();
 			drawTrades();
 			drawCurrentPriceBox();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
+			}
+		}		
+	}
+	
+	public void tick() {
+		if (trade != null) {
+			trade.updateTrade(data.tickDataSize(true) - 1);
+			if (trade.closed()) {
+				System.out.println(trade.toString() + '\n');	
+				trade.writeToFile(new File("./trades.txt"));
+				trade = null;
+				slPrice = -1;
+				tpPrice = -1;
 			}
 		}		
 	}

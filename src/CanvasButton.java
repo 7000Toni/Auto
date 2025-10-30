@@ -74,6 +74,10 @@ public class CanvasButton implements Drawable {
 		this.y = y;
 	}
 	
+	public void setText(String text) {
+		this.text = text;
+	}
+	
 	public void setVanGogh(ButtonVanGogh bvg) {
 		this.bvg = bvg;
 	}
@@ -88,6 +92,10 @@ public class CanvasButton implements Drawable {
 	
 	public boolean enabled() {
 		return this.enabled;
+	}
+	
+	public String text() {
+		return this.text;
 	}
 	
 	public void defaultDrawButton() {

@@ -43,7 +43,7 @@ public class MarketReplay {
 	}
 	
 	public void togglePause() {
-		if (paused) {
+		if (paused) {			
 			paused = false;
 		} else {
 			paused = true;
@@ -107,6 +107,7 @@ public class MarketReplay {
 		}		
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		for (Chart c : charts) {
+			c.tick();
 			c.draw();
 		}
 	}
@@ -185,11 +186,14 @@ public class MarketReplay {
 						if (diff < timeToNextTick) {
 							break;
 						}
-					}
-					mrp.draw();
+						for (Chart c : charts) {
+							c.tick();
+						}
+					}		
 					for (Chart c : charts) {
 						c.draw();
 					}
+					mrp.draw();	
 					lastTick = now;
 				}				
 			}
