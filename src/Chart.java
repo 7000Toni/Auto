@@ -774,40 +774,53 @@ public class Chart implements ScrollBarOwner, Drawable {
 		return false;
 	}
 	
-	private void tradeButtonPressChecks(double x, double y) {
+	private boolean tradeButtonPressChecks(double x, double y) {
+		boolean pressed = false;
 		if (sell.onButton(x, y)) {
 			sell.setPressed(true);
+			pressed = true;
 		} else if (buy.onButton(x, y)) {
 			buy.setPressed(true);
+			pressed = true;
 		} else if (tp.onButton(x, y)) {
 			tp.setPressed(true);
 			tpDragging = true;
+			pressed = true;
 		} else if (sl.onButton(x, y)) {
 			sl.setPressed(true);
 			slDragging = true;
+			pressed = true;
 		} else if (setTP.onButton(x, y)) {
 			setTP.setPressed(true);
 			tpDragging = true;
+			pressed = true;
 		} else if (setSL.onButton(x, y)) {
 			setSL.setPressed(true);
 			slDragging = true;
+			pressed = true;
 		} else if (cancelTP.onButton(x, y)) {
 			cancelTP.setPressed(true);
+			pressed = true;
 		} else if (cancelSL.onButton(x, y)) {
 			cancelSL.setPressed(true);
+			pressed = true;
 		} else if (close.onButton(x, y)) {
 			close.setPressed(true);
+			pressed = true;
 		} else if (volTens.onUp(x, y)) {
 			volTens.setUpPressed(true);
+			pressed = true;
 		} else if (volTens.onDown(x, y)) {
 			volTens.setDownPressed(true);
+			pressed = true;
 		} else if (volUnits.onUp(x, y)) {
 			volUnits.setUpPressed(true);
+			pressed = true;
 		} else if (volUnits.onDown(x, y)) {
 			volUnits.setDownPressed(true);
-		} else {
-			chartDragging = true;
+			pressed = true;
 		}
+		return pressed;
 	}
 	
 	public void onMousePressed(MouseEvent e) {		
@@ -838,14 +851,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 							e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 							e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 					mrp.onMousePressed(me);
-				} else if (onDataMargin(e.getX(), e.getY())) {
-					chartDataMarginDragging = true;
 				} else {
-					if (replayMode) {
-						tradeButtonPressChecks(e.getX(), e.getY());
-					} else {
-						chartDragging = true;
-					}
+					if (!replayMode || !tradeButtonPressChecks(e.getX(), e.getY())) {
+						if (onDataMargin(e.getX(), e.getY())) {
+							chartDataMarginDragging = true;
+						} else {
+							chartDragging = true;
+						}
+					} 					
 				}								
 				double price = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 				double upperPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
