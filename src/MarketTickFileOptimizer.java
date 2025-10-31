@@ -32,6 +32,9 @@ public class MarketTickFileOptimizer {
 			}
 			ArrayList<String> ticks = new ArrayList<String>();
 			in = br.readLine();
+			if (Signature.validFull(in) || Signature.validPartial(in)) {
+				in = br.readLine();
+			}
 			int progress = 0;
 			boolean changed = false;
 			int last = -1;
