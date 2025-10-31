@@ -93,7 +93,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double y = 0;	
 	private double mrpx;
 	private double mrpy;
-	private Trade trade = null; 
+	private static Trade trade; 
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -310,9 +310,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			mrpx = CHT_MARGIN + 5;			
 			
 			if (replayMode) {
-				close.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
-				cancelTP.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
-				cancelSL.setX(CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2);
+				close.setX(CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+				cancelTP.setX(CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+				cancelSL.setX(CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
 				sl.setX(CHT_MARGIN + chartWidth / 2 - 100);
 				tp.setX(CHT_MARGIN + chartWidth / 2 - 100);
 				setSL.setX(CHT_MARGIN + chartWidth / 2 + 10);
@@ -538,6 +538,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 			this.tp = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, tpVG);
 			this.setSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3, setSlVG);
 			this.setTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3, setTpVG);
+			Chart.trade = new Trade(data, 1, true, 1);
+			Chart.trade.close(1);
 			
 			mr.addChart(this);
 		}
@@ -908,16 +910,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void tradeButtonReleaseChecks(double x, double y) {
 		if (sell.onButton(x, y)) {
 			if (sell.pressed()) {
-				if (trade == null) {
+				if (trade.closed()) {
 					trade = new Trade(data, data.tickDataSize(true) - 1, false, tradeVolume());
 				} else {
 					if (trade.buy()) {
 						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
 						System.out.println(trade.toString() + '\n');
 						trade.writeToFile(new File("./trades.txt"));
-						if (trade.closed()) {
-							trade = null;
-						}
 					} else {
 						trade.scaleIn(tradeVolume(), data.tickDataSize(true) - 1);
 					}
@@ -926,7 +925,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			sell.setPressed(false);
 		} else if (buy.onButton(x, y)) {
 			if (buy.pressed()) {
-				if (trade == null) {
+				if (trade.closed()) {
 					trade = new Trade(data, data.tickDataSize(true) - 1, true, tradeVolume());
 				} else {
 					if (trade.buy()) {
@@ -935,9 +934,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
 						System.out.println(trade.toString() + '\n');
 						trade.writeToFile(new File("./trades.txt"));
-						if (trade.closed()) {
-							trade = null;
-						}
 					}
 				}
 			}
@@ -976,7 +972,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			volUnits.setDownPressed(false);
 		}
 		
-		if (trade != null) {
+		if (!trade.closed()) {
 			if (tp.onButton(x, y)) {
 				tp.setPressed(false);
 			} else if (sl.onButton(x, y)) {
@@ -1790,12 +1786,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void tick() {
-		if (trade != null) {
+		if (!trade.closed()) {
 			trade.updateTrade(data.tickDataSize(true) - 1);
 			if (trade.closed()) {
 				System.out.println(trade.toString() + '\n');	
 				trade.writeToFile(new File("./trades.txt"));
-				trade = null;
 				slPrice = -1;
 				tpPrice = -1;
 			}
