@@ -1825,11 +1825,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawTradeButtons();
 			drawTrades();
 			drawCurrentPriceBox();
+			crossHair.drawCrossHair();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}				
-		}	
-		crossHair.drawCrossHair();	
+		} else {
+			crossHair.drawCrossHair();
+		}
 	}
 	
 	public void tick() {
