@@ -123,6 +123,7 @@ public class DataSet {
 		LocalDateTime ldtPrev;
 		double prevPrice;
 		int progress;
+		int trueProgress;
 		boolean changed = true;
 		int last = 0;
 	}
@@ -229,7 +230,7 @@ public class DataSet {
 	}
 	
 	private void showPercentage(ReadFileVars rfv) {
-		int percent = (int)((double)rfv.progress/size*100);
+		int percent = (int)((double)rfv.trueProgress/size*100);
 		if (rfv.last < percent) {
 			rfv.changed = true;
 		}
@@ -280,16 +281,19 @@ public class DataSet {
 			tickData.add(new DataPair(rfv.val, rfv.ldt, 0));												
 			setInitCandlestickVars(rfv);
 			rfv.progress = 1;
+			rfv.trueProgress = 1;
 			rfv.changed = true;
 			rfv.last = 0;
 			for (int i = 1; i < size; i++) {
 				rfv.progress++;
+				rfv.trueProgress++;
 				showPercentage(rfv);
 				tdfr.readNextTick(rfv);		
 				if (rfv.in == null) {
 					break;
 				}
 				if (!rfv.add) {
+					rfv.progress--;
 					continue;
 				}										
 				checkAddCandlestick(rfv);
