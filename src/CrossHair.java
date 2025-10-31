@@ -196,10 +196,6 @@ public class CrossHair {
 		if (dateIndex == -1) {
 			return;
 		}
-		//TODO find a better fix
-		if (chart.drawCandlesticks() && dateIndex >= chart.data().m1CandlesDataSize(chart.replayMode())) {
-			return;
-		}
 		long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
@@ -253,7 +249,7 @@ public class CrossHair {
 			} else if (dateIndex >= chart.startIndex() && dateIndex <= chart.endIndex()) {
 				drawUnfocusedTickToTick();
 			}
-		} else if (chart.drawCandlesticks()) {
+		} else {
 			if (isForCandle) {
 				if (dateIndex >= chart.startIndex() && dateIndex <= chart.endIndex()) {
 					drawUnfocusedCandleToCandle();

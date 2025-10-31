@@ -2,6 +2,9 @@
 public class ButtonChecks {
 	
 	public static boolean mouseButtonHoverCheck(CanvasButton button, double x, double y) {
+		if (!button.enabled()) {
+			return false;
+		}
 		if (button.onButton(x, y)) {
 			if (!button.pressed()) {
 				button.setHover(true);				
@@ -15,6 +18,9 @@ public class ButtonChecks {
 	}
 	
 	public static boolean mouseButtonSwitchHoverCheck(CanvasButton button, double x, double y) {
+		if (!button.enabled()) {
+			return false;
+		}
 		if (button.onButton(x, y)) {
 			button.setHover(true);		
 			return true;
@@ -25,6 +31,9 @@ public class ButtonChecks {
 	}
 	
 	public static boolean mouseNumberChooserUpHoverCheck(CanvasNumberChooser cnc, double x, double y) {
+		if (!cnc.enabled()) {
+			return false;
+		}
 		if (cnc.onUp(x, y)) {
 			if (!cnc.upPressed()) {
 				cnc.setUpHover(true);				
@@ -38,6 +47,9 @@ public class ButtonChecks {
 	}
 	
 	public static boolean mouseNumberChooserDownHoverCheck(CanvasNumberChooser cnc, double x, double y) {
+		if (!cnc.enabled()) {
+			return false;
+		}
 		if (cnc.onDown(x, y)) {
 			if (!cnc.downPressed()) {
 				cnc.setDownHover(true);				

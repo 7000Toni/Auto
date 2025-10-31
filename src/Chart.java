@@ -92,8 +92,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double x = 0;
 	private double y = 0;	
 	private double mrpx;
-	private double mrpy;
-	private static Trade trade; 
+	private double mrpy;	
 	
 	//ChartButton
 	private boolean newCHT_BTN_Hover = false;
@@ -109,7 +108,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private CanvasNumberChooser volUnits;
 	private CanvasNumberChooser volTens;
 	
-	//TradeButtons
+	//TradeStuff
+	private static Trade trade; 
 	private CanvasButton close;
 	private CanvasButton cancelTP;
 	private CanvasButton cancelSL;
@@ -119,8 +119,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private CanvasButton setTP;
 	private boolean slDragging = false;
 	private boolean tpDragging = false;
-	private double slPrice = -1;
-	private double tpPrice = -1;
+	private static double slPrice = -1;
+	private static double tpPrice = -1;
 	
 	//ChartActions
 	private int lineHighlighted = -1;
@@ -540,9 +540,30 @@ public class Chart implements ScrollBarOwner, Drawable {
 			this.setTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3, setTpVG);
 			Chart.trade = new Trade(data, 1, true, 1);
 			Chart.trade.close(1);
+			disableTradeButtons();
 			
 			mr.addChart(this);
 		}
+	}
+	
+	private void enableTradeButtons() {
+		this.close.enable();
+		this.cancelTP.enable();
+		this.cancelSL.enable();
+		this.sl.enable();
+		this.tp.enable();
+		this.setSL.enable();
+		this.setTP.enable();
+	}
+	
+	private void disableTradeButtons() {
+		this.close.disable();
+		this.cancelTP.disable();
+		this.cancelSL.disable();
+		this.sl.disable();
+		this.tp.disable();
+		this.setSL.disable();
+		this.setTP.disable();
 	}
 	
 	private int tradeVolume() {
@@ -667,7 +688,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		//TODO find a better fix
 		focusedChart = true;
 		CrossHair.setIsForCandle(drawCandlesticks);
-		if (CrossHair.dateIndex() >= data.m1CandlesDataSize(replayMode)) {
+		if (CrossHair.dateIndex() >= data.m1CandlesDataSize(replayMode) && drawCandlesticks) {
 			CrossHair.setDateIndex(0);
 		}
 		CrossHair.setName(data.name());
@@ -778,47 +799,47 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private boolean tradeButtonPressChecks(double x, double y) {
 		boolean pressed = false;
-		if (sell.onButton(x, y)) {
+		if (sell.onButton(x, y) && sell.enabled()) {
 			sell.setPressed(true);
 			pressed = true;
-		} else if (buy.onButton(x, y)) {
+		} else if (buy.onButton(x, y) && buy.enabled()) {
 			buy.setPressed(true);
 			pressed = true;
-		} else if (tp.onButton(x, y)) {
+		} else if (tp.onButton(x, y) && tp.enabled()) {
 			tp.setPressed(true);
 			tpDragging = true;
 			pressed = true;
-		} else if (sl.onButton(x, y)) {
+		} else if (sl.onButton(x, y) && sl.enabled()) {
 			sl.setPressed(true);
 			slDragging = true;
 			pressed = true;
-		} else if (setTP.onButton(x, y)) {
+		} else if (setTP.onButton(x, y) && setTP.enabled()) {
 			setTP.setPressed(true);
 			tpDragging = true;
 			pressed = true;
-		} else if (setSL.onButton(x, y)) {
+		} else if (setSL.onButton(x, y) && setSL.enabled()) {
 			setSL.setPressed(true);
 			slDragging = true;
 			pressed = true;
-		} else if (cancelTP.onButton(x, y)) {
+		} else if (cancelTP.onButton(x, y) && cancelTP.enabled()) {
 			cancelTP.setPressed(true);
 			pressed = true;
-		} else if (cancelSL.onButton(x, y)) {
+		} else if (cancelSL.onButton(x, y) && cancelSL.enabled()) {
 			cancelSL.setPressed(true);
 			pressed = true;
-		} else if (close.onButton(x, y)) {
+		} else if (close.onButton(x, y) && close.enabled()) {
 			close.setPressed(true);
 			pressed = true;
-		} else if (volTens.onUp(x, y)) {
+		} else if (volTens.onUp(x, y) && volTens.enabled()) {
 			volTens.setUpPressed(true);
 			pressed = true;
-		} else if (volTens.onDown(x, y)) {
+		} else if (volTens.onDown(x, y) && volTens.enabled()) {
 			volTens.setDownPressed(true);
 			pressed = true;
-		} else if (volUnits.onUp(x, y)) {
+		} else if (volUnits.onUp(x, y) && volUnits.enabled()) {
 			volUnits.setUpPressed(true);
 			pressed = true;
-		} else if (volUnits.onDown(x, y)) {
+		} else if (volUnits.onDown(x, y) && volUnits.enabled()) {
 			volUnits.setDownPressed(true);
 			pressed = true;
 		}
@@ -912,11 +933,19 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (sell.pressed()) {
 				if (trade.closed()) {
 					trade = new Trade(data, data.tickDataSize(true) - 1, false, tradeVolume());
+					for (Chart c : charts) {
+						c.enableTradeButtons();
+					}
 				} else {
 					if (trade.buy()) {
 						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
 						System.out.println(trade.toString() + '\n');
 						trade.writeToFile(new File("./trades.txt"));
+						if (trade.closed()) {
+							for (Chart c : charts) {
+								c.disableTradeButtons();
+							}
+						}
 					} else {
 						trade.scaleIn(tradeVolume(), data.tickDataSize(true) - 1);
 					}
@@ -927,6 +956,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (buy.pressed()) {
 				if (trade.closed()) {
 					trade = new Trade(data, data.tickDataSize(true) - 1, true, tradeVolume());
+					for (Chart c : charts) {
+						c.enableTradeButtons();
+					}
 				} else {
 					if (trade.buy()) {
 						trade.scaleIn(tradeVolume(), data.tickDataSize(true) - 1);
@@ -934,6 +966,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 						trade.scaleOut(tradeVolume(), data.tickDataSize(true) - 1);
 						System.out.println(trade.toString() + '\n');
 						trade.writeToFile(new File("./trades.txt"));
+						if (trade.closed()) {
+							for (Chart c : charts) {
+								c.disableTradeButtons();
+							}
+						}
 					}
 				}
 			}
@@ -998,7 +1035,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					trade.close(data.tickDataSize(true) - 1);
 					System.out.println(trade.toString() + '\n');
 					trade.writeToFile(new File("./trades.txt"));
-					trade = null;
+					for (Chart c : charts) {
+						c.disableTradeButtons();
+					}
 					tpPrice = -1;
 					slPrice = -1;
 				}
@@ -1012,8 +1051,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 				trade.setTP(tpPrice);
 				tpPrice = trade.tp();
 			}
-			sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(slPrice));
-			tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(tpPrice));
+			for (Chart c : charts) {
+				c.sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(slPrice));
+				c.tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(tpPrice));
+			}
 			slDragging = false;
 			tpDragging = false;
 		}
@@ -1074,8 +1115,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
 			darkModeClicked = false;	
 			darkMode = !darkMode;
-			if (replayMode) {
-				setNumberChooserColours();
+			for (Chart c : charts) {
+				if (c.replayMode) {
+					c.setNumberChooserColours();
+				}
 			}
 		} else if (drawMRPClicked && checkDrawMRPBtn(e.getX(), e.getY())) {
 			drawMRPClicked = false;
@@ -1124,11 +1167,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		if (tpDragging) {
 			tpPrice = roundToNearestTick(yCoordToPrice(e.getY()));
-			tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
+			for (Chart c : charts) {
+				c.tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
+			}
 		}
 		if (slDragging) {
 			slPrice = roundToNearestTick(yCoordToPrice(e.getY()));
-			sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
+			for (Chart c : charts) {
+				c.sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
+			}
 		}
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
@@ -1615,8 +1662,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		if (!data.lines().isEmpty()) {
 			drawLines();
-		}
-		crossHair.drawCrossHair();		
+		}	
 	}	
 	
 	private void checkMeasuring() {
@@ -1772,8 +1818,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}		
 		drawPriceDashes();
 		drawTopRightText();
-		checkMeasuring();
-		if (replayMode) {
+		checkMeasuring();	
+		if (replayMode) {	
 			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
 			drawTradeButtons();
@@ -1781,8 +1827,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawCurrentPriceBox();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
-			}
-		}		
+			}				
+		}	
+		crossHair.drawCrossHair();	
 	}
 	
 	public void tick() {
@@ -1791,6 +1838,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (trade.closed()) {
 				System.out.println(trade.toString() + '\n');	
 				trade.writeToFile(new File("./trades.txt"));
+				for (Chart c : charts) {
+					c.disableTradeButtons();
+				}
 				slPrice = -1;
 				tpPrice = -1;
 			}

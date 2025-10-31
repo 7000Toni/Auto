@@ -12,6 +12,7 @@ public class CanvasNumberChooser implements Drawable {
 	private boolean upPressed = false;
 	private boolean downHover = false;
 	private boolean downPressed = false;
+	private boolean enabled = true;
 	
 	private boolean l1 = true;
 	private boolean l2 = true;
@@ -95,6 +96,18 @@ public class CanvasNumberChooser implements Drawable {
 	
 	public int value() {
 		return value;
+	}
+	
+	public boolean enabled() {
+		return enabled;
+	}
+	
+	public void disable() {
+		enabled = false;
+	}
+	
+	public void enable() {
+		enabled = true;
 	}
 	
 	public void setUpHover(boolean upHover) {

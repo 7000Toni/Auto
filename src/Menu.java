@@ -34,6 +34,7 @@ public class Menu {
 	private TickDataFileReader reader;
 	
 	private boolean openChartOnStart = false;
+	private boolean sahilMode = false;
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
@@ -58,8 +59,13 @@ public class Menu {
 		this.originalReader.setVanGogh(readerVG(originalReader, 18));
 		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24, null);
 		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
-		marketTickOReader.setPressed(true);
-		reader = new OptimizedMarketTickFileReader();
+		if (sahilMode) {
+			originalReader.setPressed(true);
+			reader = new OriginalTickFileReader();
+		} else {
+			marketTickOReader.setPressed(true);
+			reader = new OptimizedMarketTickFileReader();
+		}
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));

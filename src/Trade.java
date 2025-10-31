@@ -3,9 +3,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public class Trade implements Serializable {
 	
@@ -45,8 +43,7 @@ public class Trade implements Serializable {
 		this.tp = tp;
 		this.buy = buy;
 		this.volume = volume;
-		this.entryTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Z"));
-		this.exitTime = null;
+		this.entryTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.exitPrice = -1;
 		this.currentPriceIndex = currentPriceIndex;
 	}
@@ -58,7 +55,7 @@ public class Trade implements Serializable {
 		this.currentPriceIndex = currentPriceIndex;
 		this.exitPrice = data.tickData().get(currentPriceIndex).price();
 		profit();
-		this.exitTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Z"));
+		this.exitTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.closed = true;
 	}
 	
@@ -120,7 +117,7 @@ public class Trade implements Serializable {
 			partial = true;
 			partialVol = vol;
 			exitPrice = data.tickData().get(currentPriceIndex).price();
-			exitTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.of("Z"));
+			exitTime = data.tickData().get(currentPriceIndex).dateTime();
 		}		
 	}
 	
@@ -265,9 +262,9 @@ public class Trade implements Serializable {
 		}
 		ret += "\nSL:\t" + sls;
 		ret += "\nTP:\t" + tps;
-		ret += "\nEntry:\t" + entryTime.toString().replace('T', ' ') + " UTC+0";
+		ret += "\nEntry:\t" + entryTime.toString().replace('T', ' ');
 		if (exitTime != null) {
-			ret += "\nExit:\t" + exitTime.toString().replace('T', ' ') + " UTC+0";
+			ret += "\nExit:\t" + exitTime.toString().replace('T', ' ');
 		}
 		ret += "\nChange:\t" + ((Double)(exitPrice - entryPrice)).toString();
 		ret += "\nProfit:\t" + profit();
