@@ -1825,7 +1825,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawTradeButtons();
 			drawTrade();
 			drawCurrentPriceBox();
-			
+			crossHair.drawCrossHair();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}				
