@@ -260,12 +260,12 @@ public class CrossHair {
 		}
 	}
 	
-	public void drawCrossHair() {					
+	public void drawCrossHair() {						
 		if (chart.focusedChart()) {		
-			if (chart.onChart(x, y)) {
+			if (chart.onChart(x, y, true)) {
 				drawFocusedChartCrossHair();
 			}
-		} else if (Chart.focusedOnChart() && chart.name().equals(name)) {						
+		} else if (Chart.focusedOnChart() && chart.name().equals(name)) {
 			drawUnfocusedChartCrossHair();
 		}
 	}

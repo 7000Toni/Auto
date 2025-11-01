@@ -109,7 +109,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private CanvasNumberChooser volTens;
 	
 	//TradeStuff
-	private static Trade trade; 
+	private static Trade trade = null; 
 	private CanvasButton close;
 	private CanvasButton cancelTP;
 	private CanvasButton cancelSL;
@@ -538,9 +538,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 			this.tp = new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3, tpVG);
 			this.setSL = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3, setSlVG);
 			this.setTP = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3, setTpVG);
-			Chart.trade = new Trade(data, 1, true, 1);
-			Chart.trade.close(1);
-			disableTradeButtons();
+			if (trade == null) {
+				Chart.trade = new Trade(data, 1, true, 1);
+				Chart.trade.close(1);
+				disableTradeButtons();
+			}			
 			
 			mr.addChart(this);
 		}
@@ -696,7 +698,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		hsb.onMouseMoved(e);
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
-		if (!onChart(e.getX(), e.getY())) {
+		if (!onChart(e.getX(), e.getY(), true)) {
 			measuring = false;
 		}
 		if (checkNewChtBtn(e.getX(), e.getY())) {
@@ -852,7 +854,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (lineHighlighted != -1) {
 				data.lines().remove(lineHighlighted);
 				lineHighlighted = -1;
-			} else if (onChart(e.getX(), e.getY())) {
+			} else if (onChart(e.getX(), e.getY(), true)) {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY) {
@@ -866,7 +868,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				priceDragging = true;
 				priceInitPos = e.getY();
 			}
-			if (onChart(e.getX(), e.getY())) {
+			if (onChart(e.getX(), e.getY(), true)) {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					MouseEvent me = new MouseEvent(MouseEvent.MOUSE_PRESSED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
@@ -1180,7 +1182,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
 			double posDiff = e.getX() - chartInitPos;
-			double newHSBPos = 0;					
+			double newHSBPos = hsb.x();					
 			int diff;
 			dragDiffAccum += posDiff;
 			if (drawCandlesticks) {
@@ -1292,16 +1294,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 	}
 	
-	public boolean onChart(double x, double y) {
+	public boolean onChart(double x, double y, boolean setFocused) {
 		if (y <= chartHeight + CHT_MARGIN && y >= CHT_MARGIN) {
 			if (x <= chartWidth + CHT_MARGIN && x >= CHT_MARGIN) {
-				if (focusedChart) {
+				if (focusedChart && setFocused) {
 					focusedOnChart = true;
 				}
 				return true;
 			}
 		}
-		if (focusedChart) {
+		if (focusedChart && setFocused) {
 			focusedOnChart = false;
 		}
 		return false;
@@ -1753,7 +1755,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		double entryY = priceToYCoord(roundToNearestTick(trade.entryPrice()));
 		double slY = priceToYCoord(slPrice);
 		double tpY = priceToYCoord(tpPrice);
-		if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3)) {
+		if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
 			gc.setStroke(Color.CORNFLOWERBLUE);
 			gc.strokeLine(x1, tpY, x2, tpY);
 			drawPriceBox(tpY, tpPrice, Color.WHITE, Color.CORNFLOWERBLUE);
@@ -1762,7 +1764,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			tp.draw();
 			cancelTP.draw();
 		}
-		if (onChart(CHT_MARGIN + 1, slY + fontSize + 3) && onChart(CHT_MARGIN + 1, slY - fontSize - 3)) {
+		if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {
 			gc.setStroke(Color.ORANGE);
 			gc.strokeLine(x1, slY, x2, slY);
 			drawPriceBox(slY, slPrice, Color.WHITE, Color.ORANGE);
@@ -1771,7 +1773,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			sl.draw();
 			cancelSL.draw();
 		}
-		if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3)) {
+		if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
 			Color boxColour;
 			Color textColour;
 			if (trade.buy()) {
@@ -1819,18 +1821,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 		drawPriceDashes();
 		drawTopRightText();
 		checkMeasuring();	
-		if (replayMode) {	
+		crossHair.drawCrossHair();
+		if (replayMode) {				
 			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
 			drawTradeButtons();
 			drawTrade();
-			drawCurrentPriceBox();
-			crossHair.drawCrossHair();
+			drawCurrentPriceBox();			
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
-			}				
-		} else {
-			crossHair.drawCrossHair();
+			}
 		}
 	}
 	

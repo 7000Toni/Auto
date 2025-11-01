@@ -125,14 +125,14 @@ public class Trade implements Serializable {
 		if (closed) {
 			return;
 		}
-		if (this.currentPriceIndex > currentPriceIndex) {
+		if (this.currentPriceIndex > currentPriceIndex) {			
 			this.closed = true;
 			this.closedByRewind = true;
 		}
-		for (int i = this.currentPriceIndex; i < currentPriceIndex + 1; i++) {
+		for (int i = this.currentPriceIndex; i < currentPriceIndex + 1; i++) {			
 			double price = data.tickData().get(i).price();
 			if (buy) {
-				if (price >= tp && tp != -1 || price <= sl && sl != -1) {
+				if (price >= tp && tp != -1 || price <= sl && sl != -1) {					
 					close(i);
 					break;
 				}
