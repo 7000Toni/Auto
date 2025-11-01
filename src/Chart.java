@@ -1743,7 +1743,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		gc.strokeText(text, xPos + textMargin, yPos + 4*fontSize/3, textMaxWidth);
 	}
 	
-	private void drawTrades() {
+	private void drawTrade() {
 		if (trade == null || trade.closed()) {
 			return;
 		}
@@ -1823,9 +1823,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
 			drawTradeButtons();
-			drawTrades();
+			drawTrade();
 			drawCurrentPriceBox();
-			crossHair.drawCrossHair();
+			
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}				
