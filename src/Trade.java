@@ -125,7 +125,7 @@ public class Trade implements Serializable {
 		if (closed) {
 			return;
 		}
-		if (this.currentPriceIndex > currentPriceIndex) {			
+		if (this.currentPriceIndex >= currentPriceIndex) {			
 			this.closed = true;
 			this.closedByRewind = true;
 		}
@@ -268,6 +268,7 @@ public class Trade implements Serializable {
 		}
 		ret += "\nChange:\t" + ((Double)(exitPrice - entryPrice)).toString();
 		ret += "\nProfit:\t" + profit();
+		ret += "\nRewind:\t" + closedByRewind;
 		return ret;
 	}
 }
