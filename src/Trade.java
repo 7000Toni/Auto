@@ -125,7 +125,7 @@ public class Trade implements Serializable {
 		if (closed) {
 			return;
 		}
-		if (this.currentPriceIndex >= currentPriceIndex) {			
+		if (this.currentPriceIndex > currentPriceIndex) {			
 			this.closed = true;
 			this.closedByRewind = true;
 		}
