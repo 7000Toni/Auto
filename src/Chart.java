@@ -79,7 +79,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean priceDragging = false;
 	private double priceInitPos;
 	private boolean chartDragging = false;
-	private boolean chartDataMarginDragging = false;
+	private boolean chartDateMarginDragging = false;
 	private double chartInitPos;
 	private boolean endMargin = false;
 	private Stage stage;
@@ -792,8 +792,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 		return false;
 	}
 	
-	private boolean onDataMargin(double x, double y) {
-		if (x >= CHT_MARGIN && x <= CHT_MARGIN + chartWidth && y >= CHT_MARGIN + chartHeight - chtDataMargin && y <= CHT_MARGIN + chartHeight) {
+	private boolean onDateMargin(double x, double y) {
+		if (x >= CHT_MARGIN && x <= CHT_MARGIN + chartWidth && y >= CHT_MARGIN + chartHeight - fontSize && y <= CHT_MARGIN + chartHeight) {
 			return true;
 		}
 		return false;
@@ -878,8 +878,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 					mrp.onMousePressed(me);
 				} else {
 					if (!replayMode || !tradeButtonPressChecks(e.getX(), e.getY())) {
-						if (onDataMargin(e.getX(), e.getY())) {
-							chartDataMarginDragging = true;
+						if (onDateMargin(e.getX(), e.getY())) {
+							chartDateMarginDragging = true;
 						} else {
 							chartDragging = true;
 						}
@@ -1147,7 +1147,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		lineDragging = false;
 		priceDragging = false;
 		chartDragging = false;
-		chartDataMarginDragging = false;
+		chartDateMarginDragging = false;
 		rightPressed = false;
 		drawCharts(this.name());
 	}
@@ -1218,7 +1218,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				hsb.setPosition(newHSBPos, false);
 			}
 		}
-		if (chartDataMarginDragging && !lineDragging) {			
+		if (chartDateMarginDragging && !lineDragging) {			
 			if (drawCandlesticks) {
 				zoomCandlesticks(e.getX() - chartInitPos);
 			} else {
