@@ -9,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
 public class DataSet {
 	private String name;
 	private String signature;
@@ -21,6 +24,7 @@ public class DataSet {
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Line> lines = new ArrayList<Line>();
 	private long startEpochMinutes;
+	private boolean failed = false;
 	
 	class DataPair {
 		private double price;
@@ -126,10 +130,19 @@ public class DataSet {
 		int trueProgress;
 		boolean changed = true;
 		int last = 0;
+		IntegerProperty percent = new SimpleIntegerProperty();
+	}
+	
+	public DataSet(File file, TickDataFileReader tdfr, IntegerProperty prog, Menu menu) {
+		readData(file, tdfr, prog, menu);
 	}
 	
 	public DataSet(File file, TickDataFileReader tdfr) {
-		readData(file, tdfr);
+		readData(file, tdfr, null, null);
+	}
+	
+	public boolean failed() {
+		return failed;
 	}
 	
 	public int tickDataSize(boolean replayMode) {
@@ -229,14 +242,17 @@ public class DataSet {
 		startEpochMinutes = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 	}
 	
-	private void showPercentage(ReadFileVars rfv) {
-		int percent = (int)((double)rfv.trueProgress/size*100);
-		if (rfv.last < percent) {
+	private void showPercentage(ReadFileVars rfv, Menu menu) {
+		rfv.percent.set((int)((double)rfv.trueProgress/size*100));
+		if (rfv.last < rfv.percent.get()) {
 			rfv.changed = true;
 		}
-		rfv.last = percent;
+		rfv.last = (int)rfv.percent.get();
 		if (rfv.changed) {
-			System.out.println(percent + "%");
+			System.out.println(name + ": " + rfv.percent.get() + "%");
+			if (menu != null) {
+				menu.draw();
+			}
 			rfv.changed = false;
 		}
 	}
@@ -268,13 +284,21 @@ public class DataSet {
 		rfv.prevPrice = rfv.val;
 	}
 	
-	private void readData(File file, TickDataFileReader tdfr) {
+	private void readData(File file, TickDataFileReader tdfr, IntegerProperty prog, Menu menu) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			ReadFileVars rfv = new ReadFileVars();
+			if (prog != null) {
+				prog.bind(rfv.percent);
+			}
 			rfv.br = br;
 			readSignature(rfv);
-			tdfr.readFirstTick(rfv);			
+			try {
+				tdfr.readFirstTick(rfv);
+			} catch (Exception e) {
+				failed = true;
+				e.printStackTrace();
+			}
 			if (!rfv.add) {
 				return;
 			}
@@ -286,9 +310,14 @@ public class DataSet {
 			rfv.last = 0;
 			for (int i = 1; i < size; i++) {
 				rfv.progress++;
-				rfv.trueProgress++;
-				showPercentage(rfv);
-				tdfr.readNextTick(rfv);		
+				rfv.trueProgress++;				
+				showPercentage(rfv, menu);
+				try {
+					tdfr.readNextTick(rfv);
+				} catch (Exception e) {
+					failed = true;
+					e.printStackTrace();
+				}
 				if (rfv.in == null) {
 					break;
 				}

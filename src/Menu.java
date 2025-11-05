@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -35,6 +36,8 @@ public class Menu {
 	
 	private boolean openChartOnStart = false;
 	private boolean sahilMode = false;
+	
+	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
@@ -73,7 +76,7 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
+			/*datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
 			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);		
 			dsb.setVanGogh((x, y, gc) -> {
@@ -86,7 +89,7 @@ public class Menu {
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
-			dsButtons.add(dsb);						
+			dsButtons.add(dsb);		*/				
 		}
 		
 		draw();
@@ -118,7 +121,7 @@ public class Menu {
 		return this.canvas;
 	}
 	
-	private void draw() {	
+	public void draw() {	
 		if (datasets.size() < 6) {
 			loadData.enable();
 		} else {
@@ -131,8 +134,18 @@ public class Menu {
 		marketTickOReader.draw();
 		originalReader.draw();
 		dukasNodeReader.draw();
+		drawLoadingSets();
 		for (DataSetButton dsb : dsButtons) {
 			dsb.draw();
+		}
+	}
+	
+	private void drawLoadingSets() {	
+		gc.setStroke(Color.BLACK);
+		gc.setFill(Color.ORANGE);
+		for (LoadingDataSet l : loadingSets) {
+			gc.strokeRect(120, l.y(), 510, 48);	
+			gc.fillRect(121, l.y() + 1, 508 * l.progress().get() / 100.0, 46);
 		}
 	}
 	
@@ -188,15 +201,31 @@ public class Menu {
 								break;
 							}
 						}				
-						if (add) {
-							datasets.add(new DataSet(file, reader));
-							DataSet ds = datasets.get(datasets.size() - 1);
-							DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
-							dsb.setVanGogh((x2, y2, gc) -> {
-								gc.setFont(new Font(37));
-								dsb.defaultDrawButton();		
-							});
-							dsButtons.add(dsb);
+						if (add) {							
+							LoadingDataSet l = new LoadingDataSet(MARGIN + (datasets.size() + loadingSets.size()) * 58);
+							loadingSets.add(l);
+							Menu m = this;
+							Task<Void> task = new Task<Void>() {
+								@Override
+								public Void call() {	
+									DataSet ds = l.load(in, file, m, reader);
+									loadingSets.remove(l);
+									if (ds == null) {
+										draw();
+										return null;
+									}									
+									datasets.add(ds);																							
+									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
+									dsb.setVanGogh((x2, y2, gc) -> {
+										gc.setFont(new Font(37));
+										dsb.defaultDrawButton();		
+									});
+									dsButtons.add(dsb);	
+									draw();
+									return null;
+								}
+							};				
+							new Thread(task).start();							
 						}
 					} catch (Exception ex) {
 						ex.printStackTrace();
@@ -267,6 +296,9 @@ public class Menu {
 					dsButtons.remove(i);
 					for (int j = i; j < dsButtons.size(); j++) {					
 						dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
+					}
+					for (int j = i; j < loadingSets.size(); j++) {					
+						loadingSets.get(j).setY(loadingSets.get(j).y() - 58);				
 					}
 					String name = datasets.get(i).name();
 					Chart.closeAll(name, false);
