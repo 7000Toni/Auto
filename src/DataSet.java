@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -251,7 +252,9 @@ public class DataSet {
 		if (rfv.changed) {
 			System.out.println(name + ": " + rfv.percent.get() + "%");
 			if (menu != null) {
-				menu.draw();
+				Platform.runLater(() -> {
+					menu.draw();				
+				});
 			}
 			rfv.changed = false;
 		}
