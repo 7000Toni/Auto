@@ -27,6 +27,7 @@ public class Menu {
 	private CanvasButton marketTickOReader;
 	private CanvasButton originalReader;
 	private CanvasButton dukasNodeReader;
+	private CanvasButton darkMode;
 	private double width;
 	private double height;
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
@@ -38,6 +39,8 @@ public class Menu {
 	private boolean sahilMode = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
+	
+	private static ArrayList<Menu> menus = new ArrayList<Menu>();
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
@@ -62,6 +65,21 @@ public class Menu {
 		this.originalReader.setVanGogh(readerVG(originalReader, 18));
 		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24, null);
 		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
+		this.darkMode = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58*2, "DARK", 2, 0, null);
+		this.darkMode.setVanGogh((x, y, gc) -> {
+			int fontSize;
+			if (Chart.darkMode()) {
+				darkMode.setText("LIGHT");	
+				darkMode.setTextYOffset(36);
+				fontSize = 35;
+			} else {
+				darkMode.setText("DARK");
+				darkMode.setTextYOffset(37);
+				fontSize = 37;
+			}
+			gc.setFont(new Font(fontSize));
+			darkMode.defaultDrawButton();
+		});
 		if (sahilMode) {
 			originalReader.setPressed(true);
 			reader = new OriginalTickFileReader();
@@ -76,7 +94,7 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			/*datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
+			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
 			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);		
 			dsb.setVanGogh((x, y, gc) -> {
@@ -89,17 +107,23 @@ public class Menu {
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
-			dsButtons.add(dsb);		*/				
+			dsButtons.add(dsb);			
 		}
 		
 		draw();
+		menus.add(this);
 	}	
 	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
 			gc.setFont(new Font(fontSize));
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
+			if (Chart.darkMode()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+				gc.setFill(Color.BLACK);
+			}
 			if (cb.pressed) {
 				if (cb.hover) {
 					gc.setStroke(Color.DARKORANGE);
@@ -121,27 +145,43 @@ public class Menu {
 		return this.canvas;
 	}
 	
+	public static void drawMenus() {
+		for (Menu m : menus) {
+			m.draw();
+		}
+	}
+	
 	public void draw() {	
 		if (datasets.size() < 6) {
 			loadData.enable();
 		} else {
 			loadData.disable();
 		}
-		canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.WHITE);
+		}
+		gc.fillRect(0, 0, width, height);
 		loadData.draw();
 		optimize.draw();
 		marketTickReader.draw();
 		marketTickOReader.draw();
 		originalReader.draw();
 		dukasNodeReader.draw();
+		darkMode.draw();
 		drawLoadingSets();
 		for (DataSetButton dsb : dsButtons) {
 			dsb.draw();
 		}
 	}
 	
-	private void drawLoadingSets() {	
-		gc.setStroke(Color.BLACK);
+	private void drawLoadingSets() {
+		if (Chart.darkMode()) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}		
 		gc.setFill(Color.ORANGE);
 		for (LoadingDataSet l : loadingSets) {
 			gc.strokeRect(120, l.y(), 510, 48);	
@@ -164,6 +204,8 @@ public class Menu {
 			originalReader.setPressed(true);			
 		} else if (dukasNodeReader.onButton(x, y)) {
 			dukasNodeReader.setPressed(true);
+		} else if (darkMode.onButton(x, y)) {
+			darkMode.setPressed(true);
 		} else {
 			for (DataSetButton dsb : dsButtons) {
 				CanvasButton close = dsb.closeButton();
@@ -220,7 +262,7 @@ public class Menu {
 										gc.setFont(new Font(37));
 										dsb.defaultDrawButton();		
 									});
-									dsButtons.add(dsb);	
+									dsButtons.add(dsb);									
 									draw();
 									return null;
 								}
@@ -260,6 +302,11 @@ public class Menu {
 				marketTickReader.setPressed(false);
 				marketTickOReader.setPressed(false);
 				originalReader.setPressed(false);
+			}
+		} else if (darkMode.onButton(x, y)) { 
+			if (darkMode.pressed()) {
+				Chart.toggleDarkMode(true);				
+				darkMode.setPressed(false);
 			}
 		} else if (optimize.onButton(x, y)) { 		
 			if (optimize.pressed()) {
@@ -367,6 +414,7 @@ public class Menu {
 		ButtonChecks.mouseButtonSwitchHoverCheck(marketTickOReader, x, y);
 		ButtonChecks.mouseButtonSwitchHoverCheck(originalReader, x, y);
 		ButtonChecks.mouseButtonSwitchHoverCheck(dukasNodeReader, x, y);
+		ButtonChecks.mouseButtonHoverCheck(darkMode, x, y);
 		for (DataSetButton dsb : dsButtons) {
 			CanvasButton close = dsb.closeButton();
 			CanvasButton mr = dsb.mrButton();

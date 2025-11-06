@@ -11,14 +11,15 @@ import java.util.StringTokenizer;
 
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class DataSet {
 	private String name;
 	private String signature;
 	private int size;
-	private int replayTickDataSize;
-	private int replayM1CandlesDataSize;
+	private IntegerProperty replayTickDataSize = new SimpleIntegerProperty();
+	private IntegerProperty replayM1CandlesDataSize = new SimpleIntegerProperty();
 	private double tickSize;
 	private int numDecimalPts;
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
@@ -146,11 +147,11 @@ public class DataSet {
 		return failed;
 	}
 	
-	public int tickDataSize(boolean replayMode) {
+	public ReadOnlyIntegerProperty tickDataSize(boolean replayMode) {
 		if (replayMode) {
-			return this.replayTickDataSize;
+			return IntegerProperty.readOnlyIntegerProperty(replayTickDataSize);
 		} else {
-			return this.tickData.size();
+			return IntegerProperty.readOnlyIntegerProperty(new SimpleIntegerProperty(tickData.size()));
 		}
 	}
 	
@@ -165,7 +166,7 @@ public class DataSet {
 		rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
 		long ldtPrevEpochSec = rfv.ldt.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 		Candlestick c = null;
-		for (int i = startIndex + 1; i < replayTickDataSize; i++) {			
+		for (int i = startIndex + 1; i < replayTickDataSize.get(); i++) {			
 			long ldtEpochSec = tickData.get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 			int diff = (int)((ldtEpochSec - ldtPrevEpochSec) / 60.0);
 			if (diff == 0) {
@@ -185,19 +186,19 @@ public class DataSet {
 	}
 	
 	public void setReplayTickDataSize(int replayTickDataSize) {
-		this.replayTickDataSize = replayTickDataSize;
+		this.replayTickDataSize.set(replayTickDataSize);
 	}
 	
-	public int m1CandlesDataSize(boolean replayMode) {
+	public ReadOnlyIntegerProperty m1CandlesDataSize(boolean replayMode) {
 		if (replayMode) {
-			return this.replayM1CandlesDataSize;
+			return IntegerProperty.readOnlyIntegerProperty(replayM1CandlesDataSize);
 		} else {
-			return this.m1Candles.size();
+			return IntegerProperty.readOnlyIntegerProperty(new SimpleIntegerProperty(m1Candles.size()));
 		}
 	}
 	
 	public void setReplayM1CandlesDataSize(int replayM1CandlesDataSize) {
-		this.replayM1CandlesDataSize = replayM1CandlesDataSize;
+		this.replayM1CandlesDataSize.set(replayM1CandlesDataSize);
 	}
 	
 	public double tickSize() {

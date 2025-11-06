@@ -23,10 +23,17 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private boolean bLive = true;
 	private String name;	
 	
+	private static ArrayList<MarketReplayPane> panes = new ArrayList<MarketReplayPane>();
+	
 	private CanvasButton newChart;
 	private ButtonVanGogh nvg = (x, y, gc) -> {
-		gc.setFill(Color.WHITE);
-		gc.setStroke(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.BLACK);
+		}			
 		if (newChart.hover) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
@@ -39,8 +46,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	};
 	private CanvasButton pausePlay;
 	private ButtonVanGogh pvg = (x, y, gc) -> {
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.BLACK);
+		}	
 		if (pausePlay.hover) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
@@ -60,8 +72,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	};
 	private CanvasButton back;
 	private ButtonVanGogh bvg = (x, y, gc) -> {
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.BLACK);
+		}
 		if (back.hover) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
@@ -76,8 +93,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	};
 	private CanvasButton forward;
 	private ButtonVanGogh fvg = (x, y, gc) -> {
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.BLACK);
+		}
 		if (forward.hover) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
@@ -92,8 +114,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	};
 	private CanvasButton live;
 	private ButtonVanGogh lvg = (x, y, gc) -> {
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.BLACK);
+		}
 		if (live.hover) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
@@ -177,6 +204,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		this.add(canvas, 0, 0);
 		mr.run();
 		draw();
+		panes.add(this);
 	}
 	
 	public String name() {
@@ -187,6 +215,12 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		return this.hsb;
 	}
 	
+	public static void drawReplayPanes() {
+		for (MarketReplayPane m : panes) {
+			m.draw();
+		}
+	}
+	
 	@Override
 	public void draw() {
 		draw(gc, 0, 0);
@@ -194,30 +228,43 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	
 	private void draw(GraphicsContext gc, double x, double y) {
 		double fontSize = gc.getFont().getSize();
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
-		gc.clearRect(x - 1, y - 1, 401, 102);		
+		if (Chart.darkMode()) {
+			gc.setFill(Color.BLACK);
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setFill(Color.WHITE);
+			gc.setStroke(Color.BLACK);
+		}
+		gc.fillRect(x - 1, y - 1, 401, 102);		
 		gc.strokeRect(x - 1, y - 1, 401, 102);
 		gc.setFont(new Font(20));		
-		int percent = (int)(mr.index() * 100 / (double)(mr.maxSize() - 1));
+		int percent = (int)(mr.index().get() * 100 / (double)(mr.maxSize().get() - 1));
 		if (percent > 100) {
 			percent = 100;
 		} else if (percent < 0) {
 			percent = 0;
 		}
 		DataSet data = mr.data();		
-		int index = data.tickDataSize(true) - 1;
+		int index = data.tickDataSize(true).get() - 1;
 		LocalDateTime tick = null;
 		String time = "";
 		if (index > -1) {
 			tick = data.tickData().get(index).dateTime();
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
+		if (Chart.darkMode()) {
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+		}
 		gc.fillText(percent + "%  " + time, x + 10, y + 25, 240);
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
-		for (Drawable d : drawables) {	
+		for (Drawable d : drawables) {
+			if (d instanceof CanvasNumberChooser) {
+				((CanvasNumberChooser)d).resetColours();
+			}
 			GraphicsContext g = d.graphicsContext();
 			d.setGraphicsContext(gc);
 			double x2 = d.x();
@@ -365,6 +412,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	}
 	
 	public void endReplay() {
+		panes.remove(this);
 		Chart.closeAll(name, true);
 		mr.stop();
 		stage.close();

@@ -72,8 +72,13 @@ public class CanvasNumberChooser implements Drawable {
 	}
 	
 	public void resetColours() {
-		onColour = Color.BLACK;
-		offColour = Color.LIGHTGRAY;
+		if (Chart.darkMode()) {
+			onColour = Color.RED;
+			offColour = Color.MAROON;
+		} else {
+			onColour = Color.BLACK;
+			offColour = Color.LIGHTGRAY;			
+		}		
 		hoverColour = Color.GRAY;
 		pressColour = Color.DIMGRAY;
 	}

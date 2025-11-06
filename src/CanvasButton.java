@@ -78,6 +78,14 @@ public class CanvasButton implements Drawable {
 		this.text = text;
 	}
 	
+	public void setTextXOffset(double textXOffset) {
+		this.textXOffset = textXOffset;
+	}
+	
+	public void setTextYOffset(double textYOffset) {
+		this.textYOffset = textYOffset;
+	}
+	
 	public void setVanGogh(ButtonVanGogh bvg) {
 		this.bvg = bvg;
 	}
@@ -99,8 +107,13 @@ public class CanvasButton implements Drawable {
 	}
 	
 	public void defaultDrawButton() {
-		gc.setStroke(Color.BLACK);
-		gc.setFill(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
 		if (hover) {
 			gc.setStroke(Color.GRAY);
 			gc.setFill(Color.GRAY);

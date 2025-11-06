@@ -8,8 +8,13 @@ public class DataSetButton extends CanvasButton {
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset, bvg);
 		ButtonVanGogh drawCross = (x2, y2, gc2) -> {
-			gc2.setFill(Color.BLACK);
-			gc2.setStroke(Color.BLACK);
+			if (Chart.darkMode()) {
+				gc2.setStroke(Color.WHITE);
+				gc2.setFill(Color.WHITE);
+			} else {
+				gc2.setStroke(Color.BLACK);
+				gc2.setFill(Color.BLACK);
+			}	
 			if (close.hover) {
 				gc2.setFill(Color.GRAY);
 				gc2.setStroke(Color.GRAY);
@@ -32,8 +37,13 @@ public class DataSetButton extends CanvasButton {
 			gc2.fillPolygon(x3, y3, 13);
 		};
 		ButtonVanGogh mrvg = (x2, y2, gc2) -> {
-			gc2.setFill(Color.BLACK);
-			gc2.setStroke(Color.BLACK);
+			if (Chart.darkMode()) {
+				gc2.setStroke(Color.WHITE);
+				gc2.setFill(Color.WHITE);
+			} else {
+				gc2.setStroke(Color.BLACK);
+				gc2.setFill(Color.BLACK);
+			}	
 			if (mr.hover) {
 				gc2.setFill(Color.GRAY);
 				gc2.setStroke(Color.GRAY);
@@ -58,8 +68,13 @@ public class DataSetButton extends CanvasButton {
 	
 	@Override
 	public void defaultDrawButton() {
-		gc.setStroke(Color.BLACK);
-		gc.setFill(Color.BLACK);
+		if (Chart.darkMode()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
 		if (hover) {
 			gc.setStroke(Color.GRAY);
 			gc.setFill(Color.GRAY);
