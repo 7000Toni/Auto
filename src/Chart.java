@@ -126,7 +126,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private static double tpPrice = -1;
 	
 	//ChartActions
-	private int lineHighlighted = -1;
+	private static int lineHighlighted = -1;
 	private boolean lineDragging = false;
 	private boolean rightPressed = false;
 	private boolean measuring = false;
