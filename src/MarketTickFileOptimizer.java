@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javafx.beans.property.IntegerProperty;
+
 public class MarketTickFileOptimizer {
 	
 	private static void work(File file, String outSignature, boolean autoSignature) {
@@ -19,9 +21,10 @@ public class MarketTickFileOptimizer {
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 				FileOutputStream fos = new FileOutputStream(outFile, true)) {			
 			String in; 
-			int size = -1;
-			if (autoSignature) {				
-				outSignature = file.getName().substring(0, file.getName().lastIndexOf('.'));
+			String name = file.getName().substring(0, file.getName().lastIndexOf('.'));
+			int size = -1;			
+			if (autoSignature) {					
+				outSignature = name;
 				outSignature += " 0.25 2\n";
 			} else if (outSignature == null) {
 				in = br.readLine() + "\n";
@@ -41,7 +44,7 @@ public class MarketTickFileOptimizer {
 			int last2 = 0;
 			int newSize = 0;
 			if (size == -1) {
-				System.out.println("working...");
+				System.out.println("working on " + name + ".csv...");
 			}
 			while (true) {
 				if (in == null || in.equals("")) {
@@ -72,17 +75,17 @@ public class MarketTickFileOptimizer {
 						last2 = progress;
 					}					
 					if (changed) {
-						System.out.println("still working...");
+						System.out.println("still working on " + name + ".csv...");
 						changed = false;
 					}	
 				}
-			}
-			System.out.println("writing new file...");
+			}			
+			System.out.println("writing " + name + "_Optimized.csv...");
 			fos.write((newSize + " " + outSignature).getBytes());
 			for (String s : ticks) {
 				fos.write((s + '\n').getBytes());
 			}
-			System.out.println("done");
+			System.out.println("done optimizing " + name + ".csv");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -120,5 +123,13 @@ public class MarketTickFileOptimizer {
 	
 	public static void optimize(String file, boolean autoSignature) {
 		work(new File(file), null, autoSignature);
+	}
+	
+	public static void optimize(File file, boolean autoSignature, IntegerProperty numJobs) {
+		numJobs.set(numJobs.get() + 1);
+		Menu.drawMenus();
+		work(file, null, autoSignature);
+		numJobs.set(numJobs.get() - 1);
+		Menu.drawMenus();
 	}
 }

@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -135,12 +134,12 @@ public class DataSet {
 		IntegerProperty percent = new SimpleIntegerProperty();
 	}
 	
-	public DataSet(File file, TickDataFileReader tdfr, IntegerProperty prog, Menu menu) {
-		readData(file, tdfr, prog, menu);
+	public DataSet(File file, TickDataFileReader tdfr, IntegerProperty prog) {
+		readData(file, tdfr, prog);
 	}
 	
 	public DataSet(File file, TickDataFileReader tdfr) {
-		readData(file, tdfr, null, null);
+		readData(file, tdfr, null);
 	}
 	
 	public boolean failed() {
@@ -244,7 +243,7 @@ public class DataSet {
 		startEpochMinutes = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 	}
 	
-	private void showPercentage(ReadFileVars rfv, Menu menu) {
+	private void showPercentage(ReadFileVars rfv) {
 		rfv.percent.set((int)((double)rfv.trueProgress/size*100));
 		if (rfv.last < rfv.percent.get()) {
 			rfv.changed = true;
@@ -252,11 +251,7 @@ public class DataSet {
 		rfv.last = (int)rfv.percent.get();
 		if (rfv.changed) {
 			System.out.println(name + ": " + rfv.percent.get() + "%");
-			if (menu != null) {
-				Platform.runLater(() -> {
-					menu.draw();				
-				});
-			}
+			Menu.drawMenus();
 			rfv.changed = false;
 		}
 	}
@@ -288,7 +283,7 @@ public class DataSet {
 		rfv.prevPrice = rfv.val;
 	}
 	
-	private void readData(File file, TickDataFileReader tdfr, IntegerProperty prog, Menu menu) {
+	private void readData(File file, TickDataFileReader tdfr, IntegerProperty prog) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			ReadFileVars rfv = new ReadFileVars();
@@ -315,7 +310,7 @@ public class DataSet {
 			for (int i = 1; i < size; i++) {
 				rfv.progress++;
 				rfv.trueProgress++;				
-				showPercentage(rfv, menu);
+				showPercentage(rfv);
 				try {
 					tdfr.readNextTick(rfv);
 				} catch (Exception e) {

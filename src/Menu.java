@@ -5,6 +5,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -33,14 +37,44 @@ public class Menu {
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
-	private TickDataFileReader reader;
+	private TickDataFileReader reader;	
 	
 	private boolean openChartOnStart = false;
 	private boolean sahilMode = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
+	private IntegerProperty numJobs = new SimpleIntegerProperty();
+	private BooleanProperty drawing = new SimpleBooleanProperty(false);
 	
 	private static ArrayList<Menu> menus = new ArrayList<Menu>();
+	
+	private ButtonVanGogh optimizeVG = (x, y, gc) -> {
+		gc.setFont(new Font(22));
+		if (numJobs.get() > 0) {
+			gc.setStroke(Color.RED);
+			gc.setFill(Color.RED);
+		} else if (Chart.darkMode()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
+		if (optimize.hover) {
+			gc.setStroke(Color.GRAY);
+			gc.setFill(Color.GRAY);
+		}
+		if (optimize.pressed) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!optimize.enabled) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.strokeRect(x, y, optimize.width, optimize.height);
+		gc.fillText(optimize.text, x + optimize.textXOffset, y + optimize.textYOffset);		
+	};
 	
 	public Menu(double width, double height) {
 		this.canvas = new Canvas(width, height);
@@ -53,10 +87,7 @@ public class Menu {
 			loadData.defaultDrawButton();			
 		});
 		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32, null);
-		this.optimize.setVanGogh((x, y, gc) -> {
-			gc.setFont(new Font(22));
-			optimize.defaultDrawButton();			
-		});
+		this.optimize.setVanGogh(optimizeVG);
 		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24, null);
 		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
 		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23, null);
@@ -151,7 +182,15 @@ public class Menu {
 		}
 	}
 	
-	public void draw() {	
+	public synchronized void draw() {	
+		if (drawing.get()) {
+			try { 
+				wait();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+		drawing.set(true);		
 		if (datasets.size() < 6) {
 			loadData.enable();
 		} else {
@@ -174,6 +213,8 @@ public class Menu {
 		for (DataSetButton dsb : dsButtons) {
 			dsb.draw();
 		}
+		drawing.set(false);
+		notify();
 	}
 	
 	private void drawLoadingSets() {
@@ -246,11 +287,10 @@ public class Menu {
 						if (add) {							
 							LoadingDataSet l = new LoadingDataSet(MARGIN + (datasets.size() + loadingSets.size()) * 58);
 							loadingSets.add(l);
-							Menu m = this;
 							Task<Void> task = new Task<Void>() {
 								@Override
 								public Void call() {	
-									DataSet ds = l.load(in, file, m, reader);
+									DataSet ds = l.load(in, file, reader);
 									loadingSets.remove(l);
 									if (ds == null) {
 										draw();
@@ -315,8 +355,9 @@ public class Menu {
 				fc.setInitialDirectory(new File("./"));
 				List<File> files = fc.showOpenMultipleDialog(null);		
 				if (files != null) {
-					for (File f : files) {
-						MarketTickFileOptimizer.optimize(f, true);
+					for (File f : files) {						
+						Thread t = new Thread(new OptimizeTask(f, numJobs));
+						t.start();						
 					}
 				}
 			}

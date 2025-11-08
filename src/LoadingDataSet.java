@@ -13,9 +13,9 @@ public class LoadingDataSet {
 		this.y = y;
 	}
 	
-	public DataSet load(String signature, File file, Menu menu, TickDataFileReader reader) {		
+	public DataSet load(String signature, File file, TickDataFileReader reader) {		
 		this.signature = signature;
-		DataSet data = new DataSet(file, reader, progress, menu);
+		DataSet data = new DataSet(file, reader, progress);
 		if (data.failed()) {
 			return null;
 		} else {
