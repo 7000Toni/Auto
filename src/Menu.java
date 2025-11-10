@@ -39,7 +39,7 @@ public class Menu {
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;	
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	private boolean sahilMode = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
@@ -211,6 +211,9 @@ public class Menu {
 		darkMode.draw();
 		drawLoadingSets();
 		for (DataSetButton dsb : dsButtons) {
+			if (dsb == null) {
+				continue;
+			}
 			dsb.draw();
 		}
 		drawing.set(false);
@@ -249,6 +252,9 @@ public class Menu {
 			darkMode.setPressed(true);
 		} else {
 			for (DataSetButton dsb : dsButtons) {
+				if (dsb == null) {
+					continue;
+				}
 				CanvasButton close = dsb.closeButton();
 				CanvasButton mr = dsb.mrButton();
 				if (close.onButton(x, y)) {
@@ -278,6 +284,9 @@ public class Menu {
 							BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 						String in = br.readLine();
 						boolean add = true;
+						if (!Signature.validFull(in)) {
+							add = false;
+						}
 						for (DataSet d : datasets) {
 							if (in.equals(d.signature())) {
 								add = false;
@@ -290,19 +299,30 @@ public class Menu {
 							Task<Void> task = new Task<Void>() {
 								@Override
 								public Void call() {	
+									int addIndex = datasets.size();
+									datasets.add(null);
+									dsButtons.add(null);
 									DataSet ds = l.load(in, file, reader);
 									loadingSets.remove(l);
 									if (ds == null) {
+										dsButtons.remove(addIndex);
+										for (int j = addIndex; j < dsButtons.size(); j++) {					
+											dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
+										}
+										for (int j = addIndex; j < loadingSets.size(); j++) {					
+											loadingSets.get(j).setY(loadingSets.get(j).y() - 58);				
+										}
+										datasets.remove(addIndex);
 										draw();
 										return null;
-									}									
-									datasets.add(ds);																							
+									}			
+									datasets.set(addIndex, ds);
 									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
 									dsb.setVanGogh((x2, y2, gc) -> {
 										gc.setFont(new Font(37));
 										dsb.defaultDrawButton();		
 									});
-									dsButtons.add(dsb);									
+									dsButtons.set(addIndex, dsb);									
 									draw();
 									return null;
 								}
@@ -366,6 +386,9 @@ public class Menu {
 			int i = 0;
 			Object[] dsbs = dsButtons.toArray();
 			for (Object obj : dsbs) {
+				if (obj == null) {
+					continue;
+				}
 				DataSetButton dsb = (DataSetButton)obj;
 				if (dsb.pressed()) {
 					int index = (int)((y - MARGIN) / 58);
@@ -397,7 +420,6 @@ public class Menu {
 					}
 					datasets.remove(i);
 					i--;
-					dsb.closeButton().setPressed(false);
 					break;
 				} else if (dsb.mrButton().pressed() ) {
 					int index = (int)((y - MARGIN) / 58);
@@ -457,6 +479,9 @@ public class Menu {
 		ButtonChecks.mouseButtonSwitchHoverCheck(dukasNodeReader, x, y);
 		ButtonChecks.mouseButtonHoverCheck(darkMode, x, y);
 		for (DataSetButton dsb : dsButtons) {
+			if (dsb == null) {
+				continue;
+			}
 			CanvasButton close = dsb.closeButton();
 			CanvasButton mr = dsb.mrButton();
 			if (ButtonChecks.mouseButtonHoverCheck(close, x, y)) {
