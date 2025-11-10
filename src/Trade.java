@@ -81,7 +81,7 @@ public class Trade implements Serializable {
 		if (!buy) {
 			diff = -diff;
 		}
-		profit = Round.round(diff * volume, 2);
+		profit = Round.round(diff * volume, data.numDecimalPts());
 		return profit;
 	}
 	
