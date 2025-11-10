@@ -90,7 +90,7 @@ public class Trade implements Serializable {
 		if (!buy) {
 			diff = -diff;
 		}
-		return Round.round(diff * volume, 2);
+		return Round.round(diff * volume, data.numDecimalPts());
 	}
 	
 	public void scaleIn(double vol, int currentPriceIndex) {	

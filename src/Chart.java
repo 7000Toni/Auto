@@ -1369,11 +1369,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 		price *= pow;
 		int intTick = (int)(pow * tickSize);		
 		int quotient = (int)(price / intTick);
-		double remainder = price % intTick;
-		if (remainder > intTick / 2) {
-			return intPart + (intTick * (quotient + 1)) / (double)pow; 
+		double remainder = price % intTick;		
+		if (remainder > intTick / 2.0) {
+			return Round.round(intPart + (intTick * (quotient + 1)) / (double)pow, numDecimalPts + 1); 
 		}
-		return intPart + (intTick * quotient) / (double)pow;
+		return Round.round(intPart + (intTick * quotient) / (double)pow, numDecimalPts + 1);
 	}
 	
 	private void drawLines() {
