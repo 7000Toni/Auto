@@ -285,6 +285,7 @@ public class Menu {
 						String in = br.readLine();
 						boolean add = true;
 						if (!Signature.validFull(in)) {
+							System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
 							add = false;
 						}
 						for (DataSet d : datasets) {
