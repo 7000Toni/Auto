@@ -1,4 +1,5 @@
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javafx.beans.property.BooleanProperty;
@@ -352,6 +353,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 				tp.setX(CHT_MARGIN + chartWidth / 2 - 100);
 				setSL.setX(CHT_MARGIN + chartWidth / 2 + 10);
 				setTP.setX(CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+				limitOrder.setX( width - PRICE_MARGIN - fontSize*2-2);
+				stopOrder.setX(width - PRICE_MARGIN - fontSize*4-4);
 			}
 			
 			draw();
@@ -1742,7 +1745,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void checkMeasuring() {
 		if (measuring) {
-			double endPrice = roundToNearestTick(((((chartHeight - (chtDataMargin*2)) - (endY - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest);
+			double endPrice = ((((chartHeight - (chtDataMargin*2)) - (endY - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 			if (darkMode) {
 				gc.setStroke(Color.WHITE);
 			} else {
@@ -1761,7 +1764,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 			}
 			gc.setStroke(Color.SLATEBLUE);	
-			gc.strokeText(((Double)(endPrice - startPrice)).toString() + " from: " + ((Double)startPrice).toString(), ex + 1, ey - 2, PRC_MSRMNT_LENGTH);
+			DecimalFormat df = new DecimalFormat("#");
+			df.setMaximumFractionDigits(numDecimalPts);
+			gc.strokeText(df.format(roundToNearestTick(endPrice - startPrice)) + " from: " + ((Double)startPrice).toString(), ex + 1, ey - 2, PRC_MSRMNT_LENGTH);
 		}
 	}
 	

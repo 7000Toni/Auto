@@ -39,7 +39,7 @@ public class Menu {
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;	
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	private boolean sahilMode = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
