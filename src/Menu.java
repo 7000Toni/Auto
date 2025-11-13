@@ -4,10 +4,9 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -44,7 +43,7 @@ public class Menu {
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
-	private BooleanProperty drawing = new SimpleBooleanProperty(false);
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	private static ArrayList<Menu> menus = new ArrayList<Menu>();
 	
@@ -182,42 +181,37 @@ public class Menu {
 		}
 	}
 	
-	public synchronized void draw() {	
-		if (drawing.get()) {
-			try { 
-				wait();
-			} catch (Exception e) {
-				e.printStackTrace();
+	public void draw() {	
+		lock.lock();		
+		try {		
+			if (datasets.size() < 6) {
+				loadData.enable();
+			} else {
+				loadData.disable();
 			}
-		}		
-		drawing.set(true);		
-		if (datasets.size() < 6) {
-			loadData.enable();
-		} else {
-			loadData.disable();
-		}
-		if (Chart.darkMode()) {
-			gc.setFill(Color.BLACK);
-		} else {
-			gc.setFill(Color.WHITE);
-		}
-		gc.fillRect(0, 0, width, height);
-		loadData.draw();
-		optimize.draw();
-		marketTickReader.draw();
-		marketTickOReader.draw();
-		originalReader.draw();
-		dukasNodeReader.draw();
-		darkMode.draw();
-		drawLoadingSets();
-		for (DataSetButton dsb : dsButtons) {
-			if (dsb == null) {
-				continue;
+			if (Chart.darkMode()) {
+				gc.setFill(Color.BLACK);
+			} else {
+				gc.setFill(Color.WHITE);
 			}
-			dsb.draw();
+			gc.fillRect(0, 0, width, height);
+			loadData.draw();
+			optimize.draw();
+			marketTickReader.draw();
+			marketTickOReader.draw();
+			originalReader.draw();
+			dukasNodeReader.draw();
+			darkMode.draw();
+			drawLoadingSets();
+			for (DataSetButton dsb : dsButtons) {
+				if (dsb == null) {
+					continue;
+				}
+				dsb.draw();
+			}
+		} finally {
+			lock.unlock();
 		}
-		drawing.set(false);
-		notify();
 	}
 	
 	private void drawLoadingSets() {
