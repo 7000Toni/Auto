@@ -12,10 +12,10 @@ public class CanvasButton implements Drawable {
 	protected double textYOffset;
 	protected boolean hover = false;
 	protected boolean pressed = false;
-	protected ButtonVanGogh bvg;
+	protected ButtonVanGogh bvg = null;
 	protected boolean enabled;
 	
-	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
+	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		this.gc = gc;
 		this.width = width;
 		this.height = height;
@@ -24,7 +24,6 @@ public class CanvasButton implements Drawable {
 		this.text = text;
 		this.textXOffset = textXOffset;
 		this.textYOffset = textYOffset;
-		this.bvg = bvg;
 		this.enabled = true;
 	}
 	

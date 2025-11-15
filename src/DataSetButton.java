@@ -5,8 +5,8 @@ public class DataSetButton extends CanvasButton {
 	private CanvasButton close;
 	private CanvasButton mr;
 	
-	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, ButtonVanGogh bvg) {
-		super(gc, width, height, x, y, text, textXOffset, textYOffset, bvg);
+	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
+		super(gc, width, height, x, y, text, textXOffset, textYOffset);
 		ButtonVanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode()) {
 				gc2.setStroke(Color.WHITE);
@@ -62,8 +62,10 @@ public class DataSetButton extends CanvasButton {
 			double[] ya2 = {y2 + 23, y2 + 23, y2 + 33, y2 + 28, y2 + 28, y2 + 23};
 			gc2.fillPolygon(xa2, ya2, 6);
 		};
-		close = new CanvasButton(gc, 42, 42, x + width - 3 - 42, y + 3, null, 3, 3, drawCross);		
-		mr = new CanvasButton(gc, 42, 42, x + width - 3 - 42 - 3 - 42, y + 3, null, 3, 3, mrvg);		
+		close = new CanvasButton(gc, 42, 42, x + width - 3 - 42, y + 3, null, 3, 3);	
+		close.setVanGogh(drawCross);
+		mr = new CanvasButton(gc, 42, 42, x + width - 3 - 42 - 3 - 42, y + 3, null, 3, 3);
+		mr.setVanGogh(mrvg);
 	}
 	
 	@Override

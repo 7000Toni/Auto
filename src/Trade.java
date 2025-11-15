@@ -14,8 +14,8 @@ public class Trade implements Serializable {
 	protected DataSet data;
 	protected double entryPrice;
 	protected int currentPriceIndex;
-	protected double sl;
-	protected double tp;
+	protected double sl = -1;
+	protected double tp = -1;
 	protected double exitPrice = -1;
 	protected LocalDateTime entryTime;
 	protected LocalDateTime exitTime = null;
@@ -28,7 +28,7 @@ public class Trade implements Serializable {
 	protected boolean partial = false;
 	protected double partialVol = -1;
 	
-	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+	public Trade(DataSet data, int currentPriceIndex, boolean buy, double volume, double sl, double tp) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	
@@ -39,8 +39,8 @@ public class Trade implements Serializable {
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
-		this.sl = sl;
-		this.tp = tp;
+		setSL(sl);
+		setTP(tp);
 		this.buy = buy;
 		this.volume = volume;
 		this.entryTime = data.tickData().get(currentPriceIndex).dateTime();
@@ -90,7 +90,15 @@ public class Trade implements Serializable {
 		if (!buy) {
 			diff = -diff;
 		}
-		return Round.round(diff * volume, data.numDecimalPts());
+		return Round.round(diff * volume, 2);
+	}
+	
+	public static double hypotheticalProfit2(double entryPrice, double exitPrice, boolean buy, double volume) {
+		double diff = exitPrice - entryPrice;
+		if (!buy) {
+			diff = -diff;
+		}
+		return Round.round(diff * volume, 2);
 	}
 	
 	public void scaleIn(double vol, int currentPriceIndex) {	
@@ -132,7 +140,7 @@ public class Trade implements Serializable {
 		for (int i = this.currentPriceIndex; i < currentPriceIndex + 1; i++) {			
 			double price = data.tickData().get(i).price();
 			if (buy) {
-				if (price >= tp && tp != -1 || price <= sl && sl != -1) {					
+				if (price >= tp && tp != -1 || price <= sl && sl != -1) {	
 					close(i);
 					break;
 				}
@@ -143,21 +151,20 @@ public class Trade implements Serializable {
 				}
 			}
 		}
+		System.out.println(this.currentPriceIndex + " " + currentPriceIndex + " " + closed);
 		this.currentPriceIndex = currentPriceIndex;
 	}
 	
 	public void setSL(double sl) {
 		if (closed) {
 			return;
-		}
+		}		
 		if (buy) {
 			if (sl >= data.tickData().get(currentPriceIndex).price()) {
-				System.out.println("ran");
 				return;
 			}
 		} else {
 			if (sl <= data.tickData().get(currentPriceIndex).price()) {
-				System.out.println("ran2");
 				return;
 			}
 		}

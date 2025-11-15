@@ -156,11 +156,16 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		drawables = new ArrayList<Drawable>();
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
-		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0, nvg);
-		pausePlay = new CanvasButton(gc, 40, 40, 10, 40, null, 0, 0, pvg);
-		back = new CanvasButton(gc, 40, 40, 60, 40, null, 0, 0, bvg);
-		forward = new CanvasButton(gc, 40, 40, 210, 40, null, 0, 0, fvg);
-		live = new CanvasButton(gc, 40, 40, 349, 40, null, 0, 0, lvg);
+		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0);
+		newChart.setVanGogh(nvg);
+		pausePlay = new CanvasButton(gc, 40, 40, 10, 40, null, 0, 0);
+		pausePlay.setVanGogh(pvg);
+		back = new CanvasButton(gc, 40, 40, 60, 40, null, 0, 0);
+		back.setVanGogh(bvg);
+		forward = new CanvasButton(gc, 40, 40, 210, 40, null, 0, 0);
+		forward.setVanGogh(fvg);
+		live = new CanvasButton(gc, 40, 40, 349, 40, null, 0, 0);
+		live.setVanGogh(lvg);
 		
 		double h = CanvasNumberChooser.getHeightForDesiredNumberHight(40);
 		double y = 40 - CanvasNumberChooser.buttonHeight(h);
@@ -414,6 +419,8 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	public void endReplay() {
 		panes.remove(this);
 		Chart.closeAll(name, true);
+		mr.data().setReplayM1CandlesDataSize(0);
+		mr.data().setReplayTickDataSize(0);
 		mr.stop();
 		stage.close();
 	}

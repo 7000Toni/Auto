@@ -80,22 +80,22 @@ public class Menu {
 		this.gc = canvas.getGraphicsContext2D();
 		this.width = width;
 		this.height = height;
-		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37, null);
+		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
 			gc.setFont(new Font(37));
 			loadData.defaultDrawButton();			
 		});
-		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32, null);
+		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
 		this.optimize.setVanGogh(optimizeVG);
-		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24, null);
+		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
 		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
-		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23, null);
+		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23);
 		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16));
-		this.originalReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 86, "OG READER", 2, 24, null);
+		this.originalReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 86, "OG READER", 2, 24);
 		this.originalReader.setVanGogh(readerVG(originalReader, 18));
-		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24, null);
+		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24);
 		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
-		this.darkMode = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58*2, "DARK", 2, 0, null);
+		this.darkMode = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58*2, "DARK", 2, 0);
 		this.darkMode.setVanGogh((x, y, gc) -> {
 			int fontSize;
 			if (Chart.darkMode()) {
@@ -126,7 +126,7 @@ public class Menu {
 		if (openChartOnStart) {
 			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
 			DataSet ds = datasets.get(datasets.size() - 1);
-			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);		
+			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
 			dsb.setVanGogh((x, y, gc) -> {
 				gc.setFont(new Font(37));
 				dsb.defaultDrawButton();		
@@ -312,7 +312,7 @@ public class Menu {
 										return null;
 									}			
 									datasets.set(addIndex, ds);
-									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37, null);
+									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
 									dsb.setVanGogh((x2, y2, gc) -> {
 										gc.setFont(new Font(37));
 										dsb.defaultDrawButton();		
@@ -382,7 +382,8 @@ public class Menu {
 			Object[] dsbs = dsButtons.toArray();
 			for (Object obj : dsbs) {
 				if (obj == null) {
-					continue;
+					i++;
+					continue;					
 				}
 				DataSetButton dsb = (DataSetButton)obj;
 				if (dsb.pressed()) {
@@ -414,7 +415,6 @@ public class Menu {
 						}
 					}
 					datasets.remove(i);
-					i--;
 					break;
 				} else if (dsb.mrButton().pressed() ) {
 					int index = (int)((y - MARGIN) / 58);
