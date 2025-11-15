@@ -151,7 +151,6 @@ public class Trade implements Serializable {
 				}
 			}
 		}
-		System.out.println(this.currentPriceIndex + " " + currentPriceIndex + " " + closed);
 		this.currentPriceIndex = currentPriceIndex;
 	}
 	

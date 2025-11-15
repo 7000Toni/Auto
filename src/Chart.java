@@ -1172,6 +1172,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 						closedTradeProc();
 						if (trade.closed()) {
 							for (Chart c : charts) {
+								if (!c.replayMode) {
+									continue;
+								}
 								c.disableTradeButtons();
 							}
 						}
@@ -1196,6 +1199,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 						closedTradeProc();
 						if (trade.closed()) {
 							for (Chart c : charts) {
+								if (!c.replayMode) {
+									continue;
+								}
 								c.disableTradeButtons();
 							}
 						}
@@ -1241,6 +1247,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 					if (p.pTradeButs.close.onButton(x, y)) {
 						pendingTrades.remove(penOrderBeingDragged);
 						penOrderBeingDragged = null;
+						tpPrice = -1;
+						slPrice = -1;
 					}
 					break;
 				} else if (p.pTradeButs.setSL.pressed()) {
@@ -1276,7 +1284,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		}
 		
-		if (!trade.closed()) {
+		if (!trade.closed() || !pendingTrades.isEmpty()) {
 			if (tradeButs.tp.pressed()) {
 				tradeButs.tp.setPressed(false);
 			} else if (tradeButs.sl.pressed()) {
@@ -1293,7 +1301,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 					slPrice = -1;
 				}
 				tradeButs.cancelSL.setPressed(false);
-			} else if (tradeButs.setTP.pressed()) {			
+			}
+		}
+		
+		if (!trade.closed()) {
+			if (tradeButs.setTP.pressed()) {			
 				tradeButs.setTP.setPressed(false);
 			} else if (tradeButs.setSL.pressed()) {			
 				tradeButs.setSL.setPressed(false);
@@ -1302,6 +1314,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					trade.close(data.tickDataSize(true).get() - 1);
 					closedTradeProc();
 					for (Chart c : charts) {
+						if (!c.replayMode) {
+							continue;
+						}
 						c.disableTradeButtons();
 					}
 					tpPrice = -1;
@@ -1324,6 +1339,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			
 			
 			for (Chart c : charts) {
+				if (!c.replayMode) {
+					continue;
+				}
 				c.tradeButs.sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(slPrice));
 				c.tradeButs.tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(tpPrice));
 			}			
@@ -1514,8 +1532,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (tpDragging) {
 			tpPrice = roundToNearestTick(yCoordToPrice(e.getY()));
 			for (Chart c : charts) {
+				if (!c.replayMode) {
+					continue;
+				}
 				if (trade.closed()) {
-					c.tradeButs.tp.setText(trade.volume() + "\t$" + Trade.hypotheticalProfit2(penOrderBeingDragged.price, roundToNearestTick(yCoordToPrice(e.getY())), penOrderBeingDragged.buy, penOrderBeingDragged.volume));
+					if (pendingTrades.size() == 1) {
+						PendingTrade p = pendingTrades.get(0);
+						c.tradeButs.tp.setText(trade.volume() + "\t$" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
+					} else {
+						c.tradeButs.tp.setText("SL");
+					}
 				} else {
 					c.tradeButs.tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
 				}				
@@ -1524,8 +1550,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (slDragging) {
 			slPrice = roundToNearestTick(yCoordToPrice(e.getY()));
 			for (Chart c : charts) {
+				if (!c.replayMode) {
+					continue;
+				}
 				if (trade.closed()) {
-					c.tradeButs.sl.setText(trade.volume() + "\t$" + Trade.hypotheticalProfit2(penOrderBeingDragged.price, roundToNearestTick(yCoordToPrice(e.getY())), penOrderBeingDragged.buy, penOrderBeingDragged.volume));
+					if (pendingTrades.size() == 1) {
+						PendingTrade p = pendingTrades.get(0);
+						c.tradeButs.sl.setText(trade.volume() + "\t$" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
+					} else {
+						c.tradeButs.tp.setText("SL");
+					}
 				} else {
 					c.tradeButs.sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
 				}				
@@ -2262,9 +2296,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean executePendingOrder(PendingTrade p, int i, boolean newTrade) {
 		boolean nt = false;
 		if (trade.closed()) {
-			trade = new Trade(data, i, p.buy, p.volume, slPrice, tpPrice);
+			trade = new Trade(data, i, p.buy, p.volume, slPrice, tpPrice);			
 			for (Chart c : charts) {
+				if (!c.replayMode) {
+					continue;
+				}
 				c.enableTradeButtons();
+				c.tradeButs.tp.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(tpPrice));
+				c.tradeButs.sl.setText(trade.volume() + "\t$" + trade.hypotheticalProfit(slPrice));
 			}
 			nt = true;
 		} else {			
@@ -2278,6 +2317,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} 		
 		if (nt) {
 			trade.updateTrade(data.tickDataSize(true).get() - 1);
+			if (trade.closed()) {
+				closedTradeProc();
+				for (Chart c : charts) {
+					if (!c.replayMode) {
+						continue;
+					}
+					c.disableTradeButtons();
+				}
+				slPrice = -1;
+				tpPrice = -1;
+			}
 		}
 		return nt;
 	}
@@ -2329,6 +2379,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (trade.closed()) {
 				closedTradeProc();
 				for (Chart c : charts) {
+					if (!c.replayMode) {
+						continue;
+					}
 					c.disableTradeButtons();
 				}
 				slPrice = -1;
