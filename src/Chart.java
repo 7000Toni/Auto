@@ -1624,15 +1624,19 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void zoomCandlesticks(double delta) {
 		if (delta > 0) {
-			if (numCandlesticks - 5 >= 10) {
-				numCandlesticks -= 5;
+			if ((int)(numCandlesticks * 0.999) - 1 >= 10) {
+				numCandlesticks = (int)(numCandlesticks * 0.999) - 1;
 				setCandleStickVars(numCandlesticks);
+			} else {
+				return;
 			}
-		} else {
-			if (numCandlesticks + 5 <= data.m1CandlesDataSize(this.replayMode).get() - 5) {
-				numCandlesticks += 5;
+		} else if (delta < 0) {
+			if ((int)(numCandlesticks * 1.001) + 1 <= data.m1CandlesDataSize(this.replayMode).get() - 5) {
+				numCandlesticks = (int)(numCandlesticks * 1.001) + 1;
 				setCandleStickVars(numCandlesticks);
-			}				
+			} else {
+				return;
+			}
 		}
 		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
@@ -1645,9 +1649,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void zoomTicks(double delta) {
 		if (delta > 0) {
-			setNumDataPoints(numDataPoints - 100);
-		} else {
-			setNumDataPoints(numDataPoints + 100);
+			setNumDataPoints((int)(numDataPoints * 0.99));
+		} else if (delta < 0) {
+			setNumDataPoints((int)(numDataPoints * 1.01));
 		}
 		double xDiff = chartWidth / (double)numDataPoints;
 		if (xDiff * (data.tickDataSize(this.replayMode).get() - 1) < chartWidth) {
