@@ -1245,7 +1245,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 			for (PendingTrade p : pendingTrades) {
 				if (p.pTradeButs.close.pressed()) {
 					if (p.pTradeButs.close.onButton(x, y)) {
-						pendingTrades.remove(penOrderBeingDragged);
+						int i = pendingTrades.indexOf(penOrderBeingDragged);
+						for (Chart c : charts) {
+							if (!c.replayMode) {
+								continue;
+							}							
+							c.pendingTrades.remove(i);
+						}						
 						penOrderBeingDragged = null;
 						if (trade.closed() && pendingTrades.isEmpty()) {
 							tpPrice = -1;
@@ -1352,12 +1358,22 @@ public class Chart implements ScrollBarOwner, Drawable {
 		limitOrder.setPressed(false);
 		stopOrder.setPressed(false);
 		if (penTrade != null) {
-			if (limitDragging) {
+			if (limitDragging) {	
 				orderReleasedStuff(x, y);
-				pendingTrades.add(new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
+				for (Chart c : charts) {
+					if (!c.replayMode) {
+						continue;
+					}					
+					c.pendingTrades.add(c.new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
+				}						
 			} else if (stopDragging) {
 				orderReleasedStuff(x, y);
-				pendingTrades.add(new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
+				for (Chart c : charts) {
+					if (!c.replayMode) {
+						continue;
+					}
+					c.pendingTrades.add(c.new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
+				}						
 			}			
 		}
 		limitDragging = false;
@@ -1481,14 +1497,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 		drawCharts(this.name());
 	}
 	
-	private void updatePendingTrade(PendingTrade pent, double y) {
+	private void updatePendingTrade(PendingTrade pent, double currentPrice, double crossHairPrice) {
 		if (pent == null) {
 			return;
 		}
 		if (pent.limit) {		
-			boolean buy = true;
-			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(y));
+			boolean buy = true;			
 			if (crossHairPrice != currentPrice) {
 				if (crossHairPrice > currentPrice) {
 					buy = false;
@@ -1497,9 +1511,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				pent.price = crossHairPrice;
 			}	
 		} else {	
-			boolean buy = false;
-			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(y));
+			boolean buy = false;			
 			if (crossHairPrice != currentPrice) {
 				if (crossHairPrice > currentPrice) {
 					buy = true;
@@ -1568,10 +1580,20 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		}
 		if (limitDragging || stopDragging) {
-			updatePendingTrade(penTrade, e.getY());
+			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
+			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
+			updatePendingTrade(penTrade, currentPrice, crossHairPrice);
 		}
 		if (penOrderDragging) {
-			updatePendingTrade(penOrderBeingDragged, e.getY());
+			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
+			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
+			int i = pendingTrades.indexOf(penOrderBeingDragged);
+			for (Chart c: charts) {
+				if (!c.replayMode) {
+					continue;
+				}
+				c.updatePendingTrade(c.pendingTrades.get(i), currentPrice, crossHairPrice);
+			}
 		}
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
@@ -2175,7 +2197,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				tradeButs.cancelSL.disable();
 			}
 		}
-		for (PendingTrade trade : pendingTrades) {			
+		for (PendingTrade trade : pendingTrades) {	
 			double entryY = priceToYCoord(roundToNearestTick(trade.price));				
 			if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
 				Color boxColour = Color.GRAY;
