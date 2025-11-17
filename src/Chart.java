@@ -1247,8 +1247,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 					if (p.pTradeButs.close.onButton(x, y)) {
 						pendingTrades.remove(penOrderBeingDragged);
 						penOrderBeingDragged = null;
-						tpPrice = -1;
-						slPrice = -1;
+						if (trade.closed() && pendingTrades.isEmpty()) {
+							tpPrice = -1;
+							slPrice = -1;
+						}
 					}
 					break;
 				} else if (p.pTradeButs.setSL.pressed()) {
