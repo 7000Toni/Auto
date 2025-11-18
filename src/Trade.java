@@ -39,13 +39,13 @@ public class Trade implements Serializable {
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
+		this.currentPriceIndex = currentPriceIndex;
 		setSL(sl);
 		setTP(tp);
 		this.buy = buy;
 		this.volume = volume;
 		this.entryTime = data.tickData().get(currentPriceIndex).dateTime();
-		this.exitPrice = -1;
-		this.currentPriceIndex = currentPriceIndex;
+		this.exitPrice = -1;		
 	}
 	
 	public void close(int currentPriceIndex) {

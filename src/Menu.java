@@ -37,7 +37,7 @@ public class Menu {
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;	
-	private static Menu menu;
+	private static Menu menu = null;
 	
 	private boolean openChartOnStart = false;
 	private boolean sahilMode = false;
