@@ -251,7 +251,7 @@ public class DataSet {
 		rfv.last = (int)rfv.percent.get();
 		if (rfv.changed) {
 			System.out.println(name + ": " + rfv.percent.get() + "%");
-			Menu.drawMenus();
+			Menu.menu().draw();
 			rfv.changed = false;
 		}
 	}

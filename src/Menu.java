@@ -37,6 +37,7 @@ public class Menu {
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private TickDataFileReader reader;	
+	private static Menu menu;
 	
 	private boolean openChartOnStart = false;
 	private boolean sahilMode = false;
@@ -44,8 +45,6 @@ public class Menu {
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
 	private final ReentrantLock lock = new ReentrantLock();
-	
-	private static ArrayList<Menu> menus = new ArrayList<Menu>();
 	
 	private ButtonVanGogh optimizeVG = (x, y, gc) -> {
 		gc.setFont(new Font(22));
@@ -141,7 +140,7 @@ public class Menu {
 		}
 		
 		draw();
-		menus.add(this);
+		menu = this;
 	}	
 	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
@@ -175,10 +174,8 @@ public class Menu {
 		return this.canvas;
 	}
 	
-	public static void drawMenus() {
-		for (Menu m : menus) {
-			m.draw();
-		}
+	public static Menu menu() {
+		return menu;
 	}
 	
 	public void draw() {	

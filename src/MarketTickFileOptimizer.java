@@ -127,9 +127,9 @@ public class MarketTickFileOptimizer {
 	
 	public static void optimize(File file, boolean autoSignature, IntegerProperty numJobs) {
 		numJobs.set(numJobs.get() + 1);
-		Menu.drawMenus();
+		Menu.menu().draw();
 		work(file, null, autoSignature);
 		numJobs.set(numJobs.get() - 1);
-		Menu.drawMenus();
+		Menu.menu().draw();
 	}
 }

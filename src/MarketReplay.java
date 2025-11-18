@@ -6,6 +6,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -95,12 +96,20 @@ public class MarketReplay {
 		return this.data;
 	}
 	
-	public DoubleProperty slPrice() {
-		return slPrice;
+	public ReadOnlyDoubleProperty slPrice() {
+		return DoubleProperty.readOnlyDoubleProperty(slPrice);
 	}
 	
-	public DoubleProperty tpPrice() {
-		return tpPrice;
+	public ReadOnlyDoubleProperty tpPrice() {
+		return DoubleProperty.readOnlyDoubleProperty(tpPrice);
+	}
+	
+	public void setSlPrice(double slPrice) {
+		this.slPrice.set(slPrice);
+	}
+	
+	public void setTpPrice(double tpPrice) {
+		this.tpPrice.set(tpPrice);
 	}
 	
 	public Trade trade() {
