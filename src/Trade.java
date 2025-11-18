@@ -28,7 +28,7 @@ public class Trade implements Serializable {
 	protected boolean partial = false;
 	protected double partialVol = -1;
 	
-	public Trade(DataSet data, int currentPriceIndex, boolean buy, double volume, double sl, double tp) {
+	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	

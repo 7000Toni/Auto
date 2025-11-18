@@ -3,10 +3,12 @@ import java.util.ArrayList;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class MarketReplay {
@@ -20,6 +22,13 @@ public class MarketReplay {
 	private IntegerProperty tickDataSize = new SimpleIntegerProperty();
 	private BooleanProperty run = new SimpleBooleanProperty(false);
 	private IntegerProperty timeToNextTick = new SimpleIntegerProperty(); 
+	
+	private DoubleProperty slPrice = new SimpleDoubleProperty(-1);
+	private DoubleProperty tpPrice = new SimpleDoubleProperty(-1);
+	private Trade trade = null; 
+	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
+	private BooleanProperty handled = new SimpleBooleanProperty(false);
+	private ArrayList<Chart.PendingTrade> pendingTrades = new ArrayList<Chart.PendingTrade>();
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -58,6 +67,9 @@ public class MarketReplay {
 		} else {
 			live.set(true);
 			for (Chart c : charts) {
+				if (!c.mr().equals(this)) {
+					continue;
+				}
 				c.setKeepStartIndex(false);
 			}
 		}
@@ -71,8 +83,44 @@ public class MarketReplay {
 		return IntegerProperty.readOnlyIntegerProperty(tickDataSize);
 	}
 	
+	public ReadOnlyBooleanProperty handled() {
+		return BooleanProperty.readOnlyBooleanProperty(handled);
+	}
+	
+	public void setHandled(boolean handled) {
+		this.handled.set(handled);
+	}
+	
 	public DataSet data() {
 		return this.data;
+	}
+	
+	public DoubleProperty slPrice() {
+		return slPrice;
+	}
+	
+	public DoubleProperty tpPrice() {
+		return tpPrice;
+	}
+	
+	public Trade trade() {
+		return trade;
+	}
+	
+	public ReadOnlyIntegerProperty lastTick() {
+		return IntegerProperty.readOnlyIntegerProperty(lastTick);
+	}
+	
+	public ArrayList<Chart.PendingTrade> pendingTrades() {
+		return pendingTrades;
+	}
+	
+	public void setPendingTrades(ArrayList<Chart.PendingTrade> pendingTrades) {
+		this.pendingTrades = pendingTrades;
+	}
+	
+	public void setTrade(Trade trade) {
+		this.trade = trade;
 	}
 	
 	public void setSpeed(int speed) {
@@ -109,7 +157,10 @@ public class MarketReplay {
 		}		
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		for (Chart c : charts) {
-			c.tick();
+			if (!c.mr().equals(this)) {
+				continue;
+			}
+			c.tick(this);
 			c.draw();
 		}
 	}
@@ -131,19 +182,20 @@ public class MarketReplay {
 	
 	public void run() {
 		run.set(true);
+		MarketReplay mr = this;
 		new AnimationTimer() {
-			long lastTick = 0;
+			long lastTick2 = 0;
 			@Override
 			public void handle(long now) {
 				if (!run.get()) {
 					this.stop();
 				}
-				if (lastTick == 0) {
-					lastTick = now;
+				if (lastTick2 == 0) {
+					lastTick2 = now;
 					timeToNextTick.set(timeToNextTick(index.get()));
 					return;
 				}
-				long diff = (now - lastTick) / HorizontalScrollBar.NANO_TO_MILLI;
+				long diff = (now - lastTick2) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick.get()) {		
 					if (mrp.hsb().dragged()) {
 						index.set((int)(((mrp.hsb().x() - mrp.hsb().minPos()) / (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos())) * tickDataSize.get()));							
@@ -168,12 +220,18 @@ public class MarketReplay {
 							double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);		
 							for (Chart c : charts) {		
+								if (!c.mr().equals(mr)) {
+									continue;
+								}
 								c.setKeepStartIndex(false);
 								c.hsb().setPosition(Integer.MAX_VALUE, false);
 							}
 						} else {
 							double newHSBPos;
 							for (Chart c : charts) {
+								if (!c.mr().equals(mr)) {
+									continue;
+								}
 								if (c.drawCandlesticks()) {
 									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
 								} else {
@@ -184,19 +242,27 @@ public class MarketReplay {
 							}
 							newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);											
-						}						
+						}												
+						lastTick.set(index.get() - 1);
+						for (Chart c : charts) {
+							if (!c.mr().equals(mr)) {
+								continue;
+							}
+							c.tick(mr);
+						}
+						handled.set(false);
 						if (diff < timeToNextTick.get()) {
 							break;
 						}
-						for (Chart c : charts) {
-							c.tick();
-						}
 					}		
 					for (Chart c : charts) {
+						if (!c.mr().equals(mr)) {
+							continue;
+						}
 						c.draw();
 					}
 					mrp.draw();	
-					lastTick = now;
+					lastTick2 = now;
 				}				
 			}
 		}.start();
