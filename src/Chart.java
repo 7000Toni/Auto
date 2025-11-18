@@ -91,7 +91,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean keepStartIndex = false;
 	private MarketReplay mr;
 	private MarketReplayPane mrp;
-	private boolean drawMRP = true;
+	private boolean drawMRP = false;
 	private double dragDiffAccum = 0;
 	private double x = 0;
 	private double y = 0;	
@@ -711,8 +711,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 				mr.setTrade(new Trade(data, 1, true, 1));
 				mr.trade().close(1);
 				disableTradeButtons();
-			}			
+			}	
 			
+			drawMRP = true;
 			mr.addChart(this);
 		}
 	}
