@@ -1179,7 +1179,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 						closedTradeProc();
 						if (mr.trade().closed()) {
 							for (Chart c : charts) {
-								if (!c.mr.equals(mr)) {
+								if (c.mr == null || !c.mr.equals(mr)) {
 									continue;
 								}
 								c.disableTradeButtons();
@@ -1208,7 +1208,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 						closedTradeProc();
 						if (mr.trade().closed()) {
 							for (Chart c : charts) {
-								if (!c.mr.equals(mr)) {
+								if (c.mr == null || !c.mr.equals(mr)) {
 									continue;
 								}
 								c.disableTradeButtons();
@@ -1256,7 +1256,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 					if (p.pTradeButs.close.onButton(x, y)) {
 						int i = pendingTrades.indexOf(penOrderBeingDragged);
 						for (Chart c : charts) {
-							if (!c.mr.equals(mr)) {
+							if (c.mr == null || !c.mr.equals(mr)) {
 								continue;
 							}							
 							c.pendingTrades.remove(i);							
@@ -1336,7 +1336,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 					mr.trade().close(data.tickDataSize(true).get() - 1);
 					closedTradeProc();
 					for (Chart c : charts) {
-						if (!c.mr.equals(mr)) {
+						if (c.mr == null || !c.mr.equals(mr)) {
 							continue;
 						}
 						c.disableTradeButtons();
@@ -1361,7 +1361,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			
 			
 			for (Chart c : charts) {
-				if (!c.mr.equals(mr)) {
+				if (c.mr == null || !c.mr.equals(mr)) {
 					continue;
 				}
 				c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
@@ -1375,7 +1375,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (limitDragging || stopDragging) {	
 				orderReleasedStuff(x, y);
 				for (Chart c : charts) {
-					if (!c.mr.equals(mr)) {
+					if (c.mr == null || !c.mr.equals(mr)) {
 						continue;
 					}					
 					c.pendingTrades.add(c.new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
@@ -1562,7 +1562,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (tpDragging) {
 			mr.setTpPrice(roundToNearestTick(yCoordToPrice(e.getY())));
 			for (Chart c : charts) {
-				if (!c.mr.equals(mr)) {
+				if (c.mr == null || !c.mr.equals(mr)) {
 					continue;
 				}
 				if (mr.trade().closed()) {
@@ -1581,7 +1581,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (slDragging) {
 			mr.setSlPrice(roundToNearestTick(yCoordToPrice(e.getY())));
 			for (Chart c : charts) {
-				if (!c.mr.equals(mr)) {
+				if (c.mr == null || !c.mr.equals(mr)) {
 					continue;
 				}
 				if (mr.trade().closed()) {
@@ -1607,7 +1607,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
 			int i = pendingTrades.indexOf(penOrderBeingDragged);
 			for (Chart c: charts) {
-				if (!c.mr.equals(mr)) {
+				if (c.mr == null || !c.mr.equals(mr)) {
 					continue;
 				}
 				c.updatePendingTrade(c.pendingTrades.get(i), currentPrice, crossHairPrice);
@@ -1648,9 +1648,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		if (chartDateMarginDragging && !lineDragging) {			
 			if (drawCandlesticks) {
-				zoomCandlesticks(e.getX() - chartInitPos);
+				zoomCandlesticks(e.getX() - chartInitPos, false);
 			} else {
-				zoomTicks(e.getX() - chartInitPos);
+				zoomTicks(e.getX() - chartInitPos, false);
 			}
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
@@ -1664,23 +1664,40 @@ public class Chart implements ScrollBarOwner, Drawable {
 		onMouseMoved(e);
 	}
 	
-	private void zoomCandlesticks(double delta) {
+	private void zoomCandlesticks(double delta, boolean scroll) {
+		double multiplier = 1;
+		if (scroll) {
+			multiplier = 1.05;
+		}
 		if (delta > 0) {
-			if ((int)(numCandlesticks * 0.999) - 1 >= 10) {
-				numCandlesticks = (int)(numCandlesticks * 0.999) - 1;
+			if ((int)(numCandlesticks * 0.999 * (1 / multiplier)) - 1 >= 10) {
+				numCandlesticks = (int)(numCandlesticks * 0.999 * (1 / multiplier)) - 1;
 				setCandleStickVars(numCandlesticks);
 			} else {
 				return;
 			}
 		} else if (delta < 0) {
-			if ((int)(numCandlesticks * 1.001) + 1 <= data.m1CandlesDataSize(this.replayMode).get() - 5) {
-				numCandlesticks = (int)(numCandlesticks * 1.001) + 1;
+			if ((int)(numCandlesticks * 1.001 * multiplier) + 1 <= data.m1CandlesDataSize(this.replayMode).get() - 5) {
+				numCandlesticks = (int)(numCandlesticks * 1.001 * multiplier) + 1;
 				setCandleStickVars(numCandlesticks);
 			} else {
 				return;
 			}
 		}
-		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+		double newHSBPos;
+		if (replayMode) {
+			if (mr.live().get()) {
+				newHSBPos = Double.MAX_VALUE;
+			} else {
+				startIndex = endIndex - numCandlesticks;
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
+				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(startIndex) /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+			}
+		} else { 
+			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+		}
 		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
 			keepStartIndex = true;
 		} else {
@@ -1689,11 +1706,15 @@ public class Chart implements ScrollBarOwner, Drawable {
 		hsb.setPosition(newHSBPos, false);
 	}
 	
-	private void zoomTicks(double delta) {
+	private void zoomTicks(double delta, boolean scroll) {
+		double multiplier = 1;
+		if (scroll) {
+			multiplier = 1.05;
+		}
 		if (delta > 0) {
-			setNumDataPoints((int)(numDataPoints * 0.99));
+			setNumDataPoints((int)(numDataPoints * 0.99 * (1 / multiplier)));
 		} else if (delta < 0) {
-			setNumDataPoints((int)(numDataPoints * 1.01));
+			setNumDataPoints((int)(numDataPoints * 1.01 * multiplier));
 		}
 		double xDiff = chartWidth / (double)numDataPoints;
 		if (xDiff * (data.tickDataSize(this.replayMode).get() - 1) < chartWidth) {
@@ -1701,7 +1722,20 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else if (numDataPoints < 100) {
 			setNumDataPoints(100);
 		}
-		double newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+		double newHSBPos;
+		if (replayMode) {
+			if (mr.live().get()) {
+				newHSBPos = Double.MAX_VALUE;
+			} else {
+				startIndex = endIndex - numDataPoints;
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
+				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(startIndex) /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));				
+			}
+		} else {
+			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+		}
 		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
 			keepStartIndex = true;
 		} else {
@@ -1712,9 +1746,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public void onScroll(ScrollEvent e) {	
 		if (drawCandlesticks) {
-			zoomCandlesticks(e.getDeltaY());
+			zoomCandlesticks(e.getDeltaY(), true);
 		} else {
-			zoomTicks(e.getDeltaY());
+			zoomTicks(e.getDeltaY(), true);
 		}
 		drawCharts(this.name());
 	}		
@@ -2352,7 +2386,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			mr.setSlPrice(mr.trade().sl());
 			mr.setTpPrice(mr.trade().tp());
 			for (Chart c : charts) {
-				if (!c.mr.equals(mr)) {
+				if (c.mr == null || !c.mr.equals(mr)) {
 					continue;
 				}
 				c.enableTradeButtons();
@@ -2374,7 +2408,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (mr.trade().closed()) {
 				closedTradeProc();
 				for (Chart c : charts) {
-					if (!c.mr.equals(mr)) {
+					if (c.mr == null || !c.mr.equals(mr)) {
 						continue;
 					}
 					c.disableTradeButtons();
@@ -2436,7 +2470,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (mr.trade().closed()) {
 					closedTradeProc();
 					for (Chart c : charts) {
-						if (!c.mr.equals(mr)) {
+						if (c.mr == null || !c.mr.equals(mr)) {
 							continue;
 						}
 						c.disableTradeButtons();
