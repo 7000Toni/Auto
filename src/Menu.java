@@ -286,35 +286,41 @@ public class Menu {
 							}
 						}				
 						if (add) {							
-							LoadingDataSet l = new LoadingDataSet(MARGIN + (datasets.size() + loadingSets.size()) * 58);
+							LoadingDataSet l = new LoadingDataSet(MARGIN + (datasets.size() + loadingSets.size()) * 58, datasets.size());
 							loadingSets.add(l);
 							Task<Void> task = new Task<Void>() {
 								@Override
 								public Void call() {	
-									int addIndex = datasets.size();
 									datasets.add(null);
 									dsButtons.add(null);
 									DataSet ds = l.load(in, file, reader);
 									loadingSets.remove(l);
 									if (ds == null) {
-										dsButtons.remove(addIndex);
-										for (int j = addIndex; j < dsButtons.size(); j++) {					
-											dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
+										dsButtons.remove(l.addIndex().get());
+										for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+											DataSetButton dsb = dsButtons.get(j);
+											if (dsb == null) {
+												continue;
+											}
+											dsButtons.get(j).setY(dsb.y() - 58);				
 										}
-										for (int j = addIndex; j < loadingSets.size(); j++) {					
-											loadingSets.get(j).setY(loadingSets.get(j).y() - 58);				
+										for (LoadingDataSet l2 : loadingSets) {
+											if (l2.addIndex().get() > l.addIndex().get()) {
+												l2.setAddIndex(l2.addIndex().get() - 1);
+											}
+											l2.setY(l2.y() - 58);				
 										}
-										datasets.remove(addIndex);
+										datasets.remove(l.addIndex().get());
 										draw();
 										return null;
 									}			
-									datasets.set(addIndex, ds);
+									datasets.set(l.addIndex().get(), ds);
 									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
 									dsb.setVanGogh((x2, y2, gc) -> {
 										gc.setFont(new Font(37));
 										dsb.defaultDrawButton();		
 									});
-									dsButtons.set(addIndex, dsb);									
+									dsButtons.set(l.addIndex().get(), dsb);									
 									draw();
 									return null;
 								}
@@ -398,11 +404,18 @@ public class Menu {
 					break;
 				} else if (dsb.closeButton().pressed()) {
 					dsButtons.remove(i);
-					for (int j = i; j < dsButtons.size(); j++) {					
-						dsButtons.get(j).setY(dsButtons.get(j).y() - 58);				
+					for (int j = i + 1; j < dsButtons.size(); j++) {					
+						DataSetButton d = dsButtons.get(j);
+						if (d == null) {
+							continue;
+						}
+						dsButtons.get(j).setY(d.y() - 58);				
 					}
-					for (int j = i; j < loadingSets.size(); j++) {					
-						loadingSets.get(j).setY(loadingSets.get(j).y() - 58);				
+					for (LoadingDataSet l : loadingSets) {	
+						if (l.addIndex().get() > i) {
+							l.setAddIndex(l.addIndex().get() - 1);
+						}
+						l.setY(l.y() - 58);				
 					}
 					String name = datasets.get(i).name();
 					Chart.closeAll(name, false);

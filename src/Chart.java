@@ -1261,8 +1261,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 							}							
 							c.pendingTrades.remove(i);							
 							if (mr.trade().closed() && pendingTrades.size() == 1) {
-								c.tradeButs.sl.setText(mr.trade().volume() + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(y)), p.buy, p.volume));
-								c.tradeButs.tp.setText(mr.trade().volume() + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(y)), p.buy, p.volume));
+								c.tradeButs.sl.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(y)), p.buy, p.volume));
+								c.tradeButs.tp.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(y)), p.buy, p.volume));
 							}
 						}						
 						mr.setPendingTrades(pendingTrades);
@@ -1568,7 +1568,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (mr.trade().closed()) {
 					if (pendingTrades.size() == 1) {
 						PendingTrade p = pendingTrades.get(0);
-						c.tradeButs.tp.setText(mr.trade().volume() + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
+						c.tradeButs.tp.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
 					} else {
 						c.tradeButs.tp.setText("TP");
 						c.tradeButs.sl.setText("SL");
@@ -1587,7 +1587,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (mr.trade().closed()) {
 					if (pendingTrades.size() == 1) {
 						PendingTrade p = pendingTrades.get(0);
-						c.tradeButs.sl.setText(mr.trade().volume() + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
+						c.tradeButs.sl.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, roundToNearestTick(yCoordToPrice(e.getY())), p.buy, p.volume));
 					} else {
 						c.tradeButs.sl.setText("SL");
 						c.tradeButs.tp.setText("TP");
@@ -2390,8 +2390,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 					continue;
 				}
 				c.enableTradeButtons();
-				c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+				c.tradeButs.tp.setText(p.volume + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+				c.tradeButs.sl.setText(p.volume + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
 			}
 			nt = true;
 		} else {			
