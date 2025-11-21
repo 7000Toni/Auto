@@ -1666,6 +1666,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void zoomCandlesticks(double delta, boolean scroll) {
 		double multiplier = 1;
+		boolean customSI = false;
 		if (scroll) {
 			multiplier = 1.05;
 		}
@@ -1686,10 +1687,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		double newHSBPos;
 		if (replayMode) {
-			if (mr.live().get() && !mr.paused()) {
+			if (mr.live().get() && !mr.paused() || endIndex >= data.tickDataSize(true).get() - 1) {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numCandlesticks;
+				customSI = true;
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
@@ -1698,7 +1700,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else { 
 			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 		}
-		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
+		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -1708,6 +1710,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void zoomTicks(double delta, boolean scroll) {
 		double multiplier = 1;
+		boolean customSI = false;
 		if (scroll) {
 			multiplier = 1.05;
 		}
@@ -1724,10 +1727,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		double newHSBPos;
 		if (replayMode) {
-			if (mr.live().get() && !mr.paused()) {
+			if (mr.live().get() && !mr.paused() || endIndex >= data.tickDataSize(true).get() - 1) {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numDataPoints;
+				customSI = true;
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
@@ -1736,7 +1740,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else {
 			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 		}
-		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
+		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
