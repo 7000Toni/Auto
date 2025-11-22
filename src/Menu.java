@@ -267,8 +267,13 @@ public class Menu {
 		double y = e.getY();
 		if (loadData.onButton(x, y)) {
 			if (loadData.pressed() && loadData.enabled()) {
+				File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 				FileChooser fc = new FileChooser();
-				fc.setInitialDirectory(new File("./"));
+				if (init.exists()) {
+					fc.setInitialDirectory(init);
+				} else {
+					fc.setInitialDirectory(new File("./"));
+				}				
 				File file = fc.showOpenDialog(null);		
 				if (file != null) {
 					try (FileInputStream fis = new FileInputStream(file);
@@ -368,9 +373,14 @@ public class Menu {
 			}
 		} else if (optimize.onButton(x, y)) { 		
 			if (optimize.pressed()) {
+				File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 				FileChooser fc = new FileChooser();
+				if (init.exists()) {
+					fc.setInitialDirectory(init);
+				} else {
+					fc.setInitialDirectory(new File("./"));
+				}	
 				fc.setTitle("Select MarketTick Files");
-				fc.setInitialDirectory(new File("./"));
 				List<File> files = fc.showOpenMultipleDialog(null);		
 				if (files != null) {
 					for (File f : files) {						
