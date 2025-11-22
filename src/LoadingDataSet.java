@@ -10,13 +10,13 @@ public class LoadingDataSet {
 	private IntegerProperty progress = new SimpleIntegerProperty(0);
 	private IntegerProperty addIndex = new SimpleIntegerProperty(0);
 	
-	public LoadingDataSet(double y, int addIndex) {
+	public LoadingDataSet(double y, int addIndex, String signature) {
 		this.y = y;
 		this.addIndex.set(addIndex);
+		this.signature = signature;
 	}
 	
-	public DataSet load(String signature, File file, TickDataFileReader reader) {		
-		this.signature = signature;		
+	public DataSet load(File file, TickDataFileReader reader) {		
 		DataSet data = new DataSet(file, reader, progress);
 		if (data.failed()) {
 			return null;
