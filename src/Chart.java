@@ -1,4 +1,3 @@
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -123,7 +122,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean stopDragging = false;
 	private PendingTrade penTrade = null;
 	private ArrayList<PendingTrade> pendingTrades;	
-	private boolean writeToFile = false;
 	private PendingTrade penOrderBeingDragged = null;
 	private boolean penOrderDragging = false;
 	
@@ -145,11 +143,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private int numCandlesticks;
 	
 	public class PendingTrade {
-		boolean limit;
-		boolean buy;
-		double price;
-		double volume;
-		PendingTradeButtons pTradeButs;
+		private boolean limit;
+		private boolean buy;
+		private double price;
+		private double volume;
+		private PendingTradeButtons pTradeButs;
 		
 		public PendingTrade(boolean limit, boolean buy,	double price, double volume) {
 			this.limit = limit;
@@ -169,15 +167,35 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (limit) {
 				text = "LIMIT";
 			}
-			this.pTradeButs.order.setText(((Double)(tradeVolume())).toString() + "  " + text);
+			this.pTradeButs.order.setText(((Double)(volume)).toString() + "  " + text);
+		}
+		
+		public boolean limit() {
+			return limit;
+		}
+		
+		public boolean buy() {
+			return buy;
+		}
+		
+		public double price() {
+			return price;
+		}
+		
+		public double volume() {
+			return volume;
+		}
+		
+		public PendingTradeButtons pTradeButs() {
+			return pTradeButs;
 		}
 	}
 	
 	private class PendingTradeButtons {
-		CanvasButton order;
-		CanvasButton close;
-		CanvasButton setSL;
-		CanvasButton setTP;
+		protected CanvasButton order;
+		protected CanvasButton close;
+		protected CanvasButton setSL;
+		protected CanvasButton setTP;
 		
 		public ArrayList<CanvasButton> buttons() {
 			ArrayList<CanvasButton> b = new ArrayList<CanvasButton>();
@@ -187,13 +205,29 @@ public class Chart implements ScrollBarOwner, Drawable {
 			b.add(setTP);
 			return b;
 		}
+		
+		public CanvasButton order() {
+			return order;
+		}
+		
+		public CanvasButton close() {
+			return close;
+		}
+		
+		public CanvasButton setSL() {
+			return setSL;
+		}
+		
+		public CanvasButton setTP() {
+			return setTP;
+		}
 	}
 	
-	private class TradeButtons extends PendingTradeButtons {
-		CanvasButton cancelTP;
-		CanvasButton cancelSL;
-		CanvasButton sl;
-		CanvasButton tp;
+	public class TradeButtons extends PendingTradeButtons {
+		private CanvasButton cancelTP;
+		private CanvasButton cancelSL;
+		private CanvasButton sl;
+		private CanvasButton tp;
 		
 		@Override
 		public ArrayList<CanvasButton> buttons() {
@@ -206,6 +240,22 @@ public class Chart implements ScrollBarOwner, Drawable {
 			b.add(setSL);
 			b.add(setTP);
 			return b;
+		}
+		
+		public CanvasButton tp() {
+			return tp;
+		}
+		
+		public CanvasButton sl() {
+			return sl;
+		}
+		
+		public CanvasButton cancelTP() {
+			return cancelTP;
+		}
+		
+		public CanvasButton cancelSL() {
+			return cancelSL;
 		}
 	}
 	
@@ -567,6 +617,33 @@ public class Chart implements ScrollBarOwner, Drawable {
 		this.y = y;
 	}
 	
+	public ArrayList<PendingTrade> pendingTrades() {
+		return pendingTrades;
+	}
+	
+	public void setPendingTrades(ArrayList<PendingTrade> pendingTrades) {
+		this.pendingTrades = new ArrayList<PendingTrade>();
+		for (PendingTrade p : mr.pendingTrades()) {
+			PendingTrade p2 = new PendingTrade(p.limit, p.buy, p.price, p.volume);
+			p2.pTradeButs.order.setText(p.pTradeButs.order.text());
+			p2.pTradeButs.close.setText(p.pTradeButs.close.text());
+			p2.pTradeButs.setSL.setText(p.pTradeButs.setSL.text());
+			p2.pTradeButs.setTP.setText(p.pTradeButs.setTP.text());
+			this.pendingTrades.add(p2);
+		}
+		if (mr.trade().closed() && pendingTrades.size() == 1) {
+			PendingTrade p = this.pendingTrades.get(0);
+			tradeButs.sl.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, mr.slPrice().get(), p.buy, p.volume));
+			tradeButs.tp.setText(p.volume + "  $" + Trade.hypotheticalProfit2(p.price, mr.tpPrice().get(), p.buy, p.volume));
+		} else if (mr.trade().closed()) {
+			tradeButs.sl.setText("SL");
+			tradeButs.tp.setText("TP");
+		} else {
+			tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+			tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+		}
+	}
+	
 	public DataSet data() {
 		return this.data;
 	}
@@ -679,15 +756,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			volUnits.setValue(1);
 			setNumberChooserColours();
 			
-			pendingTrades = new ArrayList<PendingTrade>();
-			for (PendingTrade p : mr.pendingTrades()) {
-				PendingTrade p2 = new PendingTrade(p.limit, p.buy, p.price, p.volume);
-				p2.pTradeButs.order.setText(p.pTradeButs.order.text());
-				p2.pTradeButs.close.setText(p.pTradeButs.close.text());
-				p2.pTradeButs.setSL.setText(p.pTradeButs.setSL.text());
-				p2.pTradeButs.setTP.setText(p.pTradeButs.setTP.text());
-				pendingTrades.add(p2);
-			}
 			tradeButs = new TradeButtons();
 			tradeButs.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3);
 			tradeButs.close.setVanGogh(closeVG(tradeButs.close));
@@ -706,19 +774,20 @@ public class Chart implements ScrollBarOwner, Drawable {
 			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, width - PRICE_MARGIN - fontSize*2-2, 0, "LMT", 0, fontSize-2);
 			limitOrder.setVanGogh(pendingVG(this.limitOrder));
 			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, width - PRICE_MARGIN - fontSize*4-4, 0, "STP", 1, fontSize-2);			
-			stopOrder.setVanGogh(pendingVG(this.stopOrder));
+			stopOrder.setVanGogh(pendingVG(this.stopOrder));			
 			if (mr.trade() == null) {
 				mr.setTrade(new Trade(data, 1, true, 1));
 				mr.trade().close(1);
 				disableTradeButtons();
-			}	
+			}
+			setPendingTrades(mr.pendingTrades());
 			
 			drawMRP = true;
 			mr.addChart(this);
 		}
 	}
 	
-	private void enableTradeButtons() {
+	public void enableTradeButtons() {
 		this.tradeButs.close.enable();
 		this.tradeButs.cancelTP.enable();
 		this.tradeButs.cancelSL.enable();
@@ -728,7 +797,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		this.tradeButs.setTP.enable();
 	}
 	
-	private void disableTradeButtons() {
+	public void disableTradeButtons() {
 		this.tradeButs.close.disable();
 		this.tradeButs.cancelTP.disable();
 		this.tradeButs.cancelSL.disable();
@@ -736,6 +805,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 		this.tradeButs.tp.disable();
 		this.tradeButs.setSL.disable();
 		this.tradeButs.setTP.disable();
+	}
+	
+	public MarketReplay marketReplay() {
+		return mr;
+	}
+	
+	public TradeButtons tradeButtons() {
+		return tradeButs;
 	}
 	
 	private double tradeVolume() {
@@ -1176,7 +1253,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				} else {
 					if (mr.trade().buy()) {
 						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
-						closedTradeProc();
+						mr.closedTradeProc();
 						if (mr.trade().closed()) {
 							for (Chart c : charts) {
 								if (c.mr == null || !c.mr.equals(mr)) {
@@ -1205,7 +1282,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 						mr.trade().scaleIn(tradeVolume(), data.tickDataSize(true).get() - 1);
 					} else {
 						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
-						closedTradeProc();
+						mr.closedTradeProc();
 						if (mr.trade().closed()) {
 							for (Chart c : charts) {
 								if (c.mr == null || !c.mr.equals(mr)) {
@@ -1334,7 +1411,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			} else if (tradeButs.close.pressed()) {
 				if (tradeButs.close.onButton(x, y)) {
 					mr.trade().close(data.tickDataSize(true).get() - 1);
-					closedTradeProc();
+					mr.closedTradeProc();
 					for (Chart c : charts) {
 						if (c.mr == null || !c.mr.equals(mr)) {
 							continue;
@@ -1352,21 +1429,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 					mr.trade().setSL(mr.slPrice().get());
 					mr.setSlPrice(mr.trade().sl());
 				}
+				for (Chart c : charts) {
+					if (c.mr == null || !c.mr.equals(mr)) {
+						continue;
+					}
+					c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+				}	
 			} else if (tpDragging) {
 				if (!mr.trade().closed()) {
 					mr.trade().setTP(mr.tpPrice().get());
 					mr.setTpPrice(mr.trade().tp());
 				}
-			} 
-			
-			
-			for (Chart c : charts) {
-				if (c.mr == null || !c.mr.equals(mr)) {
-					continue;
-				}
-				c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-				c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-			}			
+				for (Chart c : charts) {
+					if (c.mr == null || !c.mr.equals(mr)) {
+						continue;
+					}
+					c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+				}	
+			} 		
 		}
 		
 		limitOrder.setPressed(false);
@@ -1377,7 +1459,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 				for (Chart c : charts) {
 					if (c.mr == null || !c.mr.equals(mr)) {
 						continue;
-					}					
+					}										
 					c.pendingTrades.add(c.new PendingTrade(penTrade.limit, penTrade.buy, penTrade.price, penTrade.volume));
 					if (pendingTrades.size() > 1) {
 						if (mr.trade().closed()) {
@@ -2379,112 +2461,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	public MarketReplay mr() {
 		return mr;
-	}
-	
-	private void executePendingOrder(PendingTrade p, int i) {
-		boolean nt = false;
-		if (mr.trade().closed()) {
-			System.out.println(mr.slPrice().get() + " " + mr.tpPrice().get());
-			mr.setTrade(new Trade(data, i, mr.slPrice().get(), mr.tpPrice().get(), p.buy, p.volume));	
-			System.out.println(mr.trade().sl() + " " + mr.trade().tp());
-			mr.setSlPrice(mr.trade().sl());
-			mr.setTpPrice(mr.trade().tp());
-			for (Chart c : charts) {
-				if (c.mr == null || !c.mr.equals(mr)) {
-					continue;
-				}
-				c.enableTradeButtons();
-				c.tradeButs.tp.setText(p.volume + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				c.tradeButs.sl.setText(p.volume + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-			}
-			nt = true;
-		} else {			
-			if (mr.trade().buy() && p.buy || !mr.trade().buy() && !p.buy) {
-				mr.trade().scaleIn(p.volume, i);
-			} else {
-				mr.trade().scaleOut(p.volume, i);
-				closedTradeProc();
-			}
-			nt = false;
-		} 		
-		if (nt) {
-			mr.trade().updateTrade(data.tickDataSize(true).get() - 1);
-			if (mr.trade().closed()) {
-				closedTradeProc();
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.disableTradeButtons();
-				}
-				mr.setSlPrice(-1);
-				mr.setTpPrice(-1);
-			}
-		}
-	}
-	
-	private void checkPendingOrders() {						
-		for (int i = mr.lastTick().get(); i < data.tickDataSize(true).get(); i++) {
-			double currentPrice = data.tickData().get(i).price();
-			int j = 0;
-			Object[] pt = pendingTrades.toArray();
-			for (Object obj : pt) {
-				PendingTrade p = (PendingTrade) obj;
-				if (p.buy) {
-					if (currentPrice >= p.price && !p.limit) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						mr.setPendingTrades(pendingTrades);
-						j--;
-					} else if (currentPrice <= p.price && p.limit) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						mr.setPendingTrades(pendingTrades);
-						j--;
-					}
-				} else {
-					if (currentPrice <= p.price && !p.limit) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						mr.setPendingTrades(pendingTrades);
-						j--;
-					} else if (currentPrice >= p.price && p.limit) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						mr.setPendingTrades(pendingTrades);
-						j--;
-					}
-				}					
-				j++;
-			}
-		}
-	}
-	
-	private void closedTradeProc() {
-		System.out.println(mr.trade().toString() + '\n');	
-		if (writeToFile) {
-			mr.trade().writeToFile(new File("./trades.txt"));
-		}
-	}
-	
-	public void tick(MarketReplay mr) {		
-		if (!mr.handled().get()) {
-			if (!mr.trade().closed()) {
-				mr.trade().updateTrade(data.tickDataSize(true).get() - 1);			
-				if (mr.trade().closed()) {
-					closedTradeProc();
-					for (Chart c : charts) {
-						if (c.mr == null || !c.mr.equals(mr)) {
-							continue;
-						}
-						c.disableTradeButtons();
-					}
-					mr.setSlPrice(-1);
-					mr.setTpPrice(-1);
-				}
-			}	
-		}
-		checkPendingOrders();		
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {		

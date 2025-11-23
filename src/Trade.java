@@ -40,9 +40,9 @@ public class Trade implements Serializable {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
 		this.currentPriceIndex = currentPriceIndex;
-		setSL(sl, currentPriceIndex);
-		setTP(tp, currentPriceIndex);
 		this.buy = buy;
+		setSL(sl);
+		setTP(tp);		
 		this.volume = volume;
 		this.entryTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.exitPrice = -1;		
@@ -155,10 +155,6 @@ public class Trade implements Serializable {
 	}
 	
 	public void setSL(double sl) {
-		setSL(sl, currentPriceIndex);
-	}
-	
-	private void setSL(double sl, int currentPriceIndex) {
 		if (closed) {
 			return;
 		}		
@@ -175,10 +171,6 @@ public class Trade implements Serializable {
 	}
 	
 	public void setTP(double tp) {
-		setTP(tp, currentPriceIndex);
-	}
-	
-	private void setTP(double tp, int currentPriceIndex) {
 		if (closed) {
 			return;
 		}
