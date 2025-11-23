@@ -275,79 +275,81 @@ public class Menu {
 					fc.setInitialDirectory(new File("./"));
 				}			
 				List<File> files = fc.showOpenMultipleDialog(null);	
-				for (File file : files) {	
-					if (file != null) {
-						try (FileInputStream fis = new FileInputStream(file);
-								BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-							String in = br.readLine();
-							boolean add = true;
-							if (!Signature.validFull(in)) {
-								System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
-								add = false;
-							}
-							for (DataSet d : datasets) {
-								if (d == null) {
-									continue;
-								}
-								if (in.equals(d.signature())) {
+				if (files != null) {
+					for (File file : files) {	
+						if (file != null) {
+							try (FileInputStream fis = new FileInputStream(file);
+									BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+								String in = br.readLine();
+								boolean add = true;
+								if (!Signature.validFull(in)) {
+									System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
 									add = false;
-									break;
 								}
-							}		
-							for (LoadingDataSet l : loadingSets) {
-								if (in.equals(l.signature())) {
-									add = false;
-									break;
+								for (DataSet d : datasets) {
+									if (d == null) {
+										continue;
+									}
+									if (in.equals(d.signature())) {
+										add = false;
+										break;
+									}
+								}		
+								for (LoadingDataSet l : loadingSets) {
+									if (in.equals(l.signature())) {
+										add = false;
+										break;
+									}
 								}
-							}
-							if (add) {							
-								if (datasets.size() >= 6) {
-									break;
-								}
-								LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), in);
-								loadingSets.add(l);
-								datasets.add(null);
-								dsButtons.add(null);
-								Task<Void> task = new Task<Void>() {
-									@Override
-									public Void call() {	
-										DataSet ds = l.load(file, reader);
-										loadingSets.remove(l);
-										if (ds == null) {
-											dsButtons.remove(l.addIndex().get());
-											for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-												DataSetButton dsb = dsButtons.get(j);
-												if (dsb == null) {
-													continue;
+								if (add) {							
+									if (datasets.size() >= 6) {
+										break;
+									}
+									LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), in);
+									loadingSets.add(l);
+									datasets.add(null);
+									dsButtons.add(null);
+									Task<Void> task = new Task<Void>() {
+										@Override
+										public Void call() {	
+											DataSet ds = l.load(file, reader);
+											loadingSets.remove(l);
+											if (ds == null) {
+												dsButtons.remove(l.addIndex().get());
+												for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+													DataSetButton dsb = dsButtons.get(j);
+													if (dsb == null) {
+														continue;
+													}
+													dsButtons.get(j).setY(dsb.y() - 58);				
 												}
-												dsButtons.get(j).setY(dsb.y() - 58);				
-											}
-											for (LoadingDataSet l2 : loadingSets) {
-												if (l2.addIndex().get() > l.addIndex().get()) {
-													l2.setAddIndex(l2.addIndex().get() - 1);
+												for (LoadingDataSet l2 : loadingSets) {
+													if (l2.addIndex().get() > l.addIndex().get()) {
+														l2.setAddIndex(l2.addIndex().get() - 1);
+													}
+													l2.setY(l2.y() - 58);				
 												}
-												l2.setY(l2.y() - 58);				
-											}
-											datasets.remove(l.addIndex().get());
+												datasets.remove(l.addIndex().get());
+												draw();
+												return null;
+											}			
+											datasets.set(l.addIndex().get(), ds);
+											DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
+											dsb.setVanGogh((x2, y2, gc) -> {
+												gc.setFont(new Font(37));
+												dsb.defaultDrawButton();		
+											});
+											dsButtons.set(l.addIndex().get(), dsb);									
 											draw();
 											return null;
-										}			
-										datasets.set(l.addIndex().get(), ds);
-										DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
-										dsb.setVanGogh((x2, y2, gc) -> {
-											gc.setFont(new Font(37));
-											dsb.defaultDrawButton();		
-										});
-										dsButtons.set(l.addIndex().get(), dsb);									
-										draw();
-										return null;
-									}
-								};				
-								new Thread(task).start();							
-							}
-						} catch (Exception ex) {
-							ex.printStackTrace();
-						}				
+										}
+									};				
+									new Thread(task).start();							
+								}
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}				
+						}
 					}
 				}
 			}
