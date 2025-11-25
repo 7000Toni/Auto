@@ -13,6 +13,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
@@ -40,7 +41,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;
 	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
-	public final static double PRICE_MARGIN = 100;
+	public static double PRICE_MARGIN = 100;
 	public final static double END_MARGIN_COEF = 1/1.5;
 	
 	public final static double PRICE_DASH_SPACING = 50;
@@ -1864,7 +1865,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void calculateRange() {		
 		if (drawCandlesticks) {
 			lowest = data.m1Candles().get(startIndex).low();
-			highest = data.m1Candles().get(startIndex).high();				
+			highest = data.m1Candles().get(startIndex).high();
+			Text t = new Text(((Double)lowest).toString());
+			PRICE_MARGIN = t.getLayoutBounds().getWidth();
 			int ei = endIndex;
 			if (replayMode) {
 				ei--;
@@ -1874,25 +1877,46 @@ public class Chart implements ScrollBarOwner, Drawable {
 				double high = data.m1Candles().get(i).high();				
 				if (high > highest) {
 					highest = high;
+					t = new Text(((Double)high).toString());
+					double w = t.getLayoutBounds().getWidth();				
+					if (w > PRICE_MARGIN) {
+						PRICE_MARGIN = w;
+					}
 				} 
 				if (low < lowest) {					
 					lowest = low;
-				}
+					t = new Text(((Double)low).toString());
+					double w = t.getLayoutBounds().getWidth();				
+					if (w > PRICE_MARGIN) {
+						PRICE_MARGIN = w;
+					}
+				}				
 			}
 			if (replayMode) {
 				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(ei).firstTickIndex());
 				if (c.high() > highest) {
 					highest = c.high();
+					t = new Text(((Double)c.high()).toString());
+					double w = t.getLayoutBounds().getWidth();				
+					if (w > PRICE_MARGIN) {
+						PRICE_MARGIN = w;
+					}
 				} 
 				if (c.low() < lowest) {					
 					lowest = c.low();
+					t = new Text(((Double)c.low()).toString());
+					double w = t.getLayoutBounds().getWidth();				
+					if (w > PRICE_MARGIN) {
+						PRICE_MARGIN = w;
+					}
 				}
 			}
 			range = highest - lowest;
 		} else {
 			lowest = data.tickData().get(startIndex).price();
 			highest = data.tickData().get(startIndex).price();				
-			
+			Text t = new Text(((Double)lowest).toString());
+			PRICE_MARGIN = t.getLayoutBounds().getWidth();
 			for (int i = startIndex; i < endIndex + 1; i++) {			
 				double val = data.tickData().get(i).price();
 				if (val > highest) {
@@ -1900,9 +1924,18 @@ public class Chart implements ScrollBarOwner, Drawable {
 				} else if (val < lowest) {
 					lowest = val;
 				}
-			}			
+				t = new Text(((Double)val).toString());
+				double w = t.getLayoutBounds().getWidth();				
+				if (w > PRICE_MARGIN) {
+					PRICE_MARGIN = w;
+				}
+			}								
 			range = highest - lowest;
+		}		
+		if (PRICE_MARGIN < 15) {
+			PRICE_MARGIN = 15;
 		}
+		PRICE_MARGIN += 20;
 	}
 	
 	public double roundToNearestTick(double price) {
