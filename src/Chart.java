@@ -1259,6 +1259,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
 						mr.closedTradeProc();
 						if (mr.trade().closed()) {
+							mr.setSlPrice(-1);
+							mr.setTpPrice(-1);
 							for (Chart c : charts) {
 								if (c.mr == null || !c.mr.equals(mr)) {
 									continue;
@@ -1288,6 +1290,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
 						mr.closedTradeProc();
 						if (mr.trade().closed()) {
+							mr.setSlPrice(-1);
+							mr.setTpPrice(-1);
 							for (Chart c : charts) {
 								if (c.mr == null || !c.mr.equals(mr)) {
 									continue;
