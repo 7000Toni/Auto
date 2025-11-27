@@ -13,7 +13,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
@@ -544,7 +543,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		constructorStuff(width, height, stage, data);
 	}
 	
-	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {
+	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {		
 		this.numDecimalPts = data.numDecimalPts();
 		this.tickSize = data.tickSize();
 		this.width = width;
@@ -559,7 +558,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 		});
 		this.stage = stage;
 		canvas = new Canvas(width, height);
-		gc = canvas.getGraphicsContext2D();	
+		gc = canvas.getGraphicsContext2D();
+		PRICE_MARGIN = data.maxLength() * gc.getFont().getSize() / 2 + 20;
+		if (PRICE_MARGIN < 35) {
+			PRICE_MARGIN = 35;
+		}
 		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);				
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
@@ -1862,12 +1865,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	
 	
-	private void calculateRange() {		
+	private void calculateRange() {	
 		if (drawCandlesticks) {
 			lowest = data.m1Candles().get(startIndex).low();
 			highest = data.m1Candles().get(startIndex).high();
-			Text t = new Text(((Double)lowest).toString());
-			PRICE_MARGIN = t.getLayoutBounds().getWidth();
 			int ei = endIndex;
 			if (replayMode) {
 				ei--;
@@ -1876,66 +1877,35 @@ public class Chart implements ScrollBarOwner, Drawable {
 				double low = data.m1Candles().get(i).low();
 				double high = data.m1Candles().get(i).high();				
 				if (high > highest) {
-					highest = high;
-					t = new Text(((Double)high).toString());
-					double w = t.getLayoutBounds().getWidth();				
-					if (w > PRICE_MARGIN) {
-						PRICE_MARGIN = w;
-					}
+					highest = high;	
 				} 
 				if (low < lowest) {					
-					lowest = low;
-					t = new Text(((Double)low).toString());
-					double w = t.getLayoutBounds().getWidth();				
-					if (w > PRICE_MARGIN) {
-						PRICE_MARGIN = w;
-					}
+					lowest = low;	
 				}				
 			}
 			if (replayMode) {
 				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(ei).firstTickIndex());
 				if (c.high() > highest) {
-					highest = c.high();
-					t = new Text(((Double)c.high()).toString());
-					double w = t.getLayoutBounds().getWidth();				
-					if (w > PRICE_MARGIN) {
-						PRICE_MARGIN = w;
-					}
+					highest = c.high();	
 				} 
 				if (c.low() < lowest) {					
 					lowest = c.low();
-					t = new Text(((Double)c.low()).toString());
-					double w = t.getLayoutBounds().getWidth();				
-					if (w > PRICE_MARGIN) {
-						PRICE_MARGIN = w;
-					}
 				}
 			}
 			range = highest - lowest;
 		} else {
 			lowest = data.tickData().get(startIndex).price();
-			highest = data.tickData().get(startIndex).price();				
-			Text t = new Text(((Double)lowest).toString());
-			PRICE_MARGIN = t.getLayoutBounds().getWidth();
+			highest = data.tickData().get(startIndex).price();	
 			for (int i = startIndex; i < endIndex + 1; i++) {			
 				double val = data.tickData().get(i).price();
 				if (val > highest) {
 					highest = val;
 				} else if (val < lowest) {
 					lowest = val;
-				}
-				t = new Text(((Double)val).toString());
-				double w = t.getLayoutBounds().getWidth();				
-				if (w > PRICE_MARGIN) {
-					PRICE_MARGIN = w;
-				}
+				}				
 			}								
 			range = highest - lowest;
-		}		
-		if (PRICE_MARGIN < 15) {
-			PRICE_MARGIN = 15;
-		}
-		PRICE_MARGIN += 20;
+		}				
 	}
 	
 	public double roundToNearestTick(double price) {

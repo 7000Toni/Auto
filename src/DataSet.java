@@ -26,6 +26,7 @@ public class DataSet {
 	private ArrayList<Line> lines = new ArrayList<Line>();
 	private long startEpochMinutes;
 	private boolean failed = false;
+	private int maxLength = 0;
 	
 	class DataPair {
 		private double price;
@@ -200,6 +201,10 @@ public class DataSet {
 		this.replayM1CandlesDataSize.set(replayM1CandlesDataSize);
 	}
 	
+	public int maxLength() {
+		return maxLength;
+	}
+	
 	public double tickSize() {
 		return this.tickSize;
 	}
@@ -286,6 +291,13 @@ public class DataSet {
 		rfv.prevPrice = rfv.val;
 	}
 	
+	private void checkLength(double val) {
+		int length = ((Double)val).toString().length();
+		if (length > maxLength) {
+			maxLength = length; 
+		}
+	}
+	
 	private void readData(File file, TickDataFileReader tdfr, IntegerProperty prog) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
@@ -304,7 +316,8 @@ public class DataSet {
 			if (!rfv.add) {
 				return;
 			}
-			tickData.add(new DataPair(rfv.val, rfv.ldt, 0));												
+			tickData.add(new DataPair(rfv.val, rfv.ldt, 0));	
+			checkLength(rfv.val);
 			setInitCandlestickVars(rfv);
 			rfv.progress = 1;
 			rfv.trueProgress = 1;
@@ -329,6 +342,7 @@ public class DataSet {
 				}										
 				checkAddCandlestick(rfv);
 				tickData.add(new DataPair(rfv.val, rfv.ldt, m1Candles.size()));
+				checkLength(rfv.val);
 			}
 			addCandlestick(rfv, false);
 		} catch (IOException e) {
