@@ -1777,7 +1777,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		double newHSBPos;
 		if (replayMode) {
-			if (mr.live().get() && !mr.paused() || endIndex >= data.tickDataSize(true).get() - 1) {
+			if (mr.live().get() && !mr.paused() || endIndex >= data.m1CandlesDataSize(true).get() - 1) {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numCandlesticks;
