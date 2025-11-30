@@ -1252,6 +1252,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					mr.setSlPrice(-1);
 					mr.setTpPrice(-1);
 					for (Chart c : charts) {
+						if (c.mr == null || !c.mr.equals(mr)) {
+							continue;
+						}
 						c.enableTradeButtons();
 					}
 				} else {
@@ -1281,6 +1284,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					mr.setSlPrice(-1);
 					mr.setTpPrice(-1);
 					for (Chart c : charts) {
+						if (c.mr == null || !c.mr.equals(mr)) {
+							continue;
+						}
 						c.enableTradeButtons();
 					}
 				} else {
