@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -401,7 +403,7 @@ public class Menu {
 				if (files != null) {
 					for (File f : files) {						
 						Thread t = new Thread(new OptimizeTask(f, numJobs));
-						t.start();						
+						t.start();							
 					}
 				}
 			}
@@ -497,6 +499,32 @@ public class Menu {
 			marketTickOReader.setPressed(false);
 		}
 		draw();
+	}
+	
+	protected void mergeFiles(List<File> files) {
+		ArrayList<String> nf = new ArrayList<String>();
+		for (File f : files) {										
+			try (FileInputStream fis = new FileInputStream(f);
+					BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+				String s = br.readLine();
+				while (s != null) {
+					nf.add(s);
+					s = br.readLine();
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		try (FileOutputStream fos = new FileOutputStream(new File("./merged"))) {
+			fos.write(("size name tickSize numDecimalPts\n").getBytes());
+			for (String s : nf) {
+				if (!Signature.validFull(s)) {
+					fos.write((s + '\n').getBytes());
+				}
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
