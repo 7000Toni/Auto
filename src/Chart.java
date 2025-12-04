@@ -1960,7 +1960,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
-		}		;
+		}		
 		if (candle.open() < candle.close()) {
 			gc.setStroke(Color.CORNFLOWERBLUE);
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
@@ -2446,6 +2446,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		hsb.draw();
 		calculateRange();
 		setPreDrawVars();
+		crossHair.drawCrossHair();
 		if (drawCandlesticks) {
 			drawCandlestickChart();
 		} else {		
@@ -2453,8 +2454,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}		
 		drawPriceDashes();
 		drawTopRightText();
-		checkMeasuring();	
-		crossHair.drawCrossHair();
+		checkMeasuring();			
 		if (replayMode) {				
 			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
