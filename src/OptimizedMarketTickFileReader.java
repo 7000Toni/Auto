@@ -27,4 +27,15 @@ public class OptimizedMarketTickFileReader implements TickDataFileReader {
 			readNextTick(rfv);						
 		}
 	}
+	
+	@Override
+	public boolean validDatum(String datum) {
+		boolean valid = true;
+		try {
+			DatumChecker.check(OptimizedMarketTickFileReader.datum, datum);
+		} catch (Exception e) {
+			valid = false;
+		}	
+		return valid;
+	}
 }

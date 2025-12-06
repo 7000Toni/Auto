@@ -25,4 +25,15 @@ public class OriginalTickFileReader implements TickDataFileReader {
 	public void readFirstTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
 		readNextTick(rfv);
 	}
+	
+	@Override
+	public boolean validDatum(String datum) {
+		boolean valid = true;
+		try {
+			DatumChecker.check(OriginalTickFileReader.datum, datum);
+		} catch (Exception e) {
+			valid = false;
+		}	
+		return valid;
+	}
 }

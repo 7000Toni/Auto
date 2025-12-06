@@ -30,4 +30,14 @@ public class DukascopyNodeReader implements TickDataFileReader {
 		}
 	}
 
+	@Override
+	public boolean validDatum(String datum) {
+		boolean valid = true;
+		try {
+			DatumChecker.check(DukascopyNodeReader.datum, datum);
+		} catch (Exception e) {
+			valid = false;
+		}	
+		return valid;
+	}
 }

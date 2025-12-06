@@ -37,10 +37,16 @@ public class CanvasButton implements Drawable {
 	
 	public void setHover(boolean hover) {
 		this.hover = hover;
+		if (!enabled) {
+			this.hover = false;
+		}
 	}
 	
-	public void setPressed(boolean clicked) {
-		this.pressed = clicked;
+	public void setPressed(boolean pressed) {		
+		this.pressed = pressed;
+		if (!enabled) {
+			this.pressed = false;
+		}
 	}
 	
 	@Override
@@ -90,7 +96,9 @@ public class CanvasButton implements Drawable {
 	}
 	
 	public void disable() {
-		this.enabled = false;
+		enabled = false;
+		pressed = false;
+		hover = false;
 	}
 	
 	public void enable() {

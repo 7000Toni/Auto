@@ -31,4 +31,15 @@ public class MarketTickFileReader implements TickDataFileReader {
 			readNextTick(rfv);						
 		}
 	}
+	
+	@Override
+	public boolean validDatum(String datum) {
+		boolean valid = true;
+		try {
+			DatumChecker.check(MarketTickFileReader.datum, datum);
+		} catch (Exception e) {
+			valid = false;
+		}	
+		return valid;
+	}
 }

@@ -228,7 +228,7 @@ public class Trade implements Serializable {
 	
 	public void writeToFile(File file) {
 		try (PrintWriter pw = new PrintWriter(new FileOutputStream(file, true), true)) {
-			pw.append(toString() + "\n\n");
+			pw.append(toString() + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
