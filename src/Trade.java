@@ -234,8 +234,13 @@ public class Trade implements Serializable {
 		}
 	}
 	
-	@Override
-	public String toString() {
+	protected String alternateToString() {		
+		String ret = "Profit: " + profit();
+		ret += "\tRewind: " + closedByRewind;	
+		return ret;
+	}
+	
+	protected String originalToString() {
 		String buyOrSell = "Bought";
 		if (!buy) {
 			buyOrSell = "Sold";
@@ -274,7 +279,12 @@ public class Trade implements Serializable {
 		}
 		ret += "\nChange:\t" + ((Double)(exitPrice - entryPrice)).toString();
 		ret += "\nProfit:\t" + profit();
-		ret += "\nRewind:\t" + closedByRewind;
+		ret += "\nRewind:\t" + closedByRewind + '\n';
 		return ret;
+	}
+	
+	@Override
+	public String toString() {
+		return alternateToString();
 	}
 }

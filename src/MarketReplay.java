@@ -30,7 +30,7 @@ public class MarketReplay {
 	private Trade trade = null; 
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private ArrayList<Chart.PendingTrade> pendingTrades = new ArrayList<Chart.PendingTrade>();
-	private boolean writeToFile = false;
+	private boolean writeToFile = true;
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -257,7 +257,7 @@ public class MarketReplay {
 	}
 	
 	public void closedTradeProc() {
-		System.out.println(trade.toString() + '\n');	
+		System.out.println(trade.toString());	
 		if (writeToFile) {
 			trade.writeToFile(new File("./trades.txt"));
 		}
