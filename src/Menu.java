@@ -42,7 +42,7 @@ public class Menu {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -121,20 +121,23 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			datasets.add(new DataSet(new File("res/20240624_Optimized.csv"), new OptimizedMarketTickFileReader()));
-			DataSet ds = datasets.get(datasets.size() - 1);
-			DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
-			dsb.setVanGogh((x, y, gc) -> {
-				gc.setFont(new Font(37));
-				dsb.defaultDrawButton();		
-			});
-			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
-			Scene scene = new Scene(c);
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-			s.setScene(scene);
-			s.show();
-			dsButtons.add(dsb);			
+			File f = new File("res/20240624_Optimized.csv");
+			if (f.exists()) {
+				datasets.add(new DataSet(f, new OptimizedMarketTickFileReader()));
+				DataSet ds = datasets.get(datasets.size() - 1);
+				DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
+				dsb.setVanGogh((x, y, gc) -> {
+					gc.setFont(new Font(37));
+					dsb.defaultDrawButton();		
+				});
+				Stage s = new Stage();
+				ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
+				Scene scene = new Scene(c);
+				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+				s.setScene(scene);
+				s.show();
+				dsButtons.add(dsb);		
+			}
 		}
 		
 		draw();
