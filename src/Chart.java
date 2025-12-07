@@ -13,7 +13,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 
 public class Chart implements ScrollBarOwner, Drawable {
@@ -24,9 +26,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public final static int TICK_INDX_MOVE_COEF = 3;
 	
 	public final static double HSB_WIDTH = 100;
-	public final static double HSB_HEIGHT = 10;
-	
-	public final static double PRC_MSRMNT_LENGTH = 100;
+	public final static double HSB_HEIGHT = 10;	
 	
 	public final static double LINE_PRESS_MARGIN = 5;
 	
@@ -947,7 +947,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks) {
 			CrossHair.setDateIndex(0);
 		}
-		
+		if (!chartDateMarginDragging && !priceDragging) {
+			stage.getScene().setCursor(Cursor.DEFAULT);
+		}
 		hsb.onMouseMoved(e);
 		if (!limitDragging && !stopDragging) {
 			CrossHair.setX(e.getX());
@@ -958,12 +960,19 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (!limitDragging && !stopDragging) {
 				drawPending = false;
 			}
+			if (e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
+				stage.getScene().setCursor(Cursor.N_RESIZE);
+			}
 		} else if (replayMode && !limitDragging && !stopDragging) {				
 			limitOrder.setY(e.getY() - fontSize/2); 
 			stopOrder.setY(e.getY() - fontSize/2);
 			ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
 			ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
 			drawPending = true;							
+		} else {
+			if (e.getY() >= chartHeight + CHT_MARGIN - fontSize) {
+				stage.getScene().setCursor(Cursor.E_RESIZE);
+			}
 		}
 		if (checkNewChtBtn(e.getX(), e.getY())) {
 			if (!newCHT_BTN_Clicked) {
@@ -1525,7 +1534,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void onMouseReleased(MouseEvent e) {	
-		hsb.onMouseReleased();		
+		hsb.onMouseReleased();	
+		if (chartDateMarginDragging && !(onChart(e.getX(), e.getY(), true) && e.getY() >= chartHeight + CHT_MARGIN - fontSize)) {
+			stage.getScene().setCursor(Cursor.DEFAULT);
+		}
+		if (priceDragging && !(e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN)) {
+			stage.getScene().setCursor(Cursor.DEFAULT);
+		}
 		if (newCHT_BTN_Clicked && checkNewChtBtn(e.getX(), e.getY())) {
 			newCHT_BTN_Clicked = false;
 			Stage s = new Stage();
@@ -1590,6 +1605,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			drawMRP = !drawMRP;
 		} else if (measuring) {
 			measuring = false;
+			stage.getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
@@ -1637,6 +1653,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public void onMouseDragged(MouseEvent e) {	
 		hsb.onMouseDragged(e);
 		if (priceDragging) {
+			stage.getScene().setCursor(Cursor.N_RESIZE);
 			double posDiff = e.getY() - priceInitPos;
 			if (posDiff < 0) {
 				if (chtDataMargin + posDiff > CHT_MARGIN + fontSize) {
@@ -1651,6 +1668,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			data.lines().get(lineHighlighted).setPrice(price);
 		}
 		if (rightPressed) {
+			stage.getScene().cursorProperty().set(Cursor.CROSSHAIR);
 			measuring = true;
 			endX = e.getX();
 			endY = e.getY();
@@ -1742,7 +1760,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 				hsb.setPosition(newHSBPos, false);
 			}
 		}
-		if (chartDateMarginDragging && !lineDragging) {			
+		if (chartDateMarginDragging && !lineDragging) {	
+			stage.getScene().setCursor(Cursor.E_RESIZE);
 			if (drawCandlesticks) {
 				zoomCandlesticks(e.getX() - chartInitPos, false);
 			} else {
@@ -2230,7 +2249,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}	
 	}	
 	
-	private void checkMeasuring() {
+	private void checkMeasuring() {		
 		if (measuring) {
 			double endPrice = ((((chartHeight - (chtDataMargin*2)) - (endY - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 			if (darkMode) {
@@ -2241,19 +2260,22 @@ public class Chart implements ScrollBarOwner, Drawable {
 			gc.strokeLine(startX, startY, endX, endY);
 			double ex = endX;
 			double ey = endY;
-			if (endX > CHT_MARGIN + chartWidth - PRC_MSRMNT_LENGTH) {
-				ex -= PRC_MSRMNT_LENGTH + 5;
-			}
-			if (endY < CHT_MARGIN + 2 + fontSize) {
-				ey += fontSize + 3;
-				if (ex == endX) {
-					ex += 15;
-				}
-			}
-			gc.setStroke(Color.SLATEBLUE);	
 			DecimalFormat df = new DecimalFormat("#");
 			df.setMaximumFractionDigits(numDecimalPts);
-			gc.strokeText(df.format(roundToNearestTick(endPrice - startPrice)) + " from: " + ((Double)startPrice).toString(), ex + 1, ey - 2, PRC_MSRMNT_LENGTH);
+			String text = df.format(roundToNearestTick(endPrice - startPrice)) + " from: " + ((Double)startPrice).toString();
+			Text t = new Text(text);
+			double prc_msrmnt_length = t.getLayoutBounds().getWidth() + 5;
+			if (endX > CHT_MARGIN + chartWidth - prc_msrmnt_length) {
+				ex -= prc_msrmnt_length + 5;
+			}			
+			if (endY < CHT_MARGIN + 2 + fontSize) {
+				ey += fontSize + 3;
+			}
+			if (endY >= chartHeight + CHT_MARGIN - fontSize) {
+				ey = chartHeight + CHT_MARGIN - fontSize;
+			}
+			gc.setStroke(Color.SLATEBLUE);				
+			gc.strokeText(text, ex + 1, ey - 2, prc_msrmnt_length);
 		}
 	}
 	
@@ -2446,13 +2468,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 		hsb.draw();
 		calculateRange();
 		setPreDrawVars();
+		drawPriceDashes();
 		crossHair.drawCrossHair();
 		if (drawCandlesticks) {
 			drawCandlestickChart();
 		} else {		
 			drawLineChart();
-		}		
-		drawPriceDashes();
+		}				
 		drawTopRightText();
 		checkMeasuring();			
 		if (replayMode) {				
