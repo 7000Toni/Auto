@@ -963,13 +963,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
 				stage.getScene().setCursor(Cursor.N_RESIZE);
 			}
-		} else if (replayMode && !limitDragging && !stopDragging) {				
-			limitOrder.setY(e.getY() - fontSize/2); 
-			stopOrder.setY(e.getY() - fontSize/2);
-			ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
-			ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
-			drawPending = true;							
 		} else {
+			if (replayMode && !limitDragging && !stopDragging) {				
+				limitOrder.setY(e.getY() - fontSize/2); 
+				stopOrder.setY(e.getY() - fontSize/2);
+				ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
+				ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
+				drawPending = true;	
+			}
 			if (e.getY() >= chartHeight + CHT_MARGIN - fontSize) {
 				stage.getScene().setCursor(Cursor.E_RESIZE);
 			}
