@@ -241,9 +241,12 @@ public class CrossHair {
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
 			double width = getWidth();
-			double xPos = width * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;		
-			int convertedCHDI = (int)((xPos - Chart.CHT_MARGIN) / (chart.candlestickWidth() + chart.candlestickSpacing()));
-			setOHLC(convertedCHDI);					
+			double xPos = width * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;	
+			if (isForCandle.get()) {
+				setOHLC(dateIndex.get());
+			} else {
+				setOHLC(chart.tickData().get(dateIndex.get()).candleIndex());
+			}
 			drawVerticalLine(xPos, chdi);				
 		}
 	}
