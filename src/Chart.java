@@ -1285,6 +1285,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 						mr.trade().scaleIn(tradeVolume(), data.tickDataSize(true).get() - 1);
 					}
 				}
+				for (Chart c : charts) {
+					if (c.mr == null || !c.mr.equals(mr)) {
+						continue;
+					}
+					c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+				}	
 			}
 			sell.setPressed(false);
 		} else if (buy.pressed()) {
@@ -1317,6 +1324,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 						}
 					}
 				}
+				for (Chart c : charts) {
+					if (c.mr == null || !c.mr.equals(mr)) {
+						continue;
+					}
+					c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
+					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
+				}	
 			}
 			buy.setPressed(false);
 		} else if (volTens.upPressed()) {
