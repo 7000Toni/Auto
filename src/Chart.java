@@ -1531,15 +1531,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 	}
 	
-	public static void toggleDarkMode(boolean redraw) {
+	public static void toggleDarkMode() {
 		darkMode = !darkMode;
 		for (Chart c : charts) {
 			if (c.replayMode) {					
 				c.setNumberChooserColours();				
 			}
-			if (redraw) {
-				c.draw();
-			}
+			c.draw();
 		}
 		Menu m = Menu.menu();
 		if (m != null) {
@@ -1614,7 +1612,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
 			darkModeClicked = false;	
-			toggleDarkMode(false);
+			toggleDarkMode();
 		} else if (drawMRPClicked && checkDrawMRPBtn(e.getX(), e.getY())) {
 			drawMRPClicked = false;
 			drawMRP = !drawMRP;

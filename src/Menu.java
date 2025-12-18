@@ -409,7 +409,7 @@ public class Menu {
 			}
 		} else if (darkMode.onButton(x, y)) { 
 			if (darkMode.pressed()) {
-				Chart.toggleDarkMode(true);				
+				Chart.toggleDarkMode();				
 				darkMode.setPressed(false);
 			}
 		} else if (auto.onButton(x, y)) { 
