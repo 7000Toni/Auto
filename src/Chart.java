@@ -2280,11 +2280,21 @@ public class Chart implements ScrollBarOwner, Drawable {
 			String text = df.format(roundToNearestTick(endPrice - startPrice)) + " from: " + ((Double)startPrice).toString();
 			Text t = new Text(text);
 			double prc_msrmnt_length = t.getLayoutBounds().getWidth() + 5;
+			boolean right = true;
 			if (endX > CHT_MARGIN + chartWidth - prc_msrmnt_length) {
 				ex -= prc_msrmnt_length + 5;
-			}			
+				right = false;
+			}
+			boolean dropped = false;
 			if (endY < CHT_MARGIN + 2 + fontSize) {
 				ey += fontSize + 3;
+				if (right) {
+					dropped = true;
+					ex += 12;	
+				}
+			}
+			if (endX > CHT_MARGIN + chartWidth - prc_msrmnt_length - 12 && dropped && right) {
+				ex -= prc_msrmnt_length + 5 + 12;
 			}
 			if (endY >= chartHeight + CHT_MARGIN - fontSize) {
 				ey = chartHeight + CHT_MARGIN - fontSize;
