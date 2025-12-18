@@ -27,6 +27,7 @@ public class Trade implements Serializable {
 	protected boolean composite = false;
 	protected boolean partial = false;
 	protected double partialVol = -1;
+	protected static double net = 0;
 	
 	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
@@ -49,14 +50,13 @@ public class Trade implements Serializable {
 	}
 	
 	public void close(int currentPriceIndex) {
-		if (partial) {
-			partialVol = volume;
-		}
+		partialVol = volume;
 		this.currentPriceIndex = currentPriceIndex;
 		this.exitPrice = data.tickData().get(currentPriceIndex).price();
-		profit();
+		profit(volume);
 		this.exitTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.closed = true;
+		net += profit;
 	}
 	
 	public void cancelSL() {
@@ -74,6 +74,10 @@ public class Trade implements Serializable {
 	}
 	
 	public double profit() {
+		return profit(volume);
+	}
+	
+	public double profit(double volume) {
 		if (closed) {
 			return profit;
 		}
@@ -81,7 +85,7 @@ public class Trade implements Serializable {
 		if (!buy) {
 			diff = -diff;
 		}
-		profit = Round.round(diff * volume, data.numDecimalPts());
+		profit = Round.round(diff * volume, 2);
 		return profit;
 	}
 	
@@ -106,11 +110,12 @@ public class Trade implements Serializable {
 			return;
 		}
 		if (buy) {
-			entryPrice = data.tickData().get(currentPriceIndex).price() - (profit() / (volume + vol));
+			entryPrice = data.tickData().get(currentPriceIndex).price() - (profit(volume) / (volume + vol));
 		} else {
-			entryPrice = data.tickData().get(currentPriceIndex).price() + (profit() / (volume + vol));
+			entryPrice = data.tickData().get(currentPriceIndex).price() + (profit(volume) / (volume + vol));
 		}
 		volume += vol;
+		partialVol = volume;
 		composite = true;
 	}
 	
@@ -126,6 +131,7 @@ public class Trade implements Serializable {
 			partialVol = vol;
 			exitPrice = data.tickData().get(currentPriceIndex).price();
 			exitTime = data.tickData().get(currentPriceIndex).dateTime();
+			net += profit(vol);
 		}		
 	}
 	
@@ -235,8 +241,9 @@ public class Trade implements Serializable {
 	}
 	
 	protected String alternateToString() {		
-		String ret = "Profit: " + profit();
+		String ret = "Profit: " + profit(partialVol);
 		ret += "\tRewind: " + closedByRewind;	
+		ret += "\tNet: " + Round.round(net, 2);;
 		return ret;
 	}
 	
@@ -278,7 +285,7 @@ public class Trade implements Serializable {
 			ret += "\nExit:\t" + exitTime.toString().replace('T', ' ');
 		}
 		ret += "\nChange:\t" + ((Double)(exitPrice - entryPrice)).toString();
-		ret += "\nProfit:\t" + profit();
+		ret += "\nProfit:\t" + profit(partialVol);
 		ret += "\nRewind:\t" + closedByRewind + '\n';
 		return ret;
 	}
