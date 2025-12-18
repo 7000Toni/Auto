@@ -131,8 +131,8 @@ public abstract class HorizontalScrollBar implements Drawable {
 	}
 	
 	public boolean dragged() {
-		boolean ret = this.dragged;
-		this.dragged = false;
+		boolean ret = dragged;
+		dragged = false;
 		return ret;
 	}
 	

@@ -443,6 +443,9 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	
 	public void onMouseDragged(MouseEvent e) {
 		hsb.onMouseDragged(e);
+		if (hsb.dragged()) {
+			mr.setIndex((int)(((hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos())) * mr.tickDataSize().get()), false);
+		}
 		draw();
 	}
 	

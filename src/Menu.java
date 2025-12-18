@@ -42,7 +42,7 @@ public class Menu {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -121,22 +121,49 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			File f = new File("res/20240624_Optimized.csv");
-			if (f.exists()) {
-				datasets.add(new DataSet(f, new OptimizedMarketTickFileReader()));
-				DataSet ds = datasets.get(datasets.size() - 1);
-				DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
-				dsb.setVanGogh((x, y, gc) -> {
-					gc.setFont(new Font(37));
-					dsb.defaultDrawButton();		
-				});
-				Stage s = new Stage();
-				ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
-				Scene scene = new Scene(c);
-				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-				s.setScene(scene);
-				s.show();
-				dsButtons.add(dsb);		
+			File f = new File("res/enqh26.txt");
+			if (f.exists()) {				
+				try (FileInputStream fis = new FileInputStream(f);
+						BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {	
+					String signature = br.readLine();
+					if (!Signature.validFull(signature)) {
+						System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
+						return;
+					}
+					String datum = br.readLine();
+					TickDataFileReader thisReader = reader;
+					if (reader == null) {
+						MarketTickFileReader mtfr = new MarketTickFileReader();
+						OriginalTickFileReader otfr = new OriginalTickFileReader();
+						OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
+						DukascopyNodeReader dnr = new DukascopyNodeReader();
+						if (mtfr.validDatum(datum)) {
+							thisReader = mtfr;
+						} else if (otfr.validDatum(datum)) {
+							thisReader = otfr;
+						} else if (omtfr.validDatum(datum)) {
+							thisReader = omtfr;
+						} else {
+							thisReader = dnr;
+						}
+					}
+					datasets.add(new DataSet(f, thisReader));
+					DataSet ds = datasets.get(datasets.size() - 1);
+					DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
+					dsb.setVanGogh((x, y, gc) -> {
+						gc.setFont(new Font(37));
+						dsb.defaultDrawButton();		
+					});
+					Stage s = new Stage();
+					ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
+					Scene scene = new Scene(c);
+					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+					s.setScene(scene);
+					s.show();
+					dsButtons.add(dsb);	
+				} catch(IOException e) {
+					e.printStackTrace();
+				}				
 			}
 		}
 		
@@ -539,7 +566,7 @@ public class Menu {
 			dukasNodeReader.setPressed(false);
 		}
 		draw();
-	}
+	}	
 	
 	protected void mergeFiles(List<File> files) {
 		ArrayList<String> nf = new ArrayList<String>();

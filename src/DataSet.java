@@ -186,7 +186,11 @@ public class DataSet {
 	}
 	
 	public void setReplayTickDataSize(int replayTickDataSize) {
-		this.replayTickDataSize.set(replayTickDataSize);
+		if (replayTickDataSize > size) {
+			this.replayTickDataSize.set(size);
+		} else {
+			this.replayTickDataSize.set(replayTickDataSize);
+		}
 	}
 	
 	public ReadOnlyIntegerProperty m1CandlesDataSize(boolean replayMode) {
@@ -198,7 +202,11 @@ public class DataSet {
 	}
 	
 	public void setReplayM1CandlesDataSize(int replayM1CandlesDataSize) {
-		this.replayM1CandlesDataSize.set(replayM1CandlesDataSize);
+		if (replayM1CandlesDataSize > m1Candles.size()) {
+			this.replayM1CandlesDataSize.set(m1Candles.size());
+		} else {
+			this.replayM1CandlesDataSize.set(replayM1CandlesDataSize);
+		}
 	}
 	
 	public int maxLength() {

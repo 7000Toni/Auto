@@ -77,6 +77,10 @@ public class MarketReplay {
 		}
 	}
 	
+	public ReadOnlyIntegerProperty tickDataSize() {
+		return IntegerProperty.readOnlyIntegerProperty(tickDataSize);
+	}
+	
 	public ReadOnlyIntegerProperty index() {
 		return IntegerProperty.readOnlyIntegerProperty(index);
 	}
@@ -293,16 +297,7 @@ public class MarketReplay {
 					return;
 				}
 				long diff = (now - lastTick2) / HorizontalScrollBar.NANO_TO_MILLI;
-				if (diff >= timeToNextTick.get()) {		
-					if (mrp.hsb().dragged()) {
-						index.set((int)(((mrp.hsb().x() - mrp.hsb().minPos()) / (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos())) * tickDataSize.get()));							
-						data.setReplayTickDataSize(index.get());
-						int ci = index.get();
-						if (ci == tickDataSize.get()) {
-							ci--;							
-						}		
-						data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
-					} 
+				if (diff >= timeToNextTick.get()) {	
 					while (!paused.get() && index.get() < tickDataSize.get()) {
 						index.set(index.get() + 1);
 						diff -= timeToNextTick.get();
