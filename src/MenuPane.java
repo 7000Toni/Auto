@@ -7,4 +7,8 @@ public class MenuPane extends GridPane {
 		menu = new Menu(width, height);
 		this.add(menu.canvas(), 0, 0);
 	}
+	
+	public Menu menu() {
+		return this.menu;
+	}
 }

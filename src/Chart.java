@@ -102,10 +102,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private boolean drawCandlesticksHover = false;
 	private boolean darkModeHover = false;
 	private boolean drawMRPHover = false;
-	private boolean newCHT_BTN_Clicked = false;
-	private boolean drawCandlesticksClicked = false;
-	private boolean darkModeClicked = false;
-	private boolean drawMRPClicked = false;
+	private boolean newCHT_BTN_Pressed = false;
+	private boolean drawCandlesticksPressed = false;
+	private boolean darkModePressed = false;
+	private boolean drawMRPPressed = false;
 	private CanvasButton buy;
 	private CanvasButton sell;
 	private CanvasNumberChooser volUnits;
@@ -976,49 +976,51 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}
 		}
 		if (checkNewChtBtn(e.getX(), e.getY())) {
-			if (!newCHT_BTN_Clicked) {
+			if (!newCHT_BTN_Pressed) {
 				newCHT_BTN_Hover = true;
 			}
 		} else {
 			newCHT_BTN_Hover = false;
-			newCHT_BTN_Clicked = false;
+			newCHT_BTN_Pressed = false;
 		}		
 		if (checkChartTypeBtn(e.getX(), e.getY())) {
-			if (!drawCandlesticksClicked) {
+			if (!drawCandlesticksPressed) {
 				drawCandlesticksHover = true;
 			}
 		} else {
 			drawCandlesticksHover = false;
-			drawCandlesticksClicked = false;	
+			drawCandlesticksPressed = false;	
 		}
 		if (checkDarkModeBtn(e.getX(), e.getY())) {
-			if (!darkModeClicked) {
+			if (!darkModePressed) {
 				darkModeHover = true;
 			}
 		} else {
 			darkModeHover = false;
-			darkModeClicked = false;
+			darkModePressed = false;
 		}
 		if (checkDrawMRPBtn(e.getX(), e.getY())) {
-			if (!drawMRPClicked) {
+			if (!drawMRPPressed) {
 				drawMRPHover = true;
 			}
 		} else {
-			drawMRPClicked = false;
+			drawMRPPressed = false;
 			drawMRPHover = false;
 		}
 		if (replayMode) {
 			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
-		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+		if (drawMRP) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_MOVED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.onMouseMoved(me);
-		} else if (drawMRP) {
-			mrp.hsb().onMouseReleased();
-			mrp.onMouseExited();
+			if (e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {				
+				mrp.onMouseMoved(me);
+			} else {
+				mrp.hsb().onMouseReleased();
+				mrp.onMouseExited(me);
+			}
 		}
 		drawCharts(this.name());
 	}				
@@ -1238,16 +1240,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 				}
 			}
 			if (checkNewChtBtn(e.getX(), e.getY())) {
-				newCHT_BTN_Clicked = true;
+				newCHT_BTN_Pressed = true;
 				newCHT_BTN_Hover = false;
 			} else if (checkChartTypeBtn(e.getX(), e.getY())) {
-				drawCandlesticksClicked = true;	
+				drawCandlesticksPressed = true;	
 				drawCandlesticksHover = false;
 			} else if (checkDarkModeBtn(e.getX(), e.getY())) {
-				darkModeClicked = true;
+				darkModePressed = true;
 				darkModeHover = false;
 			} else if (checkDrawMRPBtn(e.getX(), e.getY())) {
-				drawMRPClicked = true;
+				drawMRPPressed = true;
 				drawMRPHover = false;
 			}
 		} 					
@@ -1256,7 +1258,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 	
 	private void tradeButtonReleaseChecks(double x, double y) {
 		if (sell.pressed()) {
-			if (sell.onButton(x, y)) {
+			sell.setPressed(false);
+			if (sell.onButton(x, y)) {				
 				if (mr.trade().closed()) {
 					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, false, tradeVolume()));
 					mr.setSlPrice(-1);
@@ -1293,9 +1296,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
 				}	
 			}
-			sell.setPressed(false);
 		} else if (buy.pressed()) {
-			if (buy.onButton(x, y)) {
+			buy.setPressed(false);
+			if (buy.onButton(x, y)) {				
 				if (mr.trade().closed()) {
 					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, true, tradeVolume()));
 					mr.setSlPrice(-1);
@@ -1331,43 +1334,43 @@ public class Chart implements ScrollBarOwner, Drawable {
 					c.tradeButs.sl.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
 					c.tradeButs.tp.setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
 				}	
-			}
-			buy.setPressed(false);
+			}			
 		} else if (volTens.upPressed()) {
+			volTens.setUpPressed(false);
 			if (volTens.onUp(x, y)) {
 				volTens.incrementValue();
 				if (tradeVolume() == 0) {
 					volUnits.incrementValue();
 				}
-			}
-			volTens.setUpPressed(false);
+			}			
 		} else if (volTens.downPressed()) {
+			volTens.setDownPressed(false);
 			if (volTens.onDown(x, y)) {
 				volTens.decrementValue();
 				if (tradeVolume() == 0) {
 					volUnits.incrementValue();
 				}
-			}
-			volTens.setDownPressed(false);
+			}			
 		} else if (volUnits.upPressed()) {
+			volUnits.setUpPressed(false);
 			if (volUnits.onUp(x, y)) {
 				volUnits.incrementValue();
 				if (tradeVolume() == 0) {
 					volUnits.incrementValue();
 				}
-			}
-			volUnits.setUpPressed(false);
+			}			
 		} else if (volUnits.downPressed()) {
+			volUnits.setDownPressed(false);
 			if (volUnits.onDown(x, y)) {
 				volUnits.decrementValue();
 				if (tradeVolume() == 0) {
 					volUnits.incrementValue();
 				}
-			}
-			volUnits.setDownPressed(false);
+			}			
 		} else {
 			for (PendingTrade p : pendingTrades) {
 				if (p.pTradeButs.close.pressed()) {
+					p.pTradeButs.close.setPressed(false);
 					if (p.pTradeButs.close.onButton(x, y)) {
 						int i = pendingTrades.indexOf(penOrderBeingDragged);
 						for (Chart c : charts) {
@@ -1398,6 +1401,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			}					
 			
 			if (penOrderBeingDragged != null) {
+				penOrderBeingDragged.pTradeButs.order.setPressed(false);
+				penOrderDragging = false;
+				
 				if (mr.trade().closed()) {		
 					if (penOrderBeingDragged.buy) {
 						if (mr.slPrice().get() >= penOrderBeingDragged.price) {
@@ -1414,10 +1420,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 							mr.setTpPrice(-1);
 						}
 					}
-				}				
-				
-				penOrderBeingDragged.pTradeButs.order.setPressed(false);
-				penOrderDragging = false;
+				}												
 			}
 		}
 		
@@ -1427,17 +1430,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 			} else if (tradeButs.sl.pressed()) {
 				tradeButs.sl.setPressed(false);
 			} else if (tradeButs.cancelTP.pressed()) {
+				tradeButs.cancelTP.setPressed(false);
 				if (tradeButs.cancelTP.onButton(x, y)) {
 					mr.trade().cancelTP();
 					mr.setTpPrice(-1);
-				}
-				tradeButs.cancelTP.setPressed(false);
+				}				
 			} else if (tradeButs.cancelSL.pressed()) {
+				tradeButs.cancelSL.setPressed(false);
 				if (tradeButs.cancelSL.onButton(x, y)) {
 					mr.trade().cancelSL();
 					mr.setSlPrice(-1);
-				}
-				tradeButs.cancelSL.setPressed(false);
+				}				
 			}
 		}
 		
@@ -1447,6 +1450,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			} else if (tradeButs.setSL.pressed()) {			
 				tradeButs.setSL.setPressed(false);
 			} else if (tradeButs.close.pressed()) {
+				tradeButs.close.setPressed(false);
 				if (tradeButs.close.onButton(x, y)) {
 					mr.trade().close(data.tickDataSize(true).get() - 1);
 					mr.closedTradeProc();
@@ -1458,8 +1462,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 					}
 					mr.setTpPrice(-1);
 					mr.setSlPrice(-1);
-				}
-				tradeButs.close.setPressed(false);
+				}				
 			} 
 			
 			if (slDragging) {		
@@ -1554,16 +1557,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 		if (priceDragging && !(e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN)) {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
-		if (newCHT_BTN_Clicked && checkNewChtBtn(e.getX(), e.getY())) {
-			newCHT_BTN_Clicked = false;
+		if (newCHT_BTN_Pressed && checkNewChtBtn(e.getX(), e.getY())) {
+			newCHT_BTN_Pressed = false;
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, width, height, data, replayMode, mr, mrp);			
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
-		} else if (drawCandlesticksClicked && checkChartTypeBtn(e.getX(), e.getY())) {
-			drawCandlesticksClicked = false;
+		} else if (drawCandlesticksPressed && checkChartTypeBtn(e.getX(), e.getY())) {
+			drawCandlesticksPressed = false;
 			double newHSBPos;
 			if (drawCandlesticks) {
 				drawCandlesticks = false;
@@ -1610,11 +1613,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 			} else {
 				keepStartIndex = false;
 			}
-		} else if (darkModeClicked && checkDarkModeBtn(e.getX(), e.getY())) {
-			darkModeClicked = false;	
+		} else if (darkModePressed && checkDarkModeBtn(e.getX(), e.getY())) {
+			darkModePressed = false;	
 			toggleDarkMode();
-		} else if (drawMRPClicked && checkDrawMRPBtn(e.getX(), e.getY())) {
-			drawMRPClicked = false;
+		} else if (drawMRPPressed && checkDrawMRPBtn(e.getX(), e.getY())) {
+			drawMRPPressed = false;
 			drawMRP = !drawMRP;
 		} else if (measuring) {
 			measuring = false;
@@ -2011,7 +2014,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	private void fillNewChtBtn() {
-		if (!newCHT_BTN_Clicked && !newCHT_BTN_Hover) {
+		if (!newCHT_BTN_Pressed && !newCHT_BTN_Hover) {
 			return;
 		}
 		double x = CHT_MARGIN + chartWidth + 1;
@@ -2021,7 +2024,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		} else {
 			w = PRICE_MARGIN / 3 - 2;
 		}
-		if (newCHT_BTN_Clicked) {
+		if (newCHT_BTN_Pressed) {
 			gc.setFill(Color.DIMGRAY);
 			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
 		} else if (newCHT_BTN_Hover) {
@@ -2031,7 +2034,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	private void fillChartTypeBtn() {
-		if (!drawCandlesticksClicked && !drawCandlesticksHover) {
+		if (!drawCandlesticksPressed && !drawCandlesticksHover) {
 			return;
 		}
 		double x;
@@ -2043,7 +2046,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			x =  width - PRICE_MARGIN * 2 / 3;
 			w = PRICE_MARGIN / 3 - 2;
 		}
-		if (drawCandlesticksClicked) {
+		if (drawCandlesticksPressed) {
 			gc.setFill(Color.DIMGRAY);
 			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
 		} else if (drawCandlesticksHover) {
@@ -2053,7 +2056,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 
 	private void fillDarkModeBtn() {
-		if (!darkModeClicked && !darkModeHover) {
+		if (!darkModePressed && !darkModeHover) {
 			return;
 		}
 		double x;
@@ -2065,7 +2068,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			x = width - PRICE_MARGIN / 3;
 			w = PRICE_MARGIN / 3 - 1;
 		}	
-		if (darkModeClicked) {
+		if (darkModePressed) {
 			gc.setFill(Color.DIMGRAY);
 			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
 		} else if (darkModeHover) {
@@ -2075,12 +2078,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	private void fillDrawMRPBtn() {		
-		if (!drawMRPClicked && !drawMRPHover) {
+		if (!drawMRPPressed && !drawMRPHover) {
 			return;
 		}
 		double x = width - PRICE_MARGIN / 4;
 		double w = PRICE_MARGIN / 4 - 1;
-		if (drawMRPClicked) {
+		if (drawMRPPressed) {
 			gc.setFill(Color.DIMGRAY);
 			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
 		} else if (drawMRPHover) {

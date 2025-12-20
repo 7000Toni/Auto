@@ -42,7 +42,7 @@ public class Menu {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -76,7 +76,7 @@ public class Menu {
 		gc.fillText(optimize.text, x + optimize.textXOffset, y + optimize.textYOffset);		
 	};
 	
-	public Menu(double width, double height) {
+	public Menu(double width, double height) {		
 		this.canvas = new Canvas(width, height);
 		this.gc = canvas.getGraphicsContext2D();
 		this.width = width;
@@ -296,176 +296,130 @@ public class Menu {
 	private void onMouseReleased(MouseEvent e) {
 		double x = e.getX();
 		double y = e.getY();
-		if (loadData.onButton(x, y)) {
-			if (loadData.pressed() && loadData.enabled()) {
-				File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
-				FileChooser fc = new FileChooser();
-				if (init.exists()) {
-					fc.setInitialDirectory(init);
-				} else {
-					fc.setInitialDirectory(new File("./"));
-				}			
-				List<File> files = fc.showOpenMultipleDialog(null);	
-				if (files != null) {
-					for (File file : files) {	
-						if (file != null) {
-							try (FileInputStream fis = new FileInputStream(file);
-									BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {								
-								String signature = br.readLine();
-								boolean add = true;
-								if (!Signature.validFull(signature)) {
-									System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
+		if (loadData.pressed() && loadData.enabled()) {	
+			loadData.setPressed(false);
+			File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
+			FileChooser fc = new FileChooser();
+			if (init.exists()) {
+				fc.setInitialDirectory(init);
+			} else {
+				fc.setInitialDirectory(new File("./"));
+			}			
+			List<File> files = fc.showOpenMultipleDialog(null);	
+			if (files != null) {
+				for (File file : files) {	
+					if (file != null) {
+						try (FileInputStream fis = new FileInputStream(file);
+								BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {								
+							String signature = br.readLine();
+							boolean add = true;
+							if (!Signature.validFull(signature)) {
+								System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
+								continue;
+							}
+							String datum = br.readLine();								
+							for (DataSet d : datasets) {
+								if (d == null) {
 									continue;
 								}
-								String datum = br.readLine();								
-								for (DataSet d : datasets) {
-									if (d == null) {
-										continue;
-									}
-									if (signature.equals(d.signature())) {
-										add = false;
-										break;
-									}
-								}		
-								for (LoadingDataSet l : loadingSets) {
-									if (signature.equals(l.signature())) {
-										add = false;
-										break;
-									}
+								if (signature.equals(d.signature())) {
+									add = false;
+									break;
 								}
-								if (add) {							
-									if (datasets.size() >= 6) {
-										break;
-									}
-									LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), signature);
-									loadingSets.add(l);
-									datasets.add(null);
-									dsButtons.add(null);
-									Task<Void> task = new Task<Void>() {
-										@Override
-										public Void call() {	
-											TickDataFileReader thisReader = reader;
-											if (reader == null) {
-												MarketTickFileReader mtfr = new MarketTickFileReader();
-												OriginalTickFileReader otfr = new OriginalTickFileReader();
-												OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
-												DukascopyNodeReader dnr = new DukascopyNodeReader();
-												if (mtfr.validDatum(datum)) {
-													thisReader = mtfr;
-												} else if (otfr.validDatum(datum)) {
-													thisReader = otfr;
-												} else if (omtfr.validDatum(datum)) {
-													thisReader = omtfr;
-												} else {
-													thisReader = dnr;
-												}
+							}		
+							for (LoadingDataSet l : loadingSets) {
+								if (signature.equals(l.signature())) {
+									add = false;
+									break;
+								}
+							}
+							if (add) {							
+								if (datasets.size() >= 6) {
+									break;
+								}
+								LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), signature);
+								loadingSets.add(l);
+								datasets.add(null);
+								dsButtons.add(null);
+								Task<Void> task = new Task<Void>() {
+									@Override
+									public Void call() {	
+										TickDataFileReader thisReader = reader;
+										if (reader == null) {
+											MarketTickFileReader mtfr = new MarketTickFileReader();
+											OriginalTickFileReader otfr = new OriginalTickFileReader();
+											OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
+											DukascopyNodeReader dnr = new DukascopyNodeReader();
+											if (mtfr.validDatum(datum)) {
+												thisReader = mtfr;
+											} else if (otfr.validDatum(datum)) {
+												thisReader = otfr;
+											} else if (omtfr.validDatum(datum)) {
+												thisReader = omtfr;
+											} else {
+												thisReader = dnr;
 											}
-											DataSet ds = l.load(file, thisReader);
-											loadingSets.remove(l);
-											if (ds == null) {
-												dsButtons.remove(l.addIndex().get());
-												for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-													DataSetButton dsb = dsButtons.get(j);
-													if (dsb == null) {
-														continue;
-													}
-													dsButtons.get(j).setY(dsb.y() - 58);				
+										}
+										DataSet ds = l.load(file, thisReader);
+										loadingSets.remove(l);
+										if (ds == null) {
+											dsButtons.remove(l.addIndex().get());
+											for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+												DataSetButton dsb = dsButtons.get(j);
+												if (dsb == null) {
+													continue;
 												}
-												for (LoadingDataSet l2 : loadingSets) {
-													if (l2.addIndex().get() > l.addIndex().get()) {
-														l2.setAddIndex(l2.addIndex().get() - 1);
-													}
-													l2.setY(l2.y() - 58);				
+												dsButtons.get(j).setY(dsb.y() - 58);				
+											}
+											for (LoadingDataSet l2 : loadingSets) {
+												if (l2.addIndex().get() > l.addIndex().get()) {
+													l2.setAddIndex(l2.addIndex().get() - 1);
 												}
-												datasets.remove(l.addIndex().get());
-												draw();
-												return null;
-											}			
-											datasets.set(l.addIndex().get(), ds);
-											DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
-											dsb.setVanGogh((x2, y2, gc) -> {
-												gc.setFont(new Font(37));
-												dsb.defaultDrawButton();		
-											});
-											dsButtons.set(l.addIndex().get(), dsb);									
+												l2.setY(l2.y() - 58);				
+											}
+											datasets.remove(l.addIndex().get());
 											draw();
 											return null;
-										}
-									};	
-									new Thread(task).start();							
-								}
-							} catch (Exception ex) {
-								ex.printStackTrace();
-							}				
-						}
+										}			
+										datasets.set(l.addIndex().get(), ds);
+										DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
+										dsb.setVanGogh((x2, y2, gc) -> {
+											gc.setFont(new Font(37));
+											dsb.defaultDrawButton();		
+										});
+										dsButtons.set(l.addIndex().get(), dsb);									
+										draw();
+										return null;
+									}
+								};	
+								new Thread(task).start();							
+							}
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}				
 					}
 				}
-			}
-			loadData.setPressed(false);
-		} else if (marketTickReader.onButton(x, y)) {
-			if (marketTickReader.pressed()) {
-				reader = new MarketTickFileReader();
-				marketTickOReader.setPressed(false);
-				originalReader.setPressed(false);
-				dukasNodeReader.setPressed(false);
-				auto.setPressed(false);
 			}			
-		} else if (marketTickOReader.onButton(x, y)) {
-			if (marketTickOReader.pressed()) {
-				reader = new OptimizedMarketTickFileReader();
-				marketTickReader.setPressed(false);
-				originalReader.setPressed(false);
-				dukasNodeReader.setPressed(false);
-				auto.setPressed(false);
-			}
-		} else if (originalReader.onButton(x, y)) {
-			if (originalReader.pressed()) {
-				reader = new OriginalTickFileReader();
-				marketTickReader.setPressed(false);
-				marketTickOReader.setPressed(false);
-				dukasNodeReader.setPressed(false);
-				auto.setPressed(false);
-			}
-		} else if (dukasNodeReader.onButton(x, y)) {
-			if (dukasNodeReader.pressed()) {
-				reader = new DukascopyNodeReader();
-				marketTickReader.setPressed(false);
-				marketTickOReader.setPressed(false);
-				originalReader.setPressed(false);
-				auto.setPressed(false);
-			}
-		} else if (darkMode.onButton(x, y)) { 
-			if (darkMode.pressed()) {
-				Chart.toggleDarkMode();				
-				darkMode.setPressed(false);
-			}
-		} else if (auto.onButton(x, y)) { 
-			if (auto.pressed()) {
-				reader = null;
-				marketTickReader.setPressed(false);
-				marketTickOReader.setPressed(false);
-				originalReader.setPressed(false);
-				dukasNodeReader.setPressed(false);
-			}
-		} else if (optimize.onButton(x, y)) { 		
-			if (optimize.pressed()) {
-				File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
-				FileChooser fc = new FileChooser();
-				if (init.exists()) {
-					fc.setInitialDirectory(init);
-				} else {
-					fc.setInitialDirectory(new File("./"));
-				}	
-				fc.setTitle("Select MarketTick Files");
-				List<File> files = fc.showOpenMultipleDialog(null);		
-				if (files != null) {
-					for (File f : files) {						
-						Thread t = new Thread(new OptimizeTask(f, numJobs));
-						t.start();							
-					}
-				}
-			}
+		} else if (darkMode.pressed()) { 				
+			darkMode.setPressed(false);
+			Chart.toggleDarkMode();	
+		}  else if (optimize.pressed() && optimize.enabled()) {				
 			optimize.setPressed(false);
+			File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
+			FileChooser fc = new FileChooser();
+			if (init.exists()) {
+				fc.setInitialDirectory(init);
+			} else {
+				fc.setInitialDirectory(new File("./"));
+			}	
+			fc.setTitle("Select MarketTick Files");
+			List<File> files = fc.showOpenMultipleDialog(null);		
+			if (files != null) {
+				for (File f : files) {						
+					Thread t = new Thread(new OptimizeTask(f, numJobs));
+					t.start();							
+				}
+			}	
 		} else {
 			int i = 0;
 			Object[] dsbs = dsButtons.toArray();
@@ -476,6 +430,7 @@ public class Menu {
 				}
 				DataSetButton dsb = (DataSetButton)obj;
 				if (dsb.pressed()) {
+					dsb.setPressed(false);
 					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
@@ -485,10 +440,10 @@ public class Menu {
 					Scene scene = new Scene(c);
 					scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 					s.setScene(scene);
-					s.show();
-					dsb.setPressed(false);
+					s.show();					
 					break;
 				} else if (dsb.closeButton().pressed()) {
+					dsb.closeButton().setPressed(false);
 					dsButtons.remove(i);
 					for (int j = i; j < dsButtons.size(); j++) {					
 						DataSetButton d = dsButtons.get(j);
@@ -513,6 +468,7 @@ public class Menu {
 					datasets.remove(i);
 					break;
 				} else if (dsb.mrButton().pressed() ) {
+					dsb.mrButton().setPressed(false);
 					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
@@ -533,38 +489,44 @@ public class Menu {
 					s2.setResizable(false);		
 					Scene scene2 = new Scene(mrp);
 					s2.setScene(scene2);
-					s2.show();
-					dsb.mrButton().setPressed(false);
+					s2.show();					
 				}
 				i++;
 			}
 		}
-		if (reader instanceof OriginalTickFileReader) {
-			marketTickReader.setPressed(false);
-			marketTickOReader.setPressed(false);
-			dukasNodeReader.setPressed(false);
-			auto.setPressed(false);
-		} else if (reader instanceof MarketTickFileReader) {
+		
+		if (marketTickReader.onButton(x, y) && marketTickReader.pressed()) {				
 			marketTickOReader.setPressed(false);
 			originalReader.setPressed(false);
 			dukasNodeReader.setPressed(false);
 			auto.setPressed(false);
-		} else if (reader instanceof OptimizedMarketTickFileReader) {
-			originalReader.setPressed(false);
+			reader = new MarketTickFileReader();
+		} else if (marketTickOReader.onButton(x, y) && marketTickOReader.pressed()) {		
 			marketTickReader.setPressed(false);
+			originalReader.setPressed(false);
 			dukasNodeReader.setPressed(false);
 			auto.setPressed(false);
-		} else if (reader instanceof DukascopyNodeReader) {
-			originalReader.setPressed(false);
-			marketTickReader.setPressed(false);
-			marketTickOReader.setPressed(false);
-			auto.setPressed(false);
-		} else if (reader == null) {
-			originalReader.setPressed(false);
+			reader = new OptimizedMarketTickFileReader();
+		} else if (originalReader.onButton(x, y) && originalReader.pressed()) {				
 			marketTickReader.setPressed(false);
 			marketTickOReader.setPressed(false);
 			dukasNodeReader.setPressed(false);
+			auto.setPressed(false);
+			reader = new OriginalTickFileReader();
+		} else if (dukasNodeReader.onButton(x, y) && dukasNodeReader.pressed()) {			
+			marketTickReader.setPressed(false);
+			marketTickOReader.setPressed(false);
+			originalReader.setPressed(false);
+			auto.setPressed(false);
+			reader = new DukascopyNodeReader();
+		} else if (auto.onButton(x, y) && auto.pressed()) { 			
+			marketTickReader.setPressed(false);
+			marketTickOReader.setPressed(false);
+			originalReader.setPressed(false);
+			dukasNodeReader.setPressed(false);
+			reader = null;
 		}
+		
 		draw();
 	}	
 	

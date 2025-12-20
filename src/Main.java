@@ -11,8 +11,8 @@ public class Main extends Application{
 	@Override
 	public void start(Stage stage) {
 		MenuPane mp = new MenuPane(640, 360);
-		Scene scene2 = new Scene(mp, 640, 360);			
-		stage.setScene(scene2);
+		Scene scene = new Scene(mp, 640, 360);	
+		stage.setScene(scene);
 		stage.setResizable(false);
 		stage.setOnCloseRequest(e -> {
 			System.exit(0);
