@@ -2271,6 +2271,27 @@ public class Chart implements ScrollBarOwner, Drawable {
 				gc.setStroke(Color.BLACK);
 			}
 			gc.strokeLine(startX, startY, endX, endY);
+			double n100 = Math.abs(endY - startY);
+			if (startY < endY) {
+				n100 = endY + n100;				
+			} else if (endY < startY) {
+				n100 = endY - n100;
+			} else {
+				n100 = -1;
+			}
+			
+			if (n100 != -1) {
+				if (n100 > CHT_MARGIN && n100 < CHT_MARGIN + chartHeight - fontSize) {
+					double ex = endX + 50;
+					if (ex >= width - PRICE_MARGIN) {
+						ex -= 100;
+						gc.strokeLine(ex, n100, endX, n100);
+					} else {
+						gc.strokeLine(endX, n100, ex, n100);
+					}				
+				}
+			}
+			
 			double ex = endX;
 			double ey = endY;
 			DecimalFormat df = new DecimalFormat("#");

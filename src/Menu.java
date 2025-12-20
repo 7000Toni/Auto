@@ -121,7 +121,7 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			File f = new File("res/enqh26.txt");
+			File f = new File("res/20220901_Optimized.csv");
 			if (f.exists()) {				
 				try (FileInputStream fis = new FileInputStream(f);
 						BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {	
