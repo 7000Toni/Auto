@@ -466,7 +466,6 @@ public class Menu {
 					break;
 				} else if (dsb.closeButton().pressed()) {
 					dsb.closeButton().setPressed(false);
-					dsb.closeButton().setHover(false);
 					dsButtons.remove(i);
 					for (int j = i; j < dsButtons.size(); j++) {					
 						DataSetButton d = dsButtons.get(j);
@@ -492,6 +491,7 @@ public class Menu {
 					break;
 				} else if (dsb.mrButton().pressed() ) {
 					dsb.mrButton().setPressed(false);
+					dsb.mrButton().setHover(false);
 					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
