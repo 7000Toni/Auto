@@ -47,6 +47,7 @@ public class Menu {
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
 	private final ReentrantLock lock = new ReentrantLock();
+	private long lastDraw = 0;
 	
 	private ButtonVanGogh optimizeVG = (x, y, gc) -> {
 		gc.setFont(new Font(22));
@@ -207,8 +208,13 @@ public class Menu {
 	}
 	
 	public void draw() {	
-		lock.lock();		
-		try {		
+		lock.lock();	
+		System.out.println("locked from " + Thread.currentThread().getStackTrace()[2]);
+		try {	
+			if (System.currentTimeMillis() - lastDraw < 16) {			
+				return;
+			}
+			lastDraw = System.currentTimeMillis();			
 			if (datasets.size() < 6) {
 				loadData.enable();
 			} else {
@@ -220,23 +226,37 @@ public class Menu {
 				gc.setFill(Color.WHITE);
 			}
 			gc.fillRect(0, 0, width, height);
+			System.out.println("filled rect");
 			loadData.draw();
+			System.out.println("drew load");
 			optimize.draw();
+			System.out.println("drew optimize");
 			marketTickReader.draw();
+			System.out.println("drew mtreader");
 			marketTickOReader.draw();
+			System.out.println("drew mtoreader");
 			originalReader.draw();
+			System.out.println("drew ogreader");
 			dukasNodeReader.draw();
+			System.out.println("drew dnreader");
 			darkMode.draw();
+			System.out.println("drew darkmode");
 			auto.draw();
+			System.out.println("drew auto");
 			drawLoadingSets();
+			System.out.println("drew loading sets");
+			int i = 0;
 			for (DataSetButton dsb : dsButtons) {
 				if (dsb == null) {
 					continue;
 				}
 				dsb.draw();
+				System.out.println("drew dsb " + i);
+				i++;
 			}
 		} finally {
 			lock.unlock();
+			System.out.println("unlocked\n");
 		}
 	}
 	
@@ -387,7 +407,8 @@ public class Menu {
 											gc.setFont(new Font(37));
 											dsb.defaultDrawButton();		
 										});
-										dsButtons.set(l.addIndex().get(), dsb);									
+										dsButtons.set(l.addIndex().get(), dsb);					
+										lastDraw = 0;
 										draw();
 										return null;
 									}
@@ -431,6 +452,7 @@ public class Menu {
 				DataSetButton dsb = (DataSetButton)obj;
 				if (dsb.pressed()) {
 					dsb.setPressed(false);
+					dsb.setHover(false);
 					int index = (int)((y - MARGIN) / 58);
 					if (index < 0) {
 						index = 0;
@@ -444,6 +466,7 @@ public class Menu {
 					break;
 				} else if (dsb.closeButton().pressed()) {
 					dsb.closeButton().setPressed(false);
+					dsb.closeButton().setHover(false);
 					dsButtons.remove(i);
 					for (int j = i; j < dsButtons.size(); j++) {					
 						DataSetButton d = dsButtons.get(j);

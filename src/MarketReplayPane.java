@@ -340,6 +340,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		hsb.onMouseReleased();
 		if (newChart.pressed()) {
 			newChart.setPressed(false);
+			newChart.setHover(false);
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
 			Scene scene = new Scene(c);	

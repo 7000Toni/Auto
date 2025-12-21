@@ -36,7 +36,7 @@ public class CanvasButton implements Drawable {
 	}
 	
 	public void setHover(boolean hover) {
-		this.hover = hover;
+		this.hover = hover;		
 		if (!enabled) {
 			this.hover = false;
 		}
