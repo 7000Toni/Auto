@@ -1,6 +1,7 @@
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -2506,7 +2507,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}	
 	}
 	
-	public void draw() {		
+	private void drawUI() {		
 		calculateIndices();
 		drawFrame();		
 		fillNewChtBtn();
@@ -2538,6 +2539,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}
+		}
+	}
+	
+	public void draw() {
+		if (Platform.isFxApplicationThread()) {
+			drawUI();
+		} else {
+			Platform.runLater(() -> {
+				drawUI();
+			});
 		}
 	}
 	

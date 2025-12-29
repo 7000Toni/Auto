@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -228,7 +229,13 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	
 	@Override
 	public void draw() {
-		draw(gc, 0, 0);
+		if (Platform.isFxApplicationThread()) {
+			draw(gc, 0, 0);
+		} else {
+			Platform.runLater(() -> {
+				draw(gc, 0, 0);
+			});
+		}		
 	}
 	
 	private void draw(GraphicsContext gc, double x, double y) {

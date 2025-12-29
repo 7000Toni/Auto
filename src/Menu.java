@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
@@ -207,9 +208,8 @@ public class Menu {
 		return menu;
 	}
 	
-	public void draw() {	
-		lock.lock();	
-		System.out.println("locked from " + Thread.currentThread().getStackTrace()[2]);
+	private void drawUI() {
+		lock.lock();
 		try {	
 			if (System.currentTimeMillis() - lastDraw < 16) {			
 				return;
@@ -226,37 +226,33 @@ public class Menu {
 				gc.setFill(Color.WHITE);
 			}
 			gc.fillRect(0, 0, width, height);
-			System.out.println("filled rect");
 			loadData.draw();
-			System.out.println("drew load");
 			optimize.draw();
-			System.out.println("drew optimize");
 			marketTickReader.draw();
-			System.out.println("drew mtreader");
 			marketTickOReader.draw();
-			System.out.println("drew mtoreader");
 			originalReader.draw();
-			System.out.println("drew ogreader");
 			dukasNodeReader.draw();
-			System.out.println("drew dnreader");
 			darkMode.draw();
-			System.out.println("drew darkmode");
 			auto.draw();
-			System.out.println("drew auto");
 			drawLoadingSets();
-			System.out.println("drew loading sets");
-			int i = 0;
 			for (DataSetButton dsb : dsButtons) {
 				if (dsb == null) {
 					continue;
 				}
 				dsb.draw();
-				System.out.println("drew dsb " + i);
-				i++;
 			}
 		} finally {
 			lock.unlock();
-			System.out.println("unlocked\n");
+		}
+	}
+	
+	public void draw() {						
+		if (Platform.isFxApplicationThread()) {
+			drawUI();
+		} else {
+			Platform.runLater(() -> {
+				drawUI();
+			});
 		}
 	}
 	
