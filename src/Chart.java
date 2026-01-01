@@ -9,7 +9,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -143,10 +142,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private double candlestickWidth;
 	private double candlestickSpacing;
 	private int numCandlesticks;
-	
-	private Image screenShot = null;  
-	private boolean dragged = true;
-	private boolean zoomed = true;
 	
 	public class PendingTrade {
 		private boolean limit;
@@ -520,7 +515,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 				limitOrder.setX( width - PRICE_MARGIN - fontSize*2-2);
 				stopOrder.setX(width - PRICE_MARGIN - fontSize*4-4);
 			}			
-			screenShot = null;
 			draw();
 		}		
 	}
@@ -533,12 +527,10 @@ public class Chart implements ScrollBarOwner, Drawable {
 			chartHeight = height - hsb.sbHeight() - CHT_MARGIN * 2; 
 			if (chtDataMargin > chartHeight * CHT_DATA_MARGIN_COEF) {
 				chtDataMargin = chartHeight * CHT_DATA_MARGIN_COEF;
-				screenShot = null;
 			} else {
 				if (!((Double)oldValue.doubleValue()).isNaN()) {
 					double ratio = chtDataMargin / (oldValue.doubleValue() - HEIGHT_EXTRA);
 					chtDataMargin = (newValue.doubleValue() - HEIGHT_EXTRA) * ratio;
-					screenShot = null;
 				}
 			}
 			hsb.setY(height - HSB_HEIGHT);
@@ -881,21 +873,17 @@ public class Chart implements ScrollBarOwner, Drawable {
 	public void setStartIndex(int startIndex) {
 		if (startIndex < 0) {
 			this.startIndex = 0;
-			screenShot = null;
 			return;
 		}
 		if (drawCandlesticks && startIndex >= data.m1CandlesDataSize(false).get()) {
 			this.startIndex = data.m1CandlesDataSize(replayMode).get() - 1;
-			screenShot = null;
 			return;
 		}
 		if (!drawCandlesticks && startIndex >= data.tickDataSize(false).get()) {
 			this.startIndex = data.tickDataSize(replayMode).get() - 1;
-			screenShot = null;
 			return;
 		}
 		this.startIndex = startIndex;
-		screenShot = null;
 	}
 	
 	public boolean endMargin() {
@@ -1587,18 +1575,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (replayMode) {
 					if (endIndex >= m1Candles().size()) {
 						startIndex = tickData().size() - numDataPoints;
-						screenShot = null;
 					} else {
 						startIndex = m1Candles().get(endIndex).firstTickIndex() - 1 - numDataPoints;
-						screenShot = null;
 					}
 					if (startIndex < 0) {
 						startIndex = 0;
-						screenShot = null;
 					}
 				} else {
 					startIndex = m1Candles().get(startIndex).firstTickIndex();
-					screenShot = null;
 				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);				
@@ -1612,18 +1596,14 @@ public class Chart implements ScrollBarOwner, Drawable {
 				if (replayMode) {
 					if (endIndex >= tickData().size()) {
 						startIndex = m1Candles().size() - numCandlesticks;
-						screenShot = null;
 					} else {
 						startIndex = tickData().get(endIndex).candleIndex() + 1 - numCandlesticks;
-						screenShot = null;
 					}
 					if (startIndex < 0) {
 						startIndex = 0;
-						screenShot = null;
 					}
 				} else {
 					startIndex = tickData().get(startIndex).candleIndex();
-					screenShot = null;
 				}
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);				
@@ -1694,11 +1674,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (posDiff < 0) {
 				if (chtDataMargin + posDiff > CHT_MARGIN + fontSize) {
 					chtDataMargin = chtDataMargin + posDiff;
-					screenShot = null;
 				}
 			} else if (chtDataMargin + posDiff < chartHeight * CHT_DATA_MARGIN_COEF) {
 				chtDataMargin = chtDataMargin + posDiff;
-				screenShot = null;
 			}
 		}
 		if (lineDragging) {
@@ -1767,7 +1745,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
-			dragged = true;
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = hsb.x();					
 			int diff;
@@ -1776,7 +1753,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 				diff = (int)(dragDiffAccum / (candlestickWidth + candlestickSpacing));
 				if (diff != 0) {
 					startIndex = startIndex - diff;
-					screenShot = null;
 					newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
@@ -1784,14 +1760,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 				diff = (int)(dragDiffAccum / xDiff);
 				if (diff != 0) {
 					startIndex = startIndex - diff;
-					screenShot = null;
 					newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			}
 			if (startIndex < 0) {
 				startIndex = 0;
-				screenShot = null;
 			}
 			if (dragDiffAccum == 0 && posDiff != 0) {
 				if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
@@ -1831,7 +1805,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if ((int)(numCandlesticks * 0.999 * (1 / multiplier)) - 1 >= 10) {
 				numCandlesticks = (int)(numCandlesticks * 0.999 * (1 / multiplier)) - 1;
 				setCandleStickVars(numCandlesticks);
-				zoomed = true;
 			} else {
 				return;
 			}
@@ -1839,7 +1812,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if ((int)(numCandlesticks * 1.001 * multiplier) + 1 <= data.m1CandlesDataSize(this.replayMode).get() - 5) {
 				numCandlesticks = (int)(numCandlesticks * 1.001 * multiplier) + 1;
 				setCandleStickVars(numCandlesticks);
-				zoomed = true;
 			} else {
 				return;
 			}
@@ -1850,7 +1822,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numCandlesticks;
-				screenShot = null;
 				customSI = true;
 				if (startIndex < 0) {
 					startIndex = 0;
@@ -1876,10 +1847,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 		if (delta > 0) {
 			setNumDataPoints((int)(numDataPoints * 0.99 * (1 / multiplier)));
-			zoomed = true;
 		} else if (delta < 0) {
 			setNumDataPoints((int)(numDataPoints * 1.01 * multiplier));
-			zoomed = true;
 		}
 		double xDiff = chartWidth / (double)numDataPoints;
 		if (xDiff * (data.tickDataSize(this.replayMode).get() - 1) < chartWidth) {
@@ -1893,7 +1862,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numDataPoints;
-				screenShot = null;
 				customSI = true;
 				if (startIndex < 0) {
 					startIndex = 0;
@@ -2137,7 +2105,6 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (endIndex > data.m1CandlesDataSize(this.replayMode).get()) {
 				endIndex = data.m1CandlesDataSize(this.replayMode).get();
 			}
-			screenShot = null;
 		} else {
 			if (!keepStartIndex) {
 				if (data.tickDataSize(this.replayMode).get() < (numDataPoints - 1) * END_MARGIN_COEF) {
@@ -2146,18 +2113,12 @@ public class Chart implements ScrollBarOwner, Drawable {
 					startIndex = (int)((hsb.x() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 				}
 			}
-			if (!dragged && !zoomed && screenShot != null) {
-				return;
-			}
-			dragged = false;
-			zoomed = false;
 			endIndex = startIndex + numDataPoints;
 			if (endIndex >= data.tickDataSize(false).get()) {
 				endIndex = data.tickDataSize(false).get() - 1;
 			} else if (replayMode && endIndex >= data.tickDataSize(true).get()) {
 				endIndex = data.tickDataSize(true).get();
 			}
-			screenShot = null;
 		}
 	}
 	
@@ -2548,84 +2509,49 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}	
 	}
 	
-	private int c = 0;
-	private double total = 0;
+	double t = 0;
+	int c = 0;
 	
-	private void drawUI() {		
+	private void drawUI() {	
 		long b = System.nanoTime();
-		calculateIndices();
-		boolean nocheck = true;
-		String s = "REDRAW\t";
-		if (screenShot == null || nocheck) {
-			drawFrame();		
-			fillNewChtBtn();
-			fillChartTypeBtn();
-			fillDarkModeBtn();		
-			hsb.draw();
-			calculateRange();
-			setPreDrawVars();			
-			drawPriceDashes();
-			drawTopRightText();	
-			if (drawCandlesticks) {
-				drawCandlestickChart();
-			} else {		
-				drawLineChart();
+		calculateIndices();			
+		drawFrame();		
+		fillNewChtBtn();
+		fillChartTypeBtn();
+		fillDarkModeBtn();		
+		hsb.draw();
+		calculateRange();
+		setPreDrawVars();			
+		drawPriceDashes();
+		drawTopRightText();	
+		if (drawCandlesticks) {
+			drawCandlestickChart();
+		} else {		
+			drawLineChart();
+		}
+		checkDrawLines();
+		crossHair.drawCrossHair();
+								
+		checkMeasuring();			
+		if (replayMode) {				
+			fillDrawMRPBtn();			
+			drawCurrentPriceLine();
+			drawTradeButtons();
+			drawTrade();
+			drawPendingTrades();
+			drawCurrentPriceBox();
+			if (drawPending) {
+				limitOrder.draw();
+				stopOrder.draw();
 			}
-			screenShot = canvas.snapshot(null, null);
-			checkDrawLines();
-			crossHair.drawCrossHair();
-									
-			checkMeasuring();			
-			if (replayMode) {				
-				fillDrawMRPBtn();			
-				drawCurrentPriceLine();
-				drawTradeButtons();
-				drawTrade();
-				drawPendingTrades();
-				drawCurrentPriceBox();
-				if (drawPending) {
-					limitOrder.draw();
-					stopOrder.draw();
-				}
-				if (drawMRP) {
-					mrp.drawPane(gc, mrpx, mrpy);
-				}
-			}
-		} else {
-			s = "S_SHOT\t";
-			gc.clearRect(0, 0, width, height);
-			drawFrame();
-			fillNewChtBtn();
-			fillChartTypeBtn();
-			fillDarkModeBtn();		
-			hsb.draw();		
-			drawPriceDashes();
-			drawTopRightText();	
-			gc.drawImage(screenShot, CHT_MARGIN + 1, CHT_MARGIN + 1 + chtDataMargin, chartWidth - 2, chartHeight - 2 - chtDataMargin, CHT_MARGIN + 1, CHT_MARGIN + 1 + chtDataMargin, chartWidth - 2, chartHeight - 2 - chtDataMargin);
-			screenShot = canvas.snapshot(null, null);
-			checkDrawLines();
-			crossHair.drawCrossHair();		
-			checkMeasuring();			
-			if (replayMode) {				
-				fillDrawMRPBtn();			
-				drawCurrentPriceLine();
-				drawTradeButtons();
-				drawTrade();
-				drawPendingTrades();
-				drawCurrentPriceBox();
-				if (drawPending) {
-					limitOrder.draw();
-					stopOrder.draw();
-				}
-				if (drawMRP) {
-					mrp.drawPane(gc, mrpx, mrpy);
-				}
+			if (drawMRP) {
+				mrp.drawPane(gc, mrpx, mrpy);
 			}
 		}
-		double t = (System.nanoTime() - b) / 1000000000.0;
-		total += t;
+		double tm = (System.nanoTime() - b) / 1000000000.0;
+		t += tm;
 		c++;
-		System.out.printf(s + "time: %f\tave: %f\trange: %d\n", t, total/c, endIndex - startIndex);
+		System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
 	}
 	
 	public void draw() {
@@ -2643,16 +2569,16 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {	
-		total = 0;
-		c = 0;
 		this.numDataPoints = numDataPoints;
+		t = 0;
+		c = 0;
 	}	
 	
 	public void setCandleStickVars(int numCandlesticks) {	
-		total = 0;
-		c = 0;
 		candlestickWidth = (chartWidth / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
+		t = 0;
+		c = 0;
 	}	
 	
 	public boolean drawCandlesticks() {
