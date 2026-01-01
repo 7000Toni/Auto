@@ -2524,14 +2524,13 @@ public class Chart implements ScrollBarOwner, Drawable {
 		setPreDrawVars();			
 		drawPriceDashes();
 		drawTopRightText();	
+		crossHair.drawCrossHair();
 		if (drawCandlesticks) {
 			drawCandlestickChart();
 		} else {		
 			drawLineChart();
 		}
-		checkDrawLines();
-		crossHair.drawCrossHair();
-								
+		checkDrawLines();										
 		checkMeasuring();			
 		if (replayMode) {				
 			fillDrawMRPBtn();			
