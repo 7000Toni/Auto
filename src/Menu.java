@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.application.Platform;
@@ -43,7 +44,7 @@ public class Menu {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -123,7 +124,7 @@ public class Menu {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		
 		if (openChartOnStart) {
-			File f = new File("res/20220901_Optimized.csv");
+			File f = new File("res/20221229_Optimized.csv");
 			if (f.exists()) {				
 				try (FileInputStream fis = new FileInputStream(f);
 						BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {	
@@ -250,9 +251,19 @@ public class Menu {
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {
+			final CountDownLatch latch = new CountDownLatch(1);
 			Platform.runLater(() -> {
-				drawUI();
+				try {
+					drawUI();
+				} finally {
+					latch.countDown();
+				}
 			});
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
