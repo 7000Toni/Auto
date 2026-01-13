@@ -1,7 +1,10 @@
+import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public class CanvasButton implements Drawable {
+public class CanvasButton implements CanvasNode {
 	protected GraphicsContext gc;
 	protected double width;
 	protected double height;
@@ -14,6 +17,14 @@ public class CanvasButton implements Drawable {
 	protected boolean pressed = false;
 	protected ButtonVanGogh bvg = null;
 	protected boolean enabled;
+	
+	private EventHandler<? super MouseEvent> onMouseDragged;
+	private EventHandler<? super MouseEvent> onMouseEntered;
+	private EventHandler<? super MouseEvent> onMouseExited;
+	private EventHandler<? super MouseEvent> onMousePressed;
+	private EventHandler<? super MouseEvent> onMouseReleased;
+	private EventHandler<? super MouseEvent> onMouseMoved;
+	private EventHandler<? super ScrollEvent> onScroll;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		this.gc = gc;
@@ -153,5 +164,80 @@ public class CanvasButton implements Drawable {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public void onMouseDragged(MouseEvent e) {
+		onMouseDragged.handle(e);
+	}
+
+	@Override
+	public void onMouseEntered(MouseEvent e) {
+		onMouseEntered.handle(e);
+	}
+
+	@Override
+	public void onMouseExited(MouseEvent e) {
+		onMouseExited.handle(e);
+	}
+
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		onMousePressed.handle(e);
+	}
+
+	@Override
+	public void onMouseReleased(MouseEvent e) {
+		onMouseReleased.handle(e);
+	}
+
+	@Override
+	public void onMouseMoved(MouseEvent e) {
+		onMouseMoved.handle(e);
+	}
+
+	@Override
+	public void onScroll(ScrollEvent e) {
+		onScroll.handle(e);
+	}
+
+	@Override
+	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
+		onMouseDragged = e;
+	}
+
+	@Override
+	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
+		onMouseEntered = e;
+	}
+
+	@Override
+	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
+		onMouseExited = e;
+	}
+
+	@Override
+	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
+		onMousePressed = e;
+	}
+
+	@Override
+	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
+		onMouseReleased = e;
+	}
+
+	@Override
+	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
+		onMouseMoved = e;
+	}
+
+	@Override
+	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
+		onScroll = e;
+	}
+
+	@Override
+	public boolean onNode(double x, double y) {
+		return onButton(x, y);
 	}
 }

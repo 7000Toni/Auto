@@ -1,11 +1,13 @@
 import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public abstract class HorizontalScrollBar implements Drawable {
+public abstract class HorizontalScrollBar implements CanvasNode {
 	protected ScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
@@ -23,6 +25,14 @@ public abstract class HorizontalScrollBar implements Drawable {
 	protected double sbHeight;
 	protected GraphicsContext gc;
 	
+	private EventHandler<? super MouseEvent> onMouseDragged;
+	private EventHandler<? super MouseEvent> onMouseEntered;
+	private EventHandler<? super MouseEvent> onMouseExited;
+	private EventHandler<? super MouseEvent> onMousePressed;
+	private EventHandler<? super MouseEvent> onMouseReleased;
+	private EventHandler<? super MouseEvent> onMouseMoved;
+	private EventHandler<? super ScrollEvent> onScroll;
+	
 	public HorizontalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		this.sbo = sbo;
 		this.minPos = minPos;
@@ -32,6 +42,12 @@ public abstract class HorizontalScrollBar implements Drawable {
 		this.x = minPos;
 		this.y = y;
 		this.gc = sbo.graphicsContext();
+		
+		onMouseDragged = (e) -> {defaultOnMouseDragged(e);};
+		onMouseExited = (e) -> {defaultOnMouseExited(e);};
+		onMouseMoved = (e) -> {defaultOnMouseMoved(e);};
+		onMousePressed = (e) -> {defaultOnMousePressed(e);};
+		onMouseReleased = (e) -> {defaultOnMouseReleased(e);};
 	}
 	
 	public double sbWidth() {
@@ -42,12 +58,12 @@ public abstract class HorizontalScrollBar implements Drawable {
 		return this.sbHeight;
 	}
 	
-	public void onMouseReleased() {
+	public void defaultOnMouseReleased(MouseEvent e) {
 		dragging = false;
 		clickedInScrollBarArea = false;
 	}
 	
-	public void onMousePressed(MouseEvent e) {
+	public void defaultOnMousePressed(MouseEvent e) {
 		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
 			initPos = e.getX();
@@ -93,13 +109,13 @@ public abstract class HorizontalScrollBar implements Drawable {
 		}
 	}
 	
-	public void onMouseExited() {
+	public void defaultOnMouseExited(MouseEvent e) {
 		if (!dragging) {
 			hovering = false;
 		}
 	}
 	
-	public void onMouseMoved(MouseEvent e) {
+	public void defaultOnMouseMoved(MouseEvent e) {
 		if (onScrollBar(e.getX(), e.getY())) {					
 			hovering = true;
 		} else {
@@ -107,7 +123,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 		}
 	}
 	
-	public void onMouseDragged(MouseEvent e) {
+	public void defaultOnMouseDragged(MouseEvent e) {
 		if (dragging) {
 			double posDiff = e.getX() - initPos;
 			if (x + posDiff > maxPos - sbWidth) {
@@ -251,6 +267,7 @@ public abstract class HorizontalScrollBar implements Drawable {
 		}
 	}		
 	
+	@Override
 	public void draw() {		
 		if (hovering) {	
 			gc.setFill(Color.GRAY);
@@ -261,5 +278,80 @@ public abstract class HorizontalScrollBar implements Drawable {
 			gc.setFill(Color.DIMGRAY);
 		} 
 		gc.fillRect(x, y, sbWidth, sbHeight);
+	}	
+
+	@Override
+	public void onMouseDragged(MouseEvent e) {
+		onMouseDragged.handle(e);
+	}
+
+	@Override
+	public void onMouseEntered(MouseEvent e) {
+		onMouseEntered.handle(e);
+	}
+
+	@Override
+	public void onMouseExited(MouseEvent e) {
+		onMouseExited.handle(e);
+	}
+
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		onMousePressed.handle(e);
+	}
+
+	@Override
+	public void onMouseReleased(MouseEvent e) {
+		onMouseReleased.handle(e);
+	}
+
+	@Override
+	public void onMouseMoved(MouseEvent e) {
+		onMouseMoved.handle(e);
+	}
+
+	@Override
+	public void onScroll(ScrollEvent e) {
+		onScroll.handle(e);
+	}
+
+	@Override
+	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
+		onMouseDragged = e;
+	}
+
+	@Override
+	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
+		onMouseEntered = e;
+	}
+
+	@Override
+	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
+		onMouseExited = e;
+	}
+
+	@Override
+	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
+		onMousePressed = e;
+	}
+
+	@Override
+	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
+		onMouseReleased = e;
+	}
+
+	@Override
+	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
+		onMouseMoved = e;
+	}
+
+	@Override
+	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
+		onScroll = e;
+	}
+
+	@Override
+	public boolean onNode(double x, double y) {
+		return inScrollBarArea(x, y);
 	}
 }

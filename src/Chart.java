@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 
-public class Chart implements ScrollBarOwner, Drawable {
+public class Chart implements ScrollBarOwner {
 	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
@@ -580,7 +580,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	private void setEventHandlers() {
 		canvas.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseEntered(e -> onMouseEntered());
-		canvas.setOnMouseExited(e -> onMouseExited());
+		canvas.setOnMouseExited(e -> onMouseExited(e));
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
@@ -591,32 +591,26 @@ public class Chart implements ScrollBarOwner, Drawable {
 		return this.canvas;
 	}
 	
-	@Override
 	public GraphicsContext graphicsContext() {
 		return this.gc;
 	}
 	
-	@Override
 	public void setGraphicsContext(GraphicsContext gc) {
 		this.gc = gc;
 	}
 	
-	@Override
 	public double x() {
 		return this.x;
 	}
 	
-	@Override
 	public void setX(double x) {
 		this.x = x;
 	}
 	
-	@Override
 	public double y() {
 		return this.y;
 	}
 	
-	@Override
 	public void setY(double y) {
 		this.y = y;
 	}
@@ -902,8 +896,8 @@ public class Chart implements ScrollBarOwner, Drawable {
 		}
 	}
 	
-	public void onMouseExited() {
-		hsb.onMouseExited();
+	public void onMouseExited(MouseEvent e) {
+		hsb.onMouseExited(e);
 		focusedChart.set(false);
 		focusedOnChart.set(false);
 		newCHT_BTN_Hover = false;
@@ -1018,7 +1012,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 			if (e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {				
 				mrp.onMouseMoved(me);
 			} else {
-				mrp.hsb().onMouseReleased();
+				mrp.hsb().onMouseReleased(me);
 				mrp.onMouseExited(me);
 			}
 		}
@@ -1550,7 +1544,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public void onMouseReleased(MouseEvent e) {	
-		hsb.onMouseReleased();	
+		hsb.onMouseReleased(e);	
 		if (chartDateMarginDragging && !(onChart(e.getX(), e.getY(), true) && e.getY() >= chartHeight + CHT_MARGIN - fontSize)) {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
@@ -1954,6 +1948,11 @@ public class Chart implements ScrollBarOwner, Drawable {
 	}
 	
 	public double roundToNearestTick(double price) {
+		int i = 1;
+		if (price < 0) {
+			price *= -1;
+			i = -1;
+		}
 		int intPart = (int)price;
 		price = price - intPart;
 		int pow = (int)Math.pow(10, numDecimalPts);
@@ -1962,9 +1961,9 @@ public class Chart implements ScrollBarOwner, Drawable {
 		int quotient = (int)(price / intTick);
 		double remainder = price % intTick;		
 		if (remainder > intTick / 2.0) {
-			return Round.round(intPart + (intTick * (quotient + 1)) / (double)pow, numDecimalPts + 1); 
+			return i * Round.round(intPart + (intTick * (quotient + 1)) / (double)pow, numDecimalPts + 1); 
 		}
-		return Round.round(intPart + (intTick * quotient) / (double)pow, numDecimalPts + 1);
+		return i * Round.round(intPart + (intTick * quotient) / (double)pow, numDecimalPts + 1);
 	}
 	
 	private void drawLines() {
@@ -2550,7 +2549,7 @@ public class Chart implements ScrollBarOwner, Drawable {
 		double tm = (System.nanoTime() - b) / 1000000000.0;
 		t += tm;
 		c++;
-		System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
+		//System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
 	}
 	
 	public void draw() {

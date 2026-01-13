@@ -18,7 +18,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	private HorizontalMRPaneScrollBar hsb;
-	private ArrayList<Drawable> drawables;
+	private ArrayList<CanvasNode> cnodes;
 	private ArrayList<CanvasNumberChooser> numbers;
 	private boolean bPlay = true;
 	private boolean bLive = true;
@@ -154,7 +154,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
 		hsb = new HorizontalMRPaneScrollBar(this, chart.tickData().size(), 0, 399, 50, 10, 90);
-		drawables = new ArrayList<Drawable>();
+		cnodes = new ArrayList<CanvasNode>();
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
 		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0);
@@ -187,19 +187,19 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		numbers.add(s2);
 		numbers.add(s3);
 		
-		drawables.add(hsb);
-		drawables.add(newChart);
-		drawables.add(pausePlay);
-		drawables.add(back);
-		drawables.add(forward);
-		drawables.add(live);
-		drawables.add(bf1);
-		drawables.add(bf2);
-		drawables.add(bf3);
-		drawables.add(bf4);
-		drawables.add(s1);
-		drawables.add(s2);
-		drawables.add(s3);
+		cnodes.add(hsb);
+		cnodes.add(newChart);
+		cnodes.add(pausePlay);
+		cnodes.add(back);
+		cnodes.add(forward);
+		cnodes.add(live);
+		cnodes.add(bf1);
+		cnodes.add(bf2);
+		cnodes.add(bf3);
+		cnodes.add(bf4);
+		cnodes.add(s1);
+		cnodes.add(s2);
+		cnodes.add(s3);
 		
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
@@ -273,7 +273,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
-		for (Drawable d : drawables) {
+		for (CanvasNode d : cnodes) {
 			if (d instanceof CanvasNumberChooser) {
 				((CanvasNumberChooser)d).resetColours();
 			}
@@ -282,7 +282,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 			double x2 = d.x();
 			double y2 = d.y();	
 			if (i == 0) {
-				HorizontalMRPaneScrollBar sb = (HorizontalMRPaneScrollBar)drawables.get(0);		
+				HorizontalMRPaneScrollBar sb = (HorizontalMRPaneScrollBar)cnodes.get(0);		
 				double minPos = sb.minPos();
 				double maxPos = sb.maxPos();
 				sb.setMinPos(x + minPos);
@@ -344,7 +344,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	}
 	
 	public void onMouseReleased(MouseEvent e) {
-		hsb.onMouseReleased();
+		hsb.onMouseReleased(e);
 		if (newChart.pressed()) {
 			newChart.setPressed(false);
 			newChart.setHover(false);
@@ -442,7 +442,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	}
 	
 	public void onMouseExited(MouseEvent e) {
-		hsb.onMouseExited();
+		hsb.onMouseExited(e);
 		onMouseMoved(e);
 		draw();
 	}
