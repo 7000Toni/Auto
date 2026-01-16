@@ -392,36 +392,67 @@ public class CanvasNumberChooser implements CanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
+		if (onMouseDragged == null) {
+			return;
+		}
 		onMouseDragged.handle(e);
 	}
 
 	@Override
 	public void onMouseEntered(MouseEvent e) {
+		if (onMouseEntered == null) {
+			return;
+		}
 		onMouseEntered.handle(e);
 	}
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		if (onMouseExited == null) {
+			return;
+		}
 		onMouseExited.handle(e);
 	}
 
 	@Override
 	public void onMousePressed(MouseEvent e) {
+		if (onUp(e.getX(), e.getY())) {
+			setUpPressed(true);
+		}
+		if (onDown(e.getX(), e.getY())) {
+			setDownPressed(true);
+		}
+		if (onMousePressed == null) {
+			return;
+		}
 		onMousePressed.handle(e);
 	}
 
 	@Override
 	public void onMouseReleased(MouseEvent e) {
-		onMouseReleased.handle(e);
+		setUpPressed(false);
+		setDownPressed(false);
+		if (onMouseReleased == null) {
+			return;
+		}
+		onMouseReleased.handle(e);		
 	}
 
 	@Override
 	public void onMouseMoved(MouseEvent e) {
+		ButtonChecks.mouseNumberChooserUpHoverCheck(this, e.getX(), e.getY());
+		ButtonChecks.mouseNumberChooserDownHoverCheck(this, e.getX(), e.getY());
+		if (onMouseMoved == null) {
+			return;
+		}
 		onMouseMoved.handle(e);
 	}
 
 	@Override
 	public void onScroll(ScrollEvent e) {
+		if (onScroll == null) {
+			return;
+		}
 		onScroll.handle(e);
 	}
 

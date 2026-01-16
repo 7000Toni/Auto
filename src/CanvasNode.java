@@ -27,5 +27,5 @@ public interface CanvasNode {
 	public void setX(double x);
 	public void setY(double y);
 	public double x();
-	public double y();
+	public double y();	
 }

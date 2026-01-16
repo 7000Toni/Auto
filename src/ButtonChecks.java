@@ -5,12 +5,12 @@ public class ButtonChecks {
 		if (!button.enabled()) {
 			return false;
 		}
-		if (button.onButton(x, y)) {
+		if (button.onButton(x, y)) {			
 			if (!button.pressed()) {
 				button.setHover(true);				
 			}
 			return true;
-		} else {
+		} else {			
 			button.setPressed(false);
 			button.setHover(false);
 			return false;

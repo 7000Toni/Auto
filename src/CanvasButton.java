@@ -15,16 +15,17 @@ public class CanvasButton implements CanvasNode {
 	protected double textYOffset;
 	protected boolean hover = false;
 	protected boolean pressed = false;
+	protected boolean on = false;
 	protected ButtonVanGogh bvg = null;
 	protected boolean enabled;
 	
-	private EventHandler<? super MouseEvent> onMouseDragged;
-	private EventHandler<? super MouseEvent> onMouseEntered;
-	private EventHandler<? super MouseEvent> onMouseExited;
-	private EventHandler<? super MouseEvent> onMousePressed;
-	private EventHandler<? super MouseEvent> onMouseReleased;
-	private EventHandler<? super MouseEvent> onMouseMoved;
-	private EventHandler<? super ScrollEvent> onScroll;
+	protected EventHandler<? super MouseEvent> onMouseDragged;
+	protected EventHandler<? super MouseEvent> onMouseEntered;
+	protected EventHandler<? super MouseEvent> onMouseExited;
+	protected EventHandler<? super MouseEvent> onMousePressed;
+	protected EventHandler<? super MouseEvent> onMouseReleased;
+	protected EventHandler<? super MouseEvent> onMouseMoved;
+	protected EventHandler<? super ScrollEvent> onScroll;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		this.gc = gc;
@@ -88,6 +89,18 @@ public class CanvasButton implements CanvasNode {
 	@Override
 	public void setY(double y) {
 		this.y = y;
+	}
+	
+	public boolean on() {
+		return on;
+	}
+	
+	public void toggleOn() {
+		on = !on;
+	}
+	
+	public void setOn(boolean on) {
+		this.on = on;
 	}
 	
 	public void setText(String text) {
@@ -168,36 +181,60 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
+		if (onMouseDragged == null) {
+			return;
+		}
 		onMouseDragged.handle(e);
 	}
 
 	@Override
 	public void onMouseEntered(MouseEvent e) {
+		if (onMouseEntered == null) {
+			return;
+		}
 		onMouseEntered.handle(e);
 	}
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		if (onMouseExited == null) {
+			return;
+		}
 		onMouseExited.handle(e);
 	}
 
 	@Override
 	public void onMousePressed(MouseEvent e) {
+		setPressed(true);
+		if (onMousePressed == null) {
+			return;
+		}
 		onMousePressed.handle(e);
 	}
 
 	@Override
-	public void onMouseReleased(MouseEvent e) {
-		onMouseReleased.handle(e);
+	public void onMouseReleased(MouseEvent e) {		
+		setPressed(false);
+		if (onMouseReleased == null) {
+			return;
+		}
+		onMouseReleased.handle(e);		
 	}
 
 	@Override
 	public void onMouseMoved(MouseEvent e) {
+		ButtonChecks.mouseButtonHoverCheck(this, e.getX(), e.getY());
+		if (onMouseMoved == null) {
+			return;
+		}
 		onMouseMoved.handle(e);
 	}
 
 	@Override
 	public void onScroll(ScrollEvent e) {
+		if (onScroll == null) {
+			return;
+		}
 		onScroll.handle(e);
 	}
 

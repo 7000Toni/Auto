@@ -1,9 +1,11 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 public class DataSetButton extends CanvasButton {
 	private CanvasButton close;
 	private CanvasButton mr;
+	private int dataSetIndex;
 	
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
@@ -68,6 +70,14 @@ public class DataSetButton extends CanvasButton {
 		mr.setVanGogh(mrvg);
 	}
 	
+	public void setDataSetIndex(int index) {
+		dataSetIndex = index;
+	}
+	
+	public int dataSetIndex() {
+		return dataSetIndex;
+	}
+	
 	@Override
 	public void defaultDrawButton() {
 		if (Chart.darkMode()) {
@@ -114,6 +124,74 @@ public class DataSetButton extends CanvasButton {
 		this.y = y;
 		close.setY(close.y - diff);
 		mr.setY(mr.y - diff);
+	}
+	
+	@Override
+	public void onMouseExited(MouseEvent e) {
+		if (onMouseExited == null) {
+			return;
+		}
+		onMouseExited.handle(e);
+	}
+	
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		if (close.onButton(e.getX(), e.getY())) {
+			close.setPressed(true);
+			if (onMousePressed == null) {
+				return;
+			}
+			close.onMousePressed.handle(e);
+		} else if (mr.onButton(e.getX(), e.getY())) {
+			mr.setPressed(true);
+			if (onMousePressed == null) {
+				return;
+			}
+			mr.onMousePressed.handle(e);
+		} else {
+			setPressed(true);
+			if (onMousePressed == null) {
+				return;
+			}
+			onMousePressed.handle(e);
+		}
+	}
+
+	@Override
+	public void onMouseReleased(MouseEvent e) {		
+		if (close.onButton(e.getX(), e.getY())) {
+			close.setPressed(false);
+			if (onMouseReleased == null) {
+				return;
+			}
+			close.onMouseReleased.handle(e);			
+		} else if (mr.onButton(e.getX(), e.getY())) {
+			mr.setPressed(false);
+			if (onMouseReleased == null) {
+				return;
+			}
+			mr.onMouseReleased.handle(e);			
+		} else {
+			setPressed(false);
+			if (onMouseReleased == null) {
+				return;
+			}
+			onMouseReleased.handle(e);			
+		}		
+	}
+
+	@Override
+	public void onMouseMoved(MouseEvent e) {
+		if (ButtonChecks.mouseButtonHoverCheck(close, e.getX(), e.getY()) || ButtonChecks.mouseButtonHoverCheck(mr, e.getX(), e.getY())) {
+			pressed = false;
+			hover = false;
+		} else {
+			ButtonChecks.mouseButtonHoverCheck(this, e.getX(), e.getY());
+		}
+		if (onMouseMoved == null) {
+			return;
+		}
+		onMouseMoved.handle(e);
 	}
 	
 	public CanvasButton closeButton() {
