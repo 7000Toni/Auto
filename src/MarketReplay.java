@@ -29,6 +29,7 @@ public class MarketReplay {
 	private DoubleProperty tpPrice = new SimpleDoubleProperty(-1);
 	private Trade trade = null; 
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
+	private long lastTickTime = 0;
 	private ArrayList<Chart.PendingTrade> pendingTrades = new ArrayList<Chart.PendingTrade>();
 	private boolean writeToFile = true;
 	
@@ -131,6 +132,8 @@ public class MarketReplay {
 	
 	public void setSpeed(int speed) {
 		this.speed.set(speed);
+		lastTickTime = System.nanoTime();
+		timeToNextTick.set(timeToNextTick(index.get()));
 	}
 	
 	public ReadOnlyBooleanProperty live() {
@@ -139,6 +142,9 @@ public class MarketReplay {
 	
 	public void setIndex(int index, boolean increment) {
 		if (increment) {
+			if (index == 0) {
+				return;
+			}
 			if (this.index.get() + index > tickDataSize.get() - 1) {
 				this.index.set(tickDataSize.get() - 1);
 			} else if (this.index.get() + index < 0) {	
@@ -284,19 +290,18 @@ public class MarketReplay {
 	
 	public void run() {
 		run.set(true);
-		new AnimationTimer() {
-			long lastTick2 = 0;
+		new AnimationTimer() {			
 			@Override
 			public void handle(long now) {
 				if (!run.get()) {
 					this.stop();
 				}
-				if (lastTick2 == 0) {
-					lastTick2 = now;
+				if (lastTickTime == 0) {
+					lastTickTime = now;
 					timeToNextTick.set(timeToNextTick(index.get()));
 					return;
 				}
-				long diff = (now - lastTick2) / HorizontalScrollBar.NANO_TO_MILLI;
+				long diff = (now - lastTickTime) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick.get()) {	
 					while (!paused.get() && index.get() < tickDataSize.get()) {
 						index.set(index.get() + 1);
@@ -339,7 +344,7 @@ public class MarketReplay {
 						c.draw();
 					}
 					mrp.draw();	
-					lastTick2 = now;
+					lastTickTime = now;
 				}				
 			}
 		}.start();

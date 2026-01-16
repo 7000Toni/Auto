@@ -2,11 +2,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -18,11 +20,14 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	private HorizontalMRPaneScrollBar hsb;
-	private ArrayList<CanvasNode> cnodes;
 	private ArrayList<CanvasNumberChooser> numbers;
 	private boolean bPlay = true;
 	private boolean bLive = true;
 	private String name;	
+	
+	private Tree<CanvasNode> sceneGraph;
+	private CanvasWrapper cw;
+	private TNode<CanvasNode> lastNode = null;
 	
 	private static ArrayList<MarketReplayPane> panes = new ArrayList<MarketReplayPane>();
 	
@@ -154,7 +159,6 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
 		hsb = new HorizontalMRPaneScrollBar(this, chart.tickData().size(), 0, 399, 50, 10, 90);
-		cnodes = new ArrayList<CanvasNode>();
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
 		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0);
@@ -187,30 +191,150 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		numbers.add(s2);
 		numbers.add(s3);
 		
-		cnodes.add(hsb);
-		cnodes.add(newChart);
-		cnodes.add(pausePlay);
-		cnodes.add(back);
-		cnodes.add(forward);
-		cnodes.add(live);
-		cnodes.add(bf1);
-		cnodes.add(bf2);
-		cnodes.add(bf3);
-		cnodes.add(bf4);
-		cnodes.add(s1);
-		cnodes.add(s2);
-		cnodes.add(s3);
+		sceneGraph = new Tree<CanvasNode>();
+		cw = new CanvasWrapper(canvas, sceneGraph);
+		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
 		
-		canvas.setOnMousePressed(e -> onMousePressed(e));
-		canvas.setOnMouseReleased(e -> onMouseReleased(e));
-		canvas.setOnMouseMoved(e -> onMouseMoved(e));
-		canvas.setOnMouseDragged(e -> onMouseDragged(e));
-		canvas.setOnMouseExited(e -> onMouseExited(e));
+		hsb.setOnMouseDragged(e -> {
+			hsb.defaultOnMouseDragged(e);
+			mr.setIndex((int)(((hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos())) * mr.tickDataSize().get()), false);
+		});
+		newChart.setOnMouseReleased(e -> {
+			Stage s = new Stage();
+			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
+			Scene scene = new Scene(c);	
+			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+			s.setScene(scene);
+			s.show();
+		});
+		pausePlay.setOnMouseReleased(e -> {
+			if (bPlay) {
+				bPlay = false;
+				mr.togglePause();
+			} else {
+				bPlay = true;
+				mr.togglePause();
+			}
+		});
+		back.setOnMouseReleased(e -> {
+			mr.setIndex(-moveNumber(), true);
+			for (Chart c : mr.charts()) {
+				c.draw();
+			}		
+		});
+		forward.setOnMouseReleased(e -> {
+			mr.setIndex(moveNumber(), true);
+			for (Chart c : mr.charts()) {
+				c.draw();
+			}		
+		});
+		live.setOnMouseReleased(e -> {
+			if (bLive) {
+				bLive = false;
+				mr.toggleLive();
+			} else {
+				bLive = true;
+				mr.toggleLive();
+			}
+		});
+		s1.setOnMouseReleased(e -> {
+			if (speedNumber() == 0) {
+				s3.incrementValue();
+			}
+			mr.setSpeed(speedNumber());
+		});
+		s2.setOnMouseReleased(e -> {
+			if (speedNumber() == 0) {
+				s3.incrementValue();
+			}
+			mr.setSpeed(speedNumber());
+		});
+		s3.setOnMouseReleased(e -> {
+			if (speedNumber() == 0) {
+				s3.incrementValue();
+			}
+			mr.setSpeed(speedNumber());
+		});
+
+		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(newChart, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(pausePlay, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(back, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(forward, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(live, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(bf1, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(bf2, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(bf3, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(bf4, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(s1, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(s2, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(s3, sceneGraph.root()));			
+		
+		canvas.addEventFilter(Event.ANY, e -> {
+			canvasEventFilter(e);
+		});
 		
 		this.add(canvas, 0, 0);
 		mr.run();
 		draw();
 		panes.add(this);
+	}
+	
+	private void canvasEventFilter(Event e) {
+		boolean onNode = false;
+		MouseEvent me = null;
+		ScrollEvent se = null;
+		for (TNode<CanvasNode> t : sceneGraph.postOrderArray()) {	
+			CanvasNode cn = t.element();
+			if (e instanceof MouseEvent) {
+				me = (MouseEvent)e;
+				if (!cn.onNode(me.getX(), me.getY())) {
+					continue;
+				}
+				if (!(cn instanceof CanvasWrapper)) {
+					onNode = true;
+				}
+				if (lastNode == null) {
+					lastNode = t;
+					cn.onMouseEntered(me);
+				} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+					cn.onMouseDragged(me);
+				} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
+					cn.onMouseExited(me);
+				} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
+					cn.onMousePressed(me);
+				} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
+					cn.onMouseReleased(me);
+				} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
+					cn.onMouseMoved(me);
+				}
+				break;
+			} else if (e instanceof ScrollEvent) {
+				se = (ScrollEvent)e;
+				if (!cn.onNode(se.getX(), se.getY())) {
+					continue;
+				}
+				if (!(cn instanceof CanvasWrapper)) {
+					onNode = true;
+				}
+				if (e.getEventType() == ScrollEvent.SCROLL) {
+					cn.onScroll(se);
+				}
+				break;
+			}
+		}		
+		if (me != null) {
+			if (!onNode && lastNode != null) {
+				lastNode.element().onMouseExited(me);
+				lastNode = null;
+			}
+			sceneGraph.root().element().onMouseMoved(me);
+		}
+		draw();
+	}
+	
+	public Canvas canvas() {
+		return canvas;
 	}
 	
 	public String name() {
@@ -273,7 +397,8 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
-		for (CanvasNode d : cnodes) {
+		for (TNode<CanvasNode> tn : sceneGraph.postOrderArray()) {
+			CanvasNode d = tn.element();
 			if (d instanceof CanvasNumberChooser) {
 				((CanvasNumberChooser)d).resetColours();
 			}
@@ -282,7 +407,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 			double x2 = d.x();
 			double y2 = d.y();	
 			if (i == 0) {
-				HorizontalMRPaneScrollBar sb = (HorizontalMRPaneScrollBar)cnodes.get(0);		
+				HorizontalMRPaneScrollBar sb = (HorizontalMRPaneScrollBar)sceneGraph.postOrderArray().get(0).element();		
 				double minPos = sb.minPos();
 				double maxPos = sb.maxPos();
 				sb.setMinPos(x + minPos);
@@ -315,99 +440,6 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		return gc;
 	}
 	
-	public void onMousePressed(MouseEvent e) {
-		hsb.onMousePressed(e);
-		double x2 = e.getX();
-		double y2 = e.getY();
-		if (newChart.onButton(x2, y2)) {
-			newChart.setPressed(true);
-		} else if (pausePlay.onButton(x2, y2)) {
-			pausePlay.setPressed(true);
-		} else if (back.onButton(x2, y2)) {
-			back.setPressed(true);
-		} else if (forward.onButton(x2, y2)) {
-			forward.setPressed(true);
-		} else if (live.onButton(x2, y2)) {
-			live.setPressed(true);
-		} else {
-			for (CanvasNumberChooser c : numbers) {
-				if (c.onDown(x2, y2)) {
-					c.setDownPressed(true);
-					break;
-				} else if (c.onUp(x2, y2)) {
-					c.setUpPressed(true);
-					break;
-				}
-			}
-		}
-		draw();
-	}
-	
-	public void onMouseReleased(MouseEvent e) {
-		hsb.onMouseReleased(e);
-		if (newChart.pressed()) {
-			newChart.setPressed(false);
-			newChart.setHover(false);
-			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
-			Scene scene = new Scene(c);	
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-			s.setScene(scene);
-			s.show();	
-		} else if (pausePlay.pressed()) {
-			pausePlay.setPressed(false);
-			if (bPlay) {
-				bPlay = false;
-				mr.togglePause();
-			} else {
-				bPlay = true;
-				mr.togglePause();
-			}		
-		} else if (back.pressed()) {
-			back.setPressed(false);
-			mr.setIndex(-moveNumber(), true);
-			for (Chart c : mr.charts()) {
-				c.draw();
-			}		
-		} else if (forward.pressed()) {
-			forward.setPressed(false);
-			mr.setIndex(moveNumber(), true);
-			for (Chart c : mr.charts()) {
-				c.draw();
-			}		
-		} else if (live.pressed()) {
-			live.setPressed(false);
-			if (bLive) {
-				bLive = false;
-				mr.toggleLive();
-			} else {
-				bLive = true;
-				mr.toggleLive();
-			}		
-		} else {
-			for (CanvasNumberChooser c : numbers) {
-				if (c.downPressed()) {
-					c.setDownPressed(false);
-					c.decrementValue();
-					if (speedNumber() == 0) {
-						s3.incrementValue();
-					}
-					mr.setSpeed(speedNumber());
-					break;
-				} else if (c.upPressed()) {
-					c.setUpPressed(false);
-					c.incrementValue();
-					if (speedNumber() == 0) {
-						s3.incrementValue();
-					}
-					mr.setSpeed(speedNumber());				
-					break;
-				}
-			}
-		}
-		draw();
-	}
-	
 	public void endReplay() {
 		panes.remove(this);
 		Chart.closeAll(name, true);
@@ -415,36 +447,6 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		mr.data().setReplayTickDataSize(0);
 		mr.stop();
 		stage.close();
-	}
-	
-	public void onMouseMoved(MouseEvent e) {		
-		hsb.onMouseMoved(e);
-		double x = e.getX();
-		double y = e.getY();
-		ButtonChecks.mouseButtonHoverCheck(newChart, x, y);
-		ButtonChecks.mouseButtonHoverCheck(pausePlay, x, y);
-		ButtonChecks.mouseButtonHoverCheck(back, x, y);
-		ButtonChecks.mouseButtonHoverCheck(forward, x, y);
-		ButtonChecks.mouseButtonHoverCheck(live, x, y);
-		for (CanvasNumberChooser c : numbers) {
-			ButtonChecks.mouseNumberChooserUpHoverCheck(c, x, y);
-			ButtonChecks.mouseNumberChooserDownHoverCheck(c, x, y);
-		}
-		draw();
-	}
-	
-	public void onMouseDragged(MouseEvent e) {
-		hsb.onMouseDragged(e);
-		if (hsb.dragged()) {
-			mr.setIndex((int)(((hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos())) * mr.tickDataSize().get()), false);
-		}
-		draw();
-	}
-	
-	public void onMouseExited(MouseEvent e) {
-		hsb.onMouseExited(e);
-		onMouseMoved(e);
-		draw();
 	}
 	
 	private int moveNumber() {

@@ -1009,12 +1009,7 @@ public class Chart implements ScrollBarOwner {
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			if (e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {				
-				mrp.onMouseMoved(me);
-			} else {
-				mrp.hsb().onMouseReleased(me);
-				mrp.onMouseExited(me);
-			}
+			mrp.canvas().fireEvent(me);
 		}
 		drawCharts(this.name());
 	}				
@@ -1197,7 +1192,7 @@ public class Chart implements ScrollBarOwner {
 							e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 							e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 							e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-					mrp.onMousePressed(me);
+					mrp.canvas().fireEvent(me);
 				} else if (!replayMode || !tradeButtonPressChecks(e.getX(), e.getY())) {
 					if (onDateMargin(e.getX(), e.getY())) {
 						chartDateMarginDragging = true;
@@ -1621,7 +1616,7 @@ public class Chart implements ScrollBarOwner {
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.onMouseReleased(me);
+			mrp.canvas().fireEvent(me);
 		} else {
 			if (replayMode) {
 				tradeButtonReleaseChecks(e.getX(), e.getY());
@@ -1783,7 +1778,7 @@ public class Chart implements ScrollBarOwner {
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.onMouseDragged(me);
+			mrp.canvas().fireEvent(me);
 		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);

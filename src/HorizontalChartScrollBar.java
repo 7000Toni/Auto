@@ -76,7 +76,6 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			}
 			initPos = (int)e.getX();
 			((Chart) sbo).setKeepStartIndex(false);
-			dragged = true;
 		}
 	}
 	

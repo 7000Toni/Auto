@@ -15,7 +15,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	protected double x = 0;
 	protected double y = 0;
 	protected boolean dragging = false;
-	protected boolean dragged = false;
 	protected boolean hovering = false;
 	protected boolean clickedInScrollBarArea = false;
 	protected double initPos = 0;
@@ -134,7 +133,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 				x += posDiff;
 			}
 			initPos = (int)e.getX();
-			dragged = true;
 		}
 	}
 	
@@ -144,12 +142,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	
 	public double minPos() {
 		return this.minPos;
-	}
-	
-	public boolean dragged() {
-		boolean ret = dragged;
-		dragged = false;
-		return ret;
 	}
 	
 	public void setMaxPos(double maxPos) {
@@ -282,36 +274,57 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
+		if (onMouseDragged == null) {
+			return;
+		}
 		onMouseDragged.handle(e);
 	}
 
 	@Override
 	public void onMouseEntered(MouseEvent e) {
+		if (onMouseEntered == null) {
+			return;
+		}
 		onMouseEntered.handle(e);
 	}
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		if (onMouseExited == null) {
+			return;
+		}
 		onMouseExited.handle(e);
 	}
 
 	@Override
 	public void onMousePressed(MouseEvent e) {
+		if (onMousePressed == null) {
+			return;
+		}
 		onMousePressed.handle(e);
 	}
 
 	@Override
 	public void onMouseReleased(MouseEvent e) {
+		if (onMouseReleased == null) {
+			return;
+		}
 		onMouseReleased.handle(e);
 	}
 
 	@Override
 	public void onMouseMoved(MouseEvent e) {
+		if (onMouseMoved == null) {
+			return;
+		}
 		onMouseMoved.handle(e);
 	}
 
 	@Override
 	public void onScroll(ScrollEvent e) {
+		if (onScroll == null) {
+			return;
+		}
 		onScroll.handle(e);
 	}
 
