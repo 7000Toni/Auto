@@ -1,5 +1,4 @@
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 public class DataSetButton extends CanvasButton {
@@ -127,71 +126,17 @@ public class DataSetButton extends CanvasButton {
 	}
 	
 	@Override
-	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
-			return;
+	public boolean onButton(double x, double y) {	
+		if (mr.onButton(x, y) || close.onButton(x, y)) {
+			return false;
 		}
-		onMouseExited.handle(e);
-	}
-	
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		if (close.onButton(e.getX(), e.getY())) {
-			close.setPressed(true);
-			if (onMousePressed == null) {
-				return;
-			}
-			close.onMousePressed.handle(e);
-		} else if (mr.onButton(e.getX(), e.getY())) {
-			mr.setPressed(true);
-			if (onMousePressed == null) {
-				return;
-			}
-			mr.onMousePressed.handle(e);
-		} else {
-			setPressed(true);
-			if (onMousePressed == null) {
-				return;
-			}
-			onMousePressed.handle(e);
+		if (x > this.x + width || x < this.x) {
+			return false;
 		}
-	}
-
-	@Override
-	public void onMouseReleased(MouseEvent e) {		
-		if (close.onButton(e.getX(), e.getY())) {
-			close.setPressed(false);
-			if (onMouseReleased == null) {
-				return;
-			}
-			close.onMouseReleased.handle(e);			
-		} else if (mr.onButton(e.getX(), e.getY())) {
-			mr.setPressed(false);
-			if (onMouseReleased == null) {
-				return;
-			}
-			mr.onMouseReleased.handle(e);			
-		} else {
-			setPressed(false);
-			if (onMouseReleased == null) {
-				return;
-			}
-			onMouseReleased.handle(e);			
-		}		
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		if (ButtonChecks.mouseButtonHoverCheck(close, e.getX(), e.getY()) || ButtonChecks.mouseButtonHoverCheck(mr, e.getX(), e.getY())) {
-			pressed = false;
-			hover = false;
-		} else {
-			ButtonChecks.mouseButtonHoverCheck(this, e.getX(), e.getY());
+		if (y > this.y + height || y < this.y) {
+			return false;
 		}
-		if (onMouseMoved == null) {
-			return;
-		}
-		onMouseMoved.handle(e);
+		return true;
 	}
 	
 	public CanvasButton closeButton() {

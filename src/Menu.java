@@ -322,160 +322,166 @@ public class Menu {
 			fc.setInitialDirectory(new File("./"));
 		}			
 		List<File> files = fc.showOpenMultipleDialog(null);	
-		if (files != null) {
-			for (File file : files) {	
-				if (file != null) {
-					try (FileInputStream fis = new FileInputStream(file);
-							BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {								
-						String signature = br.readLine();
-						boolean add = true;
-						if (!Signature.validFull(signature)) {
-							System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
-							continue;
-						}
-						String datum = br.readLine();								
-						for (DataSet d : datasets) {
-							if (d == null) {
-								continue;
-							}
-							if (signature.equals(d.signature())) {
-								add = false;
-								break;
-							}
-						}		
-						for (LoadingDataSet l : loadingSets) {
-							if (signature.equals(l.signature())) {
-								add = false;
-								break;
-							}
-						}
-						if (add) {							
-							if (datasets.size() >= 6) {
-								break;
-							}
-							LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), signature);
-							loadingSets.add(l);
-							datasets.add(null);
-							dsButtons.add(null);
-							Task<Void> task = new Task<Void>() {
-								@Override
-								public Void call() {	
-									TickDataFileReader thisReader = reader;
-									if (reader == null) {
-										MarketTickFileReader mtfr = new MarketTickFileReader();
-										OriginalTickFileReader otfr = new OriginalTickFileReader();
-										OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
-										DukascopyNodeReader dnr = new DukascopyNodeReader();
-										if (mtfr.validDatum(datum)) {
-											thisReader = mtfr;
-										} else if (otfr.validDatum(datum)) {
-											thisReader = otfr;
-										} else if (omtfr.validDatum(datum)) {
-											thisReader = omtfr;
-										} else {
-											thisReader = dnr;
-										}
-									}
-									DataSet ds = l.load(file, thisReader);
-									loadingSets.remove(l);
-									if (ds == null) {
-										dsButtons.remove(l.addIndex().get());
-										for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-											DataSetButton dsb = dsButtons.get(j);
-											if (dsb == null) {
-												continue;
-											}
-											dsButtons.get(j).setY(dsb.y() - 58);				
-										}
-										for (LoadingDataSet l2 : loadingSets) {
-											if (l2.addIndex().get() > l.addIndex().get()) {
-												l2.setAddIndex(l2.addIndex().get() - 1);
-											}
-											l2.setY(l2.y() - 58);				
-										}
-										datasets.remove(l.addIndex().get());
-										draw();
-										return null;
-									}			
-									datasets.set(l.addIndex().get(), ds);
-									DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
-									dsb.setVanGogh((x2, y2, gc) -> {
-										gc.setFont(new Font(37));
-										dsb.defaultDrawButton();		
-									});
-									dsButtons.set(l.addIndex().get(), dsb);	
-									dsb.setDataSetIndex(l.addIndex().get());
-									dsb.setOnMouseReleased(e -> {
-										Stage s = new Stage();
-										ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
-										Scene scene = new Scene(c);
-										scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-										s.setScene(scene);
-										s.show();
-									});
-									dsb.closeButton().setOnMouseReleased(e -> {
-										int i = dsb.dataSetIndex();
-										dsButtons.remove(i);
-										for (int j = i; j < dsButtons.size(); j++) {					
-											DataSetButton d = dsButtons.get(j);
-											if (d == null) {
-												continue;
-											}
-											d.setY(d.y() - 58);	
-											d.setDataSetIndex(d.dataSetIndex() - 1);
-										}
-										for (LoadingDataSet l : loadingSets) {	
-											if (l.addIndex().get() > i) {
-												l.setAddIndex(l.addIndex().get() - 1);
-											}
-											l.setY(l.y() - 58);				
-										}
-										String name = datasets.get(i).name();
-										Chart.closeAll(name, false);
-										for (MarketReplayPane mrp : replays) {
-											if (mrp.name().equals(name)) {
-												mrp.endReplay();
-											}
-										}
-										datasets.remove(i);
-									});
-									dsb.mrButton().setOnMouseReleased(e -> {
-										int index = (int)((e.getY() - MARGIN) / 58);
-										if (index < 0) {
-											index = 0;
-										}
-										Stage s = new Stage();
-										ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
-										Scene scene = new Scene(c);	
-										scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-										s.setScene(scene);
-										s.show();
-										Stage s2 = new Stage();					
-										MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
-										s2.setOnCloseRequest(ev -> {
-											replays.remove(mrp);
-											mrp.endReplay();
-										});
-										replays.add(mrp);
-										s2.setResizable(false);		
-										Scene scene2 = new Scene(mrp);
-										s2.setScene(scene2);
-										s2.show();	
-									});
-									sceneGraph.addNode(new TNode<CanvasNode>(dsb, sceneGraph.root()));
-									lastDraw = 0;
-									draw();
-									return null;
-								}
-							};	
-							new Thread(task).start();							
-						}
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}				
-				}
+		if (files == null) {
+			return;
+		}
+		for (File file : files) {	
+			if (file == null) {
+				break;
 			}
-		}			
+			try (FileInputStream fis = new FileInputStream(file);
+					BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {								
+				String signature = br.readLine();
+				boolean add = true;
+				if (!Signature.validFull(signature)) {
+					System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
+					continue;
+				}
+				String datum = br.readLine();								
+				for (DataSet d : datasets) {
+					if (d == null) {
+						continue;
+					}
+					if (signature.equals(d.signature())) {
+						add = false;
+						break;
+					}
+				}		
+				for (LoadingDataSet l : loadingSets) {
+					if (signature.equals(l.signature())) {
+						add = false;
+						break;
+					}
+				}
+				if (!add) {	
+					return;
+				}
+				if (datasets.size() >= 6) {
+					break;
+				}
+				LoadingDataSet l = new LoadingDataSet(MARGIN + datasets.size() * 58, datasets.size(), signature);
+				loadingSets.add(l);
+				datasets.add(null);
+				dsButtons.add(null);
+				Task<Void> task = new Task<Void>() {
+					@Override
+					public Void call() {	
+						TickDataFileReader thisReader = reader;
+						if (reader == null) {
+							MarketTickFileReader mtfr = new MarketTickFileReader();
+							OriginalTickFileReader otfr = new OriginalTickFileReader();
+							OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
+							DukascopyNodeReader dnr = new DukascopyNodeReader();
+							if (mtfr.validDatum(datum)) {
+								thisReader = mtfr;
+							} else if (otfr.validDatum(datum)) {
+								thisReader = otfr;
+							} else if (omtfr.validDatum(datum)) {
+								thisReader = omtfr;
+							} else {
+								thisReader = dnr;
+							}
+						}
+						DataSet ds = l.load(file, thisReader);
+						loadingSets.remove(l);
+						if (ds == null) {
+							dsButtons.remove(l.addIndex().get());
+							for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+								DataSetButton dsb = dsButtons.get(j);
+								if (dsb == null) {
+									continue;
+								}
+								dsButtons.get(j).setY(dsb.y() - 58);				
+							}
+							for (LoadingDataSet l2 : loadingSets) {
+								if (l2.addIndex().get() > l.addIndex().get()) {
+									l2.setAddIndex(l2.addIndex().get() - 1);
+								}
+								l2.setY(l2.y() - 58);				
+							}
+							datasets.remove(l.addIndex().get());
+							draw();
+							return null;
+						}			
+						datasets.set(l.addIndex().get(), ds);
+						DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
+						dsb.setVanGogh((x2, y2, gc) -> {
+							gc.setFont(new Font(37));
+							dsb.defaultDrawButton();		
+						});
+						dsButtons.set(l.addIndex().get(), dsb);	
+						dsb.setDataSetIndex(l.addIndex().get());
+						dsb.setOnMouseReleased(e -> {
+							Stage s = new Stage();
+							ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
+							Scene scene = new Scene(c);
+							scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+							s.setScene(scene);
+							s.show();
+						});
+						dsb.closeButton().setOnMouseReleased(e -> {
+							int i = dsb.dataSetIndex();
+							dsButtons.remove(i);
+							for (int j = i; j < dsButtons.size(); j++) {					
+								DataSetButton d = dsButtons.get(j);
+								if (d == null) {
+									continue;
+								}
+								d.setY(d.y() - 58);	
+								d.setDataSetIndex(d.dataSetIndex() - 1);
+							}
+							for (LoadingDataSet l : loadingSets) {	
+								if (l.addIndex().get() > i) {
+									l.setAddIndex(l.addIndex().get() - 1);
+								}
+								l.setY(l.y() - 58);				
+							}
+							String name = datasets.get(i).name();
+							Chart.closeAll(name, false);
+							for (MarketReplayPane mrp : replays) {
+								if (mrp.name().equals(name)) {
+									mrp.endReplay();
+								}
+							}
+							datasets.remove(i);
+						});
+						dsb.mrButton().setOnMouseReleased(e -> {
+							int index = (int)((e.getY() - MARGIN) / 58);
+							if (index < 0) {
+								index = 0;
+							}
+							Stage s = new Stage();
+							ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
+							Scene scene = new Scene(c);	
+							scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+							s.setScene(scene);
+							s.show();
+							Stage s2 = new Stage();					
+							MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
+							s2.setOnCloseRequest(ev -> {
+								replays.remove(mrp);
+								mrp.endReplay();
+							});
+							replays.add(mrp);
+							s2.setResizable(false);		
+							Scene scene2 = new Scene(mrp);
+							s2.setScene(scene2);
+							s2.show();	
+						});
+						TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
+						sceneGraph.addNode(dsbNode);
+						sceneGraph.addNode(new TNode<CanvasNode>(dsb.mrButton(), dsbNode));
+						sceneGraph.addNode(new TNode<CanvasNode>(dsb.closeButton(), dsbNode));
+						lastDraw = 0;
+						draw();
+						return null;
+					}
+				};	
+				new Thread(task).start();							
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}		
 	}
 	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
