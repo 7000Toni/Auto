@@ -181,7 +181,7 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null) {
+		if (onMouseDragged == null || !enabled) {
 			return;
 		}
 		onMouseDragged.handle(e);
@@ -189,7 +189,7 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null) {
+		if (onMouseEntered == null || !enabled) {
 			return;
 		}
 		onMouseEntered.handle(e);
@@ -197,7 +197,7 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
+		if (onMouseExited == null || !enabled) {
 			return;
 		}
 		onMouseExited.handle(e);
@@ -206,7 +206,7 @@ public class CanvasButton implements CanvasNode {
 	@Override
 	public void onMousePressed(MouseEvent e) {
 		setPressed(true);
-		if (onMousePressed == null) {
+		if (onMousePressed == null || !enabled) {
 			return;
 		}
 		onMousePressed.handle(e);
@@ -214,8 +214,8 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseReleased(MouseEvent e) {		
-		setPressed(false);
-		if (onMouseReleased == null) {
+		setPressed(false);		
+		if (onMouseReleased == null || !enabled) {
 			return;
 		}
 		onMouseReleased.handle(e);		
@@ -224,7 +224,7 @@ public class CanvasButton implements CanvasNode {
 	@Override
 	public void onMouseMoved(MouseEvent e) {
 		ButtonChecks.mouseButtonHoverCheck(this, e.getX(), e.getY());
-		if (onMouseMoved == null) {
+		if (onMouseMoved == null || !enabled) {
 			return;
 		}
 		onMouseMoved.handle(e);
@@ -232,7 +232,7 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onScroll(ScrollEvent e) {
-		if (onScroll == null) {
+		if (onScroll == null || !enabled) {
 			return;
 		}
 		onScroll.handle(e);

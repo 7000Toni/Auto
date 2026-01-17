@@ -50,6 +50,7 @@ public class Menu {
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
 	private final ReentrantLock lock = new ReentrantLock();
+	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private Tree<CanvasNode> sceneGraph;
 	private CanvasWrapper cw;
@@ -92,7 +93,7 @@ public class Menu {
 		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
 			gc.setFont(new Font(37));
-			loadData.defaultDrawButton();			
+			loadData.defaultDrawButton();
 		});
 		this.loadData.setOnMouseReleased(e -> {
 			DataSetLoader dsl = new DataSetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
@@ -320,6 +321,10 @@ public class Menu {
 		}
 	}
 	
+	public ReentrantLock varLock() {
+		return varLock;
+	}
+	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
 			gc.setFont(new Font(fontSize));
@@ -357,7 +362,8 @@ public class Menu {
 	
 	private void drawUI() {
 		lock.lock();
-		try {		
+		varLock.lock();
+		try {					
 			if (datasets.size() < 6) {
 				loadData.enable();
 			} else {
@@ -386,6 +392,7 @@ public class Menu {
 			}
 		} finally {
 			lock.unlock();
+			varLock.unlock();
 		}
 	}
 	

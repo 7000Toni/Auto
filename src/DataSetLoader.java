@@ -102,7 +102,12 @@ public class DataSetLoader {
 			public Void call() {	
 				TickDataFileReader thisReader = setReader(datum);				
 				DataSet ds = l.load(file, thisReader);
-				loadingSets.remove(l);
+				Menu.menu().varLock().lock();
+				try {
+					loadingSets.remove(l);
+				} finally {
+					Menu.menu().varLock().unlock();
+				}
 				if (ds == null) {
 					abort(l);
 					return null;
@@ -116,12 +121,17 @@ public class DataSetLoader {
 				dsButtons.set(l.addIndex().get(), dsb);	
 				dsb.setDataSetIndex(l.addIndex().get());
 				setDSBEventHandler(dsb);
-				setDSBCloseEventHandler(dsb.closeButton(), dsb.dataSetIndex());
+				setDSBCloseEventHandler(dsb.closeButton(), dsb);
 				setDSBMREventHandler(dsb.mrButton());
 				TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
-				sceneGraph.addNode(dsbNode);
-				sceneGraph.addNode(new TNode<CanvasNode>(dsb.mrButton(), dsbNode));
-				sceneGraph.addNode(new TNode<CanvasNode>(dsb.closeButton(), dsbNode));
+				Menu.menu().varLock().lock();
+				try {
+					sceneGraph.addNode(dsbNode);
+					sceneGraph.addNode(new TNode<CanvasNode>(dsb.mrButton(), dsbNode));
+					sceneGraph.addNode(new TNode<CanvasNode>(dsb.closeButton(), dsbNode));
+				} finally {
+					Menu.menu().varLock().unlock();
+				}
 				Menu.menu().draw();
 				return null;
 			}
@@ -149,21 +159,26 @@ public class DataSetLoader {
 	}
 	
 	private void abort(LoadingDataSet l) {
-		dsButtons.remove(l.addIndex().get());
-		for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-			DataSetButton dsb = dsButtons.get(j);
-			if (dsb == null) {
-				continue;
+		Menu.menu().varLock().lock();
+		try {
+			dsButtons.remove(l.addIndex().get());
+			for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+				DataSetButton dsb = dsButtons.get(j);
+				if (dsb == null) {
+					continue;
+				}
+				dsButtons.get(j).setY(dsb.y() - 58);				
 			}
-			dsButtons.get(j).setY(dsb.y() - 58);				
-		}
-		for (LoadingDataSet l2 : loadingSets) {
-			if (l2.addIndex().get() > l.addIndex().get()) {
-				l2.setAddIndex(l2.addIndex().get() - 1);
+			for (LoadingDataSet l2 : loadingSets) {
+				if (l2.addIndex().get() > l.addIndex().get()) {
+					l2.setAddIndex(l2.addIndex().get() - 1);
+				}
+				l2.setY(l2.y() - 58);				
 			}
-			l2.setY(l2.y() - 58);				
+			datasets.remove(l.addIndex().get());			
+		} finally {
+			Menu.menu().varLock().unlock();			
 		}
-		datasets.remove(l.addIndex().get());
 		Menu.menu().draw();
 	}
 	
@@ -178,31 +193,36 @@ public class DataSetLoader {
 		});
 	}
 	
-	private void setDSBCloseEventHandler(CanvasButton close, int dataSetIndex) {
+	private void setDSBCloseEventHandler(CanvasButton close, DataSetButton dsb) {
 		close.setOnMouseReleased(e -> {
-			dsButtons.remove(dataSetIndex);
-			for (int j = dataSetIndex; j < dsButtons.size(); j++) {					
-				DataSetButton d = dsButtons.get(j);
-				if (d == null) {
-					continue;
+			Menu.menu().varLock().lock();
+			try {
+				dsButtons.remove(dsb.dataSetIndex());			
+				for (int j = dsb.dataSetIndex(); j < dsButtons.size(); j++) {					
+					DataSetButton d = dsButtons.get(j);
+					if (d == null) {
+						continue;
+					}
+					d.setY(d.y() - 58);	
+					d.setDataSetIndex(d.dataSetIndex() - 1);
 				}
-				d.setY(d.y() - 58);	
-				d.setDataSetIndex(d.dataSetIndex() - 1);
-			}
-			for (LoadingDataSet l : loadingSets) {	
-				if (l.addIndex().get() > dataSetIndex) {
-					l.setAddIndex(l.addIndex().get() - 1);
+				for (LoadingDataSet l : loadingSets) {	
+					if (l.addIndex().get() > dsb.dataSetIndex()) {
+						l.setAddIndex(l.addIndex().get() - 1);
+					}
+					l.setY(l.y() - 58);				
 				}
-				l.setY(l.y() - 58);				
-			}
-			String name = datasets.get(dataSetIndex).name();
-			Chart.closeAll(name, false);
-			for (MarketReplayPane mrp : replays) {
-				if (mrp.name().equals(name)) {
-					mrp.endReplay();
+				String name = datasets.get(dsb.dataSetIndex()).name();
+				Chart.closeAll(name, false);
+				for (MarketReplayPane mrp : replays) {
+					if (mrp.name().equals(name)) {
+						mrp.endReplay();
+					}
 				}
+				datasets.remove(dsb.dataSetIndex());
+			} finally {
+				Menu.menu().varLock().unlock();
 			}
-			datasets.remove(dataSetIndex);
 		});	
 	}
 	
@@ -221,10 +241,20 @@ public class DataSetLoader {
 			Stage s2 = new Stage();					
 			MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
 			s2.setOnCloseRequest(ev -> {
-				replays.remove(mrp);
+				Menu.menu().varLock().lock();
+				try {
+					replays.remove(mrp);
+				} finally {
+					Menu.menu().varLock().unlock();
+				}
 				mrp.endReplay();
 			});
-			replays.add(mrp);
+			Menu.menu().varLock().lock();
+			try {
+				replays.add(mrp);
+			} finally {
+				Menu.menu().varLock().unlock();
+			}
 			s2.setResizable(false);		
 			Scene scene2 = new Scene(mrp);
 			s2.setScene(scene2);
