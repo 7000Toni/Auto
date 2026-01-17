@@ -62,9 +62,14 @@ public class DataSetLoader {
 						break;
 				}
 				LoadingDataSet l = new LoadingDataSet(Menu.MARGIN + datasets.size() * 58, datasets.size(), signature);
-				loadingSets.add(l);
-				datasets.add(null);
-				dsButtons.add(null);
+				Menu.menu().varLock().lock();
+				try {
+					loadingSets.add(l);
+					datasets.add(null);
+					dsButtons.add(null);
+				} finally {
+					Menu.menu().varLock().unlock();
+				}
 				startTask(datum, l, file);			
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -76,22 +81,27 @@ public class DataSetLoader {
 		if (!Signature.validFull(signature)) {
 			System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
 			return 1;
-		}												
-		for (DataSet d : datasets) {
-			if (d == null) {
-				continue;
+		}				
+		Menu.menu().varLock().lock();
+		try {
+			for (DataSet d : datasets) {
+				if (d == null) {
+					continue;
+				}
+				if (signature.equals(d.signature())) {
+					return 1;
+				}
+			}		
+			for (LoadingDataSet l : loadingSets) {
+				if (signature.equals(l.signature())) {
+					return 1;
+				}
 			}
-			if (signature.equals(d.signature())) {
-				return 1;
+			if (datasets.size() >= 6) {
+				return -1;
 			}
-		}		
-		for (LoadingDataSet l : loadingSets) {
-			if (signature.equals(l.signature())) {
-				return 1;
-			}
-		}
-		if (datasets.size() >= 6) {
-			return -1;
+		} finally {
+			Menu.menu().varLock().unlock();
 		}
 		return 0;
 	}
@@ -104,28 +114,23 @@ public class DataSetLoader {
 				DataSet ds = l.load(file, thisReader);
 				Menu.menu().varLock().lock();
 				try {
-					loadingSets.remove(l);
-				} finally {
-					Menu.menu().varLock().unlock();
-				}
-				if (ds == null) {
-					abort(l);
-					return null;
-				}			
-				datasets.set(l.addIndex().get(), ds);
-				DataSetButton dsb = new DataSetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
-				dsb.setVanGogh((x2, y2, gc) -> {
-					gc.setFont(new Font(37));
-					dsb.defaultDrawButton();		
-				});
-				dsButtons.set(l.addIndex().get(), dsb);	
-				dsb.setDataSetIndex(l.addIndex().get());
-				setDSBEventHandler(dsb);
-				setDSBCloseEventHandler(dsb.closeButton(), dsb);
-				setDSBMREventHandler(dsb.mrButton());
-				TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
-				Menu.menu().varLock().lock();
-				try {
+					loadingSets.remove(l);				
+					if (ds == null) {
+						abort(l);
+						return null;
+					}			
+					datasets.set(l.addIndex().get(), ds);
+					DataSetButton dsb = new DataSetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
+					dsb.setVanGogh((x2, y2, gc) -> {
+						gc.setFont(new Font(37));
+						dsb.defaultDrawButton();		
+					});
+					dsButtons.set(l.addIndex().get(), dsb);	
+					dsb.setDataSetIndex(l.addIndex().get());
+					setDSBEventHandler(dsb);
+					setDSBCloseEventHandler(dsb.closeButton(), dsb);
+					setDSBMREventHandler(dsb.mrButton());
+					TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
 					sceneGraph.addNode(dsbNode);
 					sceneGraph.addNode(new TNode<CanvasNode>(dsb.mrButton(), dsbNode));
 					sceneGraph.addNode(new TNode<CanvasNode>(dsb.closeButton(), dsbNode));
@@ -159,26 +164,21 @@ public class DataSetLoader {
 	}
 	
 	private void abort(LoadingDataSet l) {
-		Menu.menu().varLock().lock();
-		try {
-			dsButtons.remove(l.addIndex().get());
-			for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-				DataSetButton dsb = dsButtons.get(j);
-				if (dsb == null) {
-					continue;
-				}
-				dsButtons.get(j).setY(dsb.y() - 58);				
+		dsButtons.remove(l.addIndex().get());
+		for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
+			DataSetButton dsb = dsButtons.get(j);
+			if (dsb == null) {
+				continue;
 			}
-			for (LoadingDataSet l2 : loadingSets) {
-				if (l2.addIndex().get() > l.addIndex().get()) {
-					l2.setAddIndex(l2.addIndex().get() - 1);
-				}
-				l2.setY(l2.y() - 58);				
-			}
-			datasets.remove(l.addIndex().get());			
-		} finally {
-			Menu.menu().varLock().unlock();			
+			dsButtons.get(j).setY(dsb.y() - 58);				
 		}
+		for (LoadingDataSet l2 : loadingSets) {
+			if (l2.addIndex().get() > l.addIndex().get()) {
+				l2.setAddIndex(l2.addIndex().get() - 1);
+			}
+			l2.setY(l2.y() - 58);				
+		}
+		datasets.remove(l.addIndex().get());
 		Menu.menu().draw();
 	}
 	
