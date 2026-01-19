@@ -335,18 +335,21 @@ public class Menu {
 				gc.setStroke(Color.BLACK);
 				gc.setFill(Color.BLACK);
 			}
-			if (cb.on) {
-				if (cb.hover) {
-					gc.setStroke(Color.DARKORANGE);
-					gc.setFill(Color.DARKORANGE);
-				} else {
-					gc.setStroke(Color.ORANGE);
-					gc.setFill(Color.ORANGE);
-				}
-			} else if (cb.hover) {
-				gc.setStroke(Color.GRAY);
-				gc.setFill(Color.GRAY);
-			}
+			if (!optimize.enabled) {
+				gc.setStroke(Color.LIGHTGRAY);
+				gc.setFill(Color.LIGHTGRAY);
+			} else if (cb.on) {
+				gc.setStroke(Color.ORANGE);
+				gc.setFill(Color.ORANGE);
+			} 
+			if (cb.hover) {
+				gc.setStroke(Color.ORANGE);
+				gc.setFill(Color.ORANGE);
+			} 
+			if (cb.pressed) {				
+				gc.setStroke(Color.DARKORANGE);
+				gc.setFill(Color.DARKORANGE);
+			}	
 			gc.strokeRect(x, y, cb.width, cb.height);
 			gc.fillText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
 		};
