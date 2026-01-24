@@ -127,13 +127,15 @@ public class DataSetLoader {
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
 					dsb.setDataSetIndex(l.addIndex().get());
-					setDSBEventHandler(dsb);
-					setDSBCloseEventHandler(dsb.closeButton(), dsb);
-					setDSBMREventHandler(dsb.mrButton());
 					TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
+					TNode<CanvasNode> mrNode = new TNode<CanvasNode>(dsb.mrButton(), dsbNode);
+					TNode<CanvasNode> closeNode = new TNode<CanvasNode>(dsb.closeButton(), dsbNode);
+					setDSBEventHandler(dsb);
+					setDSBCloseEventHandler(dsb.closeButton(), dsbNode);
+					setDSBMREventHandler(dsb.mrButton());
 					sceneGraph.addNode(dsbNode);
-					sceneGraph.addNode(new TNode<CanvasNode>(dsb.mrButton(), dsbNode));
-					sceneGraph.addNode(new TNode<CanvasNode>(dsb.closeButton(), dsbNode));
+					sceneGraph.addNode(mrNode);
+					sceneGraph.addNode(closeNode);
 				} finally {
 					Menu.menu().varLock().unlock();
 				}
@@ -193,12 +195,13 @@ public class DataSetLoader {
 		});
 	}
 	
-	private void setDSBCloseEventHandler(CanvasButton close, DataSetButton dsb) {
+	private void setDSBCloseEventHandler(CanvasButton close, TNode<CanvasNode> dsbNode) {
 		close.setOnMouseReleased(e -> {
 			Menu.menu().varLock().lock();
 			try {
-				dsButtons.remove(dsb.dataSetIndex());			
-				for (int j = dsb.dataSetIndex(); j < dsButtons.size(); j++) {					
+				sceneGraph.removeNode(dsbNode);
+				dsButtons.remove(((DataSetButton)dsbNode.element()).dataSetIndex());			
+				for (int j = ((DataSetButton)dsbNode.element()).dataSetIndex(); j < dsButtons.size(); j++) {					
 					DataSetButton d = dsButtons.get(j);
 					if (d == null) {
 						continue;
@@ -207,19 +210,19 @@ public class DataSetLoader {
 					d.setDataSetIndex(d.dataSetIndex() - 1);
 				}
 				for (LoadingDataSet l : loadingSets) {	
-					if (l.addIndex().get() > dsb.dataSetIndex()) {
+					if (l.addIndex().get() > ((DataSetButton)dsbNode.element()).dataSetIndex()) {
 						l.setAddIndex(l.addIndex().get() - 1);
 					}
 					l.setY(l.y() - 58);				
 				}
-				String name = datasets.get(dsb.dataSetIndex()).name();
+				String name = datasets.get(((DataSetButton)dsbNode.element()).dataSetIndex()).name();
 				Chart.closeAll(name, false);
 				for (MarketReplayPane mrp : replays) {
 					if (mrp.name().equals(name)) {
 						mrp.endReplay();
 					}
 				}
-				datasets.remove(dsb.dataSetIndex());
+				datasets.remove(((DataSetButton)dsbNode.element()).dataSetIndex());
 			} finally {
 				Menu.menu().varLock().unlock();
 			}

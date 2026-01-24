@@ -300,7 +300,7 @@ public class DataSet {
 	}
 	
 	private void checkLength(double val) {
-		int length = ((Double)val).toString().length();
+		int length = ((Double)Round.round(val, numDecimalPts)).toString().length();
 		if (length > maxLength) {
 			maxLength = length; 
 		}
