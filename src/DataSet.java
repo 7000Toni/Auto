@@ -274,7 +274,7 @@ public class DataSet {
 	
 	private void addCandlestick(ReadFileVars rfv, boolean complete) {
 		rfv.close = rfv.prevPrice;	
-		m1Candles.add(new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldtPrev, complete, rfv.firstTickIndex));
+		m1Candles.add(new Candlestick(Round.round(rfv.open, numDecimalPts), Round.round(rfv.high, numDecimalPts), Round.round(rfv.low, numDecimalPts), Round.round(rfv.close, numDecimalPts), rfv.ldtPrev, complete, rfv.firstTickIndex));
 	}
 	
 	private void checkAddCandlestick(ReadFileVars rfv) {
@@ -349,7 +349,7 @@ public class DataSet {
 					continue;
 				}										
 				checkAddCandlestick(rfv);
-				tickData.add(new DataPair(rfv.val, rfv.ldt, m1Candles.size()));
+				tickData.add(new DataPair(Round.round(rfv.val, numDecimalPts), rfv.ldt, m1Candles.size()));
 				checkLength(rfv.val);
 			}
 			addCandlestick(rfv, false);

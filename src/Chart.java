@@ -2492,7 +2492,7 @@ public class Chart implements ScrollBarOwner {
 			}
 			gc.strokeLine(x1, entryY, x2, entryY);
 			
-			drawPriceBox(entryY, roundToNearestTick(mr.trade().entryPrice()), Color.WHITE, boxColour);
+			drawPriceBox(entryY, mr.trade().entryPrice(), Color.WHITE, boxColour);
 			drawTradeBox(x1 - 100, entryY - fontSize, 100, 90, 5, ((Double)(mr.trade().volume())).toString() + "\t$" + ((Double)(mr.trade().profit())).toString(), textColour, boxColour);
 			tradeButs.setSL.setY(entryY - fontSize);
 			tradeButs.setTP.setY(entryY - fontSize);
