@@ -1976,7 +1976,7 @@ public class Chart implements ScrollBarOwner {
 					gc.setStroke(Color.GRAY);
 				}
 				gc.strokeLine(CHT_MARGIN, y, chartWidth + CHT_MARGIN, y);				
-				gc.fillRect(chartWidth + CHT_MARGIN, y - fontSize/2, 100, fontSize);
+				gc.fillRect(chartWidth + CHT_MARGIN, y - fontSize/2, PRICE_MARGIN, fontSize);
 				gc.setStroke(Color.WHITE);
 				gc.strokeText(((Double)(roundToNearestTick(l.price()))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			}
