@@ -7,14 +7,12 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class MarketReplayPane extends GridPane implements ScrollBarOwner {
+public class MarketReplayPane extends GridPane implements ScrollBarOwner, CanvasWindow {
 	private Stage stage;
 	private MarketReplay mr;
 	private Canvas canvas;
@@ -271,7 +269,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		sceneGraph.addNode(new TNode<CanvasNode>(s3, sceneGraph.root()));			
 		
 		canvas.addEventFilter(Event.ANY, e -> {
-			canvasEventFilter(e);
+			(new CanvasEventFilter(this)).canvasEventFilter(e);
 		});
 		
 		this.add(canvas, 0, 0);
@@ -280,57 +278,16 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner {
 		panes.add(this);
 	}
 	
-	private void canvasEventFilter(Event e) {
-		boolean onNode = false;
-		MouseEvent me = null;
-		ScrollEvent se = null;
-		for (TNode<CanvasNode> t : sceneGraph.postOrderArray()) {	
-			CanvasNode cn = t.element();
-			if (e instanceof MouseEvent) {
-				me = (MouseEvent)e;
-				if (!cn.onNode(me.getX(), me.getY())) {
-					continue;
-				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
-				if (lastNode == null) {
-					lastNode = t;
-					cn.onMouseEntered(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-					cn.onMouseDragged(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
-					cn.onMouseExited(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
-					cn.onMousePressed(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
-					cn.onMouseReleased(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
-					cn.onMouseMoved(me);
-				}
-				break;
-			} else if (e instanceof ScrollEvent) {
-				se = (ScrollEvent)e;
-				if (!cn.onNode(se.getX(), se.getY())) {
-					continue;
-				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
-				if (e.getEventType() == ScrollEvent.SCROLL) {
-					cn.onScroll(se);
-				}
-				break;
-			}
-		}		
-		if (me != null) {
-			if (!onNode && lastNode != null) {
-				lastNode.element().onMouseExited(me);
-				lastNode = null;
-			}
-			sceneGraph.root().element().onMouseMoved(me);
-		}
-		draw();
+	public Tree<CanvasNode> sceneGraph() {
+		return sceneGraph;
+	}
+	
+	public TNode<CanvasNode> lastNode() {
+		return lastNode;
+	}
+	
+	public void setLastNode(TNode<CanvasNode> lastNode) {
+		this.lastNode = lastNode;
 	}
 	
 	public Canvas canvas() {

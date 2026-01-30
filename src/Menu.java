@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -17,14 +16,12 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-public class Menu {
+public class Menu implements CanvasWindow {
 	public static final double MARGIN = 10;
 	
 	private Canvas canvas;
@@ -117,7 +114,7 @@ public class Menu {
 					Thread t = new Thread(new OptimizeTask(f, numJobs));
 					t.start();							
 				}
-			}	
+			}
 		});
 		
 		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
@@ -210,7 +207,7 @@ public class Menu {
 		sceneGraph.addNode(new TNode<CanvasNode>(auto, sceneGraph.root()));
 		
 		canvas.addEventFilter(Event.ANY, e -> {
-			canvasEventFilter(e);
+			(new CanvasEventFilter(this)).canvasEventFilter(e);
 		});
 		
 		if (openChartOnStart) {
@@ -221,57 +218,16 @@ public class Menu {
 		menu = this;
 	}	
 	
-	private void canvasEventFilter(Event e) {
-		boolean onNode = false;
-		MouseEvent me = null;
-		ScrollEvent se = null;
-		for (TNode<CanvasNode> t : sceneGraph.postOrderArray()) {	
-			CanvasNode cn = t.element();
-			if (e instanceof MouseEvent) {
-				me = (MouseEvent)e;
-				if (!cn.onNode(me.getX(), me.getY())) {
-					continue;
-				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
-				if (lastNode == null) {
-					lastNode = t;
-					cn.onMouseEntered(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-					cn.onMouseDragged(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
-					cn.onMouseExited(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
-					cn.onMousePressed(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
-					cn.onMouseReleased(me);
-				} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
-					cn.onMouseMoved(me);
-				}
-				break;
-			} else if (e instanceof ScrollEvent) {
-				se = (ScrollEvent)e;
-				if (!cn.onNode(se.getX(), se.getY())) {
-					continue;
-				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
-				if (e.getEventType() == ScrollEvent.SCROLL) {
-					cn.onScroll(se);
-				}
-				break;
-			}
-		}		
-		if (me != null) {
-			if (!onNode && lastNode != null) {
-				lastNode.element().onMouseExited(me);
-				lastNode = null;
-			}
-			sceneGraph.root().element().onMouseMoved(me);
-		}
-		draw();
+	public Tree<CanvasNode> sceneGraph() {
+		return sceneGraph;
+	}
+	
+	public TNode<CanvasNode> lastNode() {
+		return lastNode;
+	}
+	
+	public void setLastNode(TNode<CanvasNode> lastNode) {
+		this.lastNode = lastNode;
 	}
 	
 	private void openChartOnStart() {
@@ -430,31 +386,5 @@ public class Menu {
 			gc.strokeRect(120, l.y(), 510, 48);	
 			gc.fillRect(121, l.y() + 1, 508 * l.progress().get() / 100.0, 46);
 		}
-	}
-	
-	protected void mergeFiles(List<File> files) {
-		ArrayList<String> nf = new ArrayList<String>();
-		for (File f : files) {										
-			try (FileInputStream fis = new FileInputStream(f);
-					BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-				String s = br.readLine();
-				while (s != null) {
-					nf.add(s);
-					s = br.readLine();
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-		try (FileOutputStream fos = new FileOutputStream(new File("./merged"))) {
-			fos.write(("size name tickSize numDecimalPts\n").getBytes());
-			for (String s : nf) {
-				if (!Signature.validFull(s)) {
-					fos.write((s + '\n').getBytes());
-				}
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
+	}	
 }
