@@ -7,7 +7,7 @@ import javafx.scene.input.ScrollEvent;
 public class CanvasWrapper implements CanvasNode {
 	private Canvas canvas;	
 	private Tree<CanvasNode> sceneGraph;
-	private EventHandler<MouseEvent> onMouseMoved = e -> {
+	private EventHandler<MouseEvent> onMouseExited = e -> {
 		for (TNode<CanvasNode> tn : sceneGraph.postOrderArray()) {			
 			if (tn.element() instanceof CanvasButton) {				
 				ButtonChecks.mouseButtonHoverCheck((CanvasButton)tn.element(), e.getX(), e.getY());
@@ -30,13 +30,14 @@ public class CanvasWrapper implements CanvasNode {
 	
 	public void onMouseDragged(MouseEvent e) {}
 	public void onMouseEntered(MouseEvent e) {}
-	public void onMouseExited(MouseEvent e) {}
+	
+	public void onMouseExited(MouseEvent e) {
+		onMouseExited.handle(e);
+	}
+	
 	public void onMousePressed(MouseEvent e) {}
 	public void onMouseReleased(MouseEvent e) {}
-	
-	public void onMouseMoved(MouseEvent e) {
-		onMouseMoved.handle(e);
-	}
+	public void onMouseMoved(MouseEvent e) {}
 	
 	public void onScroll(ScrollEvent e) {}
 	

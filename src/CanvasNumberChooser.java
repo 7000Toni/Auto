@@ -408,6 +408,10 @@ public class CanvasNumberChooser implements CanvasNode {
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		setUpPressed(false);
+		setUpHover(false);
+		setDownPressed(false);		
+		setDownHover(false);
 		if (onMouseExited == null || !enabled) {
 			return;
 		}

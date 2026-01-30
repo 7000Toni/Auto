@@ -10,7 +10,7 @@ public class CanvasEventFilter {
 	}
 	
 	public void canvasEventFilter(Event e) {
-		boolean onNode = false;
+		TNode<CanvasNode> currentNode = null;
 		MouseEvent me = null;
 		ScrollEvent se = null;
 		for (TNode<CanvasNode> t : cw.sceneGraph().postOrderArray()) {	
@@ -20,11 +20,8 @@ public class CanvasEventFilter {
 				if (!cn.onNode(me.getX(), me.getY())) {
 					continue;
 				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
-				if (cw.lastNode() == null) {
-					cw.setLastNode(t);
+				currentNode = t;
+				if (!currentNode.equals(cw.lastNode())) {
 					cn.onMouseEntered(me);
 				} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 					cn.onMouseDragged(me);
@@ -43,9 +40,7 @@ public class CanvasEventFilter {
 				if (!cn.onNode(se.getX(), se.getY())) {
 					continue;
 				}
-				if (!(cn instanceof CanvasWrapper)) {
-					onNode = true;
-				}
+				currentNode = t;
 				if (e.getEventType() == ScrollEvent.SCROLL) {
 					cn.onScroll(se);
 				}
@@ -53,11 +48,14 @@ public class CanvasEventFilter {
 			}
 		}		
 		if (me != null) {
-			if (!onNode && cw.lastNode() != null) {
-				cw.lastNode().element().onMouseExited(me);
-				cw.setLastNode(null);
+			if (currentNode != null && !currentNode.equals(cw.lastNode())) {
+				if (cw.lastNode() != null) {
+					cw.lastNode().element().onMouseExited(me);
+				}
+				cw.setLastNode(currentNode);
+			} else {
+				cw.sceneGraph().root().element().onMouseExited(me);
 			}
-			cw.sceneGraph().root().element().onMouseMoved(me);
 		}
 		cw.draw();
 	}

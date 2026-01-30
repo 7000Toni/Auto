@@ -355,7 +355,7 @@ public class Menu implements CanvasWindow {
 		}
 	}
 	
-	public void draw() {						
+	public void draw() {	
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {

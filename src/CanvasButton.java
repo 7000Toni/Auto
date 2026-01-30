@@ -197,6 +197,8 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		setPressed(false);
+		setHover(false);
 		if (onMouseExited == null || !enabled) {
 			return;
 		}
@@ -214,7 +216,7 @@ public class CanvasButton implements CanvasNode {
 
 	@Override
 	public void onMouseReleased(MouseEvent e) {		
-		setPressed(false);		
+		setPressed(false);	
 		if (onMouseReleased == null || !enabled) {
 			return;
 		}
