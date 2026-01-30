@@ -13,7 +13,7 @@ import javafx.stage.FileChooser;
 
 public class RandomFunctions {
 	
-	public void mergeFiles(List<File> files) {
+	public static void mergeFiles(List<File> files) {
 		ArrayList<String> nf = new ArrayList<String>();
 		for (File f : files) {										
 			try (FileInputStream fis = new FileInputStream(f);
@@ -39,7 +39,7 @@ public class RandomFunctions {
 		}
 	}
 	
-	public void databendoOptimizer() {
+	public static void databendoOptimizer() {
 		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
