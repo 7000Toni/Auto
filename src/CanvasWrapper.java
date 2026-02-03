@@ -10,11 +10,14 @@ public class CanvasWrapper implements CanvasNode {
 	private EventHandler<MouseEvent> onMouseExited = e -> {
 		for (TNode<CanvasNode> tn : sceneGraph.postOrderArray()) {			
 			if (tn.element() instanceof CanvasButton) {				
-				ButtonChecks.mouseButtonHoverCheck((CanvasButton)tn.element(), e.getX(), e.getY());
+				((CanvasButton)tn.element()).setHover(false);
+				((CanvasButton)tn.element()).setPressed(false);
 			}
 			if (tn.element() instanceof CanvasNumberChooser) {
-				ButtonChecks.mouseNumberChooserUpHoverCheck((CanvasNumberChooser)tn.element(), e.getX(), e.getY());
-				ButtonChecks.mouseNumberChooserDownHoverCheck((CanvasNumberChooser)tn.element(), e.getX(), e.getY());
+				((CanvasNumberChooser)tn.element()).setDownHover(false);
+				((CanvasNumberChooser)tn.element()).setDownPressed(false);
+				((CanvasNumberChooser)tn.element()).setUpHover(false);
+				((CanvasNumberChooser)tn.element()).setUpPressed(false);
 			}				
 		}
 	};

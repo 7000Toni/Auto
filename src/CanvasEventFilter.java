@@ -53,9 +53,7 @@ public class CanvasEventFilter {
 					cw.lastNode().element().onMouseExited(me);
 				}
 				cw.setLastNode(currentNode);
-			} else {
-				cw.sceneGraph().root().element().onMouseExited(me);
-			}
+			} 
 		}
 		cw.draw();
 	}
