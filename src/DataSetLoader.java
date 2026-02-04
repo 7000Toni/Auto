@@ -191,7 +191,7 @@ public class DataSetLoader {
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
-			s.show();
+			s.show();			
 		});
 	}
 	

@@ -61,6 +61,22 @@ public class CanvasButton implements CanvasNode {
 		}
 	}
 	
+	public double width() {
+		return width;
+	}
+	
+	public double textXOffset() {
+		return textXOffset;
+	}
+	
+	public double textYOffset() {
+		return textYOffset;
+	}
+	
+	public double height() {
+		return height;
+	}
+	
 	@Override
 	public GraphicsContext graphicsContext() {
 		return this.gc;

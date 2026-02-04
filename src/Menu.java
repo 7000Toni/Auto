@@ -46,7 +46,6 @@ public class Menu implements CanvasWindow {
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
-	private final ReentrantLock lock = new ReentrantLock();
 	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private Tree<CanvasNode> sceneGraph;
@@ -277,6 +276,7 @@ public class Menu implements CanvasWindow {
 		}
 	}
 	
+	@Override
 	public ReentrantLock varLock() {
 		return varLock;
 	}
@@ -320,7 +320,6 @@ public class Menu implements CanvasWindow {
 	}
 	
 	private void drawUI() {
-		lock.lock();
 		varLock.lock();
 		try {					
 			if (datasets.size() < 6) {
@@ -350,7 +349,6 @@ public class Menu implements CanvasWindow {
 				dsb.draw();
 			}
 		} finally {
-			lock.unlock();
 			varLock.unlock();
 		}
 	}

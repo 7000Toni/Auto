@@ -1,5 +1,6 @@
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -28,6 +29,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private TNode<CanvasNode> lastNode = null;
 	
 	private static ArrayList<MarketReplayPane> panes = new ArrayList<MarketReplayPane>();
+	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private CanvasButton newChart;
 	private ButtonVanGogh nvg = (x, y, gc) -> {
@@ -276,6 +278,11 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		mr.run();
 		draw();
 		panes.add(this);
+	}
+	
+	@Override
+	public ReentrantLock varLock() {
+		return varLock;
 	}
 	
 	public Tree<CanvasNode> sceneGraph() {

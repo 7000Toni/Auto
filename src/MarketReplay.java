@@ -30,7 +30,7 @@ public class MarketReplay {
 	private Trade trade = null; 
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
-	private ArrayList<Chart.PendingTrade> pendingTrades = new ArrayList<Chart.PendingTrade>();
+	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
 	private boolean writeToFile = true;
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
@@ -118,11 +118,11 @@ public class MarketReplay {
 		return IntegerProperty.readOnlyIntegerProperty(lastTick);
 	}
 	
-	public ArrayList<Chart.PendingTrade> pendingTrades() {
+	public ArrayList<PendingTrade> pendingTrades() {
 		return pendingTrades;
 	}
 	
-	public void setPendingTrades(ArrayList<Chart.PendingTrade> pendingTrades) {
+	public void setPendingTrades(ArrayList<PendingTrade> pendingTrades) {
 		this.pendingTrades = pendingTrades;
 	}
 	
@@ -186,7 +186,7 @@ public class MarketReplay {
 		this.run.set(false);
 	}
 	
-	private void executePendingOrder(Chart.PendingTrade p, int i) {
+	private void executePendingOrder(PendingTrade p, int i) {
 		boolean nt = false;
 		if (trade.closed()) {
 			setTrade(new Trade(data, i, slPrice.get(), tpPrice.get(), p.buy(), p.volume()));	
@@ -229,7 +229,7 @@ public class MarketReplay {
 			int j = 0;
 			Object[] pt = pendingTrades.toArray();
 			for (Object obj : pt) {
-				Chart.PendingTrade p = (Chart.PendingTrade) obj;
+				PendingTrade p = (PendingTrade) obj;
 				boolean changed = false;
 				if (p.buy()) {
 					if (currentPrice >= p.price() && !p.limit()) {
