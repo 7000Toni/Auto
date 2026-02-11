@@ -34,6 +34,7 @@ public class CanvasNumberChooser implements CanvasNode {
 	private EventHandler<? super MouseEvent> onMouseEntered;
 	private EventHandler<? super MouseEvent> onMouseExited;
 	private EventHandler<? super MouseEvent> onMousePressed;
+	private EventHandler<? super MouseEvent> onMouseClicked;
 	private EventHandler<? super MouseEvent> onMouseReleased;
 	private EventHandler<? super MouseEvent> onMouseMoved;
 	private EventHandler<? super ScrollEvent> onScroll;
@@ -433,6 +434,21 @@ public class CanvasNumberChooser implements CanvasNode {
 	}
 
 	@Override
+	public void onMouseClicked(MouseEvent e) {
+		if (upPressed) {
+			incrementValue();
+		} else if (downPressed) {
+			decrementValue();
+		}
+		setUpPressed(false);
+		setDownPressed(false);
+		if (onMouseClicked == null || !enabled || !(upPressed || downPressed)) {
+			return;
+		}
+		onMouseClicked.handle(e);		
+	}
+	
+	@Override
 	public void onMouseReleased(MouseEvent e) {
 		if (upPressed) {
 			incrementValue();
@@ -485,6 +501,11 @@ public class CanvasNumberChooser implements CanvasNode {
 		onMousePressed = e;
 	}
 
+	@Override
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
+		onMouseClicked = e;
+	}
+	
 	@Override
 	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
 		onMouseReleased = e;

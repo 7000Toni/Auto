@@ -8,6 +8,7 @@ public interface CanvasNode {
 	public void onMouseEntered(MouseEvent e);
 	public void onMouseExited(MouseEvent e);
 	public void onMousePressed(MouseEvent e);
+	public void onMouseClicked(MouseEvent e);
 	public void onMouseReleased(MouseEvent e);
 	public void onMouseMoved(MouseEvent e);
 	public void onScroll(ScrollEvent e);
@@ -16,6 +17,7 @@ public interface CanvasNode {
 	public void setOnMouseEntered(EventHandler<? super MouseEvent> e);
 	public void setOnMouseExited(EventHandler<? super MouseEvent> e);
 	public void setOnMousePressed(EventHandler<? super MouseEvent> e);
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> e);
 	public void setOnMouseReleased(EventHandler<? super MouseEvent> e);
 	public void setOnMouseMoved(EventHandler<? super MouseEvent> e);
 	public void setOnScroll(EventHandler<? super ScrollEvent> e);

@@ -23,6 +23,7 @@ public class CanvasButton implements CanvasNode {
 	protected EventHandler<? super MouseEvent> onMouseEntered;
 	protected EventHandler<? super MouseEvent> onMouseExited;
 	protected EventHandler<? super MouseEvent> onMousePressed;
+	protected EventHandler<? super MouseEvent> onMouseClicked;
 	protected EventHandler<? super MouseEvent> onMouseReleased;
 	protected EventHandler<? super MouseEvent> onMouseMoved;
 	protected EventHandler<? super ScrollEvent> onScroll;
@@ -75,6 +76,14 @@ public class CanvasButton implements CanvasNode {
 	
 	public double height() {
 		return height;
+	}
+	
+	public void setWidth(double width) {
+		this.width = width;
+	}
+	
+	public void setHeight(double height) {
+		this.height = height;
 	}
 	
 	@Override
@@ -231,6 +240,15 @@ public class CanvasButton implements CanvasNode {
 	}
 
 	@Override
+	public void onMouseClicked(MouseEvent e) {			
+		if (onMouseClicked == null || !enabled || !pressed) {
+			return;
+		}
+		setPressed(false);
+		onMouseClicked.handle(e);	
+	}
+	
+	@Override
 	public void onMouseReleased(MouseEvent e) {		
 		setPressed(false);	
 		if (onMouseReleased == null || !enabled) {
@@ -276,6 +294,11 @@ public class CanvasButton implements CanvasNode {
 		onMousePressed = e;
 	}
 
+	@Override
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
+		onMouseClicked = e;
+	}
+	
 	@Override
 	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
 		onMouseReleased = e;

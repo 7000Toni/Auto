@@ -1,8 +1,4 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -12,14 +8,11 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.Event;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 public class Menu implements CanvasWindow {
 	public static final double MARGIN = 10;
@@ -42,7 +35,7 @@ public class Menu implements CanvasWindow {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -91,14 +84,14 @@ public class Menu implements CanvasWindow {
 			gc.setFont(new Font(37));
 			loadData.defaultDrawButton();
 		});
-		this.loadData.setOnMouseReleased(e -> {
+		this.loadData.setOnMouseClicked(e -> {
 			DataSetLoader dsl = new DataSetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
 			dsl.load();
 		});
 		
 		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
 		this.optimize.setVanGogh(optimizeVG);
-		this.optimize.setOnMouseReleased(e -> {
+		this.optimize.setOnMouseClicked(e -> {
 			File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 			FileChooser fc = new FileChooser();
 			if (init.exists()) {
@@ -118,7 +111,7 @@ public class Menu implements CanvasWindow {
 		
 		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
 		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
-		this.marketTickReader.setOnMouseReleased(e -> {			
+		this.marketTickReader.setOnMouseClicked(e -> {			
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -129,7 +122,7 @@ public class Menu implements CanvasWindow {
 		
 		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23);
 		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16));
-		this.marketTickOReader.setOnMouseReleased(e -> {
+		this.marketTickOReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			originalReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -140,7 +133,7 @@ public class Menu implements CanvasWindow {
 		
 		this.originalReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 86, "OG READER", 2, 24);
 		this.originalReader.setVanGogh(readerVG(originalReader, 18));
-		this.originalReader.setOnMouseReleased(e -> {
+		this.originalReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -151,7 +144,7 @@ public class Menu implements CanvasWindow {
 		
 		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24);
 		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
-		this.dukasNodeReader.setOnMouseReleased(e -> {
+		this.dukasNodeReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
@@ -175,13 +168,13 @@ public class Menu implements CanvasWindow {
 			gc.setFont(new Font(fontSize));
 			darkMode.defaultDrawButton();
 		});
-		this.darkMode.setOnMouseReleased(e -> {
+		this.darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();	
 		});
 		
 		this.auto = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2 + 26, "AUTO READER", 2, 17);
 		this.auto.setVanGogh(readerVG(auto, 15));
-		this.auto.setOnMouseReleased(e -> {
+		this.auto.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
@@ -190,7 +183,6 @@ public class Menu implements CanvasWindow {
 			reader = null;
 		});
 		this.auto.toggleOn();
-		
 		
 		sceneGraph = new Tree<CanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
@@ -209,12 +201,13 @@ public class Menu implements CanvasWindow {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
 		});
 		
+		menu = this;
+		
 		if (openChartOnStart) {
 			openChartOnStart();
 		}
 		
 		draw();
-		menu = this;
 	}	
 	
 	public Tree<CanvasNode> sceneGraph() {
@@ -230,55 +223,21 @@ public class Menu implements CanvasWindow {
 	}
 	
 	private void openChartOnStart() {
-		File f = new File("res/20221229_Optimized.csv");
+		File f = new File("res/20220901_DBG.csv");
 		if (f.exists()) {				
-			try (FileInputStream fis = new FileInputStream(f);
-					BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {	
-				String signature = br.readLine();
-				if (!Signature.validFull(signature)) {
-					System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
-					return;
-				}
-				String datum = br.readLine();
-				TickDataFileReader thisReader = reader;
-				if (reader == null) {
-					MarketTickFileReader mtfr = new MarketTickFileReader();
-					OriginalTickFileReader otfr = new OriginalTickFileReader();
-					OptimizedMarketTickFileReader omtfr = new OptimizedMarketTickFileReader();
-					DukascopyNodeReader dnr = new DukascopyNodeReader();
-					if (mtfr.validDatum(datum)) {
-						thisReader = mtfr;
-					} else if (otfr.validDatum(datum)) {
-						thisReader = otfr;
-					} else if (omtfr.validDatum(datum)) {
-						thisReader = omtfr;
-					} else {
-						thisReader = dnr;
-					}
-				}
-				datasets.add(new DataSet(f, thisReader));
-				DataSet ds = datasets.get(datasets.size() - 1);
-				DataSetButton dsb = new DataSetButton(gc, 510, 48, 120, MARGIN + dsButtons.size() * 58, "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);		
-				dsb.setVanGogh((x, y, gc) -> {
-					gc.setFont(new Font(37));
-					dsb.defaultDrawButton();		
-				});
-				Stage s = new Stage();
-				ChartPane c = new ChartPane(s, 1280, 720, datasets.get(0), false, null, null);
-				Scene scene = new Scene(c);
-				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-				s.setScene(scene);
-				s.show();
-				dsButtons.add(dsb);						
-			} catch(IOException e) {
-				e.printStackTrace();
-			}				
+			DataSetLoader dsl = new DataSetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+			dsl.load();	
 		}
 	}
 	
 	@Override
 	public ReentrantLock varLock() {
 		return varLock;
+	}
+	
+	@Override
+	public boolean onWindow(double x, double y) {
+		return x <= width && x >= 0 && y <= height && y >= 0; 
 	}
 	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {

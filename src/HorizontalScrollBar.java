@@ -28,6 +28,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	private EventHandler<? super MouseEvent> onMouseEntered;
 	private EventHandler<? super MouseEvent> onMouseExited;
 	private EventHandler<? super MouseEvent> onMousePressed;
+	private EventHandler<? super MouseEvent> onMouseClicked;
 	private EventHandler<? super MouseEvent> onMouseReleased;
 	private EventHandler<? super MouseEvent> onMouseMoved;
 	private EventHandler<? super ScrollEvent> onScroll;
@@ -216,6 +217,14 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		return false;
 	}
 	
+	protected void checkXPos() {
+		if (x > maxPos) {
+			x = maxPos - sbWidth;
+		} else if (x < minPos) {
+			x = minPos - sbWidth;
+		}
+	}
+	
 	@Override
 	public GraphicsContext graphicsContext() {
 		return this.gc;
@@ -305,6 +314,14 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	}
 
 	@Override
+	public void onMouseClicked(MouseEvent e) {
+		if (onMouseClicked == null) {
+			return;
+		}
+		onMouseClicked.handle(e);
+	}
+	
+	@Override
 	public void onMouseReleased(MouseEvent e) {
 		if (onMouseReleased == null) {
 			return;
@@ -346,6 +363,11 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	@Override
 	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
 		onMousePressed = e;
+	}
+	
+	@Override
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
+		onMouseClicked = e;
 	}
 
 	@Override

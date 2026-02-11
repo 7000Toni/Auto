@@ -7,6 +7,32 @@ public class ChartButtonVanGoghs {
 		this.c = c;
 	}
 	
+	public ButtonVanGogh menuVG(CanvasButton menu) {
+		return (x, y, gc) -> {
+			if (Chart.darkMode()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.BLACK);
+			} else {
+				gc.setStroke(Color.BLACK);
+				gc.setFill(Color.WHITE);				
+			}		
+			if (menu.hover()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.GRAY);
+			}
+			if (menu.pressed()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.DIMGRAY);
+			}
+			if (!menu.enabled()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.LIGHTGRAY);
+			}
+			gc.fillRect(x, y, menu.width(), menu.height());
+			gc.strokeText(menu.text(), menu.x() + menu.textXOffset(), menu.y() + menu.textYOffset());
+		};
+	}
+	
 	public ButtonVanGogh buyVG(CanvasButton buy) {  
 		return (x, y, gc) -> {
 			gc.setStroke(Color.WHITE);

@@ -1,11 +1,13 @@
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
@@ -18,7 +20,7 @@ import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 
-public class Chart implements ScrollBarOwner {
+public class Chart implements ScrollBarOwner, CanvasWindow {
 	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
@@ -143,16 +145,23 @@ public class Chart implements ScrollBarOwner {
 	private int numCandlesticks;
 	
 	private ChartButtonVanGoghs cbvg;
+	private Tree<CanvasNode> sceneGraph;
+	private TNode<CanvasNode> lastNode = null;
+	private CanvasWrapper cw;
+	private final ReentrantLock varLock = new ReentrantLock();
+	
+	private boolean b = true;
+	private CanvasButton menu;
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
 	}
 	
-	private void constructorStuff(double width, double height, Stage stage, DataSet data) throws Exception {		
+	private void constructorStuff(double widthParam, double heightParam, Stage stage, DataSet data) throws Exception {		
 		this.numDecimalPts = data.numDecimalPts();
 		this.tickSize = data.tickSize();
-		this.width = width;
-		this.height = height;
+		this.width = widthParam;
+		this.height = heightParam;
 		this.data = data;
 		stage.setMinWidth(MIN_WIDTH);
 		stage.setMinHeight(MIN_HEIGHT);
@@ -168,7 +177,56 @@ public class Chart implements ScrollBarOwner {
 		if (PRICE_MARGIN < 35) {
 			PRICE_MARGIN = 35;
 		}
-		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);				
+		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
+		
+		cbvg = new ChartButtonVanGoghs(this);
+		menu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", 15, 11);
+		menu.setVanGogh(cbvg.menuVG(menu)); 
+		menu.setOnMouseClicked(e -> {
+			new AnimationTimer() {
+				int i = b?1:-1;
+				double pm = b?PRICE_MARGIN:PRICE_MARGIN+300;
+				double t = pm + 300*i;				
+				@Override
+				public void handle(long now) {		
+					pm += 50*i;
+					chartWidth -= 50*i;
+					setCandleStickVars(numCandlesticks);
+					menu.setWidth(PRICE_MARGIN - 2);
+					menu.setHeight(HSB_HEIGHT + CHT_MARGIN - 2);
+					menu.setX(CHT_MARGIN + chartWidth + 1);
+					menu.setY(height - HSB_HEIGHT - CHT_MARGIN + 1);
+					
+					hsb.setMaxPos(width - pm); 					
+					hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
+					keepStartIndex = true;
+					//TODO					
+					if (pm == t) {
+						menu.setHover(false);
+						if (replayMode) {
+							limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
+							stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-4);
+						}
+						b = !b;
+						draw();
+						this.stop();
+					}
+					draw();
+				}
+			}.start();
+		});
+		
+		sceneGraph = new Tree<CanvasNode>();
+		cw = new CanvasWrapper(canvas, sceneGraph);
+		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
+		
+		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu, sceneGraph.root()));
+		
+		canvas.addEventFilter(Event.ANY, e -> {
+			(new CanvasEventFilter(this)).canvasEventFilter(e);
+		});
+		
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
 		chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
@@ -395,8 +453,7 @@ public class Chart implements ScrollBarOwner {
 			double bh = 30;
 			double mgn = 5;
 			double initx = CHT_MARGIN + INFO_MARGIN;
-			double inity = 30;
-			cbvg = new ChartButtonVanGoghs(this);
+			double inity = 30;			
 			buy = new CanvasButton(gc, bw, bh, initx, inity, "BUY", 9, fontSize + 7);
 			buy.setVanGogh(cbvg.buyVG(buy));
 			sell = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "SELL", 9, fontSize + 7);
@@ -423,9 +480,9 @@ public class Chart implements ScrollBarOwner {
 			tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL));
 			tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
 			tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP));
-			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, width - PRICE_MARGIN - fontSize*2-2, 0, "LMT", 0, fontSize-2);
+			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT", 0, fontSize-2);
 			limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
-			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, width - PRICE_MARGIN - fontSize*4-4, 0, "STP", 1, fontSize-2);			
+			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*4-4, 0, "STP", 1, fontSize-2);			
 			stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));			
 			if (mr.trade() == null) {
 				mr.setTrade(new Trade(data, 1, true, 1));
@@ -608,7 +665,7 @@ public class Chart implements ScrollBarOwner {
 			if (!limitDragging && !stopDragging) {
 				drawPending = false;
 			}
-			if (e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
+			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
 				stage.getScene().setCursor(Cursor.N_RESIZE);
 			}
 		} else {
@@ -835,7 +892,7 @@ public class Chart implements ScrollBarOwner {
 			startX = e.getX();
 			startY = e.getY();
 		} else if (e.isPrimaryButtonDown()) {			
-			if (e.getX() >= width - PRICE_MARGIN && e.getY() <= chartHeight + CHT_MARGIN) {
+			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN && e.getY() <= chartHeight + CHT_MARGIN) {
 				priceDragging = true;
 				priceInitPos = e.getY();
 			}
@@ -1191,17 +1248,16 @@ public class Chart implements ScrollBarOwner {
 		}
 		MarketReplayPane.drawReplayPanes();
 	}
-	
-	boolean b = true;
+		
 	public void onMouseReleased(MouseEvent e) {	
 		hsb.onMouseReleased(e);	
 		if (chartDateMarginDragging && !(onChart(e.getX(), e.getY(), true) && e.getY() >= chartHeight + CHT_MARGIN - fontSize)) {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
-		if (priceDragging && !(e.getX() >= width - PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN)) {
+		if (priceDragging && !(e.getX() >= CHT_MARGIN + chartWidth && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN)) {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
-		if (newCHT_BTN_Pressed && checkNewChtBtn(e.getX(), e.getY())) {
+		/*if (newCHT_BTN_Pressed && checkNewChtBtn(e.getX(), e.getY())) {
 			newCHT_BTN_Pressed = false;
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, width, height, data, replayMode, mr, mrp);			
@@ -1252,35 +1308,18 @@ public class Chart implements ScrollBarOwner {
 				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);				
 			}
-			if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
+			if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
 				keepStartIndex = true;
 			} else {
 				keepStartIndex = false;
 			}
 		} else if (darkModePressed && checkDarkModeBtn(e.getX(), e.getY())) {
-			//TODO remove later
-			/*new AnimationTimer() {
-				int i = b?1:-1;
-				double t = PRICE_MARGIN + 300*i;
-				@Override
-				public void handle(long now) {					
-					PRICE_MARGIN += 50*i;
-					chartWidth -= 50*i;
-					setCandleStickVars(numCandlesticks);
-					if (PRICE_MARGIN == t) {
-						b = !b;
-						draw();
-						this.stop();
-					}
-					draw();
-				}
-			}.start();*/
 			darkModePressed = false;	
 			toggleDarkMode();
 		} else if (drawMRPPressed && checkDrawMRPBtn(e.getX(), e.getY())) {
 			drawMRPPressed = false;
 			drawMRP = !drawMRP;
-		} else if (measuring) {
+		} else*/ if (measuring) {
 			measuring = false;
 			stage.getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
@@ -1429,7 +1468,7 @@ public class Chart implements ScrollBarOwner {
 				startIndex = 0;
 			}
 			if (dragDiffAccum == 0 && posDiff != 0) {
-				if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH) {
+				if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
 					keepStartIndex = true;
 				} else {
 					keepStartIndex = false;
@@ -1492,7 +1531,7 @@ public class Chart implements ScrollBarOwner {
 		} else { 
 			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 		}
-		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH || customSI) {
+		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -1532,7 +1571,7 @@ public class Chart implements ScrollBarOwner {
 		} else {
 			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 		}
-		if (newHSBPos < width - PRICE_MARGIN - HSB_WIDTH || customSI) {
+		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -1799,14 +1838,14 @@ public class Chart implements ScrollBarOwner {
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
-		if (replayMode) {
+		/*if (replayMode) {
 			gc.strokeLine(width - PRICE_MARGIN * 3 / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 3 / 4 - 1, height);
 			gc.strokeLine(width - PRICE_MARGIN * 2 / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 4 - 1, height);
 			gc.strokeLine(width - PRICE_MARGIN / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 4 - 1, height);
 		} else {
 			gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
 			gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
-		}		
+		}*/	
 	}	
 	
 	private void setPreDrawVars() {
@@ -1893,7 +1932,7 @@ public class Chart implements ScrollBarOwner {
 		}		
 		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 		gc.setStroke(Color.SLATEBLUE);
-		gc.strokeLine(CHT_MARGIN, yPos, width - PRICE_MARGIN, yPos);	
+		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + chartWidth, yPos);	
 	}
 	
 	private void drawPriceDashes() {
@@ -1955,7 +1994,7 @@ public class Chart implements ScrollBarOwner {
 			if (n100 != -1) {
 				if (n100 > CHT_MARGIN && n100 < CHT_MARGIN + chartHeight - fontSize) {
 					double ex = endX + 50;
-					if (ex >= width - PRICE_MARGIN) {
+					if (ex >= CHT_MARGIN + chartWidth) {
 						ex -= 100;
 						gc.strokeLine(ex, n100, endX, n100);
 					} else {
@@ -2051,9 +2090,11 @@ public class Chart implements ScrollBarOwner {
 	private void drawPendingTrades() {
 		if (penTrade != null) {
 			pendingTrades.add(penTrade);
+		} else {
+			return;
 		}
 		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = width - PRICE_MARGIN;
+		double x2 = CHT_MARGIN + chartWidth;
 		if (mr.trade().closed()) {
 			double slY = priceToYCoord(mr.slPrice().get());
 			double tpY = priceToYCoord(mr.tpPrice().get());			
@@ -2121,7 +2162,7 @@ public class Chart implements ScrollBarOwner {
 			return;
 		}
 		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = width - PRICE_MARGIN;	
+		double x2 = CHT_MARGIN + chartWidth;	
 		
 		double entryY = priceToYCoord(roundToNearestTick(mr.trade().entryPrice()));
 		double slY = priceToYCoord(mr.slPrice().get());
@@ -2181,10 +2222,10 @@ public class Chart implements ScrollBarOwner {
 	private void drawUI() {	
 		long b = System.nanoTime();
 		calculateIndices();			
-		drawFrame();		
+		drawFrame();/*	
 		fillNewChtBtn();
 		fillChartTypeBtn();
-		fillDarkModeBtn();		
+		fillDarkModeBtn();*/		
 		hsb.draw();
 		calculateRange();
 		setPreDrawVars();			
@@ -2213,6 +2254,7 @@ public class Chart implements ScrollBarOwner {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}
 		}
+		menu.draw();
 		double tm = (System.nanoTime() - b) / 1000000000.0;
 		t += tm;
 		c++;
@@ -2256,5 +2298,30 @@ public class Chart implements ScrollBarOwner {
 	
 	public double fontSize() {
 		return this.fontSize;
+	}
+
+	@Override
+	public Tree<CanvasNode> sceneGraph() {
+		return sceneGraph;
+	}
+
+	@Override
+	public TNode<CanvasNode> lastNode() {
+		return lastNode;
+	}
+
+	@Override
+	public void setLastNode(TNode<CanvasNode> lastNode) {
+		this.lastNode = lastNode;
+	}
+
+	@Override
+	public ReentrantLock varLock() {
+		return varLock;
+	}
+	
+	@Override
+	public boolean onWindow(double x, double y) {
+		return x <= width && x >= 0 && y <= height && y >= 0; 
 	}
 }

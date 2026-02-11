@@ -112,7 +112,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(Chart.CHT_MARGIN, yPos, chart.width() - Chart.PRICE_MARGIN, yPos);
+		chart.graphicsContext().strokeLine(Chart.CHT_MARGIN, yPos, Chart.CHT_MARGIN + chart.chartWidth(), yPos);
 		drawPriceBox(yPos);
 	}
 	

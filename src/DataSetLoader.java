@@ -19,6 +19,7 @@ public class DataSetLoader {
 	private TickDataFileReader reader;	
 	private ArrayList<LoadingDataSet> loadingSets;
 	private Tree<CanvasNode> sceneGraph;
+	private File file;
 	
 	public DataSetLoader(ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, TickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<CanvasNode> sceneGraph) {
 		this.datasets = datasets;
@@ -29,7 +30,23 @@ public class DataSetLoader {
 		this.sceneGraph = sceneGraph;
 	}
 	
+	public DataSetLoader(File file, ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, TickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<CanvasNode> sceneGraph) {
+		this.file = file;
+		this.datasets = datasets;
+		this.dsButtons = dsButtons;
+		this.replays = replays;
+		this.reader = reader;
+		this.loadingSets = loadingSets;
+		this.sceneGraph = sceneGraph;
+	}
+	
 	public void load() {
+		if (file != null) {
+			ArrayList<File> files = new ArrayList<File>();
+			files.add(file);
+			loadTask(files);
+			return;
+		}
 		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
@@ -42,7 +59,7 @@ public class DataSetLoader {
 			return;
 		}
 		loadTask(files);
-	}
+	}	
 	
 	private void loadTask(List<File> files) {
 		for (File file : files) {	
@@ -157,6 +174,7 @@ public class DataSetLoader {
 			} else if (otfr.validDatum(datum)) {
 				return otfr;
 			} else if (omtfr.validDatum(datum)) {
+				//return new RandomTickDataGenerator();
 				return omtfr;
 			} else {
 				return dnr;
@@ -185,7 +203,7 @@ public class DataSetLoader {
 	}
 	
 	private void setDSBEventHandler(DataSetButton dsb) {
-		dsb.setOnMouseReleased(e -> {
+		dsb.setOnMouseClicked(e -> {
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
 			Scene scene = new Scene(c);
@@ -196,7 +214,7 @@ public class DataSetLoader {
 	}
 	
 	private void setDSBCloseEventHandler(CanvasButton close, TNode<CanvasNode> dsbNode) {
-		close.setOnMouseReleased(e -> {
+		close.setOnMouseClicked(e -> {
 			Menu.menu().varLock().lock();
 			try {
 				sceneGraph.removeNode(dsbNode);
@@ -230,7 +248,7 @@ public class DataSetLoader {
 	}
 	
 	private void setDSBMREventHandler(CanvasButton mr) {
-		mr.setOnMouseReleased(e -> {
+		mr.setOnMouseClicked(e -> {
 			int index = (int)((e.getY() - Menu.MARGIN) / 58);
 			if (index < 0) {
 				index = 0;

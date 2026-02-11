@@ -285,6 +285,11 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		return varLock;
 	}
 	
+	@Override
+	public boolean onWindow(double x, double y) {
+		return x <= 399 && x >= 0 && y <= 100 && y >= 0; 
+	}
+	
 	public Tree<CanvasNode> sceneGraph() {
 		return sceneGraph;
 	}

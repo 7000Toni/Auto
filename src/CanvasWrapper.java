@@ -18,7 +18,20 @@ public class CanvasWrapper implements CanvasNode {
 				((CanvasNumberChooser)tn.element()).setDownPressed(false);
 				((CanvasNumberChooser)tn.element()).setUpHover(false);
 				((CanvasNumberChooser)tn.element()).setUpPressed(false);
-			}				
+			}			
+			if (tn.element() instanceof HorizontalScrollBar) {
+				if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+					((HorizontalScrollBar)tn.element()).onMouseDragged(e);
+				} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
+					((HorizontalScrollBar)tn.element()).onMouseExited(e);
+				} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
+					((HorizontalScrollBar)tn.element()).onMousePressed(e);
+				} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
+					((HorizontalScrollBar)tn.element()).onMouseReleased(e);
+				} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
+					((HorizontalScrollBar)tn.element()).onMouseMoved(e);
+				}
+			}
 		}
 	};
 	
@@ -39,6 +52,7 @@ public class CanvasWrapper implements CanvasNode {
 	}
 	
 	public void onMousePressed(MouseEvent e) {}
+	public void onMouseClicked(MouseEvent e) {}
 	public void onMouseReleased(MouseEvent e) {}
 	public void onMouseMoved(MouseEvent e) {}
 	
@@ -51,6 +65,8 @@ public class CanvasWrapper implements CanvasNode {
 	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {}
 	
 	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {}
+	
+	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {}
 	
 	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {}
 	

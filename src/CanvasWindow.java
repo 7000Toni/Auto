@@ -6,4 +6,5 @@ public interface CanvasWindow {
 	public TNode<CanvasNode> lastNode();
 	public void setLastNode(TNode<CanvasNode> lastNode);
 	public ReentrantLock varLock();
+	public boolean onWindow(double x, double y);
 }

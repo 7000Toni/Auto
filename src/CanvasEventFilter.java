@@ -31,6 +31,8 @@ public class CanvasEventFilter {
 						cn.onMouseExited(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
 						cn.onMousePressed(me);
+					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) { 
+						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
 						cn.onMouseReleased(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -49,16 +51,18 @@ public class CanvasEventFilter {
 					break;
 				}
 			}		
+			if (me != null) {
+				if (currentNode != null && !currentNode.equals(cw.lastNode())) {
+					if (cw.lastNode() != null) {
+						cw.lastNode().element().onMouseExited(me);
+					}
+					cw.setLastNode(currentNode);
+				} else if (!cw.onWindow(me.getX(), me.getY())) {
+					cw.sceneGraph().root().element().onMouseExited(me);
+				}
+			}
 		} finally {
 			cw.varLock().unlock();
-		}
-		if (me != null) {
-			if (currentNode != null && !currentNode.equals(cw.lastNode())) {
-				if (cw.lastNode() != null) {
-					cw.lastNode().element().onMouseExited(me);
-				}
-				cw.setLastNode(currentNode);
-			} 
 		}
 		cw.draw();
 	}
