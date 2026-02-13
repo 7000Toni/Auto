@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -18,7 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
 
 public class Chart implements ScrollBarOwner, CanvasWindow {
 	public final static double CNDL_MOVE_COEF = 0.001;
@@ -32,7 +30,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public final static double LINE_PRESS_MARGIN = 5;
 	
-	//TODO consider a function to calculate the price given a y coordinate
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
 	
@@ -51,10 +48,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public final static double CNDL_WDTH_COEF = 0.005;
 	public final static double CNDL_SPAC_COEF = 0.4;
-	//ChartType
+	
 	private static ArrayList<Chart> charts = new ArrayList<Chart>();	
 	private static BooleanProperty focusedOnChart = new SimpleBooleanProperty(false);	
-	private static boolean darkMode = false;
+	private static BooleanProperty darkMode = new SimpleBooleanProperty(false);
 	
 	private DataSet data;
 	private CrossHair crossHair;
@@ -99,21 +96,11 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private double mrpx;
 	private double mrpy;	
 	
-	//ChartButton
-	private boolean newCHT_BTN_Hover = false;
-	private boolean drawCandlesticksHover = false;
-	private boolean darkModeHover = false;
-	private boolean drawMRPHover = false;
-	private boolean newCHT_BTN_Pressed = false;
-	private boolean drawCandlesticksPressed = false;
-	private boolean darkModePressed = false;
-	private boolean drawMRPPressed = false;
 	private CanvasButton buy;
 	private CanvasButton sell;
 	private CanvasNumberChooser volUnits;
 	private CanvasNumberChooser volTens;
-	
-	//TradeStuff	
+		
 	private TradeButtons tradeButs;
 	private CanvasButton limitOrder;
 	private CanvasButton stopOrder;
@@ -127,7 +114,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private PendingTrade penOrderBeingDragged = null;
 	private boolean penOrderDragging = false;
 	
-	//ChartActions
 	private static int lineHighlighted = -1;
 	private boolean lineDragging = false;
 	private boolean rightPressed = false;
@@ -138,8 +124,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private double endX = 0;
 	private double endY = 0;
 	
-	//Candlestick static variables
-	private boolean drawCandlesticks = false;
+	private BooleanProperty drawCandlesticks = new SimpleBooleanProperty(false);
 	private double candlestickWidth;
 	private double candlestickSpacing;
 	private int numCandlesticks;
@@ -150,8 +135,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private CanvasWrapper cw;
 	private final ReentrantLock varLock = new ReentrantLock();
 	
-	private boolean b = true;
-	private CanvasButton menu;
+	private boolean menuHidden = true;
+	private CanvasButton btnMenu;
+	private ChartMenu menu;
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -180,34 +166,43 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
 		
 		cbvg = new ChartButtonVanGoghs(this);
-		menu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", 15, 11);
-		menu.setVanGogh(cbvg.menuVG(menu)); 
-		menu.setOnMouseClicked(e -> {
+		btnMenu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", 15, 11);
+		btnMenu.setVanGogh(cbvg.menuButtonVG(btnMenu)); 
+		btnMenu.setOnMouseClicked(e -> {
 			new AnimationTimer() {
-				int i = b?1:-1;
-				double pm = b?PRICE_MARGIN:PRICE_MARGIN+300;
-				double t = pm + 300*i;				
+				int i = menuHidden?1:-1;
+				double pm = menuHidden?PRICE_MARGIN:PRICE_MARGIN+300;
+				double t = pm + 300*i;
+				boolean changed = false;
 				@Override
-				public void handle(long now) {		
+				public void handle(long now) {	
+					if (menuHidden && !changed) {
+						menuHidden = false;
+						changed = true;
+					}
 					pm += 50*i;
 					chartWidth -= 50*i;
 					setCandleStickVars(numCandlesticks);
-					menu.setWidth(PRICE_MARGIN - 2);
-					menu.setHeight(HSB_HEIGHT + CHT_MARGIN - 2);
-					menu.setX(CHT_MARGIN + chartWidth + 1);
-					menu.setY(height - HSB_HEIGHT - CHT_MARGIN + 1);
+					btnMenu.setWidth(PRICE_MARGIN - 2);
+					btnMenu.setHeight(HSB_HEIGHT + CHT_MARGIN - 2);
+					btnMenu.setX(CHT_MARGIN + chartWidth + 1);
+					btnMenu.setY(height - HSB_HEIGHT - CHT_MARGIN + 1);
+					
+					menu.setX(CHT_MARGIN + chartWidth + PRICE_MARGIN);
 					
 					hsb.setMaxPos(width - pm); 					
 					hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
 					keepStartIndex = true;
 					//TODO					
 					if (pm == t) {
-						menu.setHover(false);
+						btnMenu.setHover(false);
 						if (replayMode) {
 							limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
 							stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-4);
+						}		
+						if (!menuHidden && !changed) {
+							menuHidden = true;
 						}
-						b = !b;
 						draw();
 						this.stop();
 					}
@@ -216,12 +211,22 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			}.start();
 		});
 		
+		menu = new ChartMenu(CHT_MARGIN + chartWidth + PRICE_MARGIN, 0, 300, chartHeight, gc, this);		
+		
 		sceneGraph = new Tree<CanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
 		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
 		
 		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<CanvasNode>(btnMenu, sceneGraph.root()));
+		TNode<CanvasNode> menuNode = new TNode<CanvasNode>(menu, sceneGraph.root());
+		sceneGraph.addNode(menuNode);
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartFunctions(), menuNode));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartSettings(), menuNode));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.newChart(), menuNode));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartType(), menuNode));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.darkMode(), menuNode));
+		sceneGraph.addNode(new TNode<CanvasNode>(menu.replayShortcut(), menuNode));
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
@@ -439,8 +444,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		stage.close();
 	}
 	
-	public static boolean darkMode() {
-		return Chart.darkMode;
+	public static ReadOnlyBooleanProperty darkMode() {
+		return BooleanProperty.readOnlyBooleanProperty(darkMode);
 	}
 	
 	public void enableReplayMode(MarketReplay mr, MarketReplayPane mrp) {
@@ -464,6 +469,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
 			volUnits.setValue(1);
 			setNumberChooserColours();
+			menu.setReplayMode(true);
 			
 			tradeButs = new TradeButtons();
 			tradeButs.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3);
@@ -535,6 +541,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			mr.removeChart(this);
 			this.mr = null;
 			this.mrp = null;
+			menu.setReplayMode(false);
 		}
 	}
 	
@@ -580,11 +587,11 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			this.startIndex = 0;
 			return;
 		}
-		if (drawCandlesticks && startIndex >= data.m1CandlesDataSize(false).get()) {
+		if (drawCandlesticks.get() && startIndex >= data.m1CandlesDataSize(false).get()) {
 			this.startIndex = data.m1CandlesDataSize(replayMode).get() - 1;
 			return;
 		}
-		if (!drawCandlesticks && startIndex >= data.tickDataSize(false).get()) {
+		if (!drawCandlesticks.get() && startIndex >= data.tickDataSize(false).get()) {
 			this.startIndex = data.tickDataSize(replayMode).get() - 1;
 			return;
 		}
@@ -611,17 +618,13 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		hsb.onMouseExited(e);
 		focusedChart.set(false);
 		focusedOnChart.set(false);
-		newCHT_BTN_Hover = false;
-		drawCandlesticksHover = false;
-		darkModeHover = false;
-		drawMRPHover = false;
 		drawPending = false;
 		drawCharts(this.name());
 	}
 	
 	public void onMouseEntered() {
 		focusedChart.set(true);
-		CrossHair.setIsForCandle(drawCandlesticks);
+		CrossHair.setIsForCandle(drawCandlesticks.get());
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
 		drawCharts(this.name());
@@ -649,7 +652,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
-		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks) {
+		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
 		}
 		if (!chartDateMarginDragging && !priceDragging) {
@@ -680,38 +683,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				stage.getScene().setCursor(Cursor.E_RESIZE);
 			}
 		}
-		if (checkNewChtBtn(e.getX(), e.getY())) {
-			if (!newCHT_BTN_Pressed) {
-				newCHT_BTN_Hover = true;
-			}
-		} else {
-			newCHT_BTN_Hover = false;
-			newCHT_BTN_Pressed = false;
-		}		
-		if (checkChartTypeBtn(e.getX(), e.getY())) {
-			if (!drawCandlesticksPressed) {
-				drawCandlesticksHover = true;
-			}
-		} else {
-			drawCandlesticksHover = false;
-			drawCandlesticksPressed = false;	
-		}
-		if (checkDarkModeBtn(e.getX(), e.getY())) {
-			if (!darkModePressed) {
-				darkModeHover = true;
-			}
-		} else {
-			darkModeHover = false;
-			darkModePressed = false;
-		}
-		if (checkDrawMRPBtn(e.getX(), e.getY())) {
-			if (!drawMRPPressed) {
-				drawMRPHover = true;
-			}
-		} else {
-			drawMRPPressed = false;
-			drawMRPHover = false;
-		}
 		if (replayMode) {
 			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
@@ -723,50 +694,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			mrp.canvas().fireEvent(me);
 		}
 		drawCharts(this.name());
-	}				
-	
-	private boolean checkNewChtBtn(double x, double y) {
-		if (replayMode) {
-			if (x >= CHT_MARGIN + chartWidth && x <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 4 - 1 && y >= CHT_MARGIN + chartHeight) {
-				return true;
-			}
-			return false;
-		} else if (x >= CHT_MARGIN + chartWidth && x <= CHT_MARGIN + chartWidth + PRICE_MARGIN / 3 - 1 && y >= CHT_MARGIN + chartHeight) {
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean checkChartTypeBtn(double x, double y) {
-		if (replayMode) {
-			if (x >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 4 + 1 && x <= CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 4 - 1 && y >= CHT_MARGIN + chartHeight) {
-				return true;
-			}
-			return false;
-		} else if (x >= CHT_MARGIN + chartWidth  + PRICE_MARGIN / 3 + 1 && x <= CHT_MARGIN + chartWidth + PRICE_MARGIN * 2 / 3 - 1 && y >= CHT_MARGIN + chartHeight) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean checkDarkModeBtn(double x, double y) {
-		if (replayMode) {
-			if (x >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 4 + 1  && x <= CHT_MARGIN + chartWidth + PRICE_MARGIN * 3 / 4 - 1 && y >= CHT_MARGIN + chartHeight) {
-				return true;
-			}
-			return false;
-		} else if (x >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 2 / 3 + 1 && y >= CHT_MARGIN + chartHeight) {
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean checkDrawMRPBtn(double x, double y) {
-		if (x >= CHT_MARGIN + chartWidth  + PRICE_MARGIN * 3 / 4 + 1 && y >= CHT_MARGIN + chartHeight) {
-			return true;
-		}
-		return false;
-	}
+	}	
 	
 	private boolean onDateMargin(double x, double y) {
 		if (x >= CHT_MARGIN && x <= CHT_MARGIN + chartWidth && y >= CHT_MARGIN + chartHeight - fontSize && y <= CHT_MARGIN + chartHeight) {
@@ -938,19 +866,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				if (i != lh) {
 					lineDragging = false;
 				}
-			}
-			if (checkNewChtBtn(e.getX(), e.getY())) {
-				newCHT_BTN_Pressed = true;
-				newCHT_BTN_Hover = false;
-			} else if (checkChartTypeBtn(e.getX(), e.getY())) {
-				drawCandlesticksPressed = true;	
-				drawCandlesticksHover = false;
-			} else if (checkDarkModeBtn(e.getX(), e.getY())) {
-				darkModePressed = true;
-				darkModeHover = false;
-			} else if (checkDrawMRPBtn(e.getX(), e.getY())) {
-				drawMRPPressed = true;
-				drawMRPHover = false;
 			}
 		} 					
 		drawCharts(this.name());
@@ -1235,7 +1150,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 	
 	public static void toggleDarkMode() {
-		darkMode = !darkMode;
+		darkMode.set(!darkMode.get());
 		for (Chart c : charts) {
 			if (c.replayMode) {					
 				c.setNumberChooserColours();				
@@ -1257,6 +1172,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		if (priceDragging && !(e.getX() >= CHT_MARGIN + chartWidth && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN)) {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
+		//TODO
 		/*if (newCHT_BTN_Pressed && checkNewChtBtn(e.getX(), e.getY())) {
 			newCHT_BTN_Pressed = false;
 			Stage s = new Stage();
@@ -1449,7 +1365,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			double newHSBPos = hsb.x();					
 			int diff;
 			dragDiffAccum += posDiff;
-			if (drawCandlesticks) {
+			if (drawCandlesticks.get()) {
 				diff = (int)(dragDiffAccum / (candlestickWidth + candlestickSpacing));
 				if (diff != 0) {
 					startIndex = startIndex - diff;
@@ -1478,7 +1394,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		}
 		if (chartDateMarginDragging && !lineDragging) {	
 			stage.getScene().setCursor(Cursor.E_RESIZE);
-			if (drawCandlesticks) {
+			if (drawCandlesticks.get()) {
 				zoomCandlesticks(e.getX() - chartInitPos, false);
 			} else {
 				zoomTicks(e.getX() - chartInitPos, false);
@@ -1580,7 +1496,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 	
 	public void onScroll(ScrollEvent e) {	
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			zoomCandlesticks(e.getDeltaY(), true);
 		} else {
 			zoomTicks(e.getDeltaY(), true);
@@ -1611,7 +1527,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	
 	private void calculateRange() {	
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			lowest = data.m1Candles().get(startIndex).low();
 			highest = data.m1Candles().get(startIndex).high();
 			int ei = endIndex;
@@ -1696,7 +1612,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public void drawCandleStick(DataSet.Candlestick candle, double xPos, double yPos) {
 		int num = 0;
-		if (darkMode) {
+		if (darkMode.get()) {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
@@ -1718,92 +1634,13 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		}
 	}
 	
-	private void fillNewChtBtn() {
-		if (!newCHT_BTN_Pressed && !newCHT_BTN_Hover) {
-			return;
-		}
-		double x = CHT_MARGIN + chartWidth + 1;
-		double w;
-		if (replayMode) { 
-			w = PRICE_MARGIN / 4 - 2;
-		} else {
-			w = PRICE_MARGIN / 3 - 2;
-		}
-		if (newCHT_BTN_Pressed) {
-			gc.setFill(Color.DIMGRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		} else if (newCHT_BTN_Hover) {
-			gc.setFill(Color.GRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		}	
-	}
-	
-	private void fillChartTypeBtn() {
-		if (!drawCandlesticksPressed && !drawCandlesticksHover) {
-			return;
-		}
-		double x;
-		double w;
-		if (replayMode) { 
-			x =  width - PRICE_MARGIN * 3 / 4;
-			w = PRICE_MARGIN / 4 - 2;
-		} else {
-			x =  width - PRICE_MARGIN * 2 / 3;
-			w = PRICE_MARGIN / 3 - 2;
-		}
-		if (drawCandlesticksPressed) {
-			gc.setFill(Color.DIMGRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		} else if (drawCandlesticksHover) {
-			gc.setFill(Color.GRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		}
-	}
-
-	private void fillDarkModeBtn() {
-		if (!darkModePressed && !darkModeHover) {
-			return;
-		}
-		double x;
-		double w;
-		if (replayMode) { 
-			x = width - PRICE_MARGIN * 2 / 4;
-			w = PRICE_MARGIN / 4 - 2;
-		} else {
-			x = width - PRICE_MARGIN / 3;
-			w = PRICE_MARGIN / 3 - 1;
-		}	
-		if (darkModePressed) {
-			gc.setFill(Color.DIMGRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		} else if (darkModeHover) {
-			gc.setFill(Color.GRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		}	
-	}
-	
-	private void fillDrawMRPBtn() {		
-		if (!drawMRPPressed && !drawMRPHover) {
-			return;
-		}
-		double x = width - PRICE_MARGIN / 4;
-		double w = PRICE_MARGIN / 4 - 1;
-		if (drawMRPPressed) {
-			gc.setFill(Color.DIMGRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		} else if (drawMRPHover) {
-			gc.setFill(Color.GRAY);
-			gc.fillRect(x, CHT_MARGIN + chartHeight + 1, w, HSB_HEIGHT + CHT_MARGIN - 2);
-		}					
-	}
-	
 	private void calculateIndices() {
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			if (!keepStartIndex) {
 				if (data.m1CandlesDataSize(this.replayMode).get() < numCandlesticks * END_MARGIN_COEF) {
 					startIndex = 0;
 				} else {
-					startIndex = (int)((hsb.x() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+					startIndex = (int)((hsb.x() / (chartWidth + CHT_MARGIN - HSB_WIDTH)) * (data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 				}
 			}
 			endIndex = startIndex + numCandlesticks;
@@ -1815,7 +1652,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				if (data.tickDataSize(this.replayMode).get() < (numDataPoints - 1) * END_MARGIN_COEF) {
 					startIndex = 0;
 				} else {
-					startIndex = (int)((hsb.x() / (width - HSB_WIDTH - PRICE_MARGIN)) * (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+					startIndex = (int)((hsb.x() / (chartWidth + CHT_MARGIN - HSB_WIDTH)) * (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 				}
 			}
 			endIndex = startIndex + numDataPoints;
@@ -1829,7 +1666,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	private void drawFrame() {
 		gc.clearRect(0, 0, width, height);		
-		if (darkMode) {			
+		if (darkMode.get()) {			
 			gc.setFill(Color.BLACK);
 			gc.fillRect(0, 0, width, height);
 			gc.setStroke(Color.WHITE);
@@ -1849,7 +1686,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}	
 	
 	private void setPreDrawVars() {
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			tickSizeOnChart = (chartHeight - chtDataMargin * 2) / (range / tickSize);
 			dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * tickSize;
 			conversionVar = tickSize / tickSizeOnChart;	
@@ -1865,7 +1702,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		endMargin = false;
 		double startY = chartHeight - chtDataMargin + CHT_MARGIN - (((data.tickData().get(startIndex).price() - lowest) / range) * (chartHeight - chtDataMargin * 2));		
 		double prevY = startY - ((data.tickData().get(startIndex + 1).price() - data.tickData().get(startIndex).price()) / conversionVar);
-		if (darkMode) {
+		if (darkMode.get()) {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
@@ -1954,7 +1791,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		double pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
 		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
 		double diff = (spacing / tickSizeOnChart) * tickSize;		
-		if (darkMode) {
+		if (darkMode.get()) {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
@@ -1976,7 +1813,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private void checkMeasuring() {		
 		if (measuring) {
 			double endPrice = ((((chartHeight - (chtDataMargin*2)) - (endY - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
-			if (darkMode) {
+			if (darkMode.get()) {
 				gc.setStroke(Color.WHITE);
 			} else {
 				gc.setStroke(Color.BLACK);
@@ -2035,12 +1872,12 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 	
 	private void drawTopRightText() {
-		if (darkMode) {			
+		if (darkMode.get()) {			
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
 		}
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			String trt = data.name() + "  M1  ";
 			if (crossHair.ohlc() != null) {
 				trt += crossHair.ohlc();
@@ -2075,7 +1912,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 	
 	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
-		if (darkMode) {
+		if (darkMode.get()) {
 			gc.setFill(Color.BLACK);
 		} else {
 			gc.setFill(Color.WHITE);
@@ -2232,7 +2069,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		drawPriceDashes();
 		drawTopRightText();	
 		crossHair.drawCrossHair();
-		if (drawCandlesticks) {
+		if (drawCandlesticks.get()) {
 			drawCandlestickChart();
 		} else {		
 			drawLineChart();
@@ -2240,7 +2077,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		checkDrawLines();										
 		checkMeasuring();			
 		if (replayMode) {				
-			fillDrawMRPBtn();			
 			drawCurrentPriceLine();
 			drawTradeButtons();
 			drawTrade();
@@ -2254,7 +2090,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}
 		}
-		menu.draw();
+		btnMenu.draw();
+		if (!menuHidden) {
+			menu.draw();
+		}
 		double tm = (System.nanoTime() - b) / 1000000000.0;
 		t += tm;
 		c++;
@@ -2275,6 +2114,14 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		return mr;
 	}
 	
+	public MarketReplayPane mrp() {
+		return mrp;
+	}
+	
+	public void toggleMRPShortcut() {
+		drawMRP = !drawMRP;
+	}
+	
 	public void setNumDataPoints(int numDataPoints) {	
 		this.numDataPoints = numDataPoints;
 		t = 0;
@@ -2288,8 +2135,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		c = 0;
 	}	
 	
-	public boolean drawCandlesticks() {
-		return this.drawCandlesticks;
+	public ReadOnlyBooleanProperty drawCandlesticks() {
+		return BooleanProperty.readOnlyBooleanProperty(drawCandlesticks);
 	}
 	
 	public ReadOnlyBooleanProperty focusedChart() {
@@ -2300,6 +2147,67 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		return this.fontSize;
 	}
 
+	public ChartMenu chartMenu() {
+		return menu;
+	}
+	
+	public CanvasButton btnMenu() {
+		return btnMenu;
+	}
+	
+	public boolean menuHidden() {
+		return menuHidden;
+	}
+	
+	public void toggleChartType() {
+		double newHSBPos;
+		if (drawCandlesticks.get()) {
+			drawCandlesticks.set(false);
+			CrossHair.setIsForCandle(false);
+			CrossHair.setDateIndex(0);
+			if (replayMode) {
+				if (endIndex >= m1Candles().size()) {
+					startIndex = tickData().size() - numDataPoints;
+				} else {
+					startIndex = m1Candles().get(endIndex).firstTickIndex() - 1 - numDataPoints;
+				}
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
+			} else {
+				startIndex = m1Candles().get(startIndex).firstTickIndex();
+			}
+			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+			hsb.setPosition(newHSBPos, false);				
+		} else {
+			if (m1Candles().isEmpty()) {
+				return;
+			}
+			drawCandlesticks.set(true);	
+			CrossHair.setIsForCandle(true);	
+			CrossHair.setDateIndex(0);
+			if (replayMode) {
+				if (endIndex >= tickData().size()) {
+					startIndex = m1Candles().size() - numCandlesticks;
+				} else {
+					startIndex = tickData().get(endIndex).candleIndex() + 1 - numCandlesticks;
+				}
+				if (startIndex < 0) {
+					startIndex = 0;
+				}
+			} else {
+				startIndex = tickData().get(startIndex).candleIndex();
+			}
+			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+			hsb.setPosition(newHSBPos, false);				
+		}
+		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
+			keepStartIndex = true;
+		} else {
+			keepStartIndex = false;
+		}
+	}
+	
 	@Override
 	public Tree<CanvasNode> sceneGraph() {
 		return sceneGraph;

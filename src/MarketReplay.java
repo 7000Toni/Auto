@@ -323,7 +323,7 @@ public class MarketReplay {
 						} else {
 							double newHSBPos;
 							for (Chart c : charts) {
-								if (c.drawCandlesticks()) {
+								if (c.drawCandlesticks().get()) {
 									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
 								} else {
 									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));

@@ -87,7 +87,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		}
 		double newHSBPos;
 		int startIndex = ((Chart) sbo).startIndex();
-		if (((Chart) sbo).drawCandlesticks()) {
+		if (((Chart) sbo).drawCandlesticks().get()) {
 			startIndex -= Chart.CNDL_INDX_MOVE_COEF * speed;	
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().m1CandlesDataSize(((Chart) sbo).replayMode()).get() - ((Chart) sbo).numCandlesticks() * Chart.END_MARGIN_COEF));
 			((Chart) sbo).setKeepStartIndex(false);
@@ -108,7 +108,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		}
 		double newHSBPos;
 		int startIndex = ((Chart) sbo).startIndex();
-		if (((Chart) sbo).drawCandlesticks()) {
+		if (((Chart) sbo).drawCandlesticks().get()) {
 			startIndex += Chart.CNDL_INDX_MOVE_COEF * speed;
 			newHSBPos = (((Chart) sbo).width() - sbWidth - Chart.PRICE_MARGIN) * ((double)startIndex /(((Chart) sbo).data().m1CandlesDataSize(((Chart) sbo).replayMode()).get() - ((Chart) sbo).numCandlesticks() * Chart.END_MARGIN_COEF));
 			((Chart) sbo).setKeepStartIndex(false);

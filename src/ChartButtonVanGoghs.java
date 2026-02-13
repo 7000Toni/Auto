@@ -7,9 +7,9 @@ public class ChartButtonVanGoghs {
 		this.c = c;
 	}
 	
-	public ButtonVanGogh menuVG(CanvasButton menu) {
+	public ButtonVanGogh menuButtonVG(CanvasButton menu) {
 		return (x, y, gc) -> {
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.BLACK);
 			} else {
@@ -233,13 +233,13 @@ public class ChartButtonVanGoghs {
 	
 	public ButtonVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				gc.setFill(Color.WHITE);
 			} else {
 				gc.setFill(Color.BLACK);
 			}
 			gc.fillRect(x, y, btn.width(), btn.height());
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.BLACK);
 			} else {
 				gc.setStroke(Color.WHITE);

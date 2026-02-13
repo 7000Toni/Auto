@@ -35,7 +35,7 @@ public class Menu implements CanvasWindow {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -46,11 +46,12 @@ public class Menu implements CanvasWindow {
 	private TNode<CanvasNode> lastNode = null;
 	
 	private ButtonVanGogh optimizeVG = (x, y, gc) -> {
+		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(22));
 		if (numJobs.get() > 0) {
 			gc.setStroke(Color.RED);
 			gc.setFill(Color.RED);
-		} else if (Chart.darkMode()) {
+		} else if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
@@ -71,6 +72,7 @@ public class Menu implements CanvasWindow {
 		}
 		gc.strokeRect(x, y, optimize.width, optimize.height);
 		gc.fillText(optimize.text, x + optimize.textXOffset, y + optimize.textYOffset);		
+		gc.setFont(new Font(oldFontSize));
 	};
 	
 	public Menu(double width, double height) {		
@@ -81,8 +83,10 @@ public class Menu implements CanvasWindow {
 		
 		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
+			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(37));
 			loadData.defaultDrawButton();
+			gc.setFont(new Font(oldFontSize));
 		});
 		this.loadData.setOnMouseClicked(e -> {
 			DataSetLoader dsl = new DataSetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
@@ -155,8 +159,9 @@ public class Menu implements CanvasWindow {
 		
 		this.darkMode = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2, "DARK", 2, 0);
 		this.darkMode.setVanGogh((x, y, gc) -> {
+			double oldFontSize = gc.getFont().getSize();
 			int fontSize;
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				darkMode.setText("LIGHT MODE");	
 				darkMode.setTextYOffset(16);
 				fontSize = 16;
@@ -167,6 +172,7 @@ public class Menu implements CanvasWindow {
 			}
 			gc.setFont(new Font(fontSize));
 			darkMode.defaultDrawButton();
+			gc.setFont(new Font(oldFontSize));
 		});
 		this.darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();	
@@ -242,18 +248,16 @@ public class Menu implements CanvasWindow {
 	
 	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
+			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(fontSize));
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.WHITE);
 			} else {
 				gc.setStroke(Color.BLACK);
 				gc.setFill(Color.BLACK);
 			}
-			if (!optimize.enabled) {
-				gc.setStroke(Color.LIGHTGRAY);
-				gc.setFill(Color.LIGHTGRAY);
-			} else if (cb.on) {
+			if (cb.on) {
 				gc.setStroke(Color.ORANGE);
 				gc.setFill(Color.ORANGE);
 			} 
@@ -267,6 +271,7 @@ public class Menu implements CanvasWindow {
 			}	
 			gc.strokeRect(x, y, cb.width, cb.height);
 			gc.fillText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
+			gc.setFont(new Font(oldFontSize));
 		};
 	}
 	
@@ -286,7 +291,7 @@ public class Menu implements CanvasWindow {
 			} else {
 				loadData.disable();
 			}
-			if (Chart.darkMode()) {
+			if (Chart.darkMode().get()) {
 				gc.setFill(Color.BLACK);
 			} else {
 				gc.setFill(Color.WHITE);
@@ -333,7 +338,7 @@ public class Menu implements CanvasWindow {
 	}
 	
 	private void drawLoadingSets() {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);

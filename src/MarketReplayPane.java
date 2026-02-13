@@ -33,7 +33,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	
 	private CanvasButton newChart;
 	private ButtonVanGogh nvg = (x, y, gc) -> {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -52,7 +52,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	};
 	private CanvasButton pausePlay;
 	private ButtonVanGogh pvg = (x, y, gc) -> {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -78,7 +78,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	};
 	private CanvasButton back;
 	private ButtonVanGogh bvg = (x, y, gc) -> {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -99,7 +99,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	};
 	private CanvasButton forward;
 	private ButtonVanGogh fvg = (x, y, gc) -> {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -120,7 +120,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	};
 	private CanvasButton live;
 	private ButtonVanGogh lvg = (x, y, gc) -> {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -333,7 +333,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	
 	private void draw(GraphicsContext gc, double x, double y) {
 		double fontSize = gc.getFont().getSize();
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.WHITE);
 		} else {
@@ -357,7 +357,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			tick = data.tickData().get(index).dateTime();
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 		} else {
 			gc.setFill(Color.BLACK);

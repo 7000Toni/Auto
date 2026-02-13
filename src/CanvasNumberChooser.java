@@ -84,7 +84,7 @@ public class CanvasNumberChooser implements CanvasNode {
 	}
 	
 	public void resetColours() {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			onColour = Color.RED;
 			offColour = Color.MAROON;
 		} else {

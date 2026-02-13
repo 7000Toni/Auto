@@ -23,6 +23,8 @@ public class ChartHeightListener implements ChangeListener<Number> {
 		}
 		c.hsb().setY(c.height() - Chart.HSB_HEIGHT);
 		c.setMRPY(c.height() - Chart.HSB_HEIGHT - Chart.CHT_MARGIN - 105 - c.fontSize());
+		c.chartMenu().setHeight(c.chartHeight());
+		c.btnMenu().setY(Chart.CHT_MARGIN + c.chartHeight() + 1);
 		c.draw();
 	}		
 }

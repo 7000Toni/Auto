@@ -163,7 +163,7 @@ public class CanvasButton implements CanvasNode {
 	}
 	
 	public void defaultDrawButton() {
-		if (Chart.darkMode()) {
+		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
@@ -184,6 +184,30 @@ public class CanvasButton implements CanvasNode {
 		}
 		gc.strokeRect(x, y, width, height);
 		gc.fillText(text, x + textXOffset, y + textYOffset);
+	}
+	
+	public void defaultDrawButtonAlternate() {
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
+		if (hover) {
+			gc.setStroke(Color.GRAY);
+			gc.setFill(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.strokeRect(x, y, width, height);
+		gc.strokeText(text, x + textXOffset, y + textYOffset);
 	}
 	
 	public void draw() {
@@ -238,18 +262,18 @@ public class CanvasButton implements CanvasNode {
 		}
 		onMousePressed.handle(e);
 	}
-
 	@Override
-	public void onMouseClicked(MouseEvent e) {			
+	public void onMouseClicked(MouseEvent e) {		
 		if (onMouseClicked == null || !enabled || !pressed) {
+			setPressed(false);
 			return;
 		}
 		setPressed(false);
-		onMouseClicked.handle(e);	
+		onMouseClicked.handle(e);
 	}
 	
 	@Override
-	public void onMouseReleased(MouseEvent e) {		
+	public void onMouseReleased(MouseEvent e) {	
 		setPressed(false);	
 		if (onMouseReleased == null || !enabled) {
 			return;

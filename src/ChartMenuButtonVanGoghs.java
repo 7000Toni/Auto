@@ -1,0 +1,83 @@
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
+public class ChartMenuButtonVanGoghs {
+	
+	public ButtonVanGogh menuButtonVG(CanvasButton cb, double fontSize) {
+		return (x, y, gc) -> {
+			double oldFontSize = gc.getFont().getSize();
+			gc.setFont(new Font(fontSize));
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+				gc.setFill(Color.BLACK);
+			}
+			if (cb.on) {
+				gc.setStroke(Color.ORANGE);
+				gc.setFill(Color.ORANGE);
+			} 
+			if (cb.hover) {
+				gc.setStroke(Color.ORANGE);
+				gc.setFill(Color.ORANGE);
+			} 
+			if (cb.pressed) {				
+				gc.setStroke(Color.DARKORANGE);
+				gc.setFill(Color.DARKORANGE);
+			}	
+			gc.strokeRect(x, y, cb.width, cb.height);
+			gc.strokeText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
+			gc.setFont(new Font(oldFontSize));
+		};
+	}
+	
+	public ButtonVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2, double fontSize1, double fontSize2, double xoff1, double xoff2, double yoff1, double yoff2) {
+		return (x, y, gc) -> {
+			double oldFontSize = gc.getFont().getSize();
+			double fontSize;
+			if (condition.get()) {
+				cb.setText(text1);	
+				cb.setTextXOffset(xoff1);
+				cb.setTextYOffset(yoff1);
+				fontSize = fontSize1;
+			} else {
+				cb.setText(text2);
+				cb.setTextXOffset(xoff2);
+				cb.setTextYOffset(yoff2);
+				fontSize = fontSize2;
+			}
+			gc.setFont(new Font(fontSize));
+			cb.defaultDrawButtonAlternate();
+			gc.setFont(new Font(oldFontSize));
+		};
+	}
+	
+	public ButtonVanGogh regularVG(CanvasButton cb) {
+		return (x, y, gc) -> {
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+				gc.setFill(Color.BLACK);
+			}		
+			if (cb.hover()) {
+				gc.setStroke(Color.GRAY);
+				gc.setFill(Color.GRAY);
+			}
+			if (cb.pressed()) {
+				gc.setStroke(Color.DIMGRAY);
+				gc.setFill(Color.DIMGRAY);
+			}
+			if (!cb.enabled()) {
+				gc.setStroke(Color.LIGHTGRAY);
+				gc.setFill(Color.LIGHTGRAY);
+			}
+			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
+		};
+	}
+	
+}
