@@ -31,10 +31,10 @@ public class CanvasEventFilter {
 						cn.onMouseExited(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
 						cn.onMousePressed(me);
-					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) { 
-						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
 						cn.onMouseReleased(me);
+					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) { 
+						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
 						cn.onMouseMoved(me);
 					}

@@ -1927,8 +1927,6 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private void drawPendingTrades() {
 		if (penTrade != null) {
 			pendingTrades.add(penTrade);
-		} else {
-			return;
 		}
 		double x1 = CHT_MARGIN + chartWidth / 2;
 		double x2 = CHT_MARGIN + chartWidth;
@@ -1943,7 +1941,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				tradeButs.cancelTP().enable();
 				tradeButs.tp().setY(tpY - fontSize);
 				tradeButs.cancelTP().setY(tpY - fontSize);
-				tradeButs.tp().draw();
+				if (mr.tpPrice().get() != -1) {
+					tradeButs.tp().draw();
+				}				
 				tradeButs.cancelTP().draw();
 			} else {
 				tradeButs.tp().disable();
@@ -1957,7 +1957,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				tradeButs.cancelSL().enable();
 				tradeButs.sl().setY(slY - fontSize);
 				tradeButs.cancelSL().setY(slY - fontSize);
-				tradeButs.sl().draw();
+				if (mr.slPrice().get() != -1) {
+					tradeButs.sl().draw();
+				}
 				tradeButs.cancelSL().draw();
 			} else {
 				tradeButs.sl().disable();
@@ -2059,10 +2061,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private void drawUI() {	
 		long b = System.nanoTime();
 		calculateIndices();			
-		drawFrame();/*	
-		fillNewChtBtn();
-		fillChartTypeBtn();
-		fillDarkModeBtn();*/		
+		drawFrame();		
 		hsb.draw();
 		calculateRange();
 		setPreDrawVars();			

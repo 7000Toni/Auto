@@ -263,12 +263,10 @@ public class CanvasButton implements CanvasNode {
 		onMousePressed.handle(e);
 	}
 	@Override
-	public void onMouseClicked(MouseEvent e) {		
-		if (onMouseClicked == null || !enabled || !pressed) {
-			setPressed(false);
+	public void onMouseClicked(MouseEvent e) {	
+		if (onMouseClicked == null || !enabled) {
 			return;
 		}
-		setPressed(false);
 		onMouseClicked.handle(e);
 	}
 	

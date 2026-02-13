@@ -199,7 +199,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			hsb.defaultOnMouseDragged(e);
 			mr.setIndex((int)(((hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos())) * mr.tickDataSize().get()), false);
 		});
-		newChart.setOnMouseReleased(e -> {
+		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
 			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
 			Scene scene = new Scene(c);	
@@ -207,7 +207,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			s.setScene(scene);
 			s.show();
 		});
-		pausePlay.setOnMouseReleased(e -> {
+		pausePlay.setOnMouseClicked(e -> {
 			if (bPlay) {
 				bPlay = false;
 				mr.togglePause();
@@ -216,19 +216,19 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 				mr.togglePause();
 			}
 		});
-		back.setOnMouseReleased(e -> {
+		back.setOnMouseClicked(e -> {
 			mr.setIndex(-moveNumber(), true);
 			for (Chart c : mr.charts()) {
 				c.draw();
 			}		
 		});
-		forward.setOnMouseReleased(e -> {
+		forward.setOnMouseClicked(e -> {
 			mr.setIndex(moveNumber(), true);
 			for (Chart c : mr.charts()) {
 				c.draw();
 			}		
 		});
-		live.setOnMouseReleased(e -> {
+		live.setOnMouseClicked(e -> {
 			if (bLive) {
 				bLive = false;
 				mr.toggleLive();
@@ -237,19 +237,19 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 				mr.toggleLive();
 			}
 		});
-		s1.setOnMouseReleased(e -> {
+		s1.setOnMouseClicked(e -> {
 			if (speedNumber() == 0) {
 				s3.incrementValue();
 			}
 			mr.setSpeed(speedNumber());
 		});
-		s2.setOnMouseReleased(e -> {
+		s2.setOnMouseClicked(e -> {
 			if (speedNumber() == 0) {
 				s3.incrementValue();
 			}
 			mr.setSpeed(speedNumber());
 		});
-		s3.setOnMouseReleased(e -> {
+		s3.setOnMouseClicked(e -> {
 			if (speedNumber() == 0) {
 				s3.incrementValue();
 			}
