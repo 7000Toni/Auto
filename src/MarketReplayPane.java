@@ -40,12 +40,16 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.BLACK);
 		}			
-		if (newChart.hover) {
+		if (newChart.hover()) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
 		}
-		if (newChart.pressed) {
+		if (newChart.pressed()) {
 			gc.setFill(Color.DIMGRAY);
+		}
+		if (!newChart.enabled()) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, 40, 20);
 		gc.fillRect(x + 1, y + 1, 38, 18);
@@ -59,9 +63,17 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.BLACK);
 		}	
-		if (pausePlay.hover) {
+		if (pausePlay.hover()) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
+		}
+		if (pausePlay.pressed()) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!pausePlay.enabled()) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		if (bPlay) {
 			gc.setFill(Color.ORANGE);
@@ -85,12 +97,17 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.BLACK);
 		}
-		if (back.hover) {
+		if (back.hover()) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
 		}
-		if (back.pressed) {
+		if (back.pressed()) {
+			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
+		}
+		if (!back.enabled()) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, 40, 40);	
 		double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 35, x + 20, x + 20, x + 5};
@@ -106,12 +123,17 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.BLACK);
 		}
-		if (forward.hover) {
+		if (forward.hover()) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
 		}
-		if (forward.pressed) {
+		if (forward.pressed()) {
+			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
+		}
+		if (!forward.enabled()) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, 40, 40);	
 		double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 20, x + 20, x + 5, x + 5};
@@ -127,9 +149,17 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.BLACK);
 		}
-		if (live.hover) {
+		if (live.hover()) {
 			gc.setFill(Color.GRAY);
 			gc.setStroke(Color.GRAY);
+		}
+		if (live.pressed()) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!live.enabled()) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
 		}
 		if (bLive) {
 			gc.setFill(Color.RED);

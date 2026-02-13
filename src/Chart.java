@@ -8,6 +8,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
@@ -299,6 +300,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		canvas.setOnMousePressed(e -> onMousePressed(e));
 		canvas.setOnMouseReleased(e -> onMouseReleased(e));
+		canvas.setOnMouseClicked(e -> onMouseClicked(e));
 		canvas.setOnMouseMoved(e -> onMouseMoved(e));
 		canvas.setOnScroll(e -> onScroll(e));
 	}
@@ -687,11 +689,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
 		if (drawMRP) {
-			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_MOVED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.canvas().fireEvent(me);
+			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
 		}
 		drawCharts(this.name());
 	}	
@@ -827,11 +825,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			if (onChart(e.getX(), e.getY(), true)) {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
-					MouseEvent me = new MouseEvent(MouseEvent.MOUSE_PRESSED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-							e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-							e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-							e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-					mrp.canvas().fireEvent(me);
+					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
 				} else if (!replayMode || !tradeButtonPressChecks(e.getX(), e.getY())) {
 					if (onDateMargin(e.getX(), e.getY())) {
 						chartDateMarginDragging = true;
@@ -1239,22 +1233,31 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			measuring = false;
 			stage.getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
-			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_RELEASED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.canvas().fireEvent(me);
-		} else {
-			if (replayMode) {
-				tradeButtonReleaseChecks(e.getX(), e.getY());
-			}
-		}
+			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
+		} else if (replayMode) {
+			tradeButtonReleaseChecks(e.getX(), e.getY());
+		}		
 		lineDragging = false;
 		priceDragging = false;
 		chartDragging = false;
 		chartDateMarginDragging = false;
 		rightPressed = false;
 		drawCharts(this.name());
+	}
+	
+	public void onMouseClicked(MouseEvent e) {
+		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !measuring) {
+			fireMRPEvent(MouseEvent.MOUSE_CLICKED, e);
+		}
+		drawCharts(this.name());
+	}
+	
+	private void fireMRPEvent(EventType<MouseEvent> type, MouseEvent e) {
+		MouseEvent me = new MouseEvent(type, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
+				e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
+				e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
+				e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
+		mrp.canvas().fireEvent(me);
 	}
 	
 	private void updatePendingTrade(PendingTrade pent, double currentPrice, double crossHairPrice) {

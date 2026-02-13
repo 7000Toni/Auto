@@ -60,7 +60,9 @@ public class ChartMenu implements CanvasNode {
 		});
 		
 		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 35, "NEW CHART", 114, 14);
-		newChart.setVanGogh(cmbvg.regularVG(newChart));
+		newChart.setVanGogh((x2, y2, gc2) -> {
+			newChart.defaultDrawButtonAlternate();
+		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
 			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.data(), replayMode, chart.mr(), chart.mrp());			
@@ -83,7 +85,9 @@ public class ChartMenu implements CanvasNode {
 		});
 		
 		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 110, "REPLAY SHORTCUT", 96, 14);
-		replayShortcut.setVanGogh(cmbvg.regularVG(replayShortcut));
+		replayShortcut.setVanGogh((x2, y2, gc2) -> {
+			replayShortcut.defaultDrawButtonAlternate();
+		});
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.toggleMRPShortcut();
 		});

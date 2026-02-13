@@ -435,14 +435,7 @@ public class CanvasNumberChooser implements CanvasNode {
 
 	@Override
 	public void onMouseClicked(MouseEvent e) {
-		if (upPressed) {
-			incrementValue();
-		} else if (downPressed) {
-			decrementValue();
-		}
-		setUpPressed(false);
-		setDownPressed(false);
-		if (onMouseClicked == null || !enabled || !(upPressed || downPressed)) {
+		if (onMouseClicked == null || !enabled) {
 			return;
 		}
 		onMouseClicked.handle(e);		

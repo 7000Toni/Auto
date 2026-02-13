@@ -52,32 +52,5 @@ public class ChartMenuButtonVanGoghs {
 			cb.defaultDrawButtonAlternate();
 			gc.setFont(new Font(oldFontSize));
 		};
-	}
-	
-	public ButtonVanGogh regularVG(CanvasButton cb) {
-		return (x, y, gc) -> {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-				gc.setFill(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-				gc.setFill(Color.BLACK);
-			}		
-			if (cb.hover()) {
-				gc.setStroke(Color.GRAY);
-				gc.setFill(Color.GRAY);
-			}
-			if (cb.pressed()) {
-				gc.setStroke(Color.DIMGRAY);
-				gc.setFill(Color.DIMGRAY);
-			}
-			if (!cb.enabled()) {
-				gc.setStroke(Color.LIGHTGRAY);
-				gc.setFill(Color.LIGHTGRAY);
-			}
-			gc.strokeRect(x, y, cb.width(), cb.height());
-			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
-		};
-	}
-	
+	}	
 }
