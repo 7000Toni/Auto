@@ -689,7 +689,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
 		if (drawMRP) {
-			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
+			if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+				fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
+			}
 		}
 		drawCharts(this.name());
 	}	
