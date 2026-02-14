@@ -1199,7 +1199,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				} else {
 					startIndex = m1Candles().get(startIndex).firstTickIndex();
 				}
-				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);				
 			} else {
 				if (m1Candles().isEmpty()) {
@@ -1220,7 +1220,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				} else {
 					startIndex = tickData().get(startIndex).candleIndex();
 				}
-				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 				hsb.setPosition(newHSBPos, false);				
 			}
 			if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
@@ -1455,10 +1455,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(startIndex) /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)(startIndex) /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 			}
 		} else { 
-			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 		}
 		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
@@ -1495,10 +1495,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)(startIndex) /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));				
+				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)(startIndex) /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));				
 			}
 		} else {
-			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 		}
 		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH || customSI) {
 			keepStartIndex = true;
@@ -2189,7 +2189,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			} else {
 				startIndex = m1Candles().get(startIndex).firstTickIndex();
 			}
-			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 			hsb.setPosition(newHSBPos, false);				
 		} else {
 			if (m1Candles().isEmpty()) {
@@ -2210,7 +2210,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			} else {
 				startIndex = tickData().get(startIndex).candleIndex();
 			}
-			newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 			hsb.setPosition(newHSBPos, false);				
 		}
 		if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
