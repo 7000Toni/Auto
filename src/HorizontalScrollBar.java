@@ -23,6 +23,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	protected double sbWidth;
 	protected double sbHeight;
 	protected GraphicsContext gc;
+	protected ButtonVanGogh bvg;
 	
 	private EventHandler<? super MouseEvent> onMouseDragged;
 	private EventHandler<? super MouseEvent> onMouseEntered;
@@ -56,6 +57,10 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	
 	public double sbHeight() {
 		return this.sbHeight;
+	}
+	
+	public void setVanGogh(ButtonVanGogh bvg) {
+		this.bvg = bvg;
 	}
 	
 	public void defaultOnMouseReleased(MouseEvent e) {
@@ -268,8 +273,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		}
 	}		
 	
-	@Override
-	public void draw() {		
+	public void defaultDraw() {
 		if (hovering) {	
 			gc.setFill(Color.GRAY);
 		} else {
@@ -279,6 +283,15 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 			gc.setFill(Color.DIMGRAY);
 		} 
 		gc.fillRect(x, y, sbWidth, sbHeight);
+	}
+	
+	@Override
+	public void draw() {		
+		if (bvg == null) {
+			defaultDraw();
+		} else {
+			bvg.drawButton(x, y, gc);
+		}
 	}	
 
 	@Override

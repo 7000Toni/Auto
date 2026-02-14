@@ -228,6 +228,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartType(), menuNode));
 		sceneGraph.addNode(new TNode<CanvasNode>(menu.darkMode(), menuNode));
 		sceneGraph.addNode(new TNode<CanvasNode>(menu.replayShortcut(), menuNode));
+		TNode<CanvasNode> colourPickerNode = new TNode<CanvasNode>(menu.colourPicker(), menuNode);
+		sceneGraph.addNode(colourPickerNode);
+		sceneGraph.addNode( new TNode<CanvasNode>(menu.colourPicker().hsb(), colourPickerNode));
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);

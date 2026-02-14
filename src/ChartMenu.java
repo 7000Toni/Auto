@@ -25,6 +25,8 @@ public class ChartMenu implements CanvasNode {
 	
 	private boolean functions;
 	
+	private ColourPicker colourPicker;
+	
 	private EventHandler<? super MouseEvent> onMouseDragged;
 	private EventHandler<? super MouseEvent> onMouseEntered;
 	private EventHandler<? super MouseEvent> onMouseExited;
@@ -95,6 +97,7 @@ public class ChartMenu implements CanvasNode {
 		replayShortcut.disable();
 		chartFunctions.setOn(true);
 		functions = true;
+		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);
 	}
 	
 	public CanvasButton chartFunctions() {
@@ -119,6 +122,10 @@ public class ChartMenu implements CanvasNode {
 	
 	public CanvasButton replayShortcut() {
 		return replayShortcut;
+	}
+	
+	public ColourPicker colourPicker() {
+		return colourPicker;
 	}
 	
 	public void setWidth(double width) {
@@ -260,7 +267,7 @@ public class ChartMenu implements CanvasNode {
 			darkMode.draw();
 			replayShortcut.draw();
 		} else {
-			
+			colourPicker.draw();
 		}
 	}
 
@@ -283,6 +290,7 @@ public class ChartMenu implements CanvasNode {
 		chartType.setX(x + 5);
 		darkMode.setX(x + 5);
 		replayShortcut.setX(x + 5);
+		colourPicker.setX(x + 5);
 	}
 
 	@Override
@@ -294,6 +302,7 @@ public class ChartMenu implements CanvasNode {
 		chartType.setY(y + 5);
 		darkMode.setY(y + 5);
 		replayShortcut.setY(y + 5);
+		colourPicker.setY(y + 5);
 	}
 
 	@Override
