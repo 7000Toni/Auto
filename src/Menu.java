@@ -40,6 +40,7 @@ public class Menu implements CanvasWindow {
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
 	private final ReentrantLock varLock = new ReentrantLock();
+	private boolean sbDragging = false;
 	
 	private Tree<CanvasNode> sceneGraph;
 	private CanvasWrapper cw;
@@ -349,4 +350,14 @@ public class Menu implements CanvasWindow {
 			gc.fillRect(121, l.y() + 1, 508 * l.progress().get() / 100.0, 46);
 		}
 	}	
+	
+	@Override
+	public boolean sbDragging() {
+		return sbDragging;
+	}
+
+	@Override
+	public void setSBDragging(boolean sbDragging) {
+		this.sbDragging = sbDragging;		
+	}
 }

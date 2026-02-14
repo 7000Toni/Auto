@@ -336,6 +336,9 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	
 	@Override
 	public void onMouseReleased(MouseEvent e) {
+		if (!onNode(e.getX(), e.getY())) {
+			hovering = false;
+		}
 		if (onMouseReleased == null) {
 			return;
 		}

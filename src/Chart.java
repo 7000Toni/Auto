@@ -134,6 +134,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private Tree<CanvasNode> sceneGraph;
 	private TNode<CanvasNode> lastNode = null;
 	private CanvasWrapper cw;
+	private boolean sbDragging = false;
+	private boolean mrpSBDragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private boolean menuHidden = true;
@@ -691,10 +693,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		if (replayMode) {
 			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
-		if (drawMRP) {
-			if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
-				fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
-			}
+		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
+			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
 		}
 		drawCharts(this.name());
 	}	
@@ -1247,6 +1247,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		chartDragging = false;
 		chartDateMarginDragging = false;
 		rightPressed = false;
+		if (mrpSBDragging) {
+			mrpSBDragging = false;
+			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
+		}
 		drawCharts(this.name());
 	}
 	
@@ -1408,12 +1412,13 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				zoomTicks(e.getX() - chartInitPos, false);
 			}
 		}
-		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 || mrpSBDragging) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.canvas().fireEvent(me);
+			mrpSBDragging = true;
 		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);
@@ -2238,5 +2243,15 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	@Override
 	public boolean onWindow(double x, double y) {
 		return x <= width && x >= 0 && y <= height && y >= 0; 
+	}
+
+	@Override
+	public boolean sbDragging() {
+		return sbDragging;
+	}
+
+	@Override
+	public void setSBDragging(boolean sbDragging) {
+		this.sbDragging = sbDragging;		
 	}
 }

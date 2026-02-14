@@ -27,6 +27,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private Tree<CanvasNode> sceneGraph;
 	private CanvasWrapper cw;
 	private TNode<CanvasNode> lastNode = null;
+	private boolean sbDragging = false;
 	
 	private static ArrayList<MarketReplayPane> panes = new ArrayList<MarketReplayPane>();
 	private final ReentrantLock varLock = new ReentrantLock();
@@ -456,5 +457,15 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private int speedNumber() {
 		CanvasNumberChooser[] c = {s1, s2, s3};
 		return CanvasNumberChooser.number(c);
+	}
+	
+	@Override
+	public boolean sbDragging() {
+		return sbDragging;
+	}
+
+	@Override
+	public void setSBDragging(boolean sbDragging) {
+		this.sbDragging = sbDragging;		
 	}
 }

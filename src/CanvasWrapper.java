@@ -18,20 +18,7 @@ public class CanvasWrapper implements CanvasNode {
 				((CanvasNumberChooser)tn.element()).setDownPressed(false);
 				((CanvasNumberChooser)tn.element()).setUpHover(false);
 				((CanvasNumberChooser)tn.element()).setUpPressed(false);
-			}			
-			if (tn.element() instanceof HorizontalScrollBar) {
-				if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-					((HorizontalScrollBar)tn.element()).onMouseDragged(e);
-				} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
-					((HorizontalScrollBar)tn.element()).onMouseExited(e);
-				} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
-					((HorizontalScrollBar)tn.element()).onMousePressed(e);
-				} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
-					((HorizontalScrollBar)tn.element()).onMouseReleased(e);
-				} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
-					((HorizontalScrollBar)tn.element()).onMouseMoved(e);
-				}
-			}
+			}		
 		}
 	};
 	
