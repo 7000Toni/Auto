@@ -134,7 +134,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private Tree<CanvasNode> sceneGraph;
 	private TNode<CanvasNode> lastNode = null;
 	private CanvasWrapper cw;
-	private boolean sbDragging = false;
+	private boolean dragging = false;
 	private boolean mrpSBDragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
 	
@@ -1381,14 +1381,14 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				diff = (int)(dragDiffAccum / (candlestickWidth + candlestickSpacing));
 				if (diff != 0) {
 					startIndex = startIndex - diff;
-					newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+					newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			} else {
 				diff = (int)(dragDiffAccum / xDiff);
 				if (diff != 0) {
 					startIndex = startIndex - diff;
-					newHSBPos = (width - hsb.sbWidth() - PRICE_MARGIN) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+					newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			}
@@ -2246,12 +2246,12 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	}
 
 	@Override
-	public boolean sbDragging() {
-		return sbDragging;
+	public boolean dragging() {
+		return dragging;
 	}
 
 	@Override
-	public void setSBDragging(boolean sbDragging) {
-		this.sbDragging = sbDragging;		
+	public void setDragging(boolean dragging) {
+		this.dragging = dragging;		
 	}
 }

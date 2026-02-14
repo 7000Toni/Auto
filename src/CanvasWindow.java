@@ -7,6 +7,6 @@ public interface CanvasWindow {
 	public void setLastNode(TNode<CanvasNode> lastNode);
 	public ReentrantLock varLock();
 	public boolean onWindow(double x, double y);
-	public boolean sbDragging();
-	public void setSBDragging(boolean sbDragging);
+	public boolean dragging();
+	public void setDragging(boolean dragging);
 }
