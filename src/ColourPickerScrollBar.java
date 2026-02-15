@@ -1,3 +1,4 @@
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 public class ColourPickerScrollBar extends HorizontalScrollBar {
@@ -8,52 +9,14 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 			if (hovering) {	
 				gc.setFill(Color.GRAY);
 			} else {
-				gc.setFill(sbColour());
+				gc.setFill(ColourCalculator.colour(x, this.minPos, this.maxPos - this.sbWidth));
 			}
 			if (dragging) {
-				gc.setFill(sbColour());
+				gc.setFill(ColourCalculator.colour(x, this.minPos, this.maxPos - this.sbWidth));
 			} 
-			gc.fillOval(x, y2, sbWidth, sbHeight);
+			gc.fillOval(x, y2, this.sbWidth, this.sbHeight);
 		});
-	}
-
-	public Color sbColour() {
-		int r = 0;
-		int g = 0;
-		int b = 0;
-		double perc = (x - minPos) / (maxPos - sbWidth - minPos);		
-		if (perc > 2.0/3) {
-			perc -= 2.0/3;
-			if (perc > (1.0/3)/2) {
-				perc -= (1.0/3)/2;
-				r = 255;
-				b = 255 - (int)(255*(perc/((1.0/3)/2)));
-			} else {
-				b = 255;
-				r = (int)(255*(perc/((1.0/3)/2)));
-			}			
-		} else if (perc > 1.0/3) {
-			perc -= 1.0/3;
-			if (perc > (1.0/3)/2) {
-				perc -= (1.0/3)/2;
-				b = 255;
-				g = 255 - (int)(255*(perc/((1.0/3)/2)));
-			} else {
-				g = 255;
-				b = (int)(255*(perc/((1.0/3)/2)));
-			}
-		} else {
-			if (perc > (1.0/3)/2) {
-				perc -= (1.0/3)/2;
-				g = 255;
-				r = 255 - (int)(255*(perc/((1.0/3)/2)));
-			} else {
-				r = 255;
-				g = (int)(255*(perc/((1.0/3)/2)));
-			}
-		}
-		return Color.web("rgb(" + r + "," + g + "," +  b + ")");
-	}
+	}	
 	
 	@Override
 	protected void moveOwnerLeft(boolean fast) {
@@ -71,5 +34,14 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 			speed *= 5;
 		}
 		setPosition(speed, true);
+	}
+	
+	@Override
+	public void onMouseDragged(MouseEvent e) {
+		((ColourPicker)sbo).unintializeColours();
+		if (onMouseDragged == null) {
+			return;
+		}
+		onMouseDragged.handle(e);
 	}
 }

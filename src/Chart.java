@@ -2068,8 +2068,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		}	
 	}
 	
-	double t = 0;
-	int c = 0;
+	private double t = 0;
+	private int c = 0;
 	
 	private void drawUI() {	
 		long b = System.nanoTime();
@@ -2109,7 +2109,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		double tm = (System.nanoTime() - b) / 1000000000.0;
 		t += tm;
 		c++;
-		//System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
+		System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
 	}
 	
 	public void draw() {

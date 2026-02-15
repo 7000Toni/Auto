@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public abstract class HorizontalScrollBar implements CanvasNode {
+public abstract class UniversalScrollBar implements CanvasNode {
 	protected ScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
@@ -25,16 +25,16 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	protected GraphicsContext gc;
 	protected ButtonVanGogh bvg;
 	
-	protected EventHandler<? super MouseEvent> onMouseDragged;
-	protected EventHandler<? super MouseEvent> onMouseEntered;
-	protected EventHandler<? super MouseEvent> onMouseExited;
-	protected EventHandler<? super MouseEvent> onMousePressed;
-	protected EventHandler<? super MouseEvent> onMouseClicked;
-	protected EventHandler<? super MouseEvent> onMouseReleased;
-	protected EventHandler<? super MouseEvent> onMouseMoved;
-	protected EventHandler<? super ScrollEvent> onScroll;
+	private EventHandler<? super MouseEvent> onMouseDragged;
+	private EventHandler<? super MouseEvent> onMouseEntered;
+	private EventHandler<? super MouseEvent> onMouseExited;
+	private EventHandler<? super MouseEvent> onMousePressed;
+	private EventHandler<? super MouseEvent> onMouseClicked;
+	private EventHandler<? super MouseEvent> onMouseReleased;
+	private EventHandler<? super MouseEvent> onMouseMoved;
+	private EventHandler<? super ScrollEvent> onScroll;
 	
-	public HorizontalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public UniversalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		this.sbo = sbo;
 		this.minPos = minPos;
 		this.maxPos = maxPos;

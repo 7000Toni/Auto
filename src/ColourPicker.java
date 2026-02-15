@@ -11,6 +11,8 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	private double height;
 	private GraphicsContext gc;
 	private ColourPickerScrollBar hsb; 
+	private Color[][] colours;
+	private boolean coloursInitialized;
 	
 	private EventHandler<? super MouseEvent> onMouseDragged;
 	private EventHandler<? super MouseEvent> onMouseEntered;
@@ -28,6 +30,58 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		this.height = height;
 		this.gc = gc;
 		hsb = new ColourPickerScrollBar(this, 255*6, x - 2, x + 292, 15, 15, y + 150);
+		colours = new Color[144][144];
+		initializeColours();
+	}
+	
+	private void initializeColours() {
+		Color c = ColourCalculator.colour(hsb.x(), hsb.minPos(), hsb.maxPos() - hsb.sbWidth());
+		int r = (int)(c.getRed() * 255);
+		int g = (int)(c.getGreen() * 255);
+		int b = (int)(c.getBlue() * 255);
+		
+		double hsbPerc = (hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos());
+		for (double i = x + 146; i < x + 290; i++) {
+			double percx = (144 - (i - x - 146)) / 144;
+			for (double j = y + 1; j < y + 145; j++) {
+				double percy = (144 - (j - y - 1)) / 144;
+				int r2;
+				int g2;
+				int b2;
+				if (hsbPerc > 5.0/6 || hsbPerc < 1.0/6) {
+					r2 = (int) (percy * r);
+					g2 = (int) (((percx * (255 - g)) + g) * percy);
+					b2 = (int) (((percx * (255 - b)) + b) * percy);
+				} else if (hsbPerc > 1.0/6 && hsbPerc < 1.0/2) {
+					r2 = (int) (((percx * (255 - r)) + r) * percy);
+					g2 = (int) (percy * g);
+					b2 = (int) (((percx * (255 - b)) + b) * percy);
+				} else {
+					r2 = (int) (((percx * (255 - r)) + r) * percy);
+					g2 = (int) (((percx * (255 - g)) + g) * percy);
+					b2 = (int) (percy * b);
+				}				
+				colours[(int)(i - x - 146)][(int)(j - y - 1)] = Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")");
+				gc.getPixelWriter().setColor((int)i, (int)j, Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")"));
+			}
+		}
+		coloursInitialized = true;
+	}
+	
+	public void unintializeColours() {
+		coloursInitialized = false;
+	}
+	
+	private void fillBrightnessSquare() {
+		if (coloursInitialized) {
+			for (double i = x + 146; i < x + 290; i++) {
+				for (double j = y + 1; j < y + 145; j++) {			
+					gc.getPixelWriter().setColor((int)i, (int)j, colours[(int)(i - x - 146)][(int)(j - y - 1)]);
+				}
+			}
+		} else {
+			initializeColours();
+		}
 	}
 	
 	public ColourPickerScrollBar hsb() {
@@ -143,15 +197,25 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 			return true;
 		}
 		return false;
+	}	
+	
+	private void fillHSBBar() {
+		for (double i = x + 1; i < x + 289; i++) {
+			gc.setStroke(ColourCalculator.colour(i, x + 1, x + 289));
+			gc.strokeLine(i, y + 156, i, y + 159);
+		}
 	}
-
+	
 	@Override
-	public void draw() {
-		gc.clearRect(x, y, width, height);
+	public void draw() {		
 		if (Chart.darkMode().get()) {
+			gc.setFill(Color.BLACK);
+			gc.fillRect(x, y, width, height);
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
+			gc.setFill(Color.WHITE);
+			gc.fillRect(x, y, width, height);
 			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.BLACK);
 		}	
@@ -159,6 +223,8 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		gc.strokeRect(x, y, width, 145);
 		gc.strokeLine(x + 145, y, x + 145, y + 145);
 		gc.strokeRect(x, y + 155, 290, 5);
+		fillBrightnessSquare();
+		fillHSBBar();
 		hsb.draw();
 	}
 
