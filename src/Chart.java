@@ -194,7 +194,12 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 					menu.setX(CHT_MARGIN + chartWidth + PRICE_MARGIN);
 					
 					hsb.setMaxPos(width - pm); 					
-					hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
+					
+					if (!drawCandlesticks.get()) {
+						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
+					} else {
+						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.m1CandlesDataSize(replayMode).get() - numCandlesticks * END_MARGIN_COEF)), false);
+					}
 					keepStartIndex = true;
 					//TODO					
 					if (pm == t) {
