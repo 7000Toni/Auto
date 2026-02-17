@@ -230,8 +230,8 @@ public class DataSetLoader {
 				for (LoadingDataSet l : loadingSets) {	
 					if (l.addIndex().get() > ((DataSetButton)dsbNode.element()).dataSetIndex()) {
 						l.setAddIndex(l.addIndex().get() - 1);
-					}
-					l.setY(l.y() - 58);				
+						l.setY(l.y() - 58);	
+					}								
 				}
 				String name = datasets.get(((DataSetButton)dsbNode.element()).dataSetIndex()).name();
 				Chart.closeAll(name, false);

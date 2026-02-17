@@ -35,7 +35,7 @@ public class Menu implements CanvasWindow {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
