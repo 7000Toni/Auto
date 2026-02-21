@@ -35,7 +35,7 @@ public class Menu implements CanvasWindow {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -284,7 +284,7 @@ public class Menu implements CanvasWindow {
 		return menu;
 	}
 	
-	private void drawUI() {
+	private void drawUI() {		
 		varLock.lock();
 		try {					
 			if (datasets.size() < 6) {

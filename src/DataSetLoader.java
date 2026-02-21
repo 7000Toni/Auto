@@ -133,7 +133,7 @@ public class DataSetLoader {
 				try {
 					loadingSets.remove(l);				
 					if (ds == null) {
-						abort(l);
+						abort(l);						
 						return null;
 					}			
 					datasets.set(l.addIndex().get(), ds);
@@ -155,8 +155,8 @@ public class DataSetLoader {
 					sceneGraph.addNode(closeNode);
 				} finally {
 					Menu.menu().varLock().unlock();
-				}
-				Menu.menu().draw();
+					Menu.menu().draw();
+				}				
 				return null;
 			}
 		};	
@@ -198,8 +198,7 @@ public class DataSetLoader {
 			}
 			l2.setY(l2.y() - 58);				
 		}
-		datasets.remove(l.addIndex().get());
-		Menu.menu().draw();
+		datasets.remove(l.addIndex().get());		
 	}
 	
 	private void setDSBEventHandler(DataSetButton dsb) {

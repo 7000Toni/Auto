@@ -169,7 +169,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
 		
 		cbvg = new ChartButtonVanGoghs(this);
-		btnMenu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", 15, 11);
+		btnMenu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", (PRICE_MARGIN - 2 - 34) / 2, 11);
 		btnMenu.setVanGogh(cbvg.menuButtonVG(btnMenu)); 
 		btnMenu.setOnMouseClicked(e -> {
 			new AnimationTimer() {
