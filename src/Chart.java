@@ -142,6 +142,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private CanvasButton btnMenu;
 	private ChartMenu menu;
 	
+	private boolean printSpeed = false;
+	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
 	}
@@ -713,35 +715,35 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	private boolean tradeButtonPressChecks(double x, double y) {
 		boolean pressed = false;
-		if (sell.onButton(x, y) && sell.enabled()) {
+		if (sell.onNode(x, y) && sell.enabled()) {
 			sell.setPressed(true);
 			pressed = true;
-		} else if (buy.onButton(x, y) && buy.enabled()) {
+		} else if (buy.onNode(x, y) && buy.enabled()) {
 			buy.setPressed(true);
 			pressed = true;
-		} else if (tradeButs.tp().onButton(x, y) && tradeButs.tp().enabled()) {
+		} else if (tradeButs.tp().onNode(x, y) && tradeButs.tp().enabled()) {
 			tradeButs.tp().setPressed(true);
 			tpDragging = true;
 			pressed = true;
-		} else if (tradeButs.sl().onButton(x, y) && tradeButs.sl().enabled()) {
+		} else if (tradeButs.sl().onNode(x, y) && tradeButs.sl().enabled()) {
 			tradeButs.sl().setPressed(true);
 			slDragging = true;
 			pressed = true;
-		} else if (tradeButs.setTP.onButton(x, y) && tradeButs.setTP.enabled()) {
+		} else if (tradeButs.setTP.onNode(x, y) && tradeButs.setTP.enabled()) {
 			tradeButs.setTP.setPressed(true);
 			tpDragging = true;
 			pressed = true;
-		} else if (tradeButs.setSL.onButton(x, y) && tradeButs.setSL.enabled()) {
+		} else if (tradeButs.setSL.onNode(x, y) && tradeButs.setSL.enabled()) {
 			tradeButs.setSL.setPressed(true);
 			slDragging = true;
 			pressed = true;
-		} else if (tradeButs.cancelTP().onButton(x, y) && tradeButs.cancelTP().enabled()) {
+		} else if (tradeButs.cancelTP().onNode(x, y) && tradeButs.cancelTP().enabled()) {
 			tradeButs.cancelTP().setPressed(true);
 			pressed = true;
-		} else if (tradeButs.cancelSL().onButton(x, y) && tradeButs.cancelSL().enabled()) {
+		} else if (tradeButs.cancelSL().onNode(x, y) && tradeButs.cancelSL().enabled()) {
 			tradeButs.cancelSL().setPressed(true);
 			pressed = true;
-		} else if (tradeButs.close.onButton(x, y) && tradeButs.close.enabled()) {
+		} else if (tradeButs.close.onNode(x, y) && tradeButs.close.enabled()) {
 			tradeButs.close.setPressed(true);
 			pressed = true;
 		} else if (volTens.onUp(x, y) && volTens.enabled()) {
@@ -756,7 +758,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		} else if (volUnits.onDown(x, y) && volUnits.enabled()) {
 			volUnits.setDownPressed(true);
 			pressed = true;
-		} else if (limitOrder.onButton(x, y) && limitOrder.enabled()) {
+		} else if (limitOrder.onNode(x, y) && limitOrder.enabled()) {
 			limitOrder.setPressed(true);
 			limitDragging = true;			
 			boolean buy = true;
@@ -769,7 +771,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				penTrade = new PendingTrade(true, buy, crossHairPrice, tradeVolume(), this);
 			}	
 			pressed = true;
-		} else if (stopOrder.onButton(x, y) && stopOrder.enabled()) {
+		} else if (stopOrder.onNode(x, y) && stopOrder.enabled()) {
 			stopOrder.setPressed(true);
 			stopDragging = true;	
 			boolean buy = false;
@@ -784,25 +786,25 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			pressed = true;
 		} else {
 			for (PendingTrade p : pendingTrades) {
-				if (p.pTradeButs().order.onButton(x, y) && p.pTradeButs().order.enabled()) {
+				if (p.pTradeButs().order.onNode(x, y) && p.pTradeButs().order.enabled()) {
 					p.pTradeButs().order.setPressed(true);
 					penOrderBeingDragged = p;
 					penOrderDragging = true;
 					pressed = true;
 					break;
-				} else if (p.pTradeButs().setTP.onButton(x, y) && p.pTradeButs().setTP.enabled()) {
+				} else if (p.pTradeButs().setTP.onNode(x, y) && p.pTradeButs().setTP.enabled()) {
 					p.pTradeButs().setTP.setPressed(true);
 					penOrderBeingDragged = p;
 					tpDragging = true;
 					pressed = true;
 					break;
-				} else if (p.pTradeButs().setSL.onButton(x, y) && p.pTradeButs().setSL.enabled()) {
+				} else if (p.pTradeButs().setSL.onNode(x, y) && p.pTradeButs().setSL.enabled()) {
 					p.pTradeButs().setSL.setPressed(true);
 					penOrderBeingDragged = p;
 					slDragging = true;
 					pressed = true;
 					break;
-				} else if (p.pTradeButs().close.onButton(x, y) && p.pTradeButs().close.enabled()) {
+				} else if (p.pTradeButs().close.onNode(x, y) && p.pTradeButs().close.enabled()) {
 					p.pTradeButs().close.setPressed(true);
 					penOrderBeingDragged = p;
 					pressed = true;
@@ -878,7 +880,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private void tradeButtonReleaseChecks(double x, double y) {
 		if (sell.pressed()) {
 			sell.setPressed(false);
-			if (sell.onButton(x, y)) {				
+			if (sell.onNode(x, y)) {				
 				if (mr.trade().closed()) {
 					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, false, tradeVolume()));
 					mr.setSlPrice(-1);
@@ -917,7 +919,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			}
 		} else if (buy.pressed()) {
 			buy.setPressed(false);
-			if (buy.onButton(x, y)) {				
+			if (buy.onNode(x, y)) {				
 				if (mr.trade().closed()) {
 					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, true, tradeVolume()));
 					mr.setSlPrice(-1);
@@ -990,7 +992,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			for (PendingTrade p : pendingTrades) {
 				if (p.pTradeButs().close.pressed()) {
 					p.pTradeButs().close.setPressed(false);
-					if (p.pTradeButs().close.onButton(x, y)) {
+					if (p.pTradeButs().close.onNode(x, y)) {
 						int i = pendingTrades.indexOf(penOrderBeingDragged);
 						for (Chart c : charts) {
 							if (c.mr == null || !c.mr.equals(mr)) {
@@ -1050,13 +1052,13 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				tradeButs.sl().setPressed(false);
 			} else if (tradeButs.cancelTP().pressed()) {
 				tradeButs.cancelTP().setPressed(false);
-				if (tradeButs.cancelTP().onButton(x, y)) {
+				if (tradeButs.cancelTP().onNode(x, y)) {
 					mr.trade().cancelTP();
 					mr.setTpPrice(-1);
 				}				
 			} else if (tradeButs.cancelSL().pressed()) {
 				tradeButs.cancelSL().setPressed(false);
-				if (tradeButs.cancelSL().onButton(x, y)) {
+				if (tradeButs.cancelSL().onNode(x, y)) {
 					mr.trade().cancelSL();
 					mr.setSlPrice(-1);
 				}				
@@ -1070,7 +1072,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 				tradeButs.setSL.setPressed(false);
 			} else if (tradeButs.close.pressed()) {
 				tradeButs.close.setPressed(false);
-				if (tradeButs.close.onButton(x, y)) {
+				if (tradeButs.close.onNode(x, y)) {
 					mr.trade().close(data.tickDataSize(true).get() - 1);
 					mr.closedTradeProc();
 					for (Chart c : charts) {
@@ -2077,7 +2079,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private int c = 0;
 	
 	private void drawUI() {	
-		long b = System.nanoTime();
+		long b = 0;
+		if (printSpeed) {
+			b = System.nanoTime();
+		}
 		calculateIndices();			
 		drawFrame();		
 		hsb.draw();
@@ -2095,9 +2100,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		checkMeasuring();			
 		if (replayMode) {				
 			drawCurrentPriceLine();
-			drawTradeButtons();
-			drawTrade();
+			drawTradeButtons();			
 			drawPendingTrades();
+			drawTrade();
 			drawCurrentPriceBox();
 			if (drawPending) {
 				limitOrder.draw();
@@ -2111,10 +2116,12 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		if (!menuHidden) {
 			menu.draw();
 		}
-		double tm = (System.nanoTime() - b) / 1000000000.0;
-		t += tm;
-		c++;
-		System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
+		if (printSpeed) {
+			double tm = (System.nanoTime() - b) / 1000000000.0;
+			t += tm;
+			c++;
+			System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c, endIndex - startIndex);
+		}
 	}
 	
 	public void draw() {

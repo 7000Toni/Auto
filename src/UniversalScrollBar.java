@@ -23,7 +23,7 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	protected double sbWidth;
 	protected double sbHeight;
 	protected GraphicsContext gc;
-	protected ButtonVanGogh bvg;
+	protected VanGogh bvg;
 	
 	private EventHandler<? super MouseEvent> onMouseDragged;
 	private EventHandler<? super MouseEvent> onMouseEntered;
@@ -59,7 +59,7 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		return this.sbHeight;
 	}
 	
-	public void setVanGogh(ButtonVanGogh bvg) {
+	public void setVanGogh(VanGogh bvg) {
 		this.bvg = bvg;
 	}
 	
@@ -290,7 +290,7 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		if (bvg == null) {
 			defaultDraw();
 		} else {
-			bvg.drawButton(x, y, gc);
+			bvg.draw(x, y, gc);
 		}
 	}	
 

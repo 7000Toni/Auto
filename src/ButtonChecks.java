@@ -5,7 +5,7 @@ public class ButtonChecks {
 		if (!button.enabled()) {
 			return false;
 		}
-		if (button.onButton(x, y)) {			
+		if (button.onNode(x, y)) {			
 			if (!button.pressed()) {
 				button.setHover(true);				
 			}
@@ -21,7 +21,7 @@ public class ButtonChecks {
 		if (!button.enabled()) {
 			return false;
 		}
-		if (button.onButton(x, y)) {
+		if (button.onNode(x, y)) {
 			button.setHover(true);		
 			return true;
 		} else {

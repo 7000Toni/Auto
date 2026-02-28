@@ -33,7 +33,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private CanvasButton newChart;
-	private ButtonVanGogh nvg = (x, y, gc) -> {
+	private VanGogh nvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 			gc.setStroke(Color.WHITE);
@@ -56,7 +56,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillRect(x + 1, y + 1, 38, 18);
 	};
 	private CanvasButton pausePlay;
-	private ButtonVanGogh pvg = (x, y, gc) -> {
+	private VanGogh pvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -90,7 +90,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		}
 	};
 	private CanvasButton back;
-	private ButtonVanGogh bvg = (x, y, gc) -> {
+	private VanGogh bvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -116,7 +116,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillPolygon(xa, ya, 8);
 	};
 	private CanvasButton forward;
-	private ButtonVanGogh fvg = (x, y, gc) -> {
+	private VanGogh fvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -142,7 +142,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillPolygon(xa, ya, 8);
 	};
 	private CanvasButton live;
-	private ButtonVanGogh lvg = (x, y, gc) -> {
+	private VanGogh lvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);

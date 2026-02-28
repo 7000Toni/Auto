@@ -140,7 +140,7 @@ public class DataSetLoader {
 					DataSetButton dsb = new DataSetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
 					dsb.setVanGogh((x2, y2, gc) -> {
 						gc.setFont(new Font(37));
-						dsb.defaultDrawButton();		
+						dsb.defaultDraw();		
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
 					dsb.setDataSetIndex(l.addIndex().get());

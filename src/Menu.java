@@ -46,7 +46,7 @@ public class Menu implements CanvasWindow {
 	private CanvasWrapper cw;
 	private TNode<CanvasNode> lastNode = null;
 	
-	private ButtonVanGogh optimizeVG = (x, y, gc) -> {
+	private VanGogh optimizeVG = (x, y, gc) -> {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(22));
 		if (numJobs.get() > 0) {
@@ -86,7 +86,7 @@ public class Menu implements CanvasWindow {
 		this.loadData.setVanGogh((x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(37));
-			loadData.defaultDrawButton();
+			loadData.defaultDraw(gc.getFont());
 			gc.setFont(new Font(oldFontSize));
 		});
 		this.loadData.setOnMouseClicked(e -> {
@@ -172,7 +172,7 @@ public class Menu implements CanvasWindow {
 				fontSize = 17;
 			}
 			gc.setFont(new Font(fontSize));
-			darkMode.defaultDrawButton();
+			darkMode.defaultDraw(gc.getFont());
 			gc.setFont(new Font(oldFontSize));
 		});
 		this.darkMode.setOnMouseClicked(e -> {
@@ -247,7 +247,7 @@ public class Menu implements CanvasWindow {
 		return x <= width && x >= 0 && y <= height && y >= 0; 
 	}
 	
-	private ButtonVanGogh readerVG(CanvasButton cb, int fontSize) {
+	private VanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(fontSize));

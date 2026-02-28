@@ -1,42 +1,17 @@
-import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
-public class CanvasButton implements CanvasNode {
-	protected GraphicsContext gc;
-	protected double width;
-	protected double height;
-	protected double x;
-	protected double y;
-	protected String text;
-	protected double textXOffset;
-	protected double textYOffset;
+public class CanvasButton extends CanvasLabel implements CanvasNode {
 	protected boolean hover = false;
 	protected boolean pressed = false;
 	protected boolean on = false;
-	protected ButtonVanGogh bvg = null;
 	protected boolean enabled;
 	
-	protected EventHandler<? super MouseEvent> onMouseDragged;
-	protected EventHandler<? super MouseEvent> onMouseEntered;
-	protected EventHandler<? super MouseEvent> onMouseExited;
-	protected EventHandler<? super MouseEvent> onMousePressed;
-	protected EventHandler<? super MouseEvent> onMouseClicked;
-	protected EventHandler<? super MouseEvent> onMouseReleased;
-	protected EventHandler<? super MouseEvent> onMouseMoved;
-	protected EventHandler<? super ScrollEvent> onScroll;
-	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
-		this.gc = gc;
-		this.width = width;
-		this.height = height;
-		this.x = x;
-		this.y = y;
-		this.text = text;
-		this.textXOffset = textXOffset;
-		this.textYOffset = textYOffset;
+		super(gc, width, height, x, y, text, textXOffset, textYOffset);
 		this.enabled = true;
 	}
 	
@@ -62,60 +37,6 @@ public class CanvasButton implements CanvasNode {
 		}
 	}
 	
-	public double width() {
-		return width;
-	}
-	
-	public double textXOffset() {
-		return textXOffset;
-	}
-	
-	public double textYOffset() {
-		return textYOffset;
-	}
-	
-	public double height() {
-		return height;
-	}
-	
-	public void setWidth(double width) {
-		this.width = width;
-	}
-	
-	public void setHeight(double height) {
-		this.height = height;
-	}
-	
-	@Override
-	public GraphicsContext graphicsContext() {
-		return this.gc;
-	}
-	
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;
-	}
-	
-	@Override
-	public double x() {
-		return this.x;
-	}
-	
-	@Override
-	public double y() {
-		return this.y;
-	}
-	
-	@Override
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	@Override
-	public void setY(double y) {
-		this.y = y;
-	}
-	
 	public boolean on() {
 		return on;
 	}
@@ -126,22 +47,6 @@ public class CanvasButton implements CanvasNode {
 	
 	public void setOn(boolean on) {
 		this.on = on;
-	}
-	
-	public void setText(String text) {
-		this.text = text;
-	}
-	
-	public void setTextXOffset(double textXOffset) {
-		this.textXOffset = textXOffset;
-	}
-	
-	public void setTextYOffset(double textYOffset) {
-		this.textYOffset = textYOffset;
-	}
-	
-	public void setVanGogh(ButtonVanGogh bvg) {
-		this.bvg = bvg;
 	}
 	
 	public void disable() {
@@ -158,11 +63,11 @@ public class CanvasButton implements CanvasNode {
 		return this.enabled;
 	}
 	
-	public String text() {
-		return this.text;
-	}
-	
-	public void defaultDrawButton() {
+	@Override
+	public void defaultDraw() {
+		double oldFontSize = gc.getFont().getSize();
+		gc.setFont(new Font(height - 5));
+		calculateOffsets(gc.getFont());
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
@@ -183,10 +88,15 @@ public class CanvasButton implements CanvasNode {
 			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, width, height);
-		gc.fillText(text, x + textXOffset, y + textYOffset);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.setFont(new Font(oldFontSize));
 	}
 	
-	public void defaultDrawButtonAlternate() {
+	@Override
+	public void alternateDraw() {
+		double oldFontSize = gc.getFont().getSize();
+		gc.setFont(new Font(height - 5));
+		calculateOffsets(gc.getFont());
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
@@ -207,25 +117,68 @@ public class CanvasButton implements CanvasNode {
 			gc.setFill(Color.LIGHTGRAY);
 		}
 		gc.strokeRect(x, y, width, height);
-		gc.strokeText(text, x + textXOffset, y + textYOffset);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.setFont(new Font(oldFontSize));
+	}
+	
+	@Override
+	public void defaultDraw(Font font) {
+		calculateOffsets(font);
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
+		if (hover) {
+			gc.setStroke(Color.GRAY);
+			gc.setFill(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.strokeRect(x, y, width, height);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+	}
+	
+	@Override
+	public void alternateDraw(Font font) {
+		calculateOffsets(font);
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
+		}		
+		if (hover) {
+			gc.setStroke(Color.GRAY);
+			gc.setFill(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setStroke(Color.LIGHTGRAY);
+			gc.setFill(Color.LIGHTGRAY);
+		}
+		gc.strokeRect(x, y, width, height);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
 	
 	public void draw() {
-		if (bvg == null) {
-			defaultDrawButton();
+		if (vg == null) {
+			defaultDraw();
 		} else {
-			bvg.drawButton(x, y, gc);
+			vg.draw(x, y, gc);
 		}
-	}
-	
-	public boolean onButton(double x, double y) {		
-		if (x > this.x + width || x < this.x) {
-			return false;
-		}
-		if (y > this.y + height || y < this.y) {
-			return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -294,50 +247,5 @@ public class CanvasButton implements CanvasNode {
 			return;
 		}
 		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-	
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
-	}
-
-	@Override
-	public boolean onNode(double x, double y) {
-		return onButton(x, y);
 	}
 }

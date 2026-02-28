@@ -8,7 +8,7 @@ public class DataSetButton extends CanvasButton {
 	
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
-		ButtonVanGogh drawCross = (x2, y2, gc2) -> {
+		VanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
 				gc2.setStroke(Color.WHITE);
 				gc2.setFill(Color.WHITE);
@@ -37,7 +37,7 @@ public class DataSetButton extends CanvasButton {
 			double[] y3 = {y2 + 3, y2 + 3, valy, y2 + 3, y2 + 3, val4y, val3y, val3y, val2y, val3y, val3y, val4y, y2 + 3};
 			gc2.fillPolygon(x3, y3, 13);
 		};
-		ButtonVanGogh mrvg = (x2, y2, gc2) -> {
+		VanGogh mrvg = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
 				gc2.setStroke(Color.WHITE);
 				gc2.setFill(Color.WHITE);
@@ -78,7 +78,7 @@ public class DataSetButton extends CanvasButton {
 	}
 	
 	@Override
-	public void defaultDrawButton() {
+	public void defaultDraw() {
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
@@ -102,10 +102,10 @@ public class DataSetButton extends CanvasButton {
 	
 	@Override
 	public void draw() {
-		if (bvg == null) {
-			defaultDrawButton();
+		if (vg == null) {
+			defaultDraw();
 		} else {
-			bvg.drawButton(x, y, gc);
+			vg.draw(x, y, gc);
 		}
 	}
 	
@@ -126,8 +126,8 @@ public class DataSetButton extends CanvasButton {
 	}
 	
 	@Override
-	public boolean onButton(double x, double y) {	
-		if (mr.onButton(x, y) || close.onButton(x, y)) {
+	public boolean onNode(double x, double y) {	
+		if (mr.onNode(x, y) || close.onNode(x, y)) {
 			return false;
 		}
 		if (x > this.x + width || x < this.x) {

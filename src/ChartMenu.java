@@ -16,6 +16,9 @@ public class ChartMenu implements CanvasNode {
 	private boolean replayMode = false;
 	private ChartMenuButtonVanGoghs cmbvg;
 	
+	private CanvasLabel general;
+	private CanvasLabel timeFrames;
+	
 	private CanvasButton chartFunctions;
 	private CanvasButton chartSettings;
 	private CanvasButton newChart;
@@ -45,6 +48,11 @@ public class ChartMenu implements CanvasNode {
 		chart = c;
 		cmbvg = new ChartMenuButtonVanGoghs();
 		
+		general = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "GENERAL");
+		general.setVanGogh((x2, y2, gc2) -> {
+			general.alternateDraw(gc.getFont());
+		});		
+		
 		chartFunctions = new CanvasButton(gc, 142, 20, x + 5, y + 5, "FUNCTIONS", 39, 14);
 		chartFunctions.setVanGogh(cmbvg.menuButtonVG(chartFunctions, gc.getFont().getSize()));
 		chartFunctions.setOnMouseClicked(e -> {
@@ -61,9 +69,9 @@ public class ChartMenu implements CanvasNode {
 			functions = false;
 		});
 		
-		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 35, "NEW CHART", 114, 14);
+		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 60, "NEW CHART", 114, 14);
 		newChart.setVanGogh((x2, y2, gc2) -> {
-			newChart.defaultDrawButtonAlternate();
+			newChart.alternateDraw(gc.getFont());
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
@@ -74,24 +82,29 @@ public class ChartMenu implements CanvasNode {
 			s.show();
 		});
 		
-		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 60, "CANDLESTICK CHART", 39, 14);
+		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 85, "CANDLESTICK CHART", 39, 14);
 		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART", gc.getFont().getSize(), gc.getFont().getSize(), 116, 90, 14, 14));
 		chartType.setOnMouseClicked(e -> {
 			chart.toggleChartType();
 		});
 		
-		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 85, "DARK MODE", 39, 14);
+		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 110, "DARK MODE", 39, 14);
 		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE", gc.getFont().getSize(), gc.getFont().getSize(), 113, 114, 14, 14));
 		darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();
 		});
 		
-		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 110, "REPLAY SHORTCUT", 96, 14);
+		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 135, "REPLAY SHORTCUT", 96, 14);
 		replayShortcut.setVanGogh((x2, y2, gc2) -> {
-			replayShortcut.defaultDrawButtonAlternate();
+			replayShortcut.alternateDraw(gc.getFont());
 		});
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.toggleMRPShortcut();
+		});
+		
+		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 160, "TIME FRAMES");
+		timeFrames.setVanGogh((x2, y2, gc2) -> {
+			timeFrames.alternateDraw(gc.getFont());
 		});
 				
 		replayShortcut.disable();
@@ -261,11 +274,13 @@ public class ChartMenu implements CanvasNode {
 	public void draw() {
 		chartFunctions.draw();
 		chartSettings.draw();
-		if (functions) {			
+		if (functions) {		
+			general.draw();
 			newChart.draw();
 			chartType.draw();
 			darkMode.draw();
 			replayShortcut.draw();
+			timeFrames.draw();
 		} else {
 			colourPicker.draw();
 		}
@@ -286,11 +301,14 @@ public class ChartMenu implements CanvasNode {
 		this.x = x;
 		chartFunctions.setX(x + 5);
 		chartSettings.setX(x + 152.5);
+		general.setX(x + 5);
 		newChart.setX(x + 5);
 		chartType.setX(x + 5);
 		darkMode.setX(x + 5);
 		replayShortcut.setX(x + 5);
-		colourPicker.setX(x + 5);
+		timeFrames.setX(x + 5);
+		
+		colourPicker.setX(x + 5);		
 	}
 
 	@Override
@@ -298,11 +316,14 @@ public class ChartMenu implements CanvasNode {
 		this.y = y;
 		chartFunctions.setY(y + 5);
 		chartSettings.setY(y + 5);
-		newChart.setY(y + 5);
-		chartType.setY(y + 5);
-		darkMode.setY(y + 5);
-		replayShortcut.setY(y + 5);
-		colourPicker.setY(y + 5);
+		general.setY(y + 35);
+		newChart.setY(y + 60);
+		chartType.setY(y + 85);
+		darkMode.setY(y + 110);
+		replayShortcut.setY(y + 135);
+		timeFrames.setY(y + 160);
+		
+		colourPicker.setY(y + 35);
 	}
 
 	@Override
