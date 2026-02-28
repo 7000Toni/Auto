@@ -15,6 +15,11 @@ public class CanvasButton extends CanvasLabel implements CanvasNode {
 		this.enabled = true;
 	}
 	
+	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text) {
+		super(gc, width, height, x, y, text);
+		this.enabled = true;
+	}
+	
 	public boolean hover() {
 		return hover;
 	}

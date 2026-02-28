@@ -1,4 +1,3 @@
-import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
@@ -17,9 +16,12 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	protected boolean dragging = false;
 	protected boolean hovering = false;
 	protected boolean clickedInScrollBarArea = false;
-	protected double initPos = 0;
-	protected double maxPos;
-	protected double minPos;
+	protected double initXPos = 0;
+	protected double initYPos = 0;
+	protected double maxXPos;
+	protected double minXPos;
+	protected double maxYPos;
+	protected double minYPos;
 	protected double sbWidth;
 	protected double sbHeight;
 	protected GraphicsContext gc;
@@ -34,14 +36,24 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	private EventHandler<? super MouseEvent> onMouseMoved;
 	private EventHandler<? super ScrollEvent> onScroll;
 	
-	public UniversalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public UniversalScrollBar(ScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
 		this.sbo = sbo;
-		this.minPos = minPos;
-		this.maxPos = maxPos;
+		this.minXPos = minXPos;
+		this.maxXPos = maxXPos;
+		this.minYPos = minYPos;
+		this.maxYPos = maxYPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		this.x = minPos;
-		this.y = y;
+		if (x < minXPos || x > maxXPos) {
+			this.x = minXPos;
+		} else {
+			this.x = x;
+		}
+		if (y < minYPos || y > maxYPos) {
+			this.y = minYPos;
+		} else {
+			this.y = y;
+		}
 		this.gc = sbo.graphicsContext();
 		
 		onMouseDragged = (e) -> {defaultOnMouseDragged(e);};
@@ -71,46 +83,12 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	public void defaultOnMousePressed(MouseEvent e) {
 		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
-			initPos = e.getX();
+			initXPos = e.getX();
+			initYPos = e.getY();
 		} else if (inScrollBarArea(e.getX(), e.getY())) {
 			clickedInScrollBarArea = true;
-			initPos = e.getX();
-			new AnimationTimer() {
-				long lastTick = 0;
-				boolean add;
-				
-				@Override
-				public void handle(long now) {
-					if (lastTick == 0) {
-						if (initPos > x) {
-							add = true;
-						} else {
-							add = false;
-						}
-						lastTick = now;
-						return;
-					}
-					
-					if (!clickedInScrollBarArea) {
-						this.stop();
-					}
-					
-					if (initPos >= x && initPos <= x + sbWidth) {
-						this.stop();
-					}
-					
-					if (now - lastTick >= NANO_TO_MILLI*16) {						
-						lastTick = now;		
-						if (add) {
-							setPosition(sbWidth / 2, true);
-							sbo.draw();
-						} else {
-							setPosition(-(sbWidth / 2), true);
-							sbo.draw();
-						}
-					} 
-				}
-			}.start();
+			setXPosition(e.getX(), false);
+			setYPosition(e.getY(), false);
 		}
 	}
 	
@@ -130,49 +108,82 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	
 	public void defaultOnMouseDragged(MouseEvent e) {
 		if (dragging) {
-			double posDiff = e.getX() - initPos;
-			if (x + posDiff > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
-			} else if (x + posDiff < minPos) {
-				x = minPos;
+			double posXDiff = e.getX() - initXPos;
+			double posYDiff = e.getY() - initYPos;
+			if (x + posXDiff > maxXPos - sbWidth) {
+				x = maxXPos - sbWidth;
+			} else if (x + posXDiff < minXPos) {
+				x = minXPos;
 			} else {
-				x += posDiff;
+				x += posXDiff;
 			}
-			initPos = (int)e.getX();
+			initXPos = (int)e.getX();
+			if (y + posYDiff > maxYPos - sbHeight) {
+				y = maxYPos - sbHeight;
+			} else if (y + posYDiff < minYPos) {
+				y = minYPos;
+			} else {
+				y += posYDiff;
+			}
+			initYPos = (int)e.getY();
 		}
 	}
 	
-	public double maxPos() {
-		return this.maxPos;
+	public double maxXPos() {
+		return this.maxXPos;
 	}
 	
-	public double minPos() {
-		return this.minPos;
+	public double minXPos() {
+		return this.minXPos;
 	}
 	
-	public void setMaxPos(double maxPos) {
-		this.maxPos = maxPos;
+	public double maxYPos() {
+		return this.maxYPos;
 	}
 	
-	public void setMinPos(double minPos) {
-		this.minPos = minPos;
+	public double minYPos() {
+		return this.minYPos;
+	}
+	
+	public void setMaxXPos(double maxXPos) {
+		this.maxXPos = maxXPos;
+		setXPosition(x, false);
+	}
+	
+	public void setMinXPos(double minXPos) {
+		this.minXPos = minXPos;
+		setXPosition(x, false);
+	}
+	
+	public void setMaxYPos(double maxYPos) {
+		this.maxYPos = maxYPos;
+		setYPosition(y, false);
+	}
+	
+	public void setMinYPos(double minYPos) {
+		this.minYPos = minYPos;
+		setYPosition(y, false);
 	}
 	
 	@Override
 	public void setX(double x) {
-		setPosition(x, false);
+		setXPosition(x, false);
 	}
 
 	@Override
 	public void setY(double y) {
-		this.y = y;
+		setYPosition(y, false);
 	}
 	
 	protected abstract void moveOwnerLeft(boolean fast);
 	
 	protected abstract void moveOwnerRight(boolean fast);
 	
-	protected void reduceSBPos(KeyEvent e) {
+	protected abstract void moveOwnerUp(boolean fast);
+	
+	protected abstract void moveOwnerDown(boolean fast);
+	
+	protected void reduceSBXPos(KeyEvent e) {
 		if (e.isControlDown()) {
 			moveOwnerLeft(true);
 		} else {
@@ -180,7 +191,7 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		}
 	}
 	
-	protected void increaseSBPos(KeyEvent e) {
+	protected void increaseSBXPos(KeyEvent e) {
 		if (e.isControlDown()) {
 			moveOwnerRight(true);
 		} else {
@@ -188,14 +199,38 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		}
 	}
 	
+	protected void reduceSBYPos(KeyEvent e) {
+		if (e.isControlDown()) {
+			moveOwnerUp(true);
+		} else {
+			moveOwnerUp(false);
+		}
+	}
+	
+	protected void increaseSBYPos(KeyEvent e) {
+		if (e.isControlDown()) {
+			moveOwnerDown(true);
+		} else {
+			moveOwnerDown(false);
+		}
+	}
+	
 	public void keyPressed(KeyEvent e) {
 		switch (e.getCode()) {
 			case KeyCode.LEFT:				
-				reduceSBPos(e);
-				sbo.draw();;
+				reduceSBXPos(e);
+				sbo.draw();
 				break;
 			case KeyCode.RIGHT:				
-				increaseSBPos(e);
+				increaseSBXPos(e);
+				sbo.draw();
+				break;
+			case KeyCode.UP:				
+				reduceSBYPos(e);
+				sbo.draw();
+				break;
+			case KeyCode.DOWN:				
+				increaseSBYPos(e);
 				sbo.draw();
 				break;
 			default:				
@@ -213,8 +248,8 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	}
 	
 	protected boolean inScrollBarArea(double x, double y) {	
-		if (y <= this.y + sbHeight && y >= this.y) {
-			if (x <= maxPos && x >= minPos) {				
+		if (y <= maxYPos && y >= minYPos) {
+			if (x <= maxXPos && x >= minXPos) {				
 				return true;
 			}
 		}
@@ -223,10 +258,18 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	}
 	
 	protected void checkXPos() {
-		if (x > maxPos) {
-			x = maxPos - sbWidth;
-		} else if (x < minPos) {
-			x = minPos - sbWidth;
+		if (x > maxXPos) {
+			x = maxXPos - sbWidth;
+		} else if (x < minXPos) {
+			x = minXPos - sbWidth;
+		}
+	}
+	
+	protected void checkYPos() {
+		if (y > maxYPos) {
+			y = maxYPos - sbHeight;
+		} else if (y < minYPos) {
+			y = minYPos - sbHeight;
 		}
 	}
 	
@@ -250,28 +293,51 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		return this.y;
 	}
 	
-	public void setPosition(double pos, boolean increment) {
+	public void setXPosition(double pos, boolean increment) {
 		if (Double.isNaN(pos)) {
 			return;
 		}
 		if (increment) {
-			if (pos + x > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
-			} else if (pos + x < minPos) {	
-				x = minPos;
+			if (pos + x > maxXPos - sbWidth) {
+				x = maxXPos - sbWidth;
+			} else if (pos + x < minXPos) {	
+				x = minXPos;
 			} else {
 				x += pos;
 			}
 		} else {
-			if (pos > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
-			} else if (pos < minPos) {	
-				x = minPos;
+			if (pos > maxXPos - sbWidth) {
+				x = maxXPos - sbWidth;
+			} else if (pos < minXPos) {	
+				x = minXPos;
 			} else {
 				x = pos;
 			}
 		}
-	}		
+	}	
+	
+	public void setYPosition(double pos, boolean increment) {
+		if (Double.isNaN(pos)) {
+			return;
+		}
+		if (increment) {
+			if (pos + y > maxYPos - sbHeight) {
+				y = maxYPos - sbHeight;
+			} else if (pos + x < minYPos) {	
+				y = minYPos;
+			} else {
+				y += pos;
+			}
+		} else {
+			if (pos > maxYPos - sbHeight) {
+				y = maxYPos - sbHeight;
+			} else if (pos < minYPos) {	
+				y = minYPos;
+			} else {
+				y = pos;
+			}
+		}
+	}	
 	
 	public void defaultDraw() {
 		if (hovering) {	

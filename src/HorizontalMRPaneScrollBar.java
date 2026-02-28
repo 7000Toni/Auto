@@ -2,8 +2,8 @@ import javafx.scene.input.MouseEvent;
 
 public class HorizontalMRPaneScrollBar extends HorizontalScrollBar {
 
-	public HorizontalMRPaneScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
-		super(sbo, dataSize, minPos, maxPos, sbWidth, sbHeight, yPos);
+	public HorizontalMRPaneScrollBar(ScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
+		super(sbo, minPos, maxPos, sbWidth, sbHeight, yPos);
 	}
 
 	@Override

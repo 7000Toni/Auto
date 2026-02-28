@@ -39,13 +39,13 @@ public class ChartMenu implements CanvasNode {
 	private EventHandler<? super MouseEvent> onMouseMoved;
 	private EventHandler<? super ScrollEvent> onScroll;
 	
-	public ChartMenu(double x, double y, double width, double height, GraphicsContext gc, Chart c) {
+	public ChartMenu(double x, double y, double width, double height, GraphicsContext gc, Chart chart) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.gc = gc;
-		chart = c;
+		this.chart = chart;
 		cmbvg = new ChartMenuButtonVanGoghs();
 		
 		general = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "GENERAL");
@@ -59,6 +59,7 @@ public class ChartMenu implements CanvasNode {
 			chartFunctions.setOn(true);
 			chartSettings.setOn(false);
 			functions = true;
+			setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});				
 		
 		chartSettings = new CanvasButton(gc, 142, 20, x + 153, y + 5, "SETTINGS", 45, 14);
@@ -67,6 +68,7 @@ public class ChartMenu implements CanvasNode {
 			chartFunctions.setOn(false);
 			chartSettings.setOn(true);
 			functions = false;
+			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
 		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 60, "NEW CHART", 114, 14);
@@ -110,7 +112,39 @@ public class ChartMenu implements CanvasNode {
 		replayShortcut.disable();
 		chartFunctions.setOn(true);
 		functions = true;
-		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);
+		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);		
+	}
+	
+	public void setFunctionsMenuSceneGraph(Tree<CanvasNode> sceneGraph, TNode<CanvasNode> menuNode) {
+		chart.varLock().lock();
+		try {
+			menuNode.removeAllChildren();
+			sceneGraph.addNode(new TNode<CanvasNode>(chartFunctions, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(chartSettings, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(general, menuNode)); 
+			sceneGraph.addNode(new TNode<CanvasNode>(newChart, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(chartType, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(darkMode, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(replayShortcut, menuNode)); 
+			sceneGraph.addNode(new TNode<CanvasNode>(timeFrames, menuNode)); 
+		} finally {
+			chart.varLock().unlock();
+		}
+	}
+	
+	public void setSettingsMenuSceneGraph(Tree<CanvasNode> sceneGraph, TNode<CanvasNode> menuNode) {
+		chart.varLock().lock();
+		try {
+			menuNode.removeAllChildren();
+			sceneGraph.addNode(new TNode<CanvasNode>(chartFunctions, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(chartSettings, menuNode));
+			TNode<CanvasNode> colourPickerNode = new TNode<CanvasNode>(colourPicker, menuNode);
+			sceneGraph.addNode(colourPickerNode);
+			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.hsb(), colourPickerNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.usb(), colourPickerNode));
+		} finally {
+			chart.varLock().unlock();
+		}
 	}
 	
 	public CanvasButton chartFunctions() {

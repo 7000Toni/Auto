@@ -34,7 +34,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	protected EventHandler<? super MouseEvent> onMouseMoved;
 	protected EventHandler<? super ScrollEvent> onScroll;
 	
-	public HorizontalScrollBar(ScrollBarOwner sbo, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public HorizontalScrollBar(ScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		this.sbo = sbo;
 		this.minPos = minPos;
 		this.maxPos = maxPos;
@@ -95,7 +95,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 						this.stop();
 					}
 					
-					if (initPos >= x && initPos <= x + sbWidth) {
+					if (onScrollBar(initPos, y)) {
 						this.stop();
 					}
 					
@@ -152,10 +152,12 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	
 	public void setMaxPos(double maxPos) {
 		this.maxPos = maxPos;
+		setPosition(x, false);
 	}
 	
 	public void setMinPos(double minPos) {
 		this.minPos = minPos;
+		setPosition(x, false);
 	}
 	
 	@Override
@@ -192,7 +194,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		switch (e.getCode()) {
 			case KeyCode.LEFT:				
 				reduceSBPos(e);
-				sbo.draw();;
+				sbo.draw();
 				break;
 			case KeyCode.RIGHT:				
 				increaseSBPos(e);

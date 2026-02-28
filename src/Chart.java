@@ -137,6 +137,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private boolean dragging = false;
 	private boolean mrpSBDragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
+	TNode<CanvasNode> menuNode;
 	
 	private boolean menuHidden = true;
 	private CanvasButton btnMenu;
@@ -168,7 +169,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		if (PRICE_MARGIN < 35) {
 			PRICE_MARGIN = 35;
 		}
-		hsb = new HorizontalChartScrollBar(this, data.tickDataSize(this.replayMode).get(), 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
+		hsb = new HorizontalChartScrollBar(this, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
 		
 		cbvg = new ChartButtonVanGoghs(this);
 		btnMenu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", (PRICE_MARGIN - 2 - 34) / 2, 11);
@@ -229,17 +230,8 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		
 		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<CanvasNode>(btnMenu, sceneGraph.root()));
-		TNode<CanvasNode> menuNode = new TNode<CanvasNode>(menu, sceneGraph.root());
+		menuNode = new TNode<CanvasNode>(menu, sceneGraph.root());
 		sceneGraph.addNode(menuNode);
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartFunctions(), menuNode));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartSettings(), menuNode));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.newChart(), menuNode));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.chartType(), menuNode));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.darkMode(), menuNode));
-		sceneGraph.addNode(new TNode<CanvasNode>(menu.replayShortcut(), menuNode));
-		TNode<CanvasNode> colourPickerNode = new TNode<CanvasNode>(menu.colourPicker(), menuNode);
-		sceneGraph.addNode(colourPickerNode);
-		sceneGraph.addNode( new TNode<CanvasNode>(menu.colourPicker().hsb(), colourPickerNode));
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
@@ -255,6 +247,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		chtDataMargin = CHT_MARGIN + fontSize;
 		Chart.charts.add(this);
 		setEventHandlers();	
+		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);
 		draw();
 	}
 	
@@ -2230,6 +2223,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		} else {
 			keepStartIndex = false;
 		}
+	}
+	
+	public TNode<CanvasNode> menuNode() {
+		return menuNode;
 	}
 	
 	@Override

@@ -189,7 +189,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
-		hsb = new HorizontalMRPaneScrollBar(this, chart.tickData().size(), 0, 399, 50, 10, 90);
+		hsb = new HorizontalMRPaneScrollBar(this, 0, 399, 50, 10, 90);
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
 		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0);

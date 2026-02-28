@@ -5,8 +5,8 @@ import javafx.scene.input.MouseEvent;
 
 public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	
-	public HorizontalChartScrollBar(Chart chart, int dataSize, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
-		super(chart, dataSize, minPos, maxPos, sbWidth, sbHeight, yPos);
+	public HorizontalChartScrollBar(Chart chart, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
+		super(chart, minPos, maxPos, sbWidth, sbHeight, yPos);
 	}
 	
 	@Override

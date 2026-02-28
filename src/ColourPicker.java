@@ -11,6 +11,7 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	private double height;
 	private GraphicsContext gc;
 	private ColourPickerScrollBar hsb; 
+	private ColourPickerUniversalScrollBar usb;
 	private Color[][] colours;
 	private boolean coloursInitialized;
 	
@@ -29,7 +30,8 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		this.width = width;
 		this.height = height;
 		this.gc = gc;
-		hsb = new ColourPickerScrollBar(this, 255*6, x - 2, x + 292, 15, 15, y + 150);
+		hsb = new ColourPickerScrollBar(this, x - 2, x + 292, 15, 15, y + 150);
+		usb = new ColourPickerUniversalScrollBar(this, x + width/2 - 5, x + 295, y - 5, y + 150, 15, 15, x + 295, y - 5);
 		colours = new Color[144][144];
 		initializeColours();
 	}
@@ -84,8 +86,16 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		}
 	}
 	
+	public Color[][] colours() {
+		return colours;
+	}
+	
 	public ColourPickerScrollBar hsb() {
 		return hsb;
+	}
+	
+	public ColourPickerUniversalScrollBar usb() {
+		return usb;
 	}
 	
 	@Override
@@ -206,8 +216,14 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		}
 	}
 	
+	public Color finalColour() {
+		int r = (int)(143 * (usb.x() - usb.minXPos())/(usb.maxXPos() - usb.minXPos() - usb.sbWidth()));
+		int c = (int)(143 * (usb.y() - usb.minYPos())/(usb.maxYPos() - usb.minYPos() - usb.sbHeight()));
+		return colours[r][c];
+	}
+	
 	@Override
-	public void draw() {		
+	public void draw() {				
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 			gc.fillRect(x, y, width, height);
@@ -225,7 +241,10 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		gc.strokeRect(x, y + 155, 290, 5);
 		fillBrightnessSquare();
 		fillHSBBar();
+		gc.setFill(finalColour());
+		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
 		hsb.draw();
+		usb.draw();
 	}
 
 	@Override
@@ -241,16 +260,24 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	@Override
 	public void setX(double x) {
 		double hsbOffset = hsb.x() - this.x;
+		double usbXOffset = usb.x() - this.x;		
 		this.x = x;		
-		hsb.setMinPos(x - 2);
-		hsb.setMaxPos(x + 292);
+		hsb.setMinPos(x - 5);
+		hsb.setMaxPos(x + 295);
 		hsb.setX(hsbOffset + x);
+		usb.setMinXPos(x + width/2 - 5);
+		usb.setMaxXPos(x + 295);
+		usb.setX(usbXOffset + x);
 	}
 
 	@Override
 	public void setY(double y) {
 		this.y = y;
+		double usbYOffset = usb.y() - this.y;
 		hsb.setY(y + 150);
+		usb.setMinYPos(y - 5);
+		usb.setMaxYPos(y + 150);
+		usb.setY(usbYOffset + y);
 	}
 
 	@Override

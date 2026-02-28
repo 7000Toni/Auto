@@ -63,6 +63,10 @@ public class TNode<T> {
 		}
 	}
 	
+	public void removeAllChildren() {
+		children.clear();
+	}
+	
 	public void removeChild(TNode<T> child) {
 		children.remove(child);
 		calcSize(this);
