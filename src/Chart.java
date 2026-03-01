@@ -1194,69 +1194,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
 		//TODO
-		/*if (newCHT_BTN_Pressed && checkNewChtBtn(e.getX(), e.getY())) {
-			newCHT_BTN_Pressed = false;
-			Stage s = new Stage();
-			ChartPane c = new ChartPane(s, width, height, data, replayMode, mr, mrp);			
-			Scene scene = new Scene(c);
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-			s.setScene(scene);
-			s.show();
-		} else if (drawCandlesticksPressed && checkChartTypeBtn(e.getX(), e.getY())) {						
-			drawCandlesticksPressed = false;
-			double newHSBPos;
-			if (drawCandlesticks) {
-				drawCandlesticks = false;
-				CrossHair.setIsForCandle(false);
-				CrossHair.setDateIndex(0);
-				if (replayMode) {
-					if (endIndex >= m1Candles().size()) {
-						startIndex = tickData().size() - numDataPoints;
-					} else {
-						startIndex = m1Candles().get(endIndex).firstTickIndex() - 1 - numDataPoints;
-					}
-					if (startIndex < 0) {
-						startIndex = 0;
-					}
-				} else {
-					startIndex = m1Candles().get(startIndex).firstTickIndex();
-				}
-				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
-				hsb.setPosition(newHSBPos, false);				
-			} else {
-				if (m1Candles().isEmpty()) {
-					return;
-				}
-				drawCandlesticks = true;	
-				CrossHair.setIsForCandle(true);	
-				CrossHair.setDateIndex(0);
-				if (replayMode) {
-					if (endIndex >= tickData().size()) {
-						startIndex = m1Candles().size() - numCandlesticks;
-					} else {
-						startIndex = tickData().get(endIndex).candleIndex() + 1 - numCandlesticks;
-					}
-					if (startIndex < 0) {
-						startIndex = 0;
-					}
-				} else {
-					startIndex = tickData().get(startIndex).candleIndex();
-				}
-				newHSBPos = (CHT_MARGIN + chartWidth - HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
-				hsb.setPosition(newHSBPos, false);				
-			}
-			if (newHSBPos < CHT_MARGIN + chartWidth - HSB_WIDTH) {
-				keepStartIndex = true;
-			} else {
-				keepStartIndex = false;
-			}
-		} else if (darkModePressed && checkDarkModeBtn(e.getX(), e.getY())) {
-			darkModePressed = false;	
-			toggleDarkMode();
-		} else if (drawMRPPressed && checkDrawMRPBtn(e.getX(), e.getY())) {
-			drawMRPPressed = false;
-			drawMRP = !drawMRP;
-		} else*/ if (measuring) {
+		if (measuring) {
 			measuring = false;
 			stage.getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {

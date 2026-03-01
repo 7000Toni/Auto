@@ -4,12 +4,12 @@ import java.util.Arrays;
 import javafx.scene.paint.Color;
 
 public class ColourSettings {
-	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.ORANGE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK));
+	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK));
 	
 	public enum ColourIndices {
 		UP_CANDLESTICK_FILL(0),		
-		UP_CANDLESTICK_STROKE(2),
-		DOWN_CANDLESTICK_FILL(1),
+		UP_CANDLESTICK_STROKE(1),
+		DOWN_CANDLESTICK_FILL(2),
 		DOWN_CANDLESTICK_STROKE(3),
 		LIGHT_MODE_LINE(4),
 		DARK_MODE_LINE(5),
@@ -30,7 +30,7 @@ public class ColourSettings {
 	}
 	
 	public static void defaultColours() {
-		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.ORANGE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK));
+		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK));
 	}
 	
 	public static String string() {
