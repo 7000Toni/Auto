@@ -180,6 +180,9 @@ public class ChartMenu implements CanvasNode {
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
+			Menu.menu().draw();
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 		
 		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 455, "DEFAULT");
@@ -188,6 +191,9 @@ public class ChartMenu implements CanvasNode {
 		});
 		defaultColours.setOnMouseClicked(e -> {
 			ColourSettings.defaultColours();
+			Menu.menu().draw();
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 480, "SAVE");
@@ -235,6 +241,9 @@ public class ChartMenu implements CanvasNode {
 	private void setMouseEvent(CanvasButton cb, int index) {
 		cb.setOnMouseClicked(e -> {
 			ColourSettings.colours().set(index, colourPicker.finalColour());
+			Menu.menu().draw();
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 	}
 	

@@ -637,7 +637,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public static void drawCharts(String name) {
 		for (Chart c : charts) {
-			if (c.name().equals(name)) {
+			if (name == null || c.name().equals(name)) {
 				c.draw();
 			}
 		}
