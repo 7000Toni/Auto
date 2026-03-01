@@ -1,3 +1,4 @@
+import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
@@ -5,6 +6,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
 
 public class ChartMenu implements CanvasNode {
 	private double x;
@@ -24,11 +27,18 @@ public class ChartMenu implements CanvasNode {
 	private CanvasButton newChart;
 	private CanvasButton chartType;
 	private CanvasButton darkMode;
+	private CanvasButton chartTypeShortcut;
 	private CanvasButton replayShortcut;
 	
 	private boolean functions;
 	
 	private ColourPicker colourPicker;
+	private CanvasButton reset;
+	private CanvasButton defaultColours;
+	private CanvasButton save;
+	private CanvasLabel saved;
+	private boolean recentlySaved = false;
+	private ArrayList<CanvasButton> colourButtons;
 	
 	private EventHandler<? super MouseEvent> onMouseDragged;
 	private EventHandler<? super MouseEvent> onMouseEntered;
@@ -39,6 +49,37 @@ public class ChartMenu implements CanvasNode {
 	private EventHandler<? super MouseEvent> onMouseMoved;
 	private EventHandler<? super ScrollEvent> onScroll;
 	
+	public enum ColourButtonIndices {
+		UP_CANDLESTICK_FILL(0, "UP CANDLESTICK FILL"),
+		UCF_PREVIEW(0, null),
+		UP_CANDLESTICK_STROKE(2, "UP CANDLESTICK STROKE"),
+		UCS_PREVIEW(2, null),
+		DOWN_CANDLESTICK_FILL(1, "DOWN CANDLESTICK FILL"),	
+		DCF_PREVIEW(1, null),
+		DOWN_CANDLESTICK_STROKE(3, "DOWN CANDLESTICK STROKE"),
+		DCS_PREVIEW(3, null),
+		LIGHT_MODE_LINE(4, "LIGHT MODE LINE"),
+		LML_PREVIEW(4, null),
+		DARK_MODE_LINE(5, "DARK MODE LINE"),
+		DML_PREVIEW(5, null),
+		LIGHT_MODE_MENU_BACKGROUND(6, "LIGHT MODE MENU BACKGROUND"),
+		LMMB_PREVIEW(6, null),
+		DARK_MODE_MENU_BACKGROUND(7, "DARK MODE MENU BACKGROUND"),
+		DMMB_PREVIEW(7, null),
+		LIGHT_MODE_CHART_BACKGROUND(8, "LIGHT MODE CHART BACKGROUND"),
+		LMCB_PREVIEW(7, null),
+		DARK_MODE_CHART_BACKGROUND(9, "DARK MODE CHART BACKGROUND"),
+		DMCB_PREIVEW(7, null);
+		
+		public final int index;
+		public final String text;
+		
+		private ColourButtonIndices(int index, String text) {
+			this.index = index;
+			this.text = text;
+		}
+	}
+	
 	public ChartMenu(double x, double y, double width, double height, GraphicsContext gc, Chart chart) {
 		this.x = x;
 		this.y = y;
@@ -48,6 +89,11 @@ public class ChartMenu implements CanvasNode {
 		this.chart = chart;
 		cmbvg = new ChartMenuButtonVanGoghs();
 		
+		initFunctionsMenu();
+		initSettingsMenu();		
+	}
+	
+	private void initFunctionsMenu() {
 		general = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "GENERAL");
 		general.setVanGogh((x2, y2, gc2) -> {
 			general.alternateDraw(gc.getFont());
@@ -96,7 +142,15 @@ public class ChartMenu implements CanvasNode {
 			Chart.toggleDarkMode();
 		});
 		
-		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 135, "REPLAY SHORTCUT", 96, 14);
+		chartTypeShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 135, "CHART TYPE SHORTCUT");
+		chartTypeShortcut.setVanGogh((x2, y2, gc2) -> {
+			chartTypeShortcut.alternateDraw(gc.getFont());
+		});
+		chartTypeShortcut.setOnMouseClicked(e -> {
+			chart.toggleChartTypeShortcut();
+		});
+		
+		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "REPLAY SHORTCUT", 96, 14);
 		replayShortcut.setVanGogh((x2, y2, gc2) -> {
 			replayShortcut.alternateDraw(gc.getFont());
 		});
@@ -104,7 +158,7 @@ public class ChartMenu implements CanvasNode {
 			chart.toggleMRPShortcut();
 		});
 		
-		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 160, "TIME FRAMES");
+		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 185, "TIME FRAMES");
 		timeFrames.setVanGogh((x2, y2, gc2) -> {
 			timeFrames.alternateDraw(gc.getFont());
 		});
@@ -112,7 +166,76 @@ public class ChartMenu implements CanvasNode {
 		replayShortcut.disable();
 		chartFunctions.setOn(true);
 		functions = true;
-		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);		
+	}
+	
+	private void initSettingsMenu() {
+		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);
+		
+		colourButtons = new ArrayList<CanvasButton>();
+		initColourButtons();
+		
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 455, "RESET");
+		reset.setVanGogh((x2, y2, gc2) -> {
+			reset.alternateDraw(gc.getFont());
+		});
+		reset.setOnMouseClicked(e -> {
+			Settings.loadSettings();
+		});
+		
+		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 455, "DEFAULT");
+		defaultColours.setVanGogh((x2, y2, gc2) -> {
+			defaultColours.alternateDraw(gc.getFont());
+		});
+		defaultColours.setOnMouseClicked(e -> {
+			ColourSettings.defaultColours();
+		});
+		
+		save = new CanvasButton(gc, 290, 20, x + 5, y + 480, "SAVE");
+		save.setVanGogh((x2, y2, gc2) -> {
+			save.alternateDraw(gc.getFont());
+		});
+		save.setOnMouseClicked(e -> {
+			Settings.saveSettings();
+			recentlySaved = true;
+			new AnimationTimer() {
+				private long init = 0;
+				
+				@Override
+				public void handle(long now) {
+					if (init == 0) {
+						init = now;
+					}
+					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
+						recentlySaved = false;
+						chart.draw();
+						this.stop();
+					}
+				}
+			}.start();
+		});
+		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 505, "SAVED"); 
+		saved.setVanGogh((x2, y2, gc2) -> {
+			saved.alternateDraw(gc.getFont());
+		});
+	}
+	
+	private void initColourButtons() {
+		for (int i = 0; i < ColourSettings.colours().size(); i++) {
+			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 205 + 25*i, ColourButtonIndices.values()[i*2].text);
+			colourButtons.add(javaisannyoing);
+			javaisannyoing.setVanGogh((x2, y2, gc2) -> {
+				javaisannyoing.alternateDraw(gc2.getFont());
+			});
+			setMouseEvent(javaisannyoing, i);
+			colourButtons.add(new CanvasButton(gc, 20, 20, x + 275, y + 205 + 25*i, null));
+			colourButtons.get(i*2+1).setVanGogh(cmbvg.colourPreviewVG(colourButtons.get(i*2+1), i));
+		}
+	}
+	
+	private void setMouseEvent(CanvasButton cb, int index) {
+		cb.setOnMouseClicked(e -> {
+			ColourSettings.colours().set(index, colourPicker.finalColour());
+		});
 	}
 	
 	public void setFunctionsMenuSceneGraph(Tree<CanvasNode> sceneGraph, TNode<CanvasNode> menuNode) {
@@ -125,6 +248,7 @@ public class ChartMenu implements CanvasNode {
 			sceneGraph.addNode(new TNode<CanvasNode>(newChart, menuNode));
 			sceneGraph.addNode(new TNode<CanvasNode>(chartType, menuNode));
 			sceneGraph.addNode(new TNode<CanvasNode>(darkMode, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(chartTypeShortcut, menuNode));
 			sceneGraph.addNode(new TNode<CanvasNode>(replayShortcut, menuNode)); 
 			sceneGraph.addNode(new TNode<CanvasNode>(timeFrames, menuNode)); 
 		} finally {
@@ -142,6 +266,12 @@ public class ChartMenu implements CanvasNode {
 			sceneGraph.addNode(colourPickerNode);
 			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.hsb(), colourPickerNode));
 			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.usb(), colourPickerNode));
+			for (CanvasButton c : colourButtons) {
+				sceneGraph.addNode(new TNode<CanvasNode>(c, menuNode));
+			}
+			sceneGraph.addNode(new TNode<CanvasNode>(reset, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(defaultColours, menuNode));
+			sceneGraph.addNode(new TNode<CanvasNode>(save, menuNode));
 		} finally {
 			chart.varLock().unlock();
 		}
@@ -165,6 +295,10 @@ public class ChartMenu implements CanvasNode {
 	
 	public CanvasButton darkMode() {
 		return darkMode;
+	}
+	
+	public CanvasButton chartTypeShortcut() {
+		return chartTypeShortcut;
 	}
 	
 	public CanvasButton replayShortcut() {
@@ -313,10 +447,20 @@ public class ChartMenu implements CanvasNode {
 			newChart.draw();
 			chartType.draw();
 			darkMode.draw();
+			chartTypeShortcut.draw();
 			replayShortcut.draw();
-			timeFrames.draw();
+			//timeFrames.draw();
 		} else {
 			colourPicker.draw();
+			for (CanvasButton c : colourButtons) {
+				c.draw();
+			}	
+			reset.draw();
+			defaultColours.draw();
+			save.draw();
+			if (recentlySaved) {
+				saved.draw();
+			}
 		}
 	}
 
@@ -339,10 +483,21 @@ public class ChartMenu implements CanvasNode {
 		newChart.setX(x + 5);
 		chartType.setX(x + 5);
 		darkMode.setX(x + 5);
+		chartTypeShortcut.setX(x + 5);
 		replayShortcut.setX(x + 5);
 		timeFrames.setX(x + 5);
 		
-		colourPicker.setX(x + 5);		
+		colourPicker.setX(x + 5);
+		int i = 0;
+		while (i < colourButtons.size()) {
+			colourButtons.get(i).setX(x + 5);
+			colourButtons.get(i + 1).setX(x + 275);
+			i += 2;
+		}
+		reset.setX(x + 5);
+		defaultColours.setX(x + 152.5);
+		save.setX(x + 5);
+		saved.setX(x + 5);
 	}
 
 	@Override
@@ -354,10 +509,19 @@ public class ChartMenu implements CanvasNode {
 		newChart.setY(y + 60);
 		chartType.setY(y + 85);
 		darkMode.setY(y + 110);
-		replayShortcut.setY(y + 135);
-		timeFrames.setY(y + 160);
+		chartTypeShortcut.setY(y + 135);
+		replayShortcut.setY(y + 160);
+		timeFrames.setY(y + 185);
 		
 		colourPicker.setY(y + 35);
+		for (int i = 0; i < ColourSettings.colours().size(); i++) {
+			colourButtons.get(i*2).setY(y + 205 + 25*i);
+			colourButtons.get(i*2+1).setY(y + 205 + 25*i);
+		}
+		reset.setY(y + 455);
+		defaultColours.setY(y + 455);
+		save.setY(y + 480);
+		saved.setY(y + 505);
 	}
 
 	@Override

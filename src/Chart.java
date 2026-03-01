@@ -142,6 +142,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private boolean menuHidden = true;
 	private CanvasButton btnMenu;
 	private ChartMenu menu;
+	private CanvasButton chartTypeShortcut;
+	private boolean drawChartTypeShortcut = true;
+	private TNode<CanvasNode> ctsNode;
 	
 	private boolean printSpeed = false;
 	
@@ -192,7 +195,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 					btnMenu.setWidth(PRICE_MARGIN - 2);
 					btnMenu.setHeight(HSB_HEIGHT + CHT_MARGIN - 2);
 					btnMenu.setX(CHT_MARGIN + chartWidth + 1);
-					btnMenu.setY(height - HSB_HEIGHT - CHT_MARGIN + 1);
+					chartTypeShortcut.setX(CHT_MARGIN + chartWidth - 15);
 					
 					menu.setX(CHT_MARGIN + chartWidth + PRICE_MARGIN);
 					
@@ -223,6 +226,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		});
 		
 		menu = new ChartMenu(CHT_MARGIN + chartWidth + PRICE_MARGIN, 0, 300, chartHeight, gc, this);		
+		chartTypeShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + chartWidth - 15, CHT_MARGIN + 5, null);
+		chartTypeShortcut.setOnMouseClicked(e -> {
+			toggleChartType();
+		});
 		
 		sceneGraph = new Tree<CanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
@@ -231,7 +238,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<CanvasNode>(btnMenu, sceneGraph.root()));
 		menuNode = new TNode<CanvasNode>(menu, sceneGraph.root());
+		ctsNode = new TNode<CanvasNode>(chartTypeShortcut, sceneGraph.root());
 		sceneGraph.addNode(menuNode);
+		sceneGraph.addNode(ctsNode);
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
@@ -249,6 +258,10 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		setEventHandlers();	
 		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);
 		draw();
+	}
+	
+	public CanvasButton chartTypeShortcut() {
+		return chartTypeShortcut;
 	}
 	
 	public ChartButtonVanGoghs chartButtonVanGoghs() {
@@ -340,6 +353,15 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public ArrayList<PendingTrade> pendingTrades() {
 		return pendingTrades;
+	}
+	
+	public void toggleChartTypeShortcut() {
+		drawChartTypeShortcut = !drawChartTypeShortcut;
+		if (drawChartTypeShortcut) {
+			sceneGraph.addNode(ctsNode);
+		} else {
+			sceneGraph.removeNode(ctsNode);
+		}
 	}
 	
 	public void setPendingTrades(ArrayList<PendingTrade> pendingTrades) {
@@ -1631,18 +1653,18 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			gc.setStroke(Color.BLACK);
 		}		
 		if (candle.open() < candle.close()) {
-			gc.setStroke(Color.CORNFLOWERBLUE);
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_STROKE.index));
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.close() - candle.open()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.close() - candle.low()) / conversionVar);
-			gc.setFill(Color.CORNFLOWERBLUE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
 			gc.fillRect(xPos, yPos, candlestickWidth - num, (candle.close() - candle.open()) / conversionVar - num);
 		} else {
-			gc.setStroke(Color.ORANGE);
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_STROKE.index));
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.open()) / conversionVar);
 			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open() - candle.close()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open() - candle.low()) / conversionVar);
-			gc.setFill(Color.ORANGE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 			gc.fillRect(xPos + num, yPos + num, candlestickWidth - num, (candle.open() - candle.close()) / conversionVar - num);
 		}
 	}
@@ -1680,22 +1702,16 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private void drawFrame() {
 		gc.clearRect(0, 0, width, height);		
 		if (darkMode.get()) {			
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.fillRect(0, 0, width, height);
 			gc.setStroke(Color.WHITE);
 		} else {
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
+			gc.fillRect(0, 0, width, height);
 			gc.setStroke(Color.BLACK);
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
-		/*if (replayMode) {
-			gc.strokeLine(width - PRICE_MARGIN * 3 / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 3 / 4 - 1, height);
-			gc.strokeLine(width - PRICE_MARGIN * 2 / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 4 - 1, height);
-			gc.strokeLine(width - PRICE_MARGIN / 4 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 4 - 1, height);
-		} else {
-			gc.strokeLine(width - PRICE_MARGIN / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN / 3 - 1, height);
-			gc.strokeLine(width - PRICE_MARGIN * 2 / 3 - 1, CHT_MARGIN + chartHeight, width - PRICE_MARGIN * 2 / 3 - 1, height);
-		}*/	
 	}	
 	
 	private void setPreDrawVars() {
@@ -1716,9 +1732,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		double startY = chartHeight - chtDataMargin + CHT_MARGIN - (((data.tickData().get(startIndex).price() - lowest) / range) * (chartHeight - chtDataMargin * 2));		
 		double prevY = startY - ((data.tickData().get(startIndex + 1).price() - data.tickData().get(startIndex).price()) / conversionVar);
 		if (darkMode.get()) {
-			gc.setStroke(Color.WHITE);
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_LINE.index));
 		} else {
-			gc.setStroke(Color.BLACK);
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_LINE.index));
 		}
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
 		for (int i = 1; i < numDataPoints; i++) {
@@ -2088,6 +2104,9 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			drawCandlestickChart();
 		} else {		
 			drawLineChart();
+		}
+		if (drawChartTypeShortcut) {
+			chartTypeShortcut.draw();
 		}
 		checkDrawLines();										
 		checkMeasuring();			

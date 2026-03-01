@@ -21,6 +21,7 @@ public class ChartWidthListener implements ChangeListener<Number> {
 		c.setMRPX(Chart.CHT_MARGIN + 5);			
 		c.chartMenu().setX(Chart.CHT_MARGIN + c.chartWidth() + Chart.PRICE_MARGIN);
 		c.btnMenu().setX(Chart.CHT_MARGIN + c.chartWidth() + 1);
+		c.chartTypeShortcut().setX(Chart.CHT_MARGIN + c.chartWidth() - 15);
 		
 		if (c.replayMode()) {
 			c.tradeButs().close().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 102 - c.fontSize()*2);

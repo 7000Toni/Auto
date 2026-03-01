@@ -35,10 +35,10 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private CanvasButton newChart;
 	private VanGogh nvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.WHITE);
 		} else {
-			gc.setFill(Color.WHITE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.BLACK);
 		}			
 		if (newChart.hover()) {
@@ -365,10 +365,10 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private void draw(GraphicsContext gc, double x, double y) {
 		double fontSize = gc.getFont().getSize();
 		if (Chart.darkMode().get()) {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.WHITE);
 		} else {
-			gc.setFill(Color.WHITE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.BLACK);
 		}
 		gc.fillRect(x - 1, y - 1, 401, 102);		

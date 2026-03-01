@@ -225,12 +225,12 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	@Override
 	public void draw() {				
 		if (Chart.darkMode().get()) {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.fillRect(x, y, width, height);
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
-			gc.setFill(Color.WHITE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
 			gc.fillRect(x, y, width, height);
 			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.BLACK);

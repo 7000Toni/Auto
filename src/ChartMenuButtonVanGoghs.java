@@ -53,4 +53,17 @@ public class ChartMenuButtonVanGoghs {
 			gc.setFont(new Font(oldFontSize));
 		};
 	}	
+	
+	public VanGogh colourPreviewVG(CanvasButton cb, int index) {
+		return (x, y, gc) -> {
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}
+			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.setFill(ColourSettings.colours().get(index));
+			gc.fillRect(x+1, y+1, cb.width()-2, cb.height()-2);
+		};
+	}	
 }

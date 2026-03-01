@@ -35,7 +35,7 @@ public class Menu implements CanvasWindow {
 	private TickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = true;
+	private boolean openChartOnStart = false;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -293,9 +293,9 @@ public class Menu implements CanvasWindow {
 				loadData.disable();
 			}
 			if (Chart.darkMode().get()) {
-				gc.setFill(Color.BLACK);
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_MENU_BACKGROUND.index));
 			} else {
-				gc.setFill(Color.WHITE);
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_MENU_BACKGROUND.index));
 			}
 			gc.fillRect(0, 0, width, height);
 			loadData.draw();

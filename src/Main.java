@@ -10,6 +10,7 @@ public class Main extends Application{
 	
 	@Override
 	public void start(Stage stage) {
+		Settings.loadSettings();
 		MenuPane mp = new MenuPane(640, 360);
 		Scene scene = new Scene(mp, 640, 360);	
 		stage.setScene(scene);
