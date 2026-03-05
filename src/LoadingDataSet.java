@@ -16,7 +16,7 @@ public class LoadingDataSet {
 		this.signature = signature;
 	}
 	
-	public DataSet load(File file, TickDataFileReader reader) {		
+	public DataSet load(File file, ITickDataFileReader reader) {		
 		DataSet data = new DataSet(file, reader, progress);
 		if (data.failed()) {
 			return null;

@@ -3,11 +3,11 @@ import javafx.scene.paint.Color;
 
 public class ColourPickerUniversalScrollBar extends UniversalScrollBar {
 
-	public ColourPickerUniversalScrollBar(ScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
+	public ColourPickerUniversalScrollBar(IScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
 		super(sbo, minXPos, maxXPos, minYPos, maxYPos, sbWidth, sbHeight, x, y);
 		setVanGogh((x2, y2, gc) -> {
-			int r = (int)(143 * (x2 - this.minXPos)/(this.maxXPos - this.minXPos));
-			int c = (int)(143 * (y2 - this.minYPos)/(this.maxYPos - this.minYPos));
+			int r = (int)(142 * (x2 - this.minXPos)/(this.maxXPos - this.minXPos - this.sbWidth));
+			int c = (int)(142 * (y2 - this.minYPos)/(this.maxYPos - this.minYPos - this.sbHeight));
 			
 			if (hovering) {	
 				gc.setFill(Color.GRAY);

@@ -7,7 +7,7 @@ public class ChartButtonVanGoghs {
 		this.c = c;
 	}
 	
-	public VanGogh menuButtonVG(CanvasButton menu) {
+	public IVanGogh menuButtonVG(CanvasButton menu) {
 		return (x, y, gc) -> {
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
@@ -33,7 +33,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh buyVG(CanvasButton buy) {  
+	public IVanGogh buyVG(CanvasButton buy) {  
 		return (x, y, gc) -> {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.DODGERBLUE);
@@ -51,7 +51,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh sellVG(CanvasButton sell) { 
+	public IVanGogh sellVG(CanvasButton sell) { 
 		return (x, y, gc) -> {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.ORANGERED);
@@ -69,7 +69,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh closeVG(CanvasButton close) {
+	public IVanGogh closeVG(CanvasButton close) {
 		return (x, y, gc) -> {
 			Color textColour = Color.RED;
 			Color boxColour = Color.RED;
@@ -89,7 +89,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh cancelTpVG(CanvasButton cancelTP) {
+	public IVanGogh cancelTpVG(CanvasButton cancelTP) {
 		return (x, y, gc) -> {
 			Color textColour = Color.CORNFLOWERBLUE;
 			Color boxColour = Color.CORNFLOWERBLUE;
@@ -109,7 +109,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh cancelSlVG(CanvasButton cancelSL) {
+	public IVanGogh cancelSlVG(CanvasButton cancelSL) {
 		return (x, y, gc) -> {
 			Color textColour = Color.ORANGE;
 			Color boxColour = Color.ORANGE;
@@ -129,7 +129,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh slVG(CanvasButton sl) {
+	public IVanGogh slVG(CanvasButton sl) {
 		return (x, y, gc) -> {
 			Color textColour = Color.ORANGE;
 			Color boxColour = Color.ORANGE;
@@ -149,7 +149,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh tpVG(CanvasButton tp) {
+	public IVanGogh tpVG(CanvasButton tp) {
 		return (x, y, gc) -> {
 			Color textColour = Color.CORNFLOWERBLUE;
 			Color boxColour = Color.CORNFLOWERBLUE;
@@ -169,7 +169,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh setSlVG(CanvasButton setSL) {
+	public IVanGogh setSlVG(CanvasButton setSL) {
 		return (x, y, gc) -> {
 			Color textColour = Color.ORANGE;
 			Color boxColour = Color.ORANGE;
@@ -189,7 +189,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh setTpVG(CanvasButton setTP) {
+	public IVanGogh setTpVG(CanvasButton setTP) {
 		return (x, y, gc) -> {
 			Color textColour = Color.CORNFLOWERBLUE;
 			Color boxColour = Color.CORNFLOWERBLUE;
@@ -209,7 +209,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh orderVG(CanvasButton order, PendingTrade trade) {
+	public IVanGogh orderVG(CanvasButton order, PendingTrade trade) {
 		return (x, y, gc) -> {
 			Color textColour = Color.GRAY;
 			Color boxColour = Color.GRAY;
@@ -231,7 +231,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh pendingVG(CanvasButton btn) {		
+	public IVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
 			if (Chart.darkMode().get()) {
 				gc.setFill(Color.WHITE);

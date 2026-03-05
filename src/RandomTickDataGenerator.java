@@ -3,7 +3,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Random;
 
-public class RandomTickDataGenerator implements TickDataFileReader {
+public class RandomTickDataGenerator implements ITickDataFileReader {
 	private static int size;
 	
 	@Override

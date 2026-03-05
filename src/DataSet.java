@@ -135,11 +135,11 @@ public class DataSet {
 		IntegerProperty percent = new SimpleIntegerProperty();
 	}
 	
-	public DataSet(File file, TickDataFileReader tdfr, IntegerProperty prog) {
+	public DataSet(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
 		readData(file, tdfr, prog);
 	}
 	
-	public DataSet(File file, TickDataFileReader tdfr) {
+	public DataSet(File file, ITickDataFileReader tdfr) {
 		readData(file, tdfr, null);
 	}
 	
@@ -306,7 +306,7 @@ public class DataSet {
 		}
 	}
 	
-	private void readData(File file, TickDataFileReader tdfr, IntegerProperty prog) {
+	private void readData(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			ReadFileVars rfv = new ReadFileVars();

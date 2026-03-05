@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-public class MarketTickFileReader implements TickDataFileReader {
+public class MarketTickFileReader implements ITickDataFileReader {
 	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyMMddHHmmssSSSSSS");	
 	private static Pattern datum = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d;\\d;\\d;([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?;[0-9]+");	
 	

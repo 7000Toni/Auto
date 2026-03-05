@@ -1,28 +1,11 @@
-import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public class ColourPicker implements CanvasNode, ScrollBarOwner {
-	private double x;
-	private double y;
-	private double width;
-	private double height;
-	private GraphicsContext gc;
+public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	private ColourPickerScrollBar hsb; 
 	private ColourPickerUniversalScrollBar usb;
 	private Color[][] colours;
 	private boolean coloursInitialized;
-	
-	private EventHandler<? super MouseEvent> onMouseDragged;
-	private EventHandler<? super MouseEvent> onMouseEntered;
-	private EventHandler<? super MouseEvent> onMouseExited;
-	private EventHandler<? super MouseEvent> onMousePressed;
-	private EventHandler<? super MouseEvent> onMouseClicked;
-	private EventHandler<? super MouseEvent> onMouseReleased;
-	private EventHandler<? super MouseEvent> onMouseMoved;
-	private EventHandler<? super ScrollEvent> onScroll;
 	
 	public ColourPicker(double x, double y, double width, double height, GraphicsContext gc) {
 		this.x = x;
@@ -32,7 +15,7 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		this.gc = gc;
 		hsb = new ColourPickerScrollBar(this, x - 2, x + 292, 15, 15, y + 150);
 		usb = new ColourPickerUniversalScrollBar(this, x + width/2 - 5, x + 295, y - 5, y + 150, 15, 15, x + 295, y - 5);
-		colours = new Color[144][144];
+		colours = new Color[143][143];
 		initializeColours();
 	}
 	
@@ -43,10 +26,10 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		int b = (int)(c.getBlue() * 255);
 		
 		double hsbPerc = (hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos());
-		for (double i = x + 146; i < x + 290; i++) {
-			double percx = (144 - (i - x - 146)) / 144;
-			for (double j = y + 1; j < y + 145; j++) {
-				double percy = (144 - (j - y - 1)) / 144;
+		for (double i = x + 146; i < x + 289; i++) {
+			double percx = (142 - (i - x - 146)) / 142;			
+			for (double j = y + 1; j < y + 144; j++) {
+				double percy = (142 - (j - y - 1)) / 142;
 				int r2;
 				int g2;
 				int b2;
@@ -76,8 +59,8 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	
 	private void fillBrightnessSquare() {
 		if (coloursInitialized) {
-			for (double i = x + 146; i < x + 290; i++) {
-				for (double j = y + 1; j < y + 145; j++) {			
+			for (double i = x + 146; i < x + 289; i++) {
+				for (double j = y + 1; j < y + 144; j++) {			
 					gc.getPixelWriter().setColor((int)i, (int)j, colours[(int)(i - x - 146)][(int)(j - y - 1)]);
 				}
 			}
@@ -96,117 +79,6 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	
 	public ColourPickerUniversalScrollBar usb() {
 		return usb;
-	}
-	
-	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
-	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
-			return;
-		}
-		onMouseExited.handle(e);
-	}
-
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		if (onMousePressed == null) {
-			return;
-		}
-		onMousePressed.handle(e);
-	}
-	@Override
-	public void onMouseClicked(MouseEvent e) {	
-		if (onMouseClicked == null) {
-			return;
-		}
-		onMouseClicked.handle(e);
-	}
-	
-	@Override
-	public void onMouseReleased(MouseEvent e) {	
-		if (onMouseReleased == null) {
-			return;
-		}
-		onMouseReleased.handle(e);		
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		if (onMouseMoved == null) {
-			return;
-		}
-		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null) {
-			return;
-		}
-		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-	
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
-	}
-
-	@Override
-	public boolean onNode(double x, double y) {
-		if (x >= this.x && x < this.x + width && y >= this.y && y < this.y + height) {
-			return true;
-		}
-		return false;
 	}	
 	
 	private void fillHSBBar() {
@@ -217,8 +89,8 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	}
 	
 	public Color finalColour() {
-		int r = (int)(143 * (usb.x() - usb.minXPos())/(usb.maxXPos() - usb.minXPos() - usb.sbWidth()));
-		int c = (int)(143 * (usb.y() - usb.minYPos())/(usb.maxYPos() - usb.minYPos() - usb.sbHeight()));
+		int r = (int)(142 * (usb.x() - usb.minXPos())/(usb.maxXPos() - usb.minXPos() - usb.sbWidth()));
+		int c = (int)(142 * (usb.y() - usb.minYPos())/(usb.maxYPos() - usb.minYPos() - usb.sbHeight()));
 		return colours[r][c];
 	}
 	
@@ -226,12 +98,12 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 	public void draw() {				
 		if (Chart.darkMode().get()) {
 			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
-			gc.fillRect(x, y, width, height);
+			gc.fillRect(x-1, y-1, width+2, height+2);
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
 			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
-			gc.fillRect(x, y, width, height);
+			gc.fillRect(x-1, y-1, width+2, height+2);
 			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.BLACK);
 		}	
@@ -245,16 +117,6 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
 		hsb.draw();
 		usb.draw();
-	}
-
-	@Override
-	public GraphicsContext graphicsContext() {
-		return gc;
-	}
-
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;
 	}
 
 	@Override
@@ -272,21 +134,11 @@ public class ColourPicker implements CanvasNode, ScrollBarOwner {
 
 	@Override
 	public void setY(double y) {
-		this.y = y;
 		double usbYOffset = usb.y() - this.y;
+		this.y = y;		
 		hsb.setY(y + 150);
 		usb.setMinYPos(y - 5);
 		usb.setMaxYPos(y + 150);
 		usb.setY(usbYOffset + y);
-	}
-
-	@Override
-	public double x() {
-		return x;
-	}
-
-	@Override
-	public double y() {
-		return y;
 	}
 }

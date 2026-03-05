@@ -8,7 +8,7 @@ public class DataSetButton extends CanvasButton {
 	
 	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
-		VanGogh drawCross = (x2, y2, gc2) -> {
+		IVanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
 				gc2.setStroke(Color.WHITE);
 				gc2.setFill(Color.WHITE);
@@ -37,7 +37,7 @@ public class DataSetButton extends CanvasButton {
 			double[] y3 = {y2 + 3, y2 + 3, valy, y2 + 3, y2 + 3, val4y, val3y, val3y, val2y, val3y, val3y, val4y, y2 + 3};
 			gc2.fillPolygon(x3, y3, 13);
 		};
-		VanGogh mrvg = (x2, y2, gc2) -> {
+		IVanGogh mrvg = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
 				gc2.setStroke(Color.WHITE);
 				gc2.setFill(Color.WHITE);

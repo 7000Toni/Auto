@@ -5,7 +5,7 @@ import java.time.ZoneId;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-public class DukascopyNodeReader implements TickDataFileReader {
+public class DukascopyNodeReader implements ITickDataFileReader {
 	private static Pattern datum = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d,([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?,([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?");
 	
 	@Override

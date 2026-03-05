@@ -1,21 +1,13 @@
-import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public class CanvasNumberChooser implements CanvasNode {
-	private GraphicsContext gc;
-	private double width;
-	private double height;
-	private double x;
-	private double y;
+public class CanvasNumberChooser extends CanvasNode {
 	private int value = 0;
 	private boolean upHover = false;
 	private boolean upPressed = false;
 	private boolean downHover = false;
 	private boolean downPressed = false;
-	private boolean enabled = true;
 	
 	private boolean l1 = true;
 	private boolean l2 = true;
@@ -29,15 +21,6 @@ public class CanvasNumberChooser implements CanvasNode {
 	private Color offColour = Color.LIGHTGRAY;
 	private Color hoverColour = Color.GRAY;
 	private Color pressColour = Color.DIMGRAY;
-	
-	private EventHandler<? super MouseEvent> onMouseDragged;
-	private EventHandler<? super MouseEvent> onMouseEntered;
-	private EventHandler<? super MouseEvent> onMouseExited;
-	private EventHandler<? super MouseEvent> onMousePressed;
-	private EventHandler<? super MouseEvent> onMouseClicked;
-	private EventHandler<? super MouseEvent> onMouseReleased;
-	private EventHandler<? super MouseEvent> onMouseMoved;
-	private EventHandler<? super ScrollEvent> onScroll;
 	
 	public CanvasNumberChooser(GraphicsContext gc, double width, double height, double x, double y) {
 		this.gc = gc;
@@ -115,18 +98,6 @@ public class CanvasNumberChooser implements CanvasNode {
 		return value;
 	}
 	
-	public boolean enabled() {
-		return enabled;
-	}
-	
-	public void disable() {
-		enabled = false;
-	}
-	
-	public void enable() {
-		enabled = true;
-	}
-	
 	public void setUpHover(boolean upHover) {
 		this.upHover = upHover;
 	}
@@ -141,36 +112,6 @@ public class CanvasNumberChooser implements CanvasNode {
 	
 	public void setDownPressed(boolean downClicked) {
 		this.downPressed = downClicked;
-	}
-	
-	@Override
-	public GraphicsContext graphicsContext() {
-		return this.gc;
-	}
-	
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;
-	}
-	
-	@Override
-	public double x() {
-		return this.x;
-	}
-	
-	@Override
-	public double y() {
-		return this.y;
-	}
-	
-	@Override
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	@Override
-	public void setY(double y) {
-		this.y = y;
 	}
 	
 	public void setValue(int value) {
@@ -392,22 +333,6 @@ public class CanvasNumberChooser implements CanvasNode {
 	}
 
 	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null || !enabled) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null || !enabled) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
 	public void onMouseExited(MouseEvent e) {
 		setUpPressed(false);
 		setUpHover(false);
@@ -431,14 +356,6 @@ public class CanvasNumberChooser implements CanvasNode {
 			return;
 		}
 		onMousePressed.handle(e);
-	}
-
-	@Override
-	public void onMouseClicked(MouseEvent e) {
-		if (onMouseClicked == null || !enabled) {
-			return;
-		}
-		onMouseClicked.handle(e);		
 	}
 	
 	@Override
@@ -464,54 +381,6 @@ public class CanvasNumberChooser implements CanvasNode {
 			return;
 		}
 		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null || !enabled) {
-			return;
-		}
-		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-	
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
 	}
 
 	@Override

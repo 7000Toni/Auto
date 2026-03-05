@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class MarketReplayPane extends GridPane implements ScrollBarOwner, CanvasWindow {
+public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanvasWindow {
 	private Stage stage;
 	private MarketReplay mr;
 	private Canvas canvas;
@@ -24,16 +24,16 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 	private boolean bLive = true;
 	private String name;	
 	
-	private Tree<CanvasNode> sceneGraph;
+	private Tree<ICanvasNode> sceneGraph;
 	private CanvasWrapper cw;
-	private TNode<CanvasNode> lastNode = null;
+	private TNode<ICanvasNode> lastNode = null;
 	private boolean dragging = false;
 	
 	private static ArrayList<MarketReplayPane> panes = new ArrayList<MarketReplayPane>();
 	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private CanvasButton newChart;
-	private VanGogh nvg = (x, y, gc) -> {
+	private IVanGogh nvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.WHITE);
@@ -56,7 +56,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillRect(x + 1, y + 1, 38, 18);
 	};
 	private CanvasButton pausePlay;
-	private VanGogh pvg = (x, y, gc) -> {
+	private IVanGogh pvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -90,7 +90,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		}
 	};
 	private CanvasButton back;
-	private VanGogh bvg = (x, y, gc) -> {
+	private IVanGogh bvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -116,7 +116,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillPolygon(xa, ya, 8);
 	};
 	private CanvasButton forward;
-	private VanGogh fvg = (x, y, gc) -> {
+	private IVanGogh fvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -142,7 +142,7 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillPolygon(xa, ya, 8);
 	};
 	private CanvasButton live;
-	private VanGogh lvg = (x, y, gc) -> {
+	private IVanGogh lvg = (x, y, gc) -> {
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 			gc.setStroke(Color.WHITE);
@@ -222,9 +222,9 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		numbers.add(s2);
 		numbers.add(s3);
 		
-		sceneGraph = new Tree<CanvasNode>();
+		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
-		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
+		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
 		
 		hsb.setOnMouseDragged(e -> {
 			hsb.defaultOnMouseDragged(e);
@@ -287,19 +287,19 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 			mr.setSpeed(speedNumber());
 		});
 
-		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(newChart, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(pausePlay, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(back, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(forward, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(live, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(bf1, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(bf2, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(bf3, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(bf4, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(s1, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(s2, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(s3, sceneGraph.root()));			
+		sceneGraph.addNode(new TNode<ICanvasNode>(hsb, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(newChart, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(pausePlay, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(back, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(forward, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(live, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(bf1, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(bf2, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(bf3, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(bf4, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(s1, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(s2, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(s3, sceneGraph.root()));			
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
@@ -321,15 +321,15 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		return x <= 399 && x >= 0 && y <= 100 && y >= 0; 
 	}
 	
-	public Tree<CanvasNode> sceneGraph() {
+	public Tree<ICanvasNode> sceneGraph() {
 		return sceneGraph;
 	}
 	
-	public TNode<CanvasNode> lastNode() {
+	public TNode<ICanvasNode> lastNode() {
 		return lastNode;
 	}
 	
-	public void setLastNode(TNode<CanvasNode> lastNode) {
+	public void setLastNode(TNode<ICanvasNode> lastNode) {
 		this.lastNode = lastNode;
 	}
 	
@@ -397,8 +397,8 @@ public class MarketReplayPane extends GridPane implements ScrollBarOwner, Canvas
 		gc.fillText("SPEED", x + 260, y + 25);
 		gc.setFont(new Font(fontSize));
 		int i = 0;
-		for (TNode<CanvasNode> tn : sceneGraph.postOrderArray()) {
-			CanvasNode d = tn.element();
+		for (TNode<ICanvasNode> tn : sceneGraph.postOrderArray()) {
+			ICanvasNode d = tn.element();
 			if (d instanceof CanvasNumberChooser) {
 				((CanvasNumberChooser)d).resetColours();
 			}

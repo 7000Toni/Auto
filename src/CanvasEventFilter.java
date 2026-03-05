@@ -3,20 +3,20 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 public class CanvasEventFilter {
-	private CanvasWindow cw;
+	private ICanvasWindow cw;
 	
-	public CanvasEventFilter(CanvasWindow cw) {
+	public CanvasEventFilter(ICanvasWindow cw) {
 		this.cw = cw;
 	}
 	
 	public void canvasEventFilter(Event e) {
-		TNode<CanvasNode> currentNode = null;
+		TNode<ICanvasNode> currentNode = null;
 		MouseEvent me = null;
 		ScrollEvent se = null;
 		cw.varLock().lock();
 		try {
-			for (TNode<CanvasNode> t : cw.sceneGraph().postOrderArray()) {	
-				CanvasNode cn = t.element();
+			for (TNode<ICanvasNode> t : cw.sceneGraph().postOrderArray()) {	
+				ICanvasNode cn = t.element();
 				if (e instanceof MouseEvent) {
 					me = (MouseEvent)e;					
 					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging()) {

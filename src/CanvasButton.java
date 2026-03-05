@@ -4,7 +4,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class CanvasButton extends CanvasLabel implements CanvasNode {
+public class CanvasButton extends CanvasLabel {
 	protected boolean hover = false;
 	protected boolean pressed = false;
 	protected boolean on = false;

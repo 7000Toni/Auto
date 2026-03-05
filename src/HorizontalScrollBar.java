@@ -1,19 +1,14 @@
 import javafx.animation.AnimationTimer;
-import javafx.event.EventHandler;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public abstract class HorizontalScrollBar implements CanvasNode {
-	protected ScrollBarOwner sbo;
+public abstract class HorizontalScrollBar extends CanvasNode {
+	protected IScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
 	
-	protected double x = 0;
-	protected double y = 0;
 	protected boolean dragging = false;
 	protected boolean hovering = false;
 	protected boolean clickedInScrollBarArea = false;
@@ -22,19 +17,9 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 	protected double minPos;
 	protected double sbWidth;
 	protected double sbHeight;
-	protected GraphicsContext gc;
-	protected VanGogh vg;
+	protected IVanGogh vg;
 	
-	protected EventHandler<? super MouseEvent> onMouseDragged;
-	protected EventHandler<? super MouseEvent> onMouseEntered;
-	protected EventHandler<? super MouseEvent> onMouseExited;
-	protected EventHandler<? super MouseEvent> onMousePressed;
-	protected EventHandler<? super MouseEvent> onMouseClicked;
-	protected EventHandler<? super MouseEvent> onMouseReleased;
-	protected EventHandler<? super MouseEvent> onMouseMoved;
-	protected EventHandler<? super ScrollEvent> onScroll;
-	
-	public HorizontalScrollBar(ScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public HorizontalScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		this.sbo = sbo;
 		this.minPos = minPos;
 		this.maxPos = maxPos;
@@ -59,7 +44,7 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		return this.sbHeight;
 	}
 	
-	public void setVanGogh(VanGogh vg) {
+	public void setVanGogh(IVanGogh vg) {
 		this.vg = vg;
 	}
 	
@@ -160,16 +145,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		setPosition(x, false);
 	}
 	
-	@Override
-	public void setX(double x) {
-		setPosition(x, false);
-	}
-
-	@Override
-	public void setY(double y) {
-		this.y = y;
-	}
-	
 	protected abstract void moveOwnerLeft(boolean fast);
 	
 	protected abstract void moveOwnerRight(boolean fast);
@@ -232,26 +207,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		}
 	}
 	
-	@Override
-	public GraphicsContext graphicsContext() {
-		return this.gc;
-	}
-	
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;
-	}
-	
-	@Override
-	public double x() {
-		return this.x;
-	}
-	
-	@Override
-	public double y() {
-		return this.y;
-	}
-	
 	public void setPosition(double pos, boolean increment) {
 		if (Double.isNaN(pos)) {
 			return;
@@ -275,6 +230,11 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 		}
 	}		
 	
+	@Override
+	public void setX(double x) {
+		setPosition(x, false);
+	}	
+	
 	public void defaultDraw() {
 		if (hovering) {	
 			gc.setFill(Color.GRAY);
@@ -295,46 +255,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 			vg.draw(x, y, gc);
 		}
 	}	
-
-	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
-	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
-			return;
-		}
-		onMouseExited.handle(e);
-	}
-
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		if (onMousePressed == null) {
-			return;
-		}
-		onMousePressed.handle(e);
-	}
-
-	@Override
-	public void onMouseClicked(MouseEvent e) {
-		if (onMouseClicked == null) {
-			return;
-		}
-		onMouseClicked.handle(e);
-	}
 	
 	@Override
 	public void onMouseReleased(MouseEvent e) {
@@ -345,62 +265,6 @@ public abstract class HorizontalScrollBar implements CanvasNode {
 			return;
 		}
 		onMouseReleased.handle(e);
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		if (onMouseMoved == null) {
-			return;
-		}
-		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null) {
-			return;
-		}
-		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-	
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
 	}
 
 	@Override

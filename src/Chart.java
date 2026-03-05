@@ -19,7 +19,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 
-public class Chart implements ScrollBarOwner, CanvasWindow {
+public class Chart implements IScrollBarOwner, ICanvasWindow {
 	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
@@ -131,20 +131,20 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	private int numCandlesticks;
 	
 	private ChartButtonVanGoghs cbvg;
-	private Tree<CanvasNode> sceneGraph;
-	private TNode<CanvasNode> lastNode = null;
+	private Tree<ICanvasNode> sceneGraph;
+	private TNode<ICanvasNode> lastNode = null;
 	private CanvasWrapper cw;
 	private boolean dragging = false;
 	private boolean mrpSBDragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
-	TNode<CanvasNode> menuNode;
+	TNode<ICanvasNode> menuNode;
 	
 	private boolean menuHidden = true;
 	private CanvasButton btnMenu;
 	private ChartMenu menu;
 	private CanvasButton chartTypeShortcut;
 	private boolean drawChartTypeShortcut = true;
-	private TNode<CanvasNode> ctsNode;
+	private TNode<ICanvasNode> ctsNode;
 	
 	private boolean printSpeed = false;
 	
@@ -231,14 +231,14 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 			toggleChartType();
 		});
 		
-		sceneGraph = new Tree<CanvasNode>();
+		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
-		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
+		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
 		
-		sceneGraph.addNode(new TNode<CanvasNode>(hsb, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(btnMenu, sceneGraph.root()));
-		menuNode = new TNode<CanvasNode>(menu, sceneGraph.root());
-		ctsNode = new TNode<CanvasNode>(chartTypeShortcut, sceneGraph.root());
+		sceneGraph.addNode(new TNode<ICanvasNode>(hsb, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(btnMenu, sceneGraph.root()));
+		menuNode = new TNode<ICanvasNode>(menu, sceneGraph.root());
+		ctsNode = new TNode<ICanvasNode>(chartTypeShortcut, sceneGraph.root());
 		sceneGraph.addNode(menuNode);
 		sceneGraph.addNode(ctsNode);
 		
@@ -1172,6 +1172,7 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 	
 	public static void toggleDarkMode() {
 		darkMode.set(!darkMode.get());
+		Settings.saveDarkMode();
 		for (Chart c : charts) {
 			if (c.replayMode) {					
 				c.setNumberChooserColours();				
@@ -2182,22 +2183,22 @@ public class Chart implements ScrollBarOwner, CanvasWindow {
 		}
 	}
 	
-	public TNode<CanvasNode> menuNode() {
+	public TNode<ICanvasNode> menuNode() {
 		return menuNode;
 	}
 	
 	@Override
-	public Tree<CanvasNode> sceneGraph() {
+	public Tree<ICanvasNode> sceneGraph() {
 		return sceneGraph;
 	}
 
 	@Override
-	public TNode<CanvasNode> lastNode() {
+	public TNode<ICanvasNode> lastNode() {
 		return lastNode;
 	}
 
 	@Override
-	public void setLastNode(TNode<CanvasNode> lastNode) {
+	public void setLastNode(TNode<ICanvasNode> lastNode) {
 		this.lastNode = lastNode;
 	}
 

@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 
 public class ColourPickerScrollBar extends HorizontalScrollBar {
 	
-	public ColourPickerScrollBar(ScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public ColourPickerScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		super(sbo, minPos, maxPos, sbWidth, sbHeight, y);
 		setVanGogh((x, y2, gc) -> {
 			if (hovering) {	

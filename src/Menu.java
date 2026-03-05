@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
-public class Menu implements CanvasWindow {
+public class Menu implements ICanvasWindow {
 	public static final double MARGIN = 10;
 	
 	private Canvas canvas;
@@ -32,7 +32,7 @@ public class Menu implements CanvasWindow {
 	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
-	private TickDataFileReader reader = null;	
+	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
 	private boolean openChartOnStart = false;
@@ -42,11 +42,11 @@ public class Menu implements CanvasWindow {
 	private final ReentrantLock varLock = new ReentrantLock();
 	private boolean dragging = false;
 	
-	private Tree<CanvasNode> sceneGraph;
+	private Tree<ICanvasNode> sceneGraph;
 	private CanvasWrapper cw;
-	private TNode<CanvasNode> lastNode = null;
+	private TNode<ICanvasNode> lastNode = null;
 	
-	private VanGogh optimizeVG = (x, y, gc) -> {
+	private IVanGogh optimizeVG = (x, y, gc) -> {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(22));
 		if (numJobs.get() > 0) {
@@ -71,8 +71,8 @@ public class Menu implements CanvasWindow {
 			gc.setStroke(Color.LIGHTGRAY);
 			gc.setFill(Color.LIGHTGRAY);
 		}
-		gc.strokeRect(x, y, optimize.width, optimize.height);
-		gc.fillText(optimize.text, x + optimize.textXOffset, y + optimize.textYOffset);		
+		gc.strokeRect(x, y, optimize.width(), optimize.height());
+		gc.fillText(optimize.text(), x + optimize.textXOffset(), y + optimize.textYOffset());		
 		gc.setFont(new Font(oldFontSize));
 	};
 	
@@ -191,18 +191,18 @@ public class Menu implements CanvasWindow {
 		});
 		this.auto.toggleOn();
 		
-		sceneGraph = new Tree<CanvasNode>();
+		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
-		sceneGraph.addNode(new TNode<CanvasNode>(cw, null));
+		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
 		
-		sceneGraph.addNode(new TNode<CanvasNode>(loadData, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(optimize, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(marketTickReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(marketTickOReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(originalReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(dukasNodeReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(darkMode, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<CanvasNode>(auto, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(loadData, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(optimize, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(marketTickReader, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(marketTickOReader, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(originalReader, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(dukasNodeReader, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
@@ -217,15 +217,15 @@ public class Menu implements CanvasWindow {
 		draw();
 	}	
 	
-	public Tree<CanvasNode> sceneGraph() {
+	public Tree<ICanvasNode> sceneGraph() {
 		return sceneGraph;
 	}
 	
-	public TNode<CanvasNode> lastNode() {
+	public TNode<ICanvasNode> lastNode() {
 		return lastNode;
 	}
 	
-	public void setLastNode(TNode<CanvasNode> lastNode) {
+	public void setLastNode(TNode<ICanvasNode> lastNode) {
 		this.lastNode = lastNode;
 	}
 	
@@ -247,7 +247,7 @@ public class Menu implements CanvasWindow {
 		return x <= width && x >= 0 && y <= height && y >= 0; 
 	}
 	
-	private VanGogh readerVG(CanvasButton cb, int fontSize) {
+	private IVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(fontSize));
@@ -270,8 +270,8 @@ public class Menu implements CanvasWindow {
 				gc.setStroke(Color.DARKORANGE);
 				gc.setFill(Color.DARKORANGE);
 			}	
-			gc.strokeRect(x, y, cb.width, cb.height);
-			gc.fillText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
+			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(new Font(oldFontSize));
 		};
 	}

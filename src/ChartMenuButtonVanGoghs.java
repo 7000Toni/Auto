@@ -4,7 +4,7 @@ import javafx.scene.text.Font;
 
 public class ChartMenuButtonVanGoghs {
 	
-	public VanGogh menuButtonVG(CanvasButton cb, double fontSize) {
+	public IVanGogh menuButtonVG(CanvasButton cb, double fontSize) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(fontSize));
@@ -33,7 +33,7 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}
 	
-	public VanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2, double fontSize1, double fontSize2, double xoff1, double xoff2, double yoff1, double yoff2) {
+	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2, double fontSize1, double fontSize2, double xoff1, double xoff2, double yoff1, double yoff2) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
 			double fontSize;
@@ -54,7 +54,7 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}	
 	
-	public VanGogh colourPreviewVG(CanvasButton cb, int index) {
+	public IVanGogh colourPreviewVG(CanvasButton cb, int index) {
 		return (x, y, gc) -> {
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);

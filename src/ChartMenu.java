@@ -1,20 +1,12 @@
 import javafx.animation.AnimationTimer;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class ChartMenu implements CanvasNode {
-	private double x;
-	private double y;
-	private double width;
-	private double height;
-	private GraphicsContext gc;
+public class ChartMenu extends CanvasNode {
 	private Chart chart;
 	private boolean replayMode = false;
 	private ChartMenuButtonVanGoghs cmbvg;
@@ -39,15 +31,6 @@ public class ChartMenu implements CanvasNode {
 	private CanvasLabel saved;
 	private boolean recentlySaved = false;
 	private ArrayList<CanvasButton> colourButtons;
-	
-	private EventHandler<? super MouseEvent> onMouseDragged;
-	private EventHandler<? super MouseEvent> onMouseEntered;
-	private EventHandler<? super MouseEvent> onMouseExited;
-	private EventHandler<? super MouseEvent> onMousePressed;
-	private EventHandler<? super MouseEvent> onMouseClicked;
-	private EventHandler<? super MouseEvent> onMouseReleased;
-	private EventHandler<? super MouseEvent> onMouseMoved;
-	private EventHandler<? super ScrollEvent> onScroll;
 	
 	public enum ColourButtonIndices {
 		UP_CANDLESTICK_FILL(0, "UP CANDLESTICK FILL"),
@@ -247,40 +230,40 @@ public class ChartMenu implements CanvasNode {
 		});
 	}
 	
-	public void setFunctionsMenuSceneGraph(Tree<CanvasNode> sceneGraph, TNode<CanvasNode> menuNode) {
+	public void setFunctionsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
 		chart.varLock().lock();
 		try {
 			menuNode.removeAllChildren();
-			sceneGraph.addNode(new TNode<CanvasNode>(chartFunctions, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(chartSettings, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(general, menuNode)); 
-			sceneGraph.addNode(new TNode<CanvasNode>(newChart, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(chartType, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(darkMode, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(chartTypeShortcut, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(replayShortcut, menuNode)); 
-			sceneGraph.addNode(new TNode<CanvasNode>(timeFrames, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(general, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(newChart, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartType, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartTypeShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(timeFrames, menuNode)); 
 		} finally {
 			chart.varLock().unlock();
 		}
 	}
 	
-	public void setSettingsMenuSceneGraph(Tree<CanvasNode> sceneGraph, TNode<CanvasNode> menuNode) {
+	public void setSettingsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
 		chart.varLock().lock();
 		try {
 			menuNode.removeAllChildren();
-			sceneGraph.addNode(new TNode<CanvasNode>(chartFunctions, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(chartSettings, menuNode));
-			TNode<CanvasNode> colourPickerNode = new TNode<CanvasNode>(colourPicker, menuNode);
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));
+			TNode<ICanvasNode> colourPickerNode = new TNode<ICanvasNode>(colourPicker, menuNode);
 			sceneGraph.addNode(colourPickerNode);
-			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.hsb(), colourPickerNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(colourPicker.usb(), colourPickerNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.hsb(), colourPickerNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.usb(), colourPickerNode));
 			for (CanvasButton c : colourButtons) {
-				sceneGraph.addNode(new TNode<CanvasNode>(c, menuNode));
+				sceneGraph.addNode(new TNode<ICanvasNode>(c, menuNode));
 			}
-			sceneGraph.addNode(new TNode<CanvasNode>(reset, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(defaultColours, menuNode));
-			sceneGraph.addNode(new TNode<CanvasNode>(save, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(defaultColours, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
 		} finally {
 			chart.varLock().unlock();
 		}
@@ -318,14 +301,6 @@ public class ChartMenu implements CanvasNode {
 		return colourPicker;
 	}
 	
-	public void setWidth(double width) {
-		this.width = width;
-	}
-	
-	public void setHeight(double height) {
-		this.height = height;
-	}
-	
 	public void setReplayMode(boolean replayMode) {
 		this.replayMode = replayMode;
 		if (this.replayMode) {
@@ -333,118 +308,6 @@ public class ChartMenu implements CanvasNode {
 		} else {
 			replayShortcut.disable();
 		}
-	}
-	
-	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
-	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
-			return;
-		}
-		onMouseExited.handle(e);
-	}
-
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		if (onMousePressed == null) {
-			return;
-		}
-		onMousePressed.handle(e);
-	}
-
-	@Override
-	public void onMouseClicked(MouseEvent e) {			
-		if (onMouseClicked == null) {
-			return;
-		}
-		onMouseClicked.handle(e);	
-	}
-	
-	@Override
-	public void onMouseReleased(MouseEvent e) {	
-		if (onMouseReleased == null) {
-			return;
-		}
-		onMouseReleased.handle(e);		
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		if (onMouseMoved == null) {
-			return;
-		}
-		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null) {
-			return;
-		}
-		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
-	}
-
-	@Override
-	public boolean onNode(double x, double y) {
-		if (x >= this.x && x < this.x + width && y >= this.y && y < this.y + height) {
-			return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -471,16 +334,6 @@ public class ChartMenu implements CanvasNode {
 				saved.draw();
 			}
 		}
-	}
-
-	@Override
-	public GraphicsContext graphicsContext() {
-		return gc;
-	}
-
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;		
 	}
 
 	@Override
@@ -532,15 +385,4 @@ public class ChartMenu implements CanvasNode {
 		save.setY(y + 480);
 		saved.setY(y + 505);
 	}
-
-	@Override
-	public double x() {
-		return y;
-	}
-
-	@Override
-	public double y() {
-		return x;
-	}
-
 }

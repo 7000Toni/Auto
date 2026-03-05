@@ -1,18 +1,13 @@
-import javafx.event.EventHandler;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 
-public abstract class UniversalScrollBar implements CanvasNode {
-	protected ScrollBarOwner sbo;
+public abstract class UniversalScrollBar extends CanvasNode {
+	protected IScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
 	
-	protected double x = 0;
-	protected double y = 0;
 	protected boolean dragging = false;
 	protected boolean hovering = false;
 	protected boolean clickedInScrollBarArea = false;
@@ -24,19 +19,9 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	protected double minYPos;
 	protected double sbWidth;
 	protected double sbHeight;
-	protected GraphicsContext gc;
-	protected VanGogh bvg;
+	protected IVanGogh bvg;
 	
-	private EventHandler<? super MouseEvent> onMouseDragged;
-	private EventHandler<? super MouseEvent> onMouseEntered;
-	private EventHandler<? super MouseEvent> onMouseExited;
-	private EventHandler<? super MouseEvent> onMousePressed;
-	private EventHandler<? super MouseEvent> onMouseClicked;
-	private EventHandler<? super MouseEvent> onMouseReleased;
-	private EventHandler<? super MouseEvent> onMouseMoved;
-	private EventHandler<? super ScrollEvent> onScroll;
-	
-	public UniversalScrollBar(ScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
+	public UniversalScrollBar(IScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
 		this.sbo = sbo;
 		this.minXPos = minXPos;
 		this.maxXPos = maxXPos;
@@ -44,16 +29,8 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		this.maxYPos = maxYPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		if (x < minXPos || x > maxXPos) {
-			this.x = minXPos;
-		} else {
-			this.x = x;
-		}
-		if (y < minYPos || y > maxYPos) {
-			this.y = minYPos;
-		} else {
-			this.y = y;
-		}
+		setXPosition(x, false);
+		setYPosition(y, false);
 		this.gc = sbo.graphicsContext();
 		
 		onMouseDragged = (e) -> {defaultOnMouseDragged(e);};
@@ -71,7 +48,7 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		return this.sbHeight;
 	}
 	
-	public void setVanGogh(VanGogh bvg) {
+	public void setVanGogh(IVanGogh bvg) {
 		this.bvg = bvg;
 	}
 	
@@ -162,16 +139,6 @@ public abstract class UniversalScrollBar implements CanvasNode {
 	
 	public void setMinYPos(double minYPos) {
 		this.minYPos = minYPos;
-		setYPosition(y, false);
-	}
-	
-	@Override
-	public void setX(double x) {
-		setXPosition(x, false);
-	}
-
-	@Override
-	public void setY(double y) {
 		setYPosition(y, false);
 	}
 	
@@ -273,26 +240,6 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		}
 	}
 	
-	@Override
-	public GraphicsContext graphicsContext() {
-		return this.gc;
-	}
-	
-	@Override
-	public void setGraphicsContext(GraphicsContext gc) {
-		this.gc = gc;
-	}
-	
-	@Override
-	public double x() {
-		return this.x;
-	}
-	
-	@Override
-	public double y() {
-		return this.y;
-	}
-	
 	public void setXPosition(double pos, boolean increment) {
 		if (Double.isNaN(pos)) {
 			return;
@@ -339,6 +286,16 @@ public abstract class UniversalScrollBar implements CanvasNode {
 		}
 	}	
 	
+	@Override
+	public void setX(double x) {
+		setXPosition(x, false);
+	}
+	
+	@Override
+	public void setY(double y) {
+		setYPosition(y, false);
+	}
+	
 	public void defaultDraw() {
 		if (hovering) {	
 			gc.setFill(Color.GRAY);
@@ -359,46 +316,6 @@ public abstract class UniversalScrollBar implements CanvasNode {
 			bvg.draw(x, y, gc);
 		}
 	}	
-
-	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
-	public void onMouseExited(MouseEvent e) {
-		if (onMouseExited == null) {
-			return;
-		}
-		onMouseExited.handle(e);
-	}
-
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		if (onMousePressed == null) {
-			return;
-		}
-		onMousePressed.handle(e);
-	}
-
-	@Override
-	public void onMouseClicked(MouseEvent e) {
-		if (onMouseClicked == null) {
-			return;
-		}
-		onMouseClicked.handle(e);
-	}
 	
 	@Override
 	public void onMouseReleased(MouseEvent e) {
@@ -409,62 +326,6 @@ public abstract class UniversalScrollBar implements CanvasNode {
 			return;
 		}
 		onMouseReleased.handle(e);
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		if (onMouseMoved == null) {
-			return;
-		}
-		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null) {
-			return;
-		}
-		onScroll.handle(e);
-	}
-
-	@Override
-	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
-		onMouseDragged = e;
-	}
-
-	@Override
-	public void setOnMouseEntered(EventHandler<? super MouseEvent> e) {
-		onMouseEntered = e;
-	}
-
-	@Override
-	public void setOnMouseExited(EventHandler<? super MouseEvent> e) {
-		onMouseExited = e;
-	}
-
-	@Override
-	public void setOnMousePressed(EventHandler<? super MouseEvent> e) {
-		onMousePressed = e;
-	}
-	
-	@Override
-	public void setOnMouseClicked(EventHandler<? super MouseEvent> e) {
-		onMouseClicked = e;
-	}
-
-	@Override
-	public void setOnMouseReleased(EventHandler<? super MouseEvent> e) {
-		onMouseReleased = e;
-	}
-
-	@Override
-	public void setOnMouseMoved(EventHandler<? super MouseEvent> e) {
-		onMouseMoved = e;
-	}
-
-	@Override
-	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
-		onScroll = e;
 	}
 
 	@Override

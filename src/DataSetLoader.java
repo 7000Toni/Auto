@@ -16,12 +16,12 @@ public class DataSetLoader {
 	private ArrayList<DataSet> datasets;
 	private ArrayList<DataSetButton> dsButtons;
 	private ArrayList<MarketReplayPane> replays;
-	private TickDataFileReader reader;	
+	private ITickDataFileReader reader;	
 	private ArrayList<LoadingDataSet> loadingSets;
-	private Tree<CanvasNode> sceneGraph;
+	private Tree<ICanvasNode> sceneGraph;
 	private File file;
 	
-	public DataSetLoader(ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, TickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<CanvasNode> sceneGraph) {
+	public DataSetLoader(ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
@@ -30,7 +30,7 @@ public class DataSetLoader {
 		this.sceneGraph = sceneGraph;
 	}
 	
-	public DataSetLoader(File file, ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, TickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<CanvasNode> sceneGraph) {
+	public DataSetLoader(File file, ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.file = file;
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
@@ -127,7 +127,7 @@ public class DataSetLoader {
 		Task<Void> task = new Task<Void>() {
 			@Override
 			public Void call() {	
-				TickDataFileReader thisReader = setReader(datum);				
+				ITickDataFileReader thisReader = setReader(datum);				
 				DataSet ds = l.load(file, thisReader);
 				Menu.menu().varLock().lock();
 				try {
@@ -144,9 +144,9 @@ public class DataSetLoader {
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
 					dsb.setDataSetIndex(l.addIndex().get());
-					TNode<CanvasNode> dsbNode = new TNode<CanvasNode>(dsb, sceneGraph.root());
-					TNode<CanvasNode> mrNode = new TNode<CanvasNode>(dsb.mrButton(), dsbNode);
-					TNode<CanvasNode> closeNode = new TNode<CanvasNode>(dsb.closeButton(), dsbNode);
+					TNode<ICanvasNode> dsbNode = new TNode<ICanvasNode>(dsb, sceneGraph.root());
+					TNode<ICanvasNode> mrNode = new TNode<ICanvasNode>(dsb.mrButton(), dsbNode);
+					TNode<ICanvasNode> closeNode = new TNode<ICanvasNode>(dsb.closeButton(), dsbNode);
 					setDSBEventHandler(dsb);
 					setDSBCloseEventHandler(dsb.closeButton(), dsbNode);
 					setDSBMREventHandler(dsb.mrButton());
@@ -163,7 +163,7 @@ public class DataSetLoader {
 		new Thread(task).start();	
 	}
 	
-	private TickDataFileReader setReader(String datum) {
+	private ITickDataFileReader setReader(String datum) {
 		if (reader == null) {
 			MarketTickFileReader mtfr = new MarketTickFileReader();
 			OriginalTickFileReader otfr = new OriginalTickFileReader();
@@ -212,7 +212,7 @@ public class DataSetLoader {
 		});
 	}
 	
-	private void setDSBCloseEventHandler(CanvasButton close, TNode<CanvasNode> dsbNode) {
+	private void setDSBCloseEventHandler(CanvasButton close, TNode<ICanvasNode> dsbNode) {
 		close.setOnMouseClicked(e -> {
 			Menu.menu().varLock().lock();
 			try {
