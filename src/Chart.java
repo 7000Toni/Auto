@@ -1,3 +1,6 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,6 +14,7 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -701,12 +705,18 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				stage.getScene().setCursor(Cursor.N_RESIZE);
 			}
 		} else {
-			if (replayMode && !limitDragging && !stopDragging) {				
+			if (replayMode && !limitDragging && !stopDragging && e.getY() > 30) {
+				limitOrder.enable();
+				stopOrder.enable();
 				limitOrder.setY(e.getY() - fontSize/2); 
 				stopOrder.setY(e.getY() - fontSize/2);
 				ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
 				ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
 				drawPending = true;	
+			} else {
+				limitOrder.disable();
+				stopOrder.disable();
+				drawPending = false;
 			}
 			if (e.getY() >= chartHeight + CHT_MARGIN - fontSize) {
 				stage.getScene().setCursor(Cursor.E_RESIZE);
@@ -1163,7 +1173,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		stopOrder.setY(y - fontSize/2);
 		ButtonChecks.mouseButtonHoverCheck(limitOrder, x, y);
 		ButtonChecks.mouseButtonHoverCheck(stopOrder, x, y);
-		if (onChart(x, y, true)) {
+		if (y > 30 && onChart(x, y, true)) {
 			drawPending = true;	
 		} else {
 			drawPending = false;
@@ -1637,16 +1647,21 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			}
 		}
 	}
-	
+	//Image img = new Image(new FileInputStream(new File("./img4.jpg")));
 	private void drawFrame() {
+		//TODO
 		gc.clearRect(0, 0, width, height);		
 		if (darkMode.get()) {			
 			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.fillRect(0, 0, width, height);
+			//gc.drawImage(img, 5, 5, chartWidth, chartHeight);
+			//gc.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), 0, 0, width, height);
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
 			gc.fillRect(0, 0, width, height);
+			//gc.drawImage(img, 5, 5, chartWidth, chartHeight);
+			//gc.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), 0, 0, width, height);
 			gc.setStroke(Color.BLACK);
 		}
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);

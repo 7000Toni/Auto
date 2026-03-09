@@ -35,7 +35,7 @@ public class Menu implements ICanvasWindow {
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
 	
-	private boolean openChartOnStart = false;
+	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();

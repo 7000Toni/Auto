@@ -9,26 +9,21 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh menuButtonVG(CanvasButton menu) {
 		return (x, y, gc) -> {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
-			} else {
-				gc.setStroke(Color.BLACK);
-				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));				
-			}		
 			if (menu.hover()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.GRAY);
+				gc.fillRect(x, y, menu.width(), menu.height());
 			}
 			if (menu.pressed()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.DIMGRAY);
+				gc.fillRect(x, y, menu.width(), menu.height());
 			}
 			if (!menu.enabled()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.LIGHTGRAY);
+				gc.fillRect(x, y, menu.width(), menu.height());
 			}
-			gc.fillRect(x, y, menu.width(), menu.height());
 			gc.strokeText(menu.text(), menu.x() + menu.textXOffset(), menu.y() + menu.textYOffset());
 		};
 	}

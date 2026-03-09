@@ -320,6 +320,7 @@ public class DataSet {
 			} catch (Exception e) {
 				failed = true;
 				e.printStackTrace();
+				return;
 			}
 			if (!rfv.add) {
 				return;
@@ -340,6 +341,7 @@ public class DataSet {
 				} catch (Exception e) {
 					failed = true;
 					e.printStackTrace();
+					break;
 				}
 				if (rfv.in == null) {
 					break;

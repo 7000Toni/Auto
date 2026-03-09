@@ -1,6 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -8,11 +7,9 @@ public class CanvasButton extends CanvasLabel {
 	protected boolean hover = false;
 	protected boolean pressed = false;
 	protected boolean on = false;
-	protected boolean enabled;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
-		this.enabled = true;
 	}
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text) {
@@ -187,22 +184,6 @@ public class CanvasButton extends CanvasLabel {
 	}
 
 	@Override
-	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null || !enabled) {
-			return;
-		}
-		onMouseDragged.handle(e);
-	}
-
-	@Override
-	public void onMouseEntered(MouseEvent e) {
-		if (onMouseEntered == null || !enabled) {
-			return;
-		}
-		onMouseEntered.handle(e);
-	}
-
-	@Override
 	public void onMouseExited(MouseEvent e) {
 		setPressed(false);
 		setHover(false);
@@ -219,13 +200,6 @@ public class CanvasButton extends CanvasLabel {
 			return;
 		}
 		onMousePressed.handle(e);
-	}
-	@Override
-	public void onMouseClicked(MouseEvent e) {	
-		if (onMouseClicked == null || !enabled) {
-			return;
-		}
-		onMouseClicked.handle(e);
 	}
 	
 	@Override
@@ -244,13 +218,5 @@ public class CanvasButton extends CanvasLabel {
 			return;
 		}
 		onMouseMoved.handle(e);
-	}
-
-	@Override
-	public void onScroll(ScrollEvent e) {
-		if (onScroll == null || !enabled) {
-			return;
-		}
-		onScroll.handle(e);
 	}
 }
