@@ -713,7 +713,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
 				ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
 				drawPending = true;	
-			} else {
+			} else if (replayMode) {
 				limitOrder.disable();
 				stopOrder.disable();
 				drawPending = false;
