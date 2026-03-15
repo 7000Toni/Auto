@@ -149,7 +149,7 @@ public class DataSetLoader {
 					TNode<ICanvasNode> closeNode = new TNode<ICanvasNode>(dsb.closeButton(), dsbNode);
 					setDSBEventHandler(dsb);
 					setDSBCloseEventHandler(dsb.closeButton(), dsbNode);
-					setDSBMREventHandler(dsb.mrButton());
+					setDSBMREventHandler(dsb.mrButton(), dsb);
 					sceneGraph.addNode(dsbNode);
 					sceneGraph.addNode(mrNode);
 					sceneGraph.addNode(closeNode);
@@ -204,6 +204,7 @@ public class DataSetLoader {
 	private void setDSBEventHandler(DataSetButton dsb) {
 		dsb.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
@@ -246,13 +247,14 @@ public class DataSetLoader {
 		});	
 	}
 	
-	private void setDSBMREventHandler(CanvasButton mr) {
+	private void setDSBMREventHandler(CanvasButton mr, DataSetButton dsb) {
 		mr.setOnMouseClicked(e -> {
 			int index = (int)((e.getY() - Menu.MARGIN) / 58);
 			if (index < 0) {
 				index = 0;
 			}
 			Stage s = new Stage();
+			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
 			Scene scene = new Scene(c);	
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));

@@ -13,6 +13,7 @@ public class Main extends Application {
 		Settings.loadSettings();
 		MenuPane mp = new MenuPane(640, 360);
 		Scene scene = new Scene(mp, 640, 360);	
+		stage.setTitle("Auto");
 		stage.setScene(scene);
 		stage.setResizable(false);
 		stage.setOnCloseRequest(e -> {

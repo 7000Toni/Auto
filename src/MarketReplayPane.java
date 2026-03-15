@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -20,8 +22,8 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	private GraphicsContext gc;
 	private HorizontalMRPaneScrollBar hsb;
 	private ArrayList<CanvasNumberChooser> numbers;
-	private boolean bPlay = true;
-	private boolean bLive = true;
+	private BooleanProperty bPlay = new SimpleBooleanProperty(true);
+	private BooleanProperty bLive = new SimpleBooleanProperty(true);
 	private String name;	
 	
 	private Tree<ICanvasNode> sceneGraph;
@@ -33,145 +35,10 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	private final ReentrantLock varLock = new ReentrantLock();
 	
 	private CanvasButton newChart;
-	private IVanGogh nvg = (x, y, gc) -> {
-		if (Chart.darkMode().get()) {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
-			gc.setStroke(Color.BLACK);
-		}			
-		if (newChart.hover()) {
-			gc.setFill(Color.GRAY);
-			gc.setStroke(Color.GRAY);
-		}
-		if (newChart.pressed()) {
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!newChart.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, 40, 20);
-		gc.fillRect(x + 1, y + 1, 38, 18);
-	};
 	private CanvasButton pausePlay;
-	private IVanGogh pvg = (x, y, gc) -> {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-			gc.setStroke(Color.BLACK);
-		}	
-		if (pausePlay.hover()) {
-			gc.setFill(Color.GRAY);
-			gc.setStroke(Color.GRAY);
-		}
-		if (pausePlay.pressed()) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!pausePlay.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		if (bPlay) {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
-			gc.strokeRect(x, y, 40, 40);	
-			gc.fillRect(x + 10, y + 10, 8, 20);
-			gc.fillRect(x + 22, y + 10, 8, 20);
-		} else {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
-			gc.strokeRect(x, y, 40, 40);	
-			double[] xa = {x + 12, x + 32, x + 12, x + 12};
-			double[] ya = {y + 10, y + 20, y + 30, y + 10};
-			gc.fillPolygon(xa, ya, 4);
-		}
-	};
 	private CanvasButton back;
-	private IVanGogh bvg = (x, y, gc) -> {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-			gc.setStroke(Color.BLACK);
-		}
-		if (back.hover()) {
-			gc.setFill(Color.GRAY);
-			gc.setStroke(Color.GRAY);
-		}
-		if (back.pressed()) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!back.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, 40, 40);	
-		double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 35, x + 20, x + 20, x + 5};
-		double[] ya = {y + 20, y + 8, y + 15, y + 15, y + 25, y + 25, y + 32, y + 20};
-		gc.fillPolygon(xa, ya, 8);
-	};
 	private CanvasButton forward;
-	private IVanGogh fvg = (x, y, gc) -> {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-			gc.setStroke(Color.BLACK);
-		}
-		if (forward.hover()) {
-			gc.setFill(Color.GRAY);
-			gc.setStroke(Color.GRAY);
-		}
-		if (forward.pressed()) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!forward.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, 40, 40);	
-		double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 20, x + 20, x + 5, x + 5};
-		double[] ya = {y + 15, y + 15, y + 8, y + 20, y + 32, y + 25, y + 25, y + 15};
-		gc.fillPolygon(xa, ya, 8);
-	};
 	private CanvasButton live;
-	private IVanGogh lvg = (x, y, gc) -> {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-			gc.setStroke(Color.BLACK);
-		}
-		if (live.hover()) {
-			gc.setFill(Color.GRAY);
-			gc.setStroke(Color.GRAY);
-		}
-		if (live.pressed()) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!live.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		if (bLive) {
-			gc.setFill(Color.RED);
-			gc.strokeRect(x, y, 40, 40);	
-			gc.fillOval(x + 15, y + 15, 10, 10);
-		} else {
-			gc.setFill(Color.GRAY);
-			gc.strokeRect(x, y, 40, 40);	
-			gc.fillOval(x + 15, y + 15, 10, 10);
-		}
-	};
 	
 	private CanvasNumberChooser bf1;
 	private CanvasNumberChooser bf2;
@@ -192,16 +59,17 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		hsb = new HorizontalMRPaneScrollBar(this, 0, 399, 50, 10, 90);
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
+		MarketReplayPaneVanGoghs mrpvg = new MarketReplayPaneVanGoghs();
 		newChart = new CanvasButton(gc, 40, 20, 349, 10, null, 0, 0);
-		newChart.setVanGogh(nvg);
+		newChart.setVanGogh(mrpvg.newChartVG(newChart));
 		pausePlay = new CanvasButton(gc, 40, 40, 10, 40, null, 0, 0);
-		pausePlay.setVanGogh(pvg);
+		pausePlay.setVanGogh(mrpvg.pausePlayVG(pausePlay, bPlay));
 		back = new CanvasButton(gc, 40, 40, 60, 40, null, 0, 0);
-		back.setVanGogh(bvg);
+		back.setVanGogh(mrpvg.backVG(back));
 		forward = new CanvasButton(gc, 40, 40, 210, 40, null, 0, 0);
-		forward.setVanGogh(fvg);
+		forward.setVanGogh(mrpvg.forwardVG(forward));
 		live = new CanvasButton(gc, 40, 40, 349, 40, null, 0, 0);
-		live.setVanGogh(lvg);
+		live.setVanGogh(mrpvg.liveVG(live, bLive));
 		
 		double h = CanvasNumberChooser.getHeightForDesiredNumberHight(40);
 		double y = 40 - CanvasNumberChooser.buttonHeight(h);
@@ -232,6 +100,7 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			s.setTitle(mr.data().name());
 			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
 			Scene scene = new Scene(c);	
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
@@ -239,11 +108,11 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 			s.show();
 		});
 		pausePlay.setOnMouseClicked(e -> {
-			if (bPlay) {
-				bPlay = false;
+			if (bPlay.get()) {
+				bPlay.set(false);
 				mr.togglePause();
 			} else {
-				bPlay = true;
+				bPlay.set(true);
 				mr.togglePause();
 			}
 		});
@@ -260,11 +129,11 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 			}		
 		});
 		live.setOnMouseClicked(e -> {
-			if (bLive) {
-				bLive = false;
+			if (bLive.get()) {
+				bLive.set(false);
 				mr.toggleLive();
 			} else {
-				bLive = true;
+				bLive.set(true);
 				mr.toggleLive();
 			}
 		});
@@ -365,12 +234,11 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	private void draw(GraphicsContext gc, double x, double y) {
 		double fontSize = gc.getFont().getSize();
 		if (Chart.darkMode().get()) {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
+		} else {			
 			gc.setStroke(Color.BLACK);
 		}
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.CHART_BACKGROUND.index));
 		gc.fillRect(x - 1, y - 1, 401, 102);		
 		gc.strokeRect(x - 1, y - 1, 401, 102);
 		gc.setFont(new Font(20));		

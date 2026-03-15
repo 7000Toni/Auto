@@ -41,22 +41,16 @@ public class ChartMenu extends CanvasNode {
 		DCF_PREVIEW(2, null),
 		DOWN_CANDLESTICK_STROKE(3, "DOWN CANDLESTICK STROKE"),
 		DCS_PREVIEW(3, null),
-		LIGHT_MODE_LINE(4, "LIGHT MODE LINE"),
-		LML_PREVIEW(4, null),
-		DARK_MODE_LINE(5, "DARK MODE LINE"),
-		DML_PREVIEW(5, null),
-		LIGHT_MODE_MENU_BACKGROUND(6, "LIGHT MODE MENU BACKGROUND"),
-		LMMB_PREVIEW(6, null),
-		DARK_MODE_MENU_BACKGROUND(7, "DARK MODE MENU BACKGROUND"),
-		DMMB_PREVIEW(7, null),
-		LIGHT_MODE_CHART_BACKGROUND(8, "LIGHT MODE CHART BACKGROUND"),
-		LMCB_PREVIEW(8, null),
-		DARK_MODE_CHART_BACKGROUND(9, "DARK MODE CHART BACKGROUND"),
-		DMCB_PREVIEW(9, null),
-		MISCELLANEOUS_1(10, "MISCELLANEOUS 1"),
-		MISC1_PREIVEW(10, null),
-		MISCELLANEOUS_2(11, "MISCELLANEOUS 2"),
-		MISC2_PREIVEW(11, null);
+		LINE_CHART(4, "LINE CHART"),
+		LC_PREVIEW(4, null),
+		MENU_BACKGROUND(5, "MENU BACKGROUND"),
+		MB_PREVIEW(5, null),
+		CHART_BACKGROUND(6, "CHART BACKGROUND"),
+		CB_PREVIEW(6, null),
+		MISCELLANEOUS_1(7, "MISCELLANEOUS 1"),
+		MISC1_PREIVEW(7, null),
+		MISCELLANEOUS_2(8, "MISCELLANEOUS 2"),
+		MISC2_PREIVEW(8, null);
 		
 		public final int index;
 		public final String text;
@@ -110,6 +104,7 @@ public class ChartMenu extends CanvasNode {
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			s.setTitle(chart.name());
 			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.data(), replayMode, chart.mr(), chart.mrp());			
 			Scene scene = new Scene(cpane);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> cpane.getChart().hsb().keyPressed(ev));
@@ -161,7 +156,7 @@ public class ChartMenu extends CanvasNode {
 		colourButtons = new ArrayList<CanvasButton>();
 		initColourButtons();
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 505, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 430, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.alternateDraw(gc.getFont());
 		});
@@ -172,23 +167,23 @@ public class ChartMenu extends CanvasNode {
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 505, "DEFAULT");
+		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 430, "DEFAULT");
 		defaultColours.setVanGogh((x2, y2, gc2) -> {
 			defaultColours.alternateDraw(gc.getFont());
 		});
 		defaultColours.setOnMouseClicked(e -> {
-			ColourSettings.defaultColours();
+			ColourSettings.setDefaultColours();
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 530, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x + 5, y + 455, "SAVE");
 		save.setVanGogh((x2, y2, gc2) -> {
 			save.alternateDraw(gc.getFont());
 		});
 		save.setOnMouseClicked(e -> {
-			Settings.saveSettings();
+			Settings.saveSettings(!Chart.darkMode().get());
 			recentlySaved = true;
 			new AnimationTimer() {
 				private long init = 0;
@@ -206,14 +201,14 @@ public class ChartMenu extends CanvasNode {
 				}
 			}.start();
 		});
-		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 505, "SAVED"); 
+		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 480, "SAVED"); 
 		saved.setVanGogh((x2, y2, gc2) -> {
 			saved.alternateDraw(gc.getFont());
 		});
 	}
 	
 	private void initColourButtons() {
-		for (int i = 0; i < ColourSettings.colours().size(); i++) {
+		for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
 			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 205 + 25*i, ColourButtonIndices.values()[i*2].text);
 			colourButtons.add(javaisannyoing);
 			javaisannyoing.setVanGogh((x2, y2, gc2) -> {
@@ -227,7 +222,11 @@ public class ChartMenu extends CanvasNode {
 	
 	private void setMouseEvent(CanvasButton cb, int index) {
 		cb.setOnMouseClicked(e -> {
-			ColourSettings.colours().set(index, colourPicker.finalColour());
+			if (Chart.darkMode().get()) {
+				ColourSettings.darkColours().set(index, colourPicker.finalColour());
+			} else {
+				ColourSettings.lightColours().set(index, colourPicker.finalColour());
+			}			
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayPane.drawReplayPanes();
@@ -380,7 +379,7 @@ public class ChartMenu extends CanvasNode {
 		timeFrames.setY(y + 185);
 		
 		colourPicker.setY(y + 35);
-		for (int i = 0; i < ColourSettings.colours().size(); i++) {
+		for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
 			colourButtons.get(i*2).setY(y + 205 + 25*i);
 			colourButtons.get(i*2+1).setY(y + 205 + 25*i);
 		}
