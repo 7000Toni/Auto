@@ -38,8 +38,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
 	
-	public final static double MIN_WIDTH = 640; 
-	public final static double MIN_HEIGHT = 360; 
+	public final static double MIN_WIDTH = 950; 
+	public final static double MIN_HEIGHT = 565; 
 	
 	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;
@@ -205,6 +205,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					
 					hsb.setMaxPos(width - pm); 					
 					
+					resetTradeButtons();
+					
 					if (!drawCandlesticks.get()) {
 						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
 					} else {
@@ -262,6 +264,32 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		setEventHandlers();	
 		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);
 		draw();
+	}
+	
+	public void resetTradeButtons() {
+		if (replayMode) {
+			tradeButs.close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+			tradeButs.cancelTP().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
+			tradeButs.cancelSL().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+			tradeButs.sl().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+			tradeButs.tp().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+			tradeButs.setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
+			tradeButs.setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+			if (penTrade != null) {
+				pendingTrades.add(penTrade);
+			}
+			for (PendingTrade p : pendingTrades) {
+				p.pTradeButs().order.setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+				p.pTradeButs().close.setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+				p.pTradeButs().setSL.setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
+				p.pTradeButs().setTP.setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+			}
+			if (penTrade() != null) {
+				pendingTrades().remove(penTrade());
+			}
+			limitOrder().setX(width - Chart.PRICE_MARGIN - fontSize*2-2);
+			stopOrder().setX(width - Chart.PRICE_MARGIN - fontSize*4-4);
+		}	
 	}
 	
 	public CanvasButton chartTypeShortcut() {
@@ -1896,9 +1924,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
 		if (darkMode.get()) {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DARK_MODE_CHART_BACKGROUND.index));
 		} else {
-			gc.setFill(Color.WHITE);
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.LIGHT_MODE_CHART_BACKGROUND.index));
 		}		
 		gc.fillRect(xPos, yPos, width, fontSize * 2);
 		gc.setStroke(boxColour);

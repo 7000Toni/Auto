@@ -22,30 +22,9 @@ public class ChartWidthListener implements ChangeListener<Number> {
 		c.chartMenu().setX(Chart.CHT_MARGIN + c.chartWidth() + Chart.PRICE_MARGIN);
 		c.btnMenu().setX(Chart.CHT_MARGIN + c.chartWidth() + 1);
 		c.chartTypeShortcut().setX(Chart.CHT_MARGIN + c.chartWidth() - 15);
+
+		c.resetTradeButtons();
 		
-		if (c.replayMode()) {
-			c.tradeButs().close().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 102 - c.fontSize()*2);
-			c.tradeButs().cancelTP().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 102 - c.fontSize()*2);
-			c.tradeButs().cancelSL().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 102 - c.fontSize()*2);
-			c.tradeButs().sl().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 100);
-			c.tradeButs().tp().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 100);
-			c.tradeButs().setSL().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 + 10);
-			c.tradeButs().setTP().setX(Chart.CHT_MARGIN + c.chartWidth() / 2 + 20 + c.fontSize()*2);
-			if (c.penTrade() != null) {
-				c.pendingTrades().add(c.penTrade());
-			}
-			for (PendingTrade p : c.pendingTrades()) {
-				p.pTradeButs().order.setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 100);
-				p.pTradeButs().close.setX(Chart.CHT_MARGIN + c.chartWidth() / 2 - 102 - c.fontSize()*2);
-				p.pTradeButs().setSL.setX(Chart.CHT_MARGIN + c.chartWidth() / 2 + 10);
-				p.pTradeButs().setTP.setX(Chart.CHT_MARGIN + c.chartWidth() / 2 + 20 + c.fontSize()*2);
-			}
-			if (c.penTrade() != null) {
-				c.pendingTrades().remove(c.penTrade());
-			}
-			c.limitOrder().setX(c.width() - Chart.PRICE_MARGIN - c.fontSize()*2-2);
-			c.stopOrder().setX(c.width() - Chart.PRICE_MARGIN - c.fontSize()*4-4);
-		}			
 		c.draw();
 	}		
 }
