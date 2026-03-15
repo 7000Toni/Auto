@@ -77,12 +77,12 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 			gc.setFill(Color.LIGHTGRAY);
 		}
 		if (bPlay) {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 			gc.strokeRect(x, y, 40, 40);	
 			gc.fillRect(x + 10, y + 10, 8, 20);
 			gc.fillRect(x + 22, y + 10, 8, 20);
 		} else {
-			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 			gc.strokeRect(x, y, 40, 40);	
 			double[] xa = {x + 12, x + 32, x + 12, x + 12};
 			double[] ya = {y + 10, y + 20, y + 30, y + 10};

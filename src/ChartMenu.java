@@ -50,9 +50,13 @@ public class ChartMenu extends CanvasNode {
 		DARK_MODE_MENU_BACKGROUND(7, "DARK MODE MENU BACKGROUND"),
 		DMMB_PREVIEW(7, null),
 		LIGHT_MODE_CHART_BACKGROUND(8, "LIGHT MODE CHART BACKGROUND"),
-		LMCB_PREVIEW(7, null),
+		LMCB_PREVIEW(8, null),
 		DARK_MODE_CHART_BACKGROUND(9, "DARK MODE CHART BACKGROUND"),
-		DMCB_PREIVEW(7, null);
+		DMCB_PREVIEW(9, null),
+		MISCELLANEOUS_1(10, "MISCELLANEOUS 1"),
+		MISC1_PREIVEW(10, null),
+		MISCELLANEOUS_2(11, "MISCELLANEOUS 2"),
+		MISC2_PREIVEW(11, null);
 		
 		public final int index;
 		public final String text;
@@ -139,7 +143,7 @@ public class ChartMenu extends CanvasNode {
 		});
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.toggleMRPShortcut();
-		});
+		});;
 		
 		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 185, "TIME FRAMES");
 		timeFrames.setVanGogh((x2, y2, gc2) -> {
@@ -157,7 +161,7 @@ public class ChartMenu extends CanvasNode {
 		colourButtons = new ArrayList<CanvasButton>();
 		initColourButtons();
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 455, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 505, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.alternateDraw(gc.getFont());
 		});
@@ -168,7 +172,7 @@ public class ChartMenu extends CanvasNode {
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 455, "DEFAULT");
+		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 505, "DEFAULT");
 		defaultColours.setVanGogh((x2, y2, gc2) -> {
 			defaultColours.alternateDraw(gc.getFont());
 		});
@@ -179,7 +183,7 @@ public class ChartMenu extends CanvasNode {
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 480, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x + 5, y + 530, "SAVE");
 		save.setVanGogh((x2, y2, gc2) -> {
 			save.alternateDraw(gc.getFont());
 		});

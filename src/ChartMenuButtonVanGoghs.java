@@ -16,16 +16,16 @@ public class ChartMenuButtonVanGoghs {
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on) {
-				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
-				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 			} 
 			if (cb.hover) {
-				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
-				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 			} 
 			if (cb.pressed) {				
-				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
-				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 			}	
 			gc.strokeRect(x, y, cb.width(), cb.height());
 			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());

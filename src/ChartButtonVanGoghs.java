@@ -69,11 +69,11 @@ public class ChartButtonVanGoghs {
 			Color textColour;
 			Color boxColour;
 			if (trade.buy()) {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			} else {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			}
 			if (close.hover()) {
 				textColour = Color.GRAY;
@@ -93,8 +93,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh cancelTpVG(CanvasButton cancelTP) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			if (cancelTP.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -113,8 +113,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh cancelSlVG(CanvasButton cancelSL) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			if (cancelSL.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -133,8 +133,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh slVG(CanvasButton sl) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			if (sl.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -153,8 +153,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh tpVG(CanvasButton tp) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			if (tp.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -173,8 +173,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh setSlVG(CanvasButton setSL) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			if (setSL.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -193,8 +193,8 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh setTpVG(CanvasButton setTP) {
 		return (x, y, gc) -> {
-			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
-			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			if (setTP.hover()) {
 				textColour = Color.GRAY;
 				boxColour = Color.GRAY;
@@ -225,11 +225,11 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			if (trade.buy()) {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			} else {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			}
 			c.drawTradeBox(x, y, order.width(), 90, order.textXOffset(), order.text(), textColour, boxColour);
 		};
@@ -251,15 +251,15 @@ public class ChartButtonVanGoghs {
 			if (btn.hover()) {
 				if (c.yCoordToPrice(y + gc.getFont().getSize() / 3) > c.data().tickData().get(c.data().tickDataSize(c.replayMode()).get() - 1).price()) {
 					if (btn.text().contains("STP")) {
-						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 					} else {
-						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 					}
 				} else {
 					if (btn.text().contains("STP")) {
-						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 					} else {
-						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 					}					
 				}	
 			}

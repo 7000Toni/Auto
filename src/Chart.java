@@ -39,7 +39,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	public final static double HEIGHT_EXTRA = 39;
 	
 	public final static double MIN_WIDTH = 950; 
-	public final static double MIN_HEIGHT = 565; 
+	public final static double MIN_HEIGHT = 615; 
 	
 	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;
@@ -1363,11 +1363,15 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
 			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
 			int i = pendingTrades.indexOf(penOrderBeingDragged);
-			for (Chart c: charts) {
-				if (c.mr == null || !c.mr.equals(mr)) {
-					continue;
+			if (i == -1) {
+				penOrderDragging = false;
+			} else {
+				for (Chart c : charts) {
+					if (c.mr == null || !c.mr.equals(mr)) {
+						continue;
+					}
+					c.updatePendingTrade(c.pendingTrades.get(i), currentPrice, crossHairPrice);
 				}
-				c.updatePendingTrade(c.pendingTrades.get(i), currentPrice, crossHairPrice);
 			}
 		}
 		priceInitPos = e.getY();		
@@ -1945,9 +1949,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			double slY = priceToYCoord(mr.slPrice().get());
 			double tpY = priceToYCoord(mr.tpPrice().get());			
 			if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
-				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+				drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 				tradeButs.tp().enable();
 				tradeButs.cancelTP().enable();
 				tradeButs.tp().setY(tpY - fontSize);
@@ -1961,9 +1965,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				tradeButs.cancelTP().disable();
 			}
 			if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {
-				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 				tradeButs.sl().enable();
 				tradeButs.cancelSL().enable();
 				tradeButs.sl().setY(slY - fontSize);
@@ -1982,9 +1986,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
 				Color boxColour = Color.GRAY;
 				if (trade.buy()) {
-					boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+					boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 				} else {
-					boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+					boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 				}			
 				gc.setStroke(boxColour);
 				gc.strokeLine(x1, entryY, x2, entryY);
@@ -2023,18 +2027,18 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		double slY = priceToYCoord(mr.slPrice().get());
 		double tpY = priceToYCoord(mr.tpPrice().get());
 		if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
-			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 			gc.strokeLine(x1, tpY, x2, tpY);
-			drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+			drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
 			tradeButs.tp().setY(tpY - fontSize);
 			tradeButs.cancelTP().setY(tpY - fontSize);
 			tradeButs.tp().draw();
 			tradeButs.cancelTP().draw();
 		}
 		if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {
-			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 			gc.strokeLine(x1, slY, x2, slY);
-			drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+			drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
 			tradeButs.sl().setY(slY - fontSize);
 			tradeButs.cancelSL().setY(slY - fontSize);
 			tradeButs.sl().draw();
@@ -2044,17 +2048,17 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			Color boxColour;
 			Color textColour;
 			if (mr.trade().buy()) {
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 				gc.setStroke(boxColour);
 			} else {
-				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 				gc.setStroke(boxColour);
 			}
 			double profit = mr.trade().profit();
 			if (profit > 0) {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_1.index);
 			} else if (profit < 0) {
-				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.MISCELLANEOUS_2.index);
 			} else {
 				textColour = Color.GRAY;
 			}
