@@ -27,7 +27,7 @@ public class MarketReplay {
 	
 	private DoubleProperty slPrice = new SimpleDoubleProperty(-1);
 	private DoubleProperty tpPrice = new SimpleDoubleProperty(-1);
-	private Trade trade = null; 
+	private Trade trade = new Trade(); 
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
@@ -127,7 +127,7 @@ public class MarketReplay {
 	}
 	
 	public void setTrade(Trade trade) {
-		this.trade = trade;
+		this.trade.replaceTrade(trade);
 	}
 	
 	public void setSpeed(int speed) {

@@ -50,8 +50,8 @@ public class Menu implements ICanvasWindow {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(22));
 		if (numJobs.get() > 0) {
-			gc.setStroke(Color.RED);
-			gc.setFill(Color.RED);
+			gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+			gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
 		} else if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
@@ -259,16 +259,16 @@ public class Menu implements ICanvasWindow {
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on) {
-				gc.setStroke(Color.ORANGE);
-				gc.setFill(Color.ORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 			} 
 			if (cb.hover) {
-				gc.setStroke(Color.ORANGE);
-				gc.setFill(Color.ORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 			} 
 			if (cb.pressed) {				
-				gc.setStroke(Color.DARKORANGE);
-				gc.setFill(Color.DARKORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
 			}	
 			gc.strokeRect(x, y, cb.width(), cb.height());
 			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
@@ -344,7 +344,7 @@ public class Menu implements ICanvasWindow {
 		} else {
 			gc.setStroke(Color.BLACK);
 		}		
-		gc.setFill(Color.ORANGE);
+		gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 		for (LoadingDataSet l : loadingSets) {
 			gc.strokeRect(120, l.y(), 510, 48);	
 			gc.fillRect(121, l.y() + 1, 508 * l.progress().get() / 100.0, 46);

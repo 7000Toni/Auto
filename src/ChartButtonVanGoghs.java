@@ -64,17 +64,24 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public IVanGogh closeVG(CanvasButton close) {
+	public IVanGogh closeVG(CanvasButton close, ITrade trade) {
 		return (x, y, gc) -> {
-			Color textColour = Color.RED;
-			Color boxColour = Color.RED;
+			Color textColour;
+			Color boxColour;
+			if (trade.buy()) {
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			} else {
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			}
 			if (close.hover()) {
-				textColour = Color.DARKRED;
-				boxColour = Color.DARKRED;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (close.pressed()) {
-				textColour = Color.MAROON;
-				boxColour = Color.MAROON;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!close.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -86,15 +93,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh cancelTpVG(CanvasButton cancelTP) {
 		return (x, y, gc) -> {
-			Color textColour = Color.CORNFLOWERBLUE;
-			Color boxColour = Color.CORNFLOWERBLUE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
 			if (cancelTP.hover()) {
-				textColour = Color.STEELBLUE;
-				boxColour = Color.STEELBLUE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (cancelTP.pressed()) {
-				textColour = Color.NAVY;
-				boxColour = Color.NAVY;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!cancelTP.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -106,15 +113,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh cancelSlVG(CanvasButton cancelSL) {
 		return (x, y, gc) -> {
-			Color textColour = Color.ORANGE;
-			Color boxColour = Color.ORANGE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
 			if (cancelSL.hover()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (cancelSL.pressed()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!cancelSL.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -126,15 +133,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh slVG(CanvasButton sl) {
 		return (x, y, gc) -> {
-			Color textColour = Color.ORANGE;
-			Color boxColour = Color.ORANGE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
 			if (sl.hover()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (sl.pressed()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!sl.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -146,15 +153,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh tpVG(CanvasButton tp) {
 		return (x, y, gc) -> {
-			Color textColour = Color.CORNFLOWERBLUE;
-			Color boxColour = Color.CORNFLOWERBLUE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
 			if (tp.hover()) {
-				textColour = Color.STEELBLUE;
-				boxColour = Color.STEELBLUE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (tp.pressed()) {
-				textColour = Color.NAVY;
-				boxColour = Color.NAVY;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!tp.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -166,15 +173,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh setSlVG(CanvasButton setSL) {
 		return (x, y, gc) -> {
-			Color textColour = Color.ORANGE;
-			Color boxColour = Color.ORANGE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
 			if (setSL.hover()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (setSL.pressed()) {
-				textColour = Color.DARKORANGE;
-				boxColour = Color.DARKORANGE;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!setSL.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -186,15 +193,15 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh setTpVG(CanvasButton setTP) {
 		return (x, y, gc) -> {
-			Color textColour = Color.CORNFLOWERBLUE;
-			Color boxColour = Color.CORNFLOWERBLUE;
+			Color textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+			Color boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
 			if (setTP.hover()) {
-				textColour = Color.STEELBLUE;
-				boxColour = Color.STEELBLUE;
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
 			}
 			if (setTP.pressed()) {
-				textColour = Color.NAVY;
-				boxColour = Color.NAVY;
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
 			}
 			if (!setTP.enabled()) {
 				textColour = Color.LIGHTGRAY;
@@ -218,9 +225,11 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			if (trade.buy()) {
-				textColour = Color.FORESTGREEN;
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index);
 			} else {
-				textColour = Color.RED;
+				textColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
+				boxColour = ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index);
 			}
 			c.drawTradeBox(x, y, order.width(), 90, order.textXOffset(), order.text(), textColour, boxColour);
 		};
@@ -240,10 +249,22 @@ public class ChartButtonVanGoghs {
 				gc.setStroke(Color.WHITE);
 			}	
 			if (btn.hover()) {
-				gc.setStroke(Color.ORANGE);
+				if (c.yCoordToPrice(y + gc.getFont().getSize() / 3) > c.data().tickData().get(c.data().tickDataSize(c.replayMode()).get() - 1).price()) {
+					if (btn.text().contains("STP")) {
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+					} else {
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+					}
+				} else {
+					if (btn.text().contains("STP")) {
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+					} else {
+						gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+					}					
+				}	
 			}
 			if (btn.pressed()) {
-				gc.setStroke(Color.DARKORANGE);
+				gc.setStroke(Color.DIMGRAY);
 			}
 			if (!btn.enabled()) {
 				gc.setStroke(Color.LIGHTGRAY);

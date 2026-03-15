@@ -1,5 +1,5 @@
 
-public class PendingTrade {
+public class PendingTrade implements ITrade {
 	private boolean limit;
 	private boolean buy;
 	private double price;
@@ -17,7 +17,7 @@ public class PendingTrade {
 		this.pTradeButs.setSL = new CanvasButton(c.graphicsContext(), c.fontSize()*2, c.fontSize()*2, Chart.CHT_MARGIN + c.chartWidth() / 2 + 10, 0, "SL", 6, c.fontSize()/3);
 		this.pTradeButs.setTP = new CanvasButton(c.graphicsContext(), c.fontSize()*2, c.fontSize()*2, Chart.CHT_MARGIN + c.chartWidth() / 2 + 20 + c.fontSize()*2, 0, "TP", 6, c.fontSize()/3);
 		this.pTradeButs.order.setVanGogh(c.chartButtonVanGoghs().orderVG(pTradeButs.order, this));
-		this.pTradeButs.close.setVanGogh(c.chartButtonVanGoghs().closeVG(pTradeButs.close));			
+		this.pTradeButs.close.setVanGogh(c.chartButtonVanGoghs().closeVG(pTradeButs.close, this));			
 		this.pTradeButs.setSL.setVanGogh(c.chartButtonVanGoghs().setSlVG(pTradeButs.setSL));
 		this.pTradeButs.setTP.setVanGogh(c.chartButtonVanGoghs().setTpVG(pTradeButs.setTP));
 		String text = "STOP";
@@ -31,6 +31,7 @@ public class PendingTrade {
 		return limit;
 	}
 	
+	@Override
 	public boolean buy() {
 		return buy;
 	}

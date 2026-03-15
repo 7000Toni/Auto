@@ -16,19 +16,19 @@ public class ChartMenuButtonVanGoghs {
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on) {
-				gc.setStroke(Color.ORANGE);
-				gc.setFill(Color.ORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 			} 
 			if (cb.hover) {
-				gc.setStroke(Color.ORANGE);
-				gc.setFill(Color.ORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.DOWN_CANDLESTICK_FILL.index));
 			} 
 			if (cb.pressed) {				
-				gc.setStroke(Color.DARKORANGE);
-				gc.setFill(Color.DARKORANGE);
+				gc.setStroke(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
+				gc.setFill(ColourSettings.colours().get(ColourSettings.ColourIndices.UP_CANDLESTICK_FILL.index));
 			}	
-			gc.strokeRect(x, y, cb.width, cb.height);
-			gc.strokeText(cb.text, x + cb.textXOffset, y + cb.textYOffset);
+			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(new Font(oldFontSize));
 		};
 	}

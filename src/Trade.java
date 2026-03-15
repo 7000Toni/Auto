@@ -2,15 +2,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Trade implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class Trade implements ITrade {
 	protected DataSet data;
 	protected double entryPrice;
 	protected int currentPriceIndex;
@@ -29,12 +23,35 @@ public class Trade implements Serializable {
 	protected double partialVol = -1;
 	protected static double net = 0;
 	
+	public Trade() {
+		closed = true;
+	}
+	
 	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	
 	public Trade(DataSet data, int currentPriceIndex, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, -1, -1, buy, volume);
+	}
+	
+	public void replaceTrade(Trade t) {
+		this.data = t.data;
+		this.entryPrice = t.entryPrice;
+		this.currentPriceIndex = t.currentPriceIndex;
+		this.buy = t.buy;
+		this.sl = t.sl;
+		this.tp = t.tp;		
+		this.volume = t.volume;
+		this.entryTime = t.entryTime;
+		this.exitPrice = t.exitPrice;	
+		this.exitTime = t.exitTime;
+		this.closed = t.closed;
+		this.closedByRewind = t.closedByRewind;
+		this.profit = t.profit;
+		this.composite = t.composite;
+		this.partial = t.partial;
+		this.partialVol = t.partialVol;		
 	}
 	
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
@@ -216,6 +233,7 @@ public class Trade implements Serializable {
 		return exitTime;
 	}
 	
+	@Override
 	public boolean buy() {
 		return buy;
 	}
