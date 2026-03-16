@@ -9,6 +9,12 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh menuButtonVG(CanvasButton menu) {
 		return (x, y, gc) -> {
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}			
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.CHART_BACKGROUND.index));
 			if (menu.hover()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.GRAY);
