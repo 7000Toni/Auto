@@ -14,11 +14,16 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
@@ -150,7 +155,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private boolean drawChartTypeShortcut = true;
 	private TNode<ICanvasNode> ctsNode;
 	
-	private boolean printSpeed = false;
+	private boolean printSpeed = true;
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -1679,20 +1684,71 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			}
 		}
 	}
-	//Image img = new Image(new FileInputStream(new File("./img4.jpg")));
+	Image img = new Image(new FileInputStream(new File("./res/images/img4.jpg")));
+	
+	private void imagefunction() {
+		ColorAdjust ca = new ColorAdjust();		
+		ca.setBrightness(-0.5);
+		gc.setEffect(ca);
+		double cratio = width/height;
+		double iratio = img.getWidth()/img.getHeight();
+		
+		if (iratio > cratio) {//bars on top & bottom. calculate height
+			double cheight = width/iratio;
+			double yoffset = (height - cheight) / 2;
+			gc.drawImage(img, 0, yoffset, width, cheight);
+			gc.setEffect(null);
+			
+			LinearGradient fadeGradient = new LinearGradient(
+			    0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+			    new Stop(0.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND)),
+			    new Stop(1.0, Color.TRANSPARENT)
+			);
+			gc.setFill(fadeGradient);
+			gc.fillRect(0, yoffset-1, width, 50);
+			
+			LinearGradient fadeGradient2 = new LinearGradient(
+			    0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+			    new Stop(0.0, Color.TRANSPARENT),
+			    new Stop(1.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND))				    
+			);
+			gc.setFill(fadeGradient2);
+			gc.fillRect(0, height-yoffset-49, width, 50);
+		} else {//bars on sides. calculate width
+			double cwidth = height*iratio;
+			double xoffset = (width - cwidth) / 2;
+			gc.drawImage(img, xoffset, 0, cwidth, height);
+			gc.setEffect(null);
+			
+			LinearGradient fadeGradient = new LinearGradient(
+			    0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+			    new Stop(0.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND)),
+			    new Stop(1.0, Color.TRANSPARENT)
+			);
+			gc.setFill(fadeGradient);
+			gc.fillRect(xoffset-1, 0, 50, height);
+			
+			LinearGradient fadeGradient2 = new LinearGradient(
+			    0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+			    new Stop(0.0, Color.TRANSPARENT),
+			    new Stop(1.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND))				    
+			);
+			gc.setFill(fadeGradient2);
+			gc.fillRect(width-xoffset-49, 0, 50, height);
+		}	
+	}
+	
 	private void drawFrame() {
 		//TODO
 		gc.clearRect(0, 0, width, height);		
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		if (darkMode.get()) {			
 			gc.fillRect(0, 0, width, height);
-			//gc.drawImage(img, 5, 5, chartWidth, chartHeight);
-			//gc.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), 0, 0, width, height);
+			//imagefunction();
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.fillRect(0, 0, width, height);
-			//gc.drawImage(img, 5, 5, chartWidth, chartHeight);
-			//gc.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), 0, 0, width, height);
+			//imagefunction();	
 			gc.setStroke(Color.BLACK);
 		}		
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
