@@ -16,16 +16,16 @@ public class ChartMenuButtonVanGoghs {
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
+				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.hover) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
+				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.pressed) {				
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
+				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
 			gc.strokeRect(x, y, cb.width(), cb.height());
 			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());

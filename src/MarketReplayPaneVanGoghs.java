@@ -9,7 +9,7 @@ public class MarketReplayPaneVanGoghs {
 			} else {
 				gc.setStroke(Color.BLACK);
 			}			
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.CHART_BACKGROUND.index));
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 			if (btn.hover()) {
 				gc.setFill(Color.GRAY);
 				gc.setStroke(Color.GRAY);
@@ -48,12 +48,12 @@ public class MarketReplayPaneVanGoghs {
 				gc.setFill(Color.LIGHTGRAY);
 			}
 			if (bPlay.get()) {
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_2.index));
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.strokeRect(x, y, 40, 40);	
 				gc.fillRect(x + 10, y + 10, 8, 20);
 				gc.fillRect(x + 22, y + 10, 8, 20);
 			} else {
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.MISCELLANEOUS_1.index));
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				gc.strokeRect(x, y, 40, 40);	
 				double[] xa = {x + 12, x + 32, x + 12, x + 12};
 				double[] ya = {y + 10, y + 20, y + 30, y + 10};

@@ -238,7 +238,7 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		} else {			
 			gc.setStroke(Color.BLACK);
 		}
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndices.CHART_BACKGROUND.index));
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRect(x - 1, y - 1, 401, 102);		
 		gc.strokeRect(x - 1, y - 1, 401, 102);
 		gc.setFont(new Font(20));		

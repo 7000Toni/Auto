@@ -14,19 +14,15 @@ import java.io.PrintWriter;
 public class Settings {
 	
 	public static void loadSettings() {        
-        File lsettings = settings(true);
-        File dsettings = settings(false);
-        if (!lsettings.exists()) {
-        	saveSettings(true);
-        }
-        if (!dsettings.exists()) {
-        	saveSettings(false);
+        File settings = settings();
+        if (!settings.exists()) {
+        	saveSettings();
         }
         
         load();
 	}
 
-	public static File settings(boolean light) {
+	public static File settings() {
 		String userHome = System.getProperty("user.home");
         Path docs = Paths.get(userHome, "Documents/Auto");
         File settingsDir = docs.toFile();
@@ -35,50 +31,25 @@ public class Settings {
         	settingsDir.mkdir();
         }
         
-        String settings;
-        if (light) {
-        	settings = "lsettings";
-        } else {
-        	settings = "dsettings";
-        }
-        return new File(settingsDir.getAbsoluteFile() + "/" + settings);
+        return new File(settingsDir.getAbsoluteFile() + "/settings");
 	}
 	
 	private static void load() {
 		boolean darkMode;
-		 try (FileInputStream fis = new FileInputStream(settings(true));
-				 BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-				 FileInputStream fis2 = new FileInputStream(settings(false));
-					BufferedReader br2 = new BufferedReader(new InputStreamReader(fis2))) {
+		 try (FileInputStream fis = new FileInputStream(settings());
+				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			darkMode = Boolean.parseBoolean(br.readLine());
 			if (darkMode != Chart.darkMode().get()) {
 				Chart.toggleDarkMode();
 			}
-			boolean lcorrupt = false;
-			boolean dcorrupt = false;
-			for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
-				if (!lcorrupt) {
-					String lcolour = br.readLine();
-					if (lcolour == null || lcolour.isBlank()) {
-						ColourSettings.setDefaultLightColours();
-						saveSettings(true);
-						lcorrupt = true;
-					} else {
-						ColourSettings.lightColours().set(i, Color.web(lcolour));
-					}
-				}
-				if (!dcorrupt) {
-					String dcolour = br2.readLine();
-					if (dcolour == null || dcolour.isBlank()) {
-						ColourSettings.setDefaultDarkColours();
-						saveSettings(false);
-						dcorrupt = true;
-					} else {
-						ColourSettings.darkColours().set(i, Color.web(dcolour));
-					}
-				}
-				if (lcorrupt && dcorrupt) {
+			for (int i = 0; i < ColourSettings.size()*2; i++) {
+				String colour = br.readLine();
+				if (colour == null || colour.isBlank()) {
+					ColourSettings.setDefaultColours();
+					saveSettings();
 					break;
+				} else {
+					ColourSettings.colours().set(i, Color.web(colour));
 				}
 			}
 		} catch (IOException e) {
@@ -88,28 +59,18 @@ public class Settings {
 		}
 	}	
 	
-	public static ArrayList<Color> loadColours(boolean light) {
-		File settings = settings(light);
+	public static ArrayList<Color> loadColours() {
+		File settings = settings();
 		ArrayList<Color> colours = new ArrayList<Color>();
-		 try (FileInputStream fis = new FileInputStream(settings);
+		try (FileInputStream fis = new FileInputStream(settings);
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
-			for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
-				if (light && i == 0) {
-					br.readLine();
-				}
+			br.readLine();
+			for (int i = 0; i < ColourSettings.size()*2; i++) {
 				String colour = br.readLine();
 				if (colour == null || colour.isBlank()) {
-					if (light) {
-						ColourSettings.setDefaultLightColours();
-					} else {
-						ColourSettings.setDefaultDarkColours();
-					}
-					saveSettings(light);
-					if (light) {
-						return ColourSettings.defaultLightColours();
-					} else {
-						return ColourSettings.defaultDarkColours();
-					}
+					ColourSettings.setDefaultColours();
+					saveSettings();
+					return ColourSettings.defaultColours();
 				}
 				colours.add(Color.web(colour));
 			}
@@ -122,36 +83,18 @@ public class Settings {
 	}
 	
 	public static void saveSettings() {
-		File lsettings = settings(true);
-		File dsettings = settings(false);
-		try (PrintWriter pw = new PrintWriter(lsettings);
-				PrintWriter pw2 = new PrintWriter(dsettings)) {
-			pw.println(Chart.darkMode().get());
-			pw.print(ColourSettings.lightString());
-			
-			pw2.print(ColourSettings.darkString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void saveSettings(boolean light) {
-		File settings = settings(light);
+		File settings = settings();
 		try (PrintWriter pw = new PrintWriter(settings)) {
-			if (light) {
-				pw.println(Chart.darkMode().get());
-				pw.print(ColourSettings.lightString());
-			} else {
-				pw.print(ColourSettings.darkString());
-			}
+			pw.println(Chart.darkMode().get());
+			pw.print(ColourSettings.string());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public static void saveDarkMode() {
-		File settings = settings(true);
-		ArrayList<Color> colours = loadColours(true);
+		File settings = settings();
+		ArrayList<Color> colours = loadColours();
 		String s = "";
 		for (Color c : colours) {
 			s += c.toString() + '\n';

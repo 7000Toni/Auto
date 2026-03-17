@@ -4,10 +4,11 @@ import java.util.Arrays;
 import javafx.scene.paint.Color;
 
 public class ColourSettings {
-	private static ArrayList<Color> lightColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE));
-	private static ArrayList<Color> darkColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
+																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+	private static final int size = 9;
 	
-	public enum ColourIndices {
+	public enum ColourIndex {
 		UP_CANDLESTICK_FILL(0),		
 		UP_CANDLESTICK_STROKE(1),
 		DOWN_CANDLESTICK_FILL(2),
@@ -20,59 +21,61 @@ public class ColourSettings {
 		
 		public final int index;
 		
-		private ColourIndices(int index) {
+		private ColourIndex(int index) {
 			this.index = index;
 		}
 	}
 	
-	public static ArrayList<Color> lightColours() {
-		return lightColours;
+	public static int size() {
+		return size;
 	}
 	
-	public static ArrayList<Color> darkColours() {
-		return darkColours;
+	public static int index(ColourIndex colour) {
+		if (Chart.darkMode().get()) {
+			return colour.index + 9;
+		} else {
+			return colour.index;
+		}
+	}
+	
+	public static void setColour(ColourIndex cindex, Color colour) {
+		int index = Chart.darkMode().get()?cindex.index:cindex.index+9;
+		colours.set(index, colour);
+	}
+	
+	public static ArrayList<Color> colours() {
+		return colours;
 	}
 	
 	public static void setDefaultColours() {
-		lightColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE));
-		darkColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
+													Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
 	}
 	
-	public static void setDefaultLightColours() {
-		lightColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE));
+	public static ArrayList<Color> defaultColours() {
+		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
+				Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
 	}
 	
-	public static void setDefaultDarkColours() {
-		darkColours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
-	}
-	
-	public static ArrayList<Color> defaultLightColours() {
-		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE));
-	}
-	
-	public static ArrayList<Color> defaultDarkColours() {
-		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+	public static Color colour(ColourIndex cindex) {
+		if (Chart.darkMode().get()) {
+			return colours.get(cindex.index + 9);
+		} else {
+			return colours.get(cindex.index);
+		}
 	}
 	
 	public static Color colour(int index) {
 		if (Chart.darkMode().get()) {
-			return darkColours.get(index);
+			return colours.get(index + 9);
 		} else {
-			return lightColours.get(index);
+			return colours.get(index);
 		}
 	}
 	
-	public static String lightString() {
+	public static String string() {
 		String s = "";
-		for (Color c : lightColours) {
-			s += c.toString() + '\n';
-		}
-		return s;
-	}
-	
-	public static String darkString() {
-		String s = "";
-		for (Color c : darkColours) {
+		for (Color c : colours) {
 			s += c.toString() + '\n';
 		}
 		return s;

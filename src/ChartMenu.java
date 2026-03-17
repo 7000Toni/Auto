@@ -183,7 +183,7 @@ public class ChartMenu extends CanvasNode {
 			save.alternateDraw(gc.getFont());
 		});
 		save.setOnMouseClicked(e -> {
-			Settings.saveSettings(!Chart.darkMode().get());
+			Settings.saveSettings();
 			recentlySaved = true;
 			new AnimationTimer() {
 				private long init = 0;
@@ -208,7 +208,7 @@ public class ChartMenu extends CanvasNode {
 	}
 	
 	private void initColourButtons() {
-		for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
+		for (int i = 0; i < ColourSettings.size(); i++) {
 			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 205 + 25*i, ColourButtonIndices.values()[i*2].text);
 			colourButtons.add(javaisannyoing);
 			javaisannyoing.setVanGogh((x2, y2, gc2) -> {
@@ -223,9 +223,9 @@ public class ChartMenu extends CanvasNode {
 	private void setMouseEvent(CanvasButton cb, int index) {
 		cb.setOnMouseClicked(e -> {
 			if (Chart.darkMode().get()) {
-				ColourSettings.darkColours().set(index, colourPicker.finalColour());
+				ColourSettings.colours().set(index + 9, colourPicker.finalColour());
 			} else {
-				ColourSettings.lightColours().set(index, colourPicker.finalColour());
+				ColourSettings.colours().set(index, colourPicker.finalColour());
 			}			
 			Menu.menu().draw();
 			Chart.drawCharts(null);
@@ -379,7 +379,7 @@ public class ChartMenu extends CanvasNode {
 		timeFrames.setY(y + 185);
 		
 		colourPicker.setY(y + 35);
-		for (int i = 0; i < ColourSettings.lightColours().size(); i++) {
+		for (int i = 0; i < ColourSettings.size(); i++) {
 			colourButtons.get(i*2).setY(y + 205 + 25*i);
 			colourButtons.get(i*2+1).setY(y + 205 + 25*i);
 		}
