@@ -23,7 +23,7 @@ public class ColourPickerUniversalScrollBar extends UniversalScrollBar {
 			gc.fillOval(x2, y2, this.sbWidth, this.sbHeight);
 			gc.strokeOval(x2, y2, this.sbWidth, this.sbHeight);
 		});
-	}
+	}	
 	
 	@Override
 	public void defaultOnMousePressed(MouseEvent e) {

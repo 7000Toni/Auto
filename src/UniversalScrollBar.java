@@ -19,7 +19,7 @@ public abstract class UniversalScrollBar extends CanvasNode {
 	protected double minYPos;
 	protected double sbWidth;
 	protected double sbHeight;
-	protected IVanGogh bvg;
+	protected IVanGogh vg;
 	
 	public UniversalScrollBar(IScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
 		this.sbo = sbo;
@@ -48,8 +48,8 @@ public abstract class UniversalScrollBar extends CanvasNode {
 		return this.sbHeight;
 	}
 	
-	public void setVanGogh(IVanGogh bvg) {
-		this.bvg = bvg;
+	public void setVanGogh(IVanGogh vg) {
+		this.vg = vg;
 	}
 	
 	public void defaultOnMouseReleased(MouseEvent e) {
@@ -310,10 +310,10 @@ public abstract class UniversalScrollBar extends CanvasNode {
 	
 	@Override
 	public void draw() {		
-		if (bvg == null) {
+		if (vg == null) {
 			defaultDraw();
 		} else {
-			bvg.draw(x, y, gc);
+			vg.draw(x, y, gc);
 		}
 	}	
 	

@@ -33,6 +33,17 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}
 	
+	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2) {
+		return (x, y, gc) -> {
+			if (condition.get()) {
+				cb.setText(text1);	
+			} else {
+				cb.setText(text2);
+			}
+			cb.alternateDraw(gc.getFont());
+		};
+	}
+	
 	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2, double fontSize1, double fontSize2, double xoff1, double xoff2, double yoff1, double yoff2) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();

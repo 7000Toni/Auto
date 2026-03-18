@@ -2,11 +2,13 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
 
-public class ChartMenu extends CanvasNode {
+public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
 	private boolean replayMode = false;
 	private ChartMenuButtonVanGoghs cmbvg;
@@ -16,6 +18,11 @@ public class ChartMenu extends CanvasNode {
 	
 	private CanvasButton chartFunctions;
 	private CanvasButton chartSettings;
+	private CanvasButton previous;
+	private CanvasButton next;
+	private CanvasLabel colourSettings;
+	private CanvasLabel imageSettings;
+	
 	private CanvasButton newChart;
 	private CanvasButton chartType;
 	private CanvasButton darkMode;
@@ -27,10 +34,21 @@ public class ChartMenu extends CanvasNode {
 	private ColourPicker colourPicker;
 	private CanvasButton reset;
 	private CanvasButton defaultColours;
+	
 	private CanvasButton save;
 	private CanvasLabel saved;
+	
+	private CanvasLabel brightness;
+	private BrightnessScrollBar bsb;
+	private CanvasButton drawImg;
+	private CanvasButton stretch;
+	private CanvasButton clearImage;
+	private CanvasButton setImage;
+	private CanvasLabel noImage;
+	
 	private boolean recentlySaved = false;
 	private ArrayList<CanvasButton> colourButtons;
+	private int settingsMenuIndex = 0;
 	
 	public enum ColourButtonIndices {
 		UP_CANDLESTICK_FILL(0, "UP CANDLESTICK FILL"),
@@ -150,13 +168,65 @@ public class ChartMenu extends CanvasNode {
 		functions = true;
 	}
 	
+	private void setSharedButtonVars() {
+		reset.setX(x + 5);
+		save.setX(x + 5);
+		saved.setX(x + 5);
+		if (settingsMenuIndex == 0) {
+			reset.setWidth(142.5);
+			reset.setY(y + 480);
+			save.setY(y + 505);
+			saved.setY(y + 530);
+		} else if (settingsMenuIndex == 1) {
+			reset.setWidth(290);
+			reset.setY(230);
+			save.setY(y + 255);
+			saved.setY(y + 280);
+		}
+	}
+	
 	private void initSettingsMenu() {
-		colourPicker = new ColourPicker(x + 5, y + 35, 290, 165, gc);
+		colourSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "COLOUR SETTINGS");
+		colourSettings.setVanGogh((x2, y2, gc2) -> {
+			colourSettings.alternateDraw(gc.getFont());
+		});
+		
+		imageSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "IMAGE SETTINGS");
+		imageSettings.setVanGogh((x2, y2, gc2) -> {
+			imageSettings.alternateDraw(gc.getFont());
+		});
+		
+		previous = new CanvasButton(gc, 142.5, 20, x + 5, y + 60, "PREVIOUS");
+		previous.setVanGogh((x2, y2, gc2) -> {
+			previous.alternateDraw(gc.getFont());
+		});
+		previous.setOnMouseClicked(e -> {
+			settingsMenuIndex = (settingsMenuIndex - 1) % 2; 
+			setSharedButtonVars();
+			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+		});
+		
+		next = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 60, "NEXT");	
+		next.setVanGogh((x2, y2, gc2) -> {
+			next.alternateDraw(gc.getFont());
+		});
+		next.setOnMouseClicked(e -> {
+			settingsMenuIndex = (settingsMenuIndex + 1) % 2; 
+			setSharedButtonVars();
+			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+		});
+		
+		initColoursSettingsMenu();
+		initImageSettingsMenu();
+	}
+	
+	private void initColoursSettingsMenu() {
+		colourPicker = new ColourPicker(x + 5, y + 85, 290, 165, gc, this);
 		
 		colourButtons = new ArrayList<CanvasButton>();
 		initColourButtons();
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 430, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 480, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.alternateDraw(gc.getFont());
 		});
@@ -167,7 +237,7 @@ public class ChartMenu extends CanvasNode {
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 430, "DEFAULT");
+		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 480, "DEFAULT");
 		defaultColours.setVanGogh((x2, y2, gc2) -> {
 			defaultColours.alternateDraw(gc.getFont());
 		});
@@ -178,7 +248,7 @@ public class ChartMenu extends CanvasNode {
 			MarketReplayPane.drawReplayPanes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 455, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x + 5, y + 505, "SAVE");
 		save.setVanGogh((x2, y2, gc2) -> {
 			save.alternateDraw(gc.getFont());
 		});
@@ -201,21 +271,126 @@ public class ChartMenu extends CanvasNode {
 				}
 			}.start();
 		});
-		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 480, "SAVED"); 
+		
+		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 530, "SAVED"); 
 		saved.setVanGogh((x2, y2, gc2) -> {
 			saved.alternateDraw(gc.getFont());
 		});
 	}
 	
+	private void initImageSettingsMenu() {
+		brightness = new CanvasLabel(gc, 290, 20, x + 5, y + 85, "BRIGHTNESS");
+		brightness.setVanGogh((x2, y2, gc2) -> {
+			brightness.alternateDraw(gc.getFont());
+		});
+		
+		bsb = new BrightnessScrollBar(this, x, x + 299, 15, 15, y + 105);
+		
+		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
+		drawImg.setVanGogh(cmbvg.toggleVG(drawImg, ImageSettings.draw(), "DON'T DRAW", "DRAW IMAGE"));
+		drawImg.setOnMouseClicked(e -> {
+			ImageSettings.setDraw(!ImageSettings.draw().get());
+		});		
+		
+		stretch = new CanvasButton(gc, 290, 20, x + 5, y + 155, "STRETCH IMAGE");
+		stretch.setVanGogh(cmbvg.toggleVG(stretch, ImageSettings.stretch(), "DON'T STRETCH", "STRETCH IMAGE"));		
+		stretch.setOnMouseClicked(e -> {
+			ImageSettings.setStretch(!ImageSettings.stretch().get());
+		});
+		
+		clearImage = new CanvasButton(gc, 290, 20, x + 5, y + 180, "CLEAR IMAGE");
+		clearImage.setVanGogh((x2, y2, gc2) -> {
+			clearImage.alternateDraw(gc.getFont());
+		});
+		clearImage.setOnMouseClicked(e -> {
+			ImageSettings.clearImage();
+		});
+		
+		setImage = new CanvasButton(gc, 290, 20, x + 5, y + 205, "SET IMAGE");
+		setImage.setVanGogh((x2, y2, gc2) -> {
+			setImage.alternateDraw(gc.getFont());
+		});
+		setImage.setOnMouseClicked(e -> {
+			FileChooser fc = new FileChooser();
+			fc.setInitialDirectory(new File("./"));
+			fc.setTitle("Select MarketTick Files");
+			File file = fc.showOpenDialog(null);		
+			if (file != null) {
+				ImageSettings.setImage(file);
+			}
+		});
+		
+		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 305, "NO IMAGE SELECTED");
+		noImage.setVanGogh((x2, y2, gc2) -> {
+			noImage.alternateDraw(gc.getFont());
+		});
+	}
+	
+	private void drawSettingsMenu() {
+		previous.draw();
+		next.draw();
+		if (settingsMenuIndex == 0) {
+			colourSettings.draw();
+			drawColourSettingsMenu();
+		} else {
+			imageSettings.draw();
+			drawImageSettingsMenu();
+		}
+	}
+	
+	private void drawColourSettingsMenu() {
+		colourPicker.draw();
+		for (CanvasButton c : colourButtons) {
+			c.draw();
+		}	
+		reset.draw();
+		defaultColours.draw();
+		save.draw();
+		if (recentlySaved) {
+			saved.draw();
+		}
+	}
+	
+	private void drawImageSettingsMenu() {
+		brightness.draw();	
+		bsb.draw();
+		drawImg.draw();
+		stretch.draw();
+		clearImage.draw();
+		setImage.draw();
+		reset.draw();
+		save.draw();
+		if (ImageSettings.image() == null) {
+			noImage.draw();
+		} else {
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
+			gc.fillRect(x + 5, y + 305, 290, 165);
+			ImageFunctions.drawImage(gc, ImageSettings.image(), x + 5, y + 305, 290, 165);
+		}
+		if (recentlySaved) {
+			saved.draw();
+		}
+	}
+	
+	private void drawFunctionsMenu() {
+		general.draw();
+		newChart.draw();
+		chartType.draw();
+		darkMode.draw();
+		chartTypeShortcut.draw();
+		replayShortcut.draw();
+		//timeFrames.draw();
+	}
+	
 	private void initColourButtons() {
 		for (int i = 0; i < ColourSettings.size(); i++) {
-			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 205 + 25*i, ColourButtonIndices.values()[i*2].text);
+			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 255 + 25*i, ColourButtonIndices.values()[i*2].text);
 			colourButtons.add(javaisannyoing);
 			javaisannyoing.setVanGogh((x2, y2, gc2) -> {
 				javaisannyoing.alternateDraw(gc2.getFont());
 			});
 			setMouseEvent(javaisannyoing, i);
-			colourButtons.add(new CanvasButton(gc, 20, 20, x + 275, y + 205 + 25*i, null));
+			colourButtons.add(new CanvasButton(gc, 20, 20, x + 275, y + 255 + 25*i, null));
 			colourButtons.get(i*2+1).setVanGogh(cmbvg.colourPreviewVG(colourButtons.get(i*2+1), i));
 		}
 	}
@@ -257,19 +432,44 @@ public class ChartMenu extends CanvasNode {
 			menuNode.removeAllChildren();
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));
-			TNode<ICanvasNode> colourPickerNode = new TNode<ICanvasNode>(colourPicker, menuNode);
-			sceneGraph.addNode(colourPickerNode);
-			sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.hsb(), colourPickerNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.usb(), colourPickerNode));
-			for (CanvasButton c : colourButtons) {
-				sceneGraph.addNode(new TNode<ICanvasNode>(c, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(previous, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(next, menuNode));
+			if (settingsMenuIndex == 0) {
+				setColourSettingsSceneGraph(sceneGraph, menuNode);
+			} else if (settingsMenuIndex == 1) {
+				setImageSettingsSceneGraph(sceneGraph, menuNode);
 			}
-			sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(defaultColours, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
 		} finally {
 			chart.varLock().unlock();
 		}
+	}
+	
+	private void setColourSettingsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
+		TNode<ICanvasNode> colourPickerNode = new TNode<ICanvasNode>(colourPicker, menuNode);
+		sceneGraph.addNode(colourPickerNode);
+		sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.hsb(), colourPickerNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(colourPicker.usb(), colourPickerNode));
+		for (CanvasButton c : colourButtons) {
+			sceneGraph.addNode(new TNode<ICanvasNode>(c, menuNode));
+		}
+		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(defaultColours, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
+	}
+	
+	private void setImageSettingsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
+		sceneGraph.addNode(new TNode<ICanvasNode>(bsb, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(drawImg, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(stretch, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(clearImage, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(setImage, menuNode));		
+		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(noImage, menuNode));
+	}
+	
+	public Chart chart() {
+		return chart;
 	}
 	
 	public CanvasButton chartFunctions() {
@@ -318,32 +518,22 @@ public class ChartMenu extends CanvasNode {
 		chartFunctions.draw();
 		chartSettings.draw();
 		if (functions) {		
-			general.draw();
-			newChart.draw();
-			chartType.draw();
-			darkMode.draw();
-			chartTypeShortcut.draw();
-			replayShortcut.draw();
-			//timeFrames.draw();
+			drawFunctionsMenu();
 		} else {
-			colourPicker.draw();
-			for (CanvasButton c : colourButtons) {
-				c.draw();
-			}	
-			reset.draw();
-			defaultColours.draw();
-			save.draw();
-			if (recentlySaved) {
-				saved.draw();
-			}
+			drawSettingsMenu();					
 		}
 	}
 
 	@Override
 	public void setX(double x) {
-		this.x = x;
 		chartFunctions.setX(x + 5);
 		chartSettings.setX(x + 152.5);
+		
+		colourSettings.setX(x + 5);
+		imageSettings.setX(x + 5);
+		previous.setX(x + 5);
+		next.setX(x + 152.5);		
+		
 		general.setX(x + 5);
 		newChart.setX(x + 5);
 		chartType.setX(x + 5);
@@ -359,10 +549,23 @@ public class ChartMenu extends CanvasNode {
 			colourButtons.get(i + 1).setX(x + 275);
 			i += 2;
 		}
-		reset.setX(x + 5);
-		defaultColours.setX(x + 152.5);
-		save.setX(x + 5);
-		saved.setX(x + 5);
+		defaultColours.setX(x + 152.5);		
+		
+		brightness.setX(x + 5);
+		
+		double hsbOffset = bsb.x() - this.x;
+		bsb.setMinPos(x);
+		bsb.setMaxPos(x + 299);
+		bsb.setX(hsbOffset + x);
+		
+		
+		drawImg.setX(x + 5);
+		stretch.setX(x + 5);
+		setImage.setX(x + 5);
+		clearImage.setX(x + 5);
+		noImage.setX(x + 5);
+		this.x = x;
+		setSharedButtonVars();
 	}
 
 	@Override
@@ -370,6 +573,12 @@ public class ChartMenu extends CanvasNode {
 		this.y = y;
 		chartFunctions.setY(y + 5);
 		chartSettings.setY(y + 5);
+		
+		colourSettings.setY(y + 35);
+		imageSettings.setY(y + 35);
+		previous.setY(y + 60);
+		next.setY(y + 60);		
+		
 		general.setY(y + 35);
 		newChart.setY(y + 60);
 		chartType.setY(y + 85);
@@ -378,14 +587,20 @@ public class ChartMenu extends CanvasNode {
 		replayShortcut.setY(y + 160);
 		timeFrames.setY(y + 185);
 		
-		colourPicker.setY(y + 35);
+		colourPicker.setY(y + 85);
 		for (int i = 0; i < ColourSettings.size(); i++) {
-			colourButtons.get(i*2).setY(y + 205 + 25*i);
-			colourButtons.get(i*2+1).setY(y + 205 + 25*i);
-		}
-		reset.setY(y + 455);
-		defaultColours.setY(y + 455);
-		save.setY(y + 480);
-		saved.setY(y + 505);
+			colourButtons.get(i*2).setY(y + 255 + 25*i);
+			colourButtons.get(i*2+1).setY(y + 255 + 25*i);
+		}		
+		defaultColours.setY(y + 480);
+		
+		brightness.setY(y + 85);
+		bsb.setY(y + 105);
+		drawImg.setY(y + 130);
+		stretch.setY(y + 155);
+		setImage.setY(y + 180);
+		clearImage.setY(y + 205);
+		noImage.setY(y + 305);
+		setSharedButtonVars();	
 	}
 }

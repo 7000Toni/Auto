@@ -39,4 +39,9 @@ public class ColourCalculator {
 		}
 		return Color.web("rgb(" + r + "," + g + "," +  b + ")");
 	}
+	
+	public static Color grayScale(double x, double minPos, double maxPos) {
+		int c = (int)((x - minPos) / (maxPos - minPos) * 255);
+		return Color.web("rgb(" + c + "," + c + "," +  c + ")");
+	}
 }

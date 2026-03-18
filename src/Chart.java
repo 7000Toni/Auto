@@ -1,6 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,16 +11,10 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
@@ -155,7 +146,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private boolean drawChartTypeShortcut = true;
 	private TNode<ICanvasNode> ctsNode;
 	
-	private boolean printSpeed = true;
+	private boolean printSpeed = false;
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -1685,76 +1676,19 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 	}
 	
-	private Image img = new Image(new FileInputStream(new File("./res/images/img0.jpg")));
-	
-	private void imagefunction() {
-		ColorAdjust ca = new ColorAdjust();		
-		ca.setBrightness(-0.5);
-		gc.setEffect(ca);
-		double cratio = width/height;
-		double iratio = img.getWidth()/img.getHeight();
-		
-		if (Math.abs(cratio - iratio) < 0.01) {//almost perfect fit
-			gc.drawImage(img, 0, 0, width, height);
-			gc.setEffect(null);
-		} else if (iratio > cratio) {//bars on top & bottom. calculate height
-			double cheight = width/iratio;
-			double yoffset = (height - cheight) / 2;
-			gc.drawImage(img, 0, yoffset, width, cheight);
-			gc.setEffect(null);
-			
-			LinearGradient fadeGradient = new LinearGradient(
-			    0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-			    new Stop(0.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND)),
-			    new Stop(1.0, Color.TRANSPARENT)
-			);
-			gc.setFill(fadeGradient);
-			gc.fillRect(0, yoffset-1, width, 50);
-			
-			LinearGradient fadeGradient2 = new LinearGradient(
-			    0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-			    new Stop(0.0, Color.TRANSPARENT),
-			    new Stop(1.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND))				    
-			);
-			gc.setFill(fadeGradient2);
-			gc.fillRect(0, height-yoffset-49, width, 50);
-		} else {//bars on sides. calculate width
-			double cwidth = height*iratio;
-			double xoffset = (width - cwidth) / 2;
-			gc.drawImage(img, xoffset, 0, cwidth, height);
-			gc.setEffect(null);
-			
-			LinearGradient fadeGradient = new LinearGradient(
-			    0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
-			    new Stop(0.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND)),
-			    new Stop(1.0, Color.TRANSPARENT)
-			);
-			gc.setFill(fadeGradient);
-			gc.fillRect(xoffset-1, 0, 50, height);
-			
-			LinearGradient fadeGradient2 = new LinearGradient(
-			    0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
-			    new Stop(0.0, Color.TRANSPARENT),
-			    new Stop(1.0, ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND))				    
-			);
-			gc.setFill(fadeGradient2);
-			gc.fillRect(width-xoffset-49, 0, 50, height);
-		} 
-	}
-	
 	private void drawFrame() {
 		//TODO
 		gc.clearRect(0, 0, width, height);		
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		if (darkMode.get()) {			
-			gc.fillRect(0, 0, width, height);
-			imagefunction();
+		gc.fillRect(0, 0, width, height);
+		if (ImageSettings.draw().get()) {
+			ImageFunctions.drawImage(gc, ImageSettings.image(), 0, 0, width, height);
+		}
+		if (darkMode.get()) {	
 			gc.setStroke(Color.WHITE);
 		} else {
-			gc.fillRect(0, 0, width, height);
-			imagefunction();	
 			gc.setStroke(Color.BLACK);
-		}		
+		}				
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
 		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
 	}	

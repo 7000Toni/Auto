@@ -6,14 +6,16 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	private ColourPickerUniversalScrollBar usb;
 	private Color[][] colours;
 	private boolean coloursInitialized;
+	private ChartMenu chartMenu;
 	
-	public ColourPicker(double x, double y, double width, double height, GraphicsContext gc) {
+	public ColourPicker(double x, double y, double width, double height, GraphicsContext gc, ChartMenu chartMenu) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.gc = gc;
-		hsb = new ColourPickerScrollBar(this, x - 2, x + 292, 15, 15, y + 150);
+		this.chartMenu = chartMenu;
+		hsb = new ColourPickerScrollBar(this, x - 5, x + 295, 15, 15, y + 150);
 		usb = new ColourPickerUniversalScrollBar(this, x + width/2 - 5, x + 295, y - 5, y + 150, 15, 15, x + 295, y - 5);
 		colours = new Color[143][143];
 		initializeColours();
@@ -79,13 +81,10 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	
 	public ColourPickerUniversalScrollBar usb() {
 		return usb;
-	}	
+	}		
 	
-	private void fillHSBBar() {
-		for (double i = x + 1; i < x + 289; i++) {
-			gc.setStroke(ColourCalculator.colour(i, x + 1, x + 289));
-			gc.strokeLine(i, y + 156, i, y + 159);
-		}
+	public ChartMenu chartMenu() {
+		return chartMenu;
 	}
 	
 	public Color finalColour() {
@@ -96,20 +95,15 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	
 	@Override
 	public void draw() {
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
 		}			
 		
 		gc.strokeRect(x, y, width, 145);
-		gc.strokeLine(x + 145, y, x + 145, y + 145);
-		gc.strokeRect(x, y + 155, 290, 5);
+		gc.strokeLine(x + 145, y, x + 145, y + 145);		
 		fillBrightnessSquare();
-		fillHSBBar();
 		gc.setFill(finalColour());
 		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
 		hsb.draw();

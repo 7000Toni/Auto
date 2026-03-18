@@ -38,10 +38,7 @@ public class Settings {
 		boolean darkMode;
 		 try (FileInputStream fis = new FileInputStream(settings());
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			darkMode = Boolean.parseBoolean(br.readLine());
-			if (darkMode != Chart.darkMode().get()) {
-				Chart.toggleDarkMode();
-			}
+			darkMode = Boolean.parseBoolean(br.readLine());			
 			for (int i = 0; i < ColourSettings.size()*2; i++) {
 				String colour = br.readLine();
 				if (colour == null || colour.isBlank()) {
@@ -52,8 +49,21 @@ public class Settings {
 					ColourSettings.colours().set(i, Color.web(colour));
 				}
 			}
+			String imgdir = br.readLine();
+			String brightnessString = br.readLine();
+			if (imgdir == null || brightnessString == null) {
+				return;
+			}
+			double brightness = Double.parseDouble(brightnessString);
+			boolean draw = Boolean.parseBoolean(br.readLine());
+			boolean stretch = Boolean.parseBoolean(br.readLine());
+			ImageSettings.setSettings(imgdir, brightness, draw, stretch);
+			if (darkMode != Chart.darkMode().get()) {
+				Chart.toggleDarkMode();
+			}
 		} catch (IOException e) {
 			ColourSettings.setDefaultColours();
+			ImageSettings.setDefaultSettings();
 			saveSettings();
 			e.printStackTrace();
 		}
@@ -76,6 +86,7 @@ public class Settings {
 			}
 		} catch (IOException e) {
 			ColourSettings.setDefaultColours();
+			ImageSettings.setDefaultSettings();
 			saveSettings();
 			e.printStackTrace();
 		}
@@ -87,6 +98,7 @@ public class Settings {
 		try (PrintWriter pw = new PrintWriter(settings)) {
 			pw.println(Chart.darkMode().get());
 			pw.print(ColourSettings.string());
+			pw.print(ImageSettings.string());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,7 +113,8 @@ public class Settings {
 		}
 		try (PrintWriter pw = new PrintWriter(settings)) {
 			pw.println(Chart.darkMode().get());
-			pw.print(s);			
+			pw.print(s);	
+			pw.print(ImageSettings.string());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
