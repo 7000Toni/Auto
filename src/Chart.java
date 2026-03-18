@@ -1684,7 +1684,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			}
 		}
 	}
-	Image img = new Image(new FileInputStream(new File("./res/images/img4.jpg")));
+	
+	private Image img = new Image(new FileInputStream(new File("./res/images/img0.jpg")));
 	
 	private void imagefunction() {
 		ColorAdjust ca = new ColorAdjust();		
@@ -1693,7 +1694,10 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		double cratio = width/height;
 		double iratio = img.getWidth()/img.getHeight();
 		
-		if (iratio > cratio) {//bars on top & bottom. calculate height
+		if (Math.abs(cratio - iratio) < 0.01) {//almost perfect fit
+			gc.drawImage(img, 0, 0, width, height);
+			gc.setEffect(null);
+		} else if (iratio > cratio) {//bars on top & bottom. calculate height
 			double cheight = width/iratio;
 			double yoffset = (height - cheight) / 2;
 			gc.drawImage(img, 0, yoffset, width, cheight);
@@ -1735,7 +1739,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			);
 			gc.setFill(fadeGradient2);
 			gc.fillRect(width-xoffset-49, 0, 50, height);
-		}	
+		} 
 	}
 	
 	private void drawFrame() {
@@ -1744,11 +1748,11 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		if (darkMode.get()) {			
 			gc.fillRect(0, 0, width, height);
-			//imagefunction();
+			imagefunction();
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.fillRect(0, 0, width, height);
-			//imagefunction();	
+			imagefunction();	
 			gc.setStroke(Color.BLACK);
 		}		
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
