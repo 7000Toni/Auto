@@ -284,7 +284,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			brightness.alternateDraw(gc.getFont());
 		});
 		
-		bsb = new BrightnessScrollBar(this, x, x + 299, 15, 15, y + 105);
+		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 299, x + 299, 15, 15, y + 105);
 		
 		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
 		drawImg.setVanGogh(cmbvg.toggleVG(drawImg, ImageSettings.draw(), "DON'T DRAW", "DRAW IMAGE"));
