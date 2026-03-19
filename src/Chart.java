@@ -203,6 +203,10 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					
 					resetTradeButtons();
 					
+					if (replayMode) {
+						limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
+						stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-4);
+					}	
 					if (!drawCandlesticks.get()) {
 						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
 					} else {
@@ -211,11 +215,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					keepStartIndex = true;
 					//TODO					
 					if (pm == t) {
-						btnMenu.setHover(false);
-						if (replayMode) {
-							limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
-							stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-4);
-						}		
+						btnMenu.setHover(false);						
 						if (!menuHidden && !changed) {
 							menuHidden = true;
 						}
