@@ -201,7 +201,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			previous.alternateDraw(gc.getFont());
 		});
 		previous.setOnMouseClicked(e -> {
-			settingsMenuIndex = (settingsMenuIndex - 1) % 2; 
+			settingsMenuIndex = Math.abs((settingsMenuIndex - 1) % 2); 
 			setSharedButtonVars();
 			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
@@ -211,7 +211,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			next.alternateDraw(gc.getFont());
 		});
 		next.setOnMouseClicked(e -> {
-			settingsMenuIndex = (settingsMenuIndex + 1) % 2; 
+			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 2); 
 			setSharedButtonVars();
 			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
@@ -287,13 +287,13 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 299, x + 299, 15, 15, y + 105);
 		
 		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
-		drawImg.setVanGogh(cmbvg.toggleVG(drawImg, ImageSettings.draw(), "DON'T DRAW", "DRAW IMAGE"));
+		drawImg.setVanGogh(cmbvg.imgSettingsToggleVG(drawImg, "DON'T DRAW", "DRAW IMAGE"));
 		drawImg.setOnMouseClicked(e -> {
 			ImageSettings.setDraw(!ImageSettings.draw().get());
 		});		
 		
 		stretch = new CanvasButton(gc, 290, 20, x + 5, y + 155, "STRETCH IMAGE");
-		stretch.setVanGogh(cmbvg.toggleVG(stretch, ImageSettings.stretch(), "DON'T STRETCH", "STRETCH IMAGE"));		
+		stretch.setVanGogh(cmbvg.imgSettingsToggleVG(stretch, "DON'T STRETCH", "STRETCH IMAGE"));		
 		stretch.setOnMouseClicked(e -> {
 			ImageSettings.setStretch(!ImageSettings.stretch().get());
 		});

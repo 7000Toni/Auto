@@ -1,3 +1,4 @@
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -33,8 +34,14 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}
 	
-	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2) {
+	public IVanGogh imgSettingsToggleVG(CanvasButton cb, String text1, String text2) {
 		return (x, y, gc) -> {
+			BooleanProperty condition;
+			if (cb.text().contains("DRAW")) {
+				condition = ImageSettings.draw();
+			} else {
+				condition = ImageSettings.stretch();
+			}
 			if (condition.get()) {
 				cb.setText(text1);	
 			} else {

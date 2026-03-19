@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Settings {
+	private static String settings = null;
 	
 	public static void loadSettings() {        
         File settings = settings();
@@ -36,11 +37,13 @@ public class Settings {
 	
 	private static void load() {
 		boolean darkMode;
-		 try (FileInputStream fis = new FileInputStream(settings());
+		try (FileInputStream fis = new FileInputStream(settings());
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			darkMode = Boolean.parseBoolean(br.readLine());			
+			darkMode = Boolean.parseBoolean(br.readLine());		
+			settings = darkMode + "\n";
 			for (int i = 0; i < ColourSettings.size()*2; i++) {
 				String colour = br.readLine();
+				settings += colour + "\n";
 				if (colour == null || colour.isBlank()) {
 					ColourSettings.setDefaultColours();
 					saveSettings();
@@ -49,49 +52,39 @@ public class Settings {
 					ColourSettings.colours().set(i, Color.web(colour));
 				}
 			}
-			String imgdir = br.readLine();
-			String brightnessString = br.readLine();
-			if (imgdir == null || brightnessString == null) {
-				return;
-			}
-			double brightness = Double.parseDouble(brightnessString);
-			boolean draw = Boolean.parseBoolean(br.readLine());
-			boolean stretch = Boolean.parseBoolean(br.readLine());
-			ImageSettings.setSettings(imgdir, brightness, draw, stretch);
+			ArrayList<String> imgSettings = new ArrayList<String>();
+			for (int i = 0; i < 2; i++) {
+				String imgDir = br.readLine();
+				settings += imgDir + "\n";
+				imgSettings.add(imgDir);
+				
+				String brightnessString = br.readLine();
+				settings += brightnessString + "\n";
+				imgSettings.add(brightnessString);
+				
+				if (imgDir == null || brightnessString == null) {
+					return;
+				}
+				String draw = br.readLine();
+				settings += draw + "\n";
+				imgSettings.add(draw);
+				
+				String stretch = br.readLine();
+				settings += stretch + "\n";
+				imgSettings.add(stretch);
+			}			
+			ImageSettings.setSettings(imgSettings.get(0), Double.parseDouble(imgSettings.get(1)), Boolean.parseBoolean(imgSettings.get(2)), Boolean.parseBoolean(imgSettings.get(3)),
+									imgSettings.get(4), Double.parseDouble(imgSettings.get(5)), Boolean.parseBoolean(imgSettings.get(6)),Boolean.parseBoolean( imgSettings.get(7)));
 			if (darkMode != Chart.darkMode().get()) {
 				Chart.toggleDarkMode();
 			}
-		} catch (IOException e) {
+		} catch (IOException | NumberFormatException e) {
 			ColourSettings.setDefaultColours();
 			ImageSettings.setDefaultSettings();
 			saveSettings();
 			e.printStackTrace();
 		}
 	}	
-	
-	public static ArrayList<Color> loadColours() {
-		File settings = settings();
-		ArrayList<Color> colours = new ArrayList<Color>();
-		try (FileInputStream fis = new FileInputStream(settings);
-				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
-			br.readLine();
-			for (int i = 0; i < ColourSettings.size()*2; i++) {
-				String colour = br.readLine();
-				if (colour == null || colour.isBlank()) {
-					ColourSettings.setDefaultColours();
-					saveSettings();
-					return ColourSettings.defaultColours();
-				}
-				colours.add(Color.web(colour));
-			}
-		} catch (IOException e) {
-			ColourSettings.setDefaultColours();
-			ImageSettings.setDefaultSettings();
-			saveSettings();
-			e.printStackTrace();
-		}
-		return colours;
-	}
 	
 	public static void saveSettings() {
 		File settings = settings();
@@ -105,16 +98,9 @@ public class Settings {
 	}
 	
 	public static void saveDarkMode() {
-		File settings = settings();
-		ArrayList<Color> colours = loadColours();
-		String s = "";
-		for (Color c : colours) {
-			s += c.toString() + '\n';
-		}
-		try (PrintWriter pw = new PrintWriter(settings)) {
+		try (PrintWriter pw = new PrintWriter(settings())) {
 			pw.println(Chart.darkMode().get());
-			pw.print(s);	
-			pw.print(ImageSettings.string());
+			pw.print(settings.substring(settings.indexOf('\n') + 1));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -7,111 +7,190 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.image.Image;
 
 public class ImageSettings {
-	private static Image image = null;
-	private static String imgdir = null;
-	private static double brightness = 0; 
-	private static BooleanProperty draw = new SimpleBooleanProperty(false);
-	private static BooleanProperty stretch = new SimpleBooleanProperty(false);
+	private static Image dmImage = null;
+	private static String dmImgDir = null;
+	private static double dmBrightness = 0;
+	private static BooleanProperty dmDraw = new SimpleBooleanProperty(false);
+	private static BooleanProperty dmStretch = new SimpleBooleanProperty(false);
+	private static Image lmImage = null;
+	private static String lmImgDir = null;
+	private static double lmBrightness = 0;
+	private static BooleanProperty lmDraw = new SimpleBooleanProperty(false);
+	private static BooleanProperty lmStretch = new SimpleBooleanProperty(false);
 	private static final int size = 4; 
 	
 	private static void loadImage() {
-		if (imgdir == null) {
-			image = null;
-			return;
+		File f;
+		if (dmImgDir == null) {
+			dmImage = null;
+		} else {
+			f = new File(dmImgDir);
+			if (f.exists()) {
+				try {
+					dmImage = new Image(new FileInputStream(f));
+				} catch (FileNotFoundException e) {
+					dmImage = null;
+					setSettings(null, 0, false, false, null, 0, false, false);
+					Settings.saveSettings();
+					e.printStackTrace();
+				}
+			}
 		}
-		File f = new File(imgdir);
-		if (!f.exists()) {
-			return;
-		}
-		try {
-			image = new Image(new FileInputStream(f));
-		} catch (FileNotFoundException e) {
-			image = null;
-			setSettings(null, 0, false, false);
-			Settings.saveSettings();
-			e.printStackTrace();
+		
+		if (lmImgDir == null) {
+			lmImage = null;
+		} else {
+			f = new File(lmImgDir);
+			if (f.exists()) {
+				try {
+					lmImage = new Image(new FileInputStream(f));
+				} catch (FileNotFoundException e) {
+					lmImage = null;
+					setSettings(null, 0, false, false, null, 0, false, false);
+					Settings.saveSettings();
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
 	private static void loadImage(File file) {
 		try {
-			image = new Image(new FileInputStream(file));
+			if (Chart.darkMode().get()) {
+				dmImage = new Image(new FileInputStream(file));
+			} else {
+				lmImage = new Image(new FileInputStream(file));
+			}
 		} catch (FileNotFoundException e) {
-			image = null;
-			setSettings(null, 0, false, false);
+			if (Chart.darkMode().get()) {
+				dmImage = null;
+			} else {
+				lmImage = null;
+			}
+			setSettings(null, 0, false, false, null, 0, false, false);
 			Settings.saveSettings();
 			e.printStackTrace();
 		}
 	}
 	
-	public static void setSettings(String imgdir, double brightness, boolean draw, boolean stretch) {
-		if (imgdir == null) {
+	public static void setSettings(String dmImgDir, double dmBrightness, boolean dmDraw, boolean dmStretch, String lmImgDir, double lmBrightness, boolean lmDraw, boolean lmStretch) {
+		if (dmImgDir == null && lmImgDir == null) {
 			return;
 		}
-		ImageSettings.imgdir = imgdir;
-		ImageSettings.brightness = brightness;
-		ImageSettings.draw.set(draw);
-		ImageSettings.stretch.set(stretch);		
+		ImageSettings.dmImgDir = dmImgDir;
+		ImageSettings.dmBrightness = dmBrightness;
+		ImageSettings.dmDraw.set(dmDraw);
+		ImageSettings.dmStretch.set(dmStretch);	
+		
+		ImageSettings.lmImgDir = lmImgDir;
+		ImageSettings.lmBrightness = lmBrightness;
+		ImageSettings.lmDraw.set(lmDraw);
+		ImageSettings.lmStretch.set(lmStretch);	
 		loadImage();
 	}
 	
 	public static void setDefaultSettings() {
-		ImageSettings.imgdir = null;
-		ImageSettings.image = null;
-		ImageSettings.brightness = 0;
-		ImageSettings.stretch.set(false);
-		ImageSettings.draw.set(false);
+		setSettings(null, 0, false, false, null, 0, false, false);
 	}
 	
 	public static void clearImage() {
-		ImageSettings.imgdir = null;
-		ImageSettings.image = null;
-		ImageSettings.draw.set(false);
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmImage = null;
+			ImageSettings.dmImgDir = null;
+			ImageSettings.dmDraw.set(false);
+		} else {
+			ImageSettings.lmImage = null;
+			ImageSettings.lmImgDir = null;
+			ImageSettings.lmDraw.set(false);
+		}		
 	}
 	
 	public static void setImage(File f) {
-		ImageSettings.imgdir = f.getAbsolutePath();
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmImgDir = f.getAbsolutePath();
+		} else {
+			ImageSettings.lmImgDir = f.getAbsolutePath();
+		}
 		loadImage(f);
 	}
 	
-	public static void setImageDir(String imgdir) {
-		ImageSettings.imgdir = imgdir;
-		loadImage();
+	public static void setImageDir(String imgDir) {
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmImgDir = imgDir;
+		} else {
+			ImageSettings.lmImgDir = imgDir;
+		}		
+		loadImage(new File(imgDir));
 	}
 	
 	public static void setBrightness(double brightness) {
-		ImageSettings.brightness = brightness;
-	}
-	
-	public static void setDraw(boolean draw) {
-		ImageSettings.draw.set(draw);
-		if (image == null) {
-			ImageSettings.draw.set(false);
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmBrightness = brightness;
+		} else {
+			ImageSettings.lmBrightness = brightness;
 		}
 	}
 	
+	public static void setDraw(boolean draw) {
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmDraw.set(draw);
+			if (dmImage == null) {
+				ImageSettings.dmDraw.set(false);
+			}
+		} else {
+			ImageSettings.lmDraw.set(draw);
+			if (lmImage == null) {
+				ImageSettings.lmDraw.set(false);
+			}
+		}		
+	}
+	
 	public static void setStretch(boolean stretch) {
-		ImageSettings.stretch.set(stretch);
+		if (Chart.darkMode().get()) {
+			ImageSettings.dmStretch.set(stretch);
+		} else {
+			ImageSettings.lmStretch.set(stretch);
+		}
 	}
 	
 	public static Image image() {
-		return image;
+		if (Chart.darkMode().get()) {
+			return ImageSettings.dmImage;
+		} else {
+			return ImageSettings.lmImage;
+		}
 	}
 	
 	public static String imageDir() {
-		return imgdir;
+		if (Chart.darkMode().get()) {
+			return dmImgDir;
+		} else {
+			return lmImgDir;
+		}
 	}
 	
 	public static double brightness() {
-		return brightness;
+		if (Chart.darkMode().get()) {
+			return dmBrightness;
+		} else {
+			return lmBrightness;
+		}
 	}
 	
 	public static BooleanProperty draw() {
-		return draw;
+		if (Chart.darkMode().get()) {
+			return dmDraw;
+		} else {
+			return lmDraw;
+		}
 	}
 	
 	public static BooleanProperty stretch() {
-		return stretch;
+		if (Chart.darkMode().get()) {
+			return dmStretch;
+		} else {
+			return lmStretch;
+		}
 	}
 	
 	public static int size() {
@@ -119,10 +198,14 @@ public class ImageSettings {
 	}
 	
 	public static String string() {
-		String s = imgdir + '\n';
-		s += brightness + "\n";
-		s += ((Boolean) draw.get()).toString() + '\n';
-		s += ((Boolean) stretch.get()).toString() + '\n';
+		String s = dmImgDir + '\n';
+		s += dmBrightness + "\n";
+		s += ((Boolean) dmDraw.get()).toString() + '\n';
+		s += ((Boolean) dmStretch.get()).toString() + '\n';
+		s += lmImgDir + '\n';		
+		s += lmBrightness + "\n";		
+		s += ((Boolean) lmDraw.get()).toString() + '\n';		
+		s += ((Boolean) lmStretch.get()).toString() + '\n';
 		return s;
 	}
 }
