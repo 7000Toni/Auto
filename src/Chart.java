@@ -35,7 +35,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	public final static double HEIGHT_EXTRA = 39;
 	
 	public final static double MIN_WIDTH = 950; 
-	public final static double MIN_HEIGHT = 540; 
+	public final static double MIN_HEIGHT = 590; 
 	
 	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;

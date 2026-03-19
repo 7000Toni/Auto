@@ -39,6 +39,9 @@ public class MarketReplay {
 		this.mrp = mrp;
 		this.tickDataSize.set(data.tickDataSize(false).get());
 		data.setReplayTickDataSize(index);
+		if (index < 1) {
+			index = 1;
+		}
 		int ci = index;
 		if (ci == tickDataSize.get()) {
 			ci--;
