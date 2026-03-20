@@ -38,10 +38,10 @@ public class MarketReplay {
 		this.data = chart.data();
 		this.mrp = mrp;
 		this.tickDataSize.set(data.tickDataSize(false).get());
-		data.setReplayTickDataSize(index);
 		if (index < 1) {
 			index = 1;
 		}
+		data.setReplayTickDataSize(index);		
 		int ci = index;
 		if (ci == tickDataSize.get()) {
 			ci--;
