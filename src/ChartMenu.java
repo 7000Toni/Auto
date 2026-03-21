@@ -6,6 +6,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class ChartMenu extends CanvasNode implements IScrollBarOwner {
@@ -311,8 +313,15 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			setImage.alternateDraw(gc.getFont());
 		});
 		setImage.setOnMouseClicked(e -> {
+			String userHome = System.getProperty("user.home");
+	        Path pics = Paths.get(userHome, "Pictures");
+	        File picsDir = pics.toFile();
 			FileChooser fc = new FileChooser();
-			fc.setInitialDirectory(new File("./"));
+			if (picsDir.exists()) {
+				fc.setInitialDirectory(picsDir);
+			} else {
+				fc.setInitialDirectory(new File("./"));
+			}	
 			fc.setTitle("Select MarketTick Files");
 			File file = fc.showOpenDialog(null);		
 			if (file != null) {
