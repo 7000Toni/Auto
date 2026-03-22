@@ -243,12 +243,13 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
+			btn.calculateOffsets(gc.getFont());
 			if (Chart.darkMode().get()) {
 				gc.setFill(Color.WHITE);
 			} else {
 				gc.setFill(Color.BLACK);
 			}
-			gc.fillRect(x, y, btn.width(), btn.height());
+			gc.fillRect(x, y, btn.width()+2, btn.height());
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.BLACK);
 			} else {

@@ -203,10 +203,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					
 					resetTradeButtons();
 					
-					if (replayMode) {
-						limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
-						stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-4);
-					}	
 					if (!drawCandlesticks.get()) {
 						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
 					} else {
@@ -280,11 +276,11 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				p.pTradeButs().setSL.setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
 				p.pTradeButs().setTP.setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
 			}
-			if (penTrade() != null) {
-				pendingTrades().remove(penTrade());
+			if (penTrade != null) {
+				pendingTrades.remove(penTrade());
 			}
-			limitOrder().setX(width - Chart.PRICE_MARGIN - fontSize*2-2);
-			stopOrder().setX(width - Chart.PRICE_MARGIN - fontSize*4-4);
+			limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
+			stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-6);
 		}	
 	}
 	
@@ -543,9 +539,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL));
 			tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
 			tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP));
-			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT", 0, fontSize-2);
+			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
 			limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
-			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*4-4, 0, "STP", 1, fontSize-2);			
+			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
 			stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
 			
 			mr.setTrade(new Trade(data, 1, true, 1));
