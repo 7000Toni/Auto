@@ -100,6 +100,9 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			if (Main.icon() != null) {
+				s.getIcons().add(Main.icon());
+			}
 			s.setTitle(mr.data().name());
 			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
 			Scene scene = new Scene(c);	

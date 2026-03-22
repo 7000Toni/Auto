@@ -204,6 +204,9 @@ public class DataSetLoader {
 	private void setDSBEventHandler(DataSetButton dsb) {
 		dsb.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			if (Main.icon() != null) {
+				s.getIcons().add(Main.icon());
+			}
 			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
 			Scene scene = new Scene(c);
@@ -260,7 +263,11 @@ public class DataSetLoader {
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
 			s.show();
-			Stage s2 = new Stage();					
+			Stage s2 = new Stage();	
+			if (Main.icon() != null) {
+				s.getIcons().add(Main.icon());
+				s2.getIcons().add(Main.icon());
+			}
 			MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
 			s2.setOnCloseRequest(ev -> {
 				Menu.menu().varLock().lock();

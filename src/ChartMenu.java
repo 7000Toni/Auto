@@ -124,6 +124,9 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
+			if (Main.icon() != null) {
+				s.getIcons().add(Main.icon());
+			}
 			s.setTitle(chart.name());
 			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.data(), replayMode, chart.mr(), chart.mrp());			
 			Scene scene = new Scene(cpane);
