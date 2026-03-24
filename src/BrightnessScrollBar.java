@@ -30,7 +30,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
-		}
+		}		
 		gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
 		for (double i = minPos + 6; i < maxPos - 5; i++) {
 			gc.setStroke(ColourCalculator.grayScale(i, minPos + 5, maxPos - 6));
@@ -84,14 +84,16 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 						lastTick = now;		
 						if (add) {
 							setPosition(sbWidth / 2, true);
-							double b = ((x - minPos) / (maxPos - minPos)) * 2 - 1;
+							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
-							((ChartMenu)sbo).chart().draw();
+							Chart.drawCharts(null);
+							MarketReplayPane.drawReplayPanes();
 						} else {
 							setPosition(-(sbWidth / 2), true);
-							double b = ((x - minPos) / (maxPos - minPos)) * 2 - 1;
+							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
-							((ChartMenu)sbo).chart().draw();
+							Chart.drawCharts(null);
+							MarketReplayPane.drawReplayPanes();
 						}
 					} 
 				}
@@ -119,8 +121,10 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 	
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		double b = ((x - minPos) / (maxPos - minPos)) * 2 - 1;
+		double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 		ImageSettings.setBrightness(b);
+		Chart.drawCharts(null);
+		MarketReplayPane.drawReplayPanes();
 		if (onMouseDragged == null) {
 			return;
 		}

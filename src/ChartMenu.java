@@ -237,6 +237,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
+			bsb.setX(bsb.minPos() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayPane.drawReplayPanes();
@@ -289,18 +290,22 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			brightness.alternateDraw(gc.getFont());
 		});
 		
-		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 299, x + 299, 15, 15, y + 105);
+		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 289, x + 299, 15, 15, y + 105);
 		
 		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
 		drawImg.setVanGogh(cmbvg.imgSettingsToggleVG(drawImg, "DON'T DRAW", "DRAW IMAGE"));
 		drawImg.setOnMouseClicked(e -> {
 			ImageSettings.setDraw(!ImageSettings.draw().get());
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});		
 		
 		stretch = new CanvasButton(gc, 290, 20, x + 5, y + 155, "STRETCH IMAGE");
 		stretch.setVanGogh(cmbvg.imgSettingsToggleVG(stretch, "DON'T STRETCH", "STRETCH IMAGE"));		
 		stretch.setOnMouseClicked(e -> {
 			ImageSettings.setStretch(!ImageSettings.stretch().get());
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 		
 		clearImage = new CanvasButton(gc, 290, 20, x + 5, y + 180, "CLEAR IMAGE");
@@ -309,6 +314,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		clearImage.setOnMouseClicked(e -> {
 			ImageSettings.clearImage();
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 		
 		setImage = new CanvasButton(gc, 290, 20, x + 5, y + 205, "SET IMAGE");
@@ -330,6 +337,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			if (file != null) {
 				ImageSettings.setImage(file);
 			}
+			Chart.drawCharts(null);
+			MarketReplayPane.drawReplayPanes();
 		});
 		
 		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 305, "NO IMAGE SELECTED");
