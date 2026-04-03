@@ -1045,8 +1045,24 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 							}							
 							c.pendingTrades.remove(i);							
 							if (mr.trade().closed() && pendingTrades.size() == 1) {
-								c.tradeButs.sl().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), roundToNearestTick(yCoordToPrice(y)), p.buy(), p.volume()));
-								c.tradeButs.tp().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), roundToNearestTick(yCoordToPrice(y)), p.buy(), p.volume()));
+								PendingTrade pen = pendingTrades.get(0);
+								if (pen.buy()) {
+									if (mr.slPrice().get() >= pen.price()) {
+										mr.setSlPrice(-1);
+									}
+									if (mr.tpPrice().get() <= pen.price()) {
+										mr.setTpPrice(-1);
+									}
+								} else {
+									if (mr.slPrice().get() <= pen.price()) {
+										mr.setSlPrice(-1);
+									}
+									if (mr.tpPrice().get() >= pen.price()) {
+										mr.setTpPrice(-1);
+									}
+								}		
+								c.tradeButs.sl().setText(pen.volume() + "  $" + Trade.hypotheticalProfit2(pen.price(), roundToNearestTick(yCoordToPrice(y)), pen.buy(), pen.volume()));
+								c.tradeButs.tp().setText(pen.volume() + "  $" + Trade.hypotheticalProfit2(pen.price(), roundToNearestTick(yCoordToPrice(y)), pen.buy(), pen.volume()));
 							}
 						}						
 						mr.setPendingTrades(pendingTrades);

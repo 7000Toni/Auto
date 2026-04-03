@@ -4,10 +4,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	private static Image icon = new Image(Main.class.getResourceAsStream("/icon.jpg"));
+	private static Image icon = new Image(Main.class.getResourceAsStream("/icon.jpg"));	
 	
 	public static void main(String[] args) {
-		launch();
+		launch(args);
 		System.exit(0);
 	}
 	

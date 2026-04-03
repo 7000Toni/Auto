@@ -60,7 +60,7 @@ public class DataSetLoader {
 		}
 		loadTask(files);
 	}	
-	
+		
 	private void loadTask(List<File> files) {
 		for (File file : files) {	
 			if (file == null) {

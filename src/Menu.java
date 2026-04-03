@@ -34,7 +34,7 @@ public class Menu implements ICanvasWindow {
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
-	
+		
 	private boolean openChartOnStart = true;
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
@@ -229,7 +229,7 @@ public class Menu implements ICanvasWindow {
 		this.lastNode = lastNode;
 	}
 	
-	private void openChartOnStart() {
+	private void openChartOnStart() {	
 		File f = new File("res/20220901_DBG.csv");
 		if (f.exists()) {				
 			DataSetLoader dsl = new DataSetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);

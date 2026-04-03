@@ -232,7 +232,7 @@ public class DataSet {
 	private void readSignature(ReadFileVars rfv) {
 		try {
 			rfv.in = rfv.br.readLine();
-			signature = rfv.in;
+			signature = rfv.in;			
 			size = Integer.parseInt(rfv.in.substring(0, rfv.in.indexOf(' ')));
 			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
 			name = rfv.in.substring(0, rfv.in.indexOf(' '));
@@ -308,12 +308,12 @@ public class DataSet {
 	
 	private void readData(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
 		try (FileInputStream fis = new FileInputStream(file);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {			
 			ReadFileVars rfv = new ReadFileVars();
 			if (prog != null) {
 				prog.bind(rfv.percent);
 			}
-			rfv.br = br;
+			rfv.br = br;			
 			readSignature(rfv);
 			try {
 				tdfr.readFirstTick(rfv);
