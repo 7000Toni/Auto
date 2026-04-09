@@ -172,6 +172,11 @@ public class MarketReplay {
 		}		
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		tick();
+		
+		for (Chart c : charts) {
+			c.draw();
+		}
+		mrp.draw();
 	}
 	
 	private int timeToNextTick(int index) {
@@ -342,11 +347,12 @@ public class MarketReplay {
 						if (diff < timeToNextTick.get()) {
 							break;
 						}
-					}		
-					for (Chart c : charts) {
-						c.draw();
-					}
-					mrp.draw();	
+						
+						for (Chart c : charts) {
+							c.draw();
+						}
+						mrp.draw();
+					}							
 					lastTickTime = now;
 				}				
 			}

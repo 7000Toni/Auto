@@ -1680,10 +1680,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				}
 			}
 			endIndex = startIndex + numDataPoints;
-			if (endIndex >= data.tickDataSize(false).get()) {
-				endIndex = data.tickDataSize(false).get() - 1;
-			} else if (replayMode && endIndex >= data.tickDataSize(true).get()) {
-				endIndex = data.tickDataSize(true).get();
+			if (endIndex >= data.tickDataSize(this.replayMode).get()) {
+				endIndex = data.tickDataSize(this.replayMode).get() - 1;
 			}
 		}
 	}
