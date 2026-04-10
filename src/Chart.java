@@ -115,7 +115,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private PendingTrade penOrderBeingDragged = null;
 	private boolean penOrderDragging = false;
 	
-	private static int lineHighlighted = -1;
+	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
 	private boolean rightPressed = false;
 	private boolean measuring = false;
