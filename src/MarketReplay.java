@@ -347,12 +347,13 @@ public class MarketReplay {
 						if (diff < timeToNextTick.get()) {
 							break;
 						}
-						
-						for (Chart c : charts) {
-							c.draw();
-						}
-						mrp.draw();
-					}							
+					}	
+					
+					for (Chart c : charts) {
+						c.draw();
+					}
+					mrp.draw();
+					
 					lastTickTime = now;
 				}				
 			}
