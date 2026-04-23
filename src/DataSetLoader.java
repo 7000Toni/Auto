@@ -195,8 +195,8 @@ public class DataSetLoader {
 		for (LoadingDataSet l2 : loadingSets) {
 			if (l2.addIndex().get() > l.addIndex().get()) {
 				l2.setAddIndex(l2.addIndex().get() - 1);
-			}
-			l2.setY(l2.y() - 58);				
+				l2.setY(l2.y() - 58);				
+			}						
 		}
 		datasets.remove(l.addIndex().get());		
 	}
