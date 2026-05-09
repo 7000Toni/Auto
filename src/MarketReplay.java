@@ -31,7 +31,7 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
-	private boolean writeToFile = true;
+	private boolean writeToFile = false;
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -43,10 +43,10 @@ public class MarketReplay {
 		}
 		data.setReplayTickDataSize(index);		
 		int ci = index;
-		if (ci == tickDataSize.get()) {
-			ci--;
+		if (ci >= tickDataSize.get()) {
+			ci = tickDataSize.get() - 1;
 		}
-		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex());		
+		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
 		this.index.set(index);
 		chart.enableReplayMode(this, mrp);
 	}
@@ -167,9 +167,9 @@ public class MarketReplay {
 		timeToNextTick.set(0);
 		data.setReplayTickDataSize(this.index.get());
 		int ci = this.index.get();
-		if (ci == tickDataSize.get()) {
-			ci--;							
-		}		
+		if (ci >= tickDataSize.get()) {
+			ci = tickDataSize.get() - 1;
+		}	
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		tick();
 		
@@ -317,8 +317,8 @@ public class MarketReplay {
 						timeToNextTick.set(timeToNextTick(index.get()));
 						data.setReplayTickDataSize(index.get());
 						int ci = index.get();
-						if (ci == tickDataSize.get()) {
-							ci--;							
+						if (ci >= tickDataSize.get()) {
+							ci = tickDataSize.get() - 1;
 						}
 						data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 						if (live.get()) {

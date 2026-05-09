@@ -109,7 +109,7 @@ public class Menu implements ICanvasWindow {
 			if (files != null) {
 				for (File f : files) {						
 					Thread t = new Thread(new OptimizeTask(f, numJobs));
-					t.start();							
+					t.start();
 				}
 			}
 		});
