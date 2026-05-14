@@ -1943,34 +1943,34 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		if (mr.trade().closed()) {
 			double slY = priceToYCoord(mr.slPrice().get());
 			double tpY = priceToYCoord(mr.tpPrice().get());			
-			if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+			if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {				
 				tradeButs.tp().enable();
 				tradeButs.cancelTP().enable();
 				tradeButs.tp().setY(tpY - fontSize);
 				tradeButs.cancelTP().setY(tpY - fontSize);
 				if (mr.tpPrice().get() != -1) {
+					gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+					gc.strokeLine(x1, tpY, x2, tpY);
+					drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 					tradeButs.tp().draw();
-				}				
-				tradeButs.cancelTP().draw();
+					tradeButs.cancelTP().draw();
+				}								
 			} else {
 				tradeButs.tp().disable();
 				tradeButs.cancelTP().disable();
 			}
-			if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+			if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {				
 				tradeButs.sl().enable();
 				tradeButs.cancelSL().enable();
 				tradeButs.sl().setY(slY - fontSize);
 				tradeButs.cancelSL().setY(slY - fontSize);
 				if (mr.slPrice().get() != -1) {
+					gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+					gc.strokeLine(x1, slY, x2, slY);
+					drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 					tradeButs.sl().draw();
-				}
-				tradeButs.cancelSL().draw();
+					tradeButs.cancelSL().draw();
+				}				
 			} else {
 				tradeButs.sl().disable();
 				tradeButs.cancelSL().disable();
