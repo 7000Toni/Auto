@@ -126,13 +126,25 @@ public class MarketTickFileOptimizer {
 	}
 	
 	public static void optimize(File file, boolean autoSignature, IntegerProperty numJobs) {
-		numJobs.set(numJobs.get() + 1);
+		Menu.menu().varLock().lock();
+		try {
+			numJobs.set(numJobs.get() + 1);
+		} finally {
+			Menu.menu().varLock().unlock();
+			Menu.menu().draw();
+		}			
 		Menu m = Menu.menu();
 		if (m != null) {
 			m.draw();
 		}
 		work(file, null, autoSignature);
-		numJobs.set(numJobs.get() - 1);
+		Menu.menu().varLock().lock();
+		try {
+			numJobs.set(numJobs.get() - 1);
+		} finally {
+			Menu.menu().varLock().unlock();
+			Menu.menu().draw();
+		}	
 		if (m != null) {
 			m.draw();
 		}
