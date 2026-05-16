@@ -1,4 +1,6 @@
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
@@ -17,6 +19,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private CanvasLabel general;
 	private CanvasLabel timeFrames;
+	private CanvasLabel marketReplay;
 	
 	private CanvasButton chartFunctions;
 	private CanvasButton chartSettings;
@@ -28,10 +31,14 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton newChart;
 	private CanvasButton chartType;
 	private CanvasButton darkMode;
-	private CanvasButton chartTypeShortcut;
-	private CanvasButton replayShortcut;
+	private CanvasButton chartTypeShortcut;	
 	private CanvasButton initHst;
 	private CanvasButton toggleHst;
+	
+	private CanvasButton saveHst;
+	private CanvasButton replayShortcut;
+	private CanvasButton toggleShortReport;
+	private CanvasButton saveMRHst;
 	
 	private boolean functions;
 	
@@ -51,6 +58,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	private CanvasLabel noImage;
 	
 	private boolean recentlySaved = false;
+	private BooleanProperty mrRecentlySaved = new SimpleBooleanProperty(false);
 	private ArrayList<CanvasButton> colourButtons;
 	private int settingsMenuIndex = 0;
 	
@@ -94,6 +102,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		
 		initFunctionsMenu();
 		initSettingsMenu();		
+		setReplayMode(chart.replayMode());
 	}
 	
 	private void initFunctionsMenu() {
@@ -102,7 +111,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			general.alternateDraw(gc.getFont());
 		});		
 		
-		chartFunctions = new CanvasButton(gc, 142, 20, x + 5, y + 5, "FUNCTIONS", 39, 14);
+		chartFunctions = new CanvasButton(gc, 142, 20, x + 5, y + 5, "FUNCTIONS");
 		chartFunctions.setVanGogh(cmbvg.menuButtonVG(chartFunctions, gc.getFont().getSize()));
 		chartFunctions.setOnMouseClicked(e -> {
 			chartFunctions.setOn(true);
@@ -111,7 +120,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});				
 		
-		chartSettings = new CanvasButton(gc, 142, 20, x + 153, y + 5, "SETTINGS", 45, 14);
+		chartSettings = new CanvasButton(gc, 142, 20, x + 153, y + 5, "SETTINGS");
 		chartSettings.setVanGogh(cmbvg.menuButtonVG(chartSettings, gc.getFont().getSize()));
 		chartSettings.setOnMouseClicked(e -> {
 			chartFunctions.setOn(false);
@@ -120,7 +129,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
-		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 60, "NEW CHART", 114, 14);
+		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 60, "NEW CHART");
 		newChart.setVanGogh((x2, y2, gc2) -> {
 			newChart.alternateDraw(gc.getFont());
 		});
@@ -137,14 +146,14 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			s.show();
 		});
 		
-		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 85, "CANDLESTICK CHART", 39, 14);
-		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART", gc.getFont().getSize(), gc.getFont().getSize(), 116, 90, 14, 14));
+		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 85, "CANDLESTICK CHART");
+		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART"));
 		chartType.setOnMouseClicked(e -> {
 			chart.toggleChartType();
 		});
 		
-		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 110, "DARK MODE", 39, 14);
-		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE", gc.getFont().getSize(), gc.getFont().getSize(), 113, 114, 14, 14));
+		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 110, "DARK MODE");
+		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE"));
 		darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();
 		});
@@ -157,15 +166,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			chart.toggleChartTypeShortcut();
 		});
 		
-		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "REPLAY SHORTCUT", 96, 14);
-		replayShortcut.setVanGogh((x2, y2, gc2) -> {
-			replayShortcut.alternateDraw(gc.getFont());
-		});
-		replayShortcut.setOnMouseClicked(e -> {
-			chart.toggleMRPShortcut();
-		});;
-		
-		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 185, "INIT HISTORY", 96, 14);
+		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 160, "LOAD HISTORY");
 		initHst.setVanGogh((x2, y2, gc2) -> {
 			initHst.alternateDraw(gc.getFont());
 		});
@@ -173,20 +174,63 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			chart.initHst();
 		});;
 		
-		toggleHst = new CanvasButton(gc, 290, 20, x + 5, y + 210, "TOGGLE HISTORY", 96, 14);
-		toggleHst.setVanGogh((x2, y2, gc2) -> {
-			toggleHst.alternateDraw(gc.getFont());
-		});
+		toggleHst = new CanvasButton(gc, 290, 20, x + 5, y + 185, "SHOW TRADE HISTORY");
+		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.plotHst(), "HIDE TRADE HISTORY", "SHOW TRADE HISTORY"));
 		toggleHst.setOnMouseClicked(e -> {
 			chart.toggleHst();
 		});;
 		
-		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 235, "TIME FRAMES");
+		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 210, "MARKET REPLAY");
+		marketReplay.setVanGogh((x2, y2, gc2) -> {
+			marketReplay.alternateDraw(gc.getFont());
+		});
+		
+		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 235, "REPLAY SHORTCUT");
+		replayShortcut.setVanGogh((x2, y2, gc2) -> {
+			replayShortcut.alternateDraw(gc.getFont());
+		});
+		replayShortcut.setOnMouseClicked(e -> {
+			chart.toggleMRPShortcut();
+		});;		
+		
+		saveHst = new CanvasButton(gc, 290, 20, x + 5, y + 260, "DON'T SAVE TRADE HISTORY");
+		saveHst.setVanGogh(cmbvg.toggleVG(saveHst, MarketReplay.writeToFile(), "DON'T SAVE TRADE HISTORY", "SAVE TRADE HISTORY"));
+		saveHst.setOnMouseClicked(e -> {
+			MarketReplay.toggleWriteToFile();
+		});;
+		
+		toggleShortReport = new CanvasButton(gc, 290, 20, x + 5, y + 285, "WRITE LONG REPORT");
+		toggleShortReport.setVanGogh(cmbvg.toggleVG(toggleShortReport, Trade.shortReport(), "WRITE LONG REPORT", "WRITE SHORT REPORT"));
+		toggleShortReport.setOnMouseClicked(e -> {
+			Trade.toggleShortReport();
+		});;
+		
+		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 310, "SAVE LOADABLE HISTORY");
+		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
+		saveMRHst.setOnMouseClicked(e -> {
+			chart.marketReplay().trade().writeHistoryToFile();
+			mrRecentlySaved.set(true);
+			new AnimationTimer() {
+				private long init = 0;				
+				@Override
+				public void handle(long now) {
+					if (init == 0) {
+						init = now;
+					}
+					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
+						mrRecentlySaved.set(false);
+						chart.draw();
+						this.stop();
+					}
+				}
+			}.start();
+		});;
+		
+		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 335, "TIME FRAMES");
 		timeFrames.setVanGogh((x2, y2, gc2) -> {
 			timeFrames.alternateDraw(gc.getFont());
 		});
 				
-		replayShortcut.disable();
 		chartFunctions.setOn(true);
 		functions = true;
 	}
@@ -416,10 +460,14 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		newChart.draw();
 		chartType.draw();
 		darkMode.draw();
-		chartTypeShortcut.draw();
-		replayShortcut.draw();
+		chartTypeShortcut.draw();		
 		initHst.draw();
 		toggleHst.draw();
+		marketReplay.draw();
+		replayShortcut.draw();
+		saveHst.draw();
+		toggleShortReport.draw();
+		saveMRHst.draw();
 		//timeFrames.draw();
 	}
 	
@@ -460,9 +508,13 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartType, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartTypeShortcut, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode)); 
 			sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
-			sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(marketReplay, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleShortReport, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(saveMRHst, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(timeFrames, menuNode)); 
 		} finally {
 			chart.varLock().unlock();
@@ -551,10 +603,15 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		this.replayMode = replayMode;
 		if (this.replayMode) {
 			replayShortcut.enable();
-			initHst.disable();
+			saveHst.enable();
+			toggleShortReport.enable();
+			saveMRHst.enable();
+			
 		} else {
 			replayShortcut.disable();
-			initHst.enable();
+			saveHst.disable();
+			toggleShortReport.disable();
+			saveMRHst.disable();
 		}
 	}
 
@@ -584,9 +641,13 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		chartType.setX(x + 5);
 		darkMode.setX(x + 5);
 		chartTypeShortcut.setX(x + 5);
-		replayShortcut.setX(x + 5);
 		initHst.setX(x + 5);
 		toggleHst.setX(x + 5);
+		marketReplay.setX(x + 5);
+		replayShortcut.setX(x + 5);
+		saveHst.setX(x + 5);
+		toggleShortReport.setX(x + 5);
+		saveMRHst.setX(x + 5);
 		timeFrames.setX(x + 5);
 		
 		colourPicker.setX(x + 5);
@@ -630,11 +691,15 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		newChart.setY(y + 60);
 		chartType.setY(y + 85);
 		darkMode.setY(y + 110);
-		chartTypeShortcut.setY(y + 135);
-		replayShortcut.setY(y + 160);
+		chartTypeShortcut.setY(y + 135);		
 		initHst.setY(y + 185);
 		toggleHst.setY(y + 210);
-		timeFrames.setY(y + 235);
+		marketReplay.setY(y + 210);
+		replayShortcut.setY(y + 235);
+		saveHst.setY(y + 260);
+		toggleShortReport.setY(y + 285);
+		saveMRHst.setY(y + 310);
+		timeFrames.setY(y + 335);
 		
 		colourPicker.setY(y + 85);
 		for (int i = 0; i < ColourSettings.size(); i++) {

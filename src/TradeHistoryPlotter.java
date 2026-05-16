@@ -9,13 +9,13 @@ public class TradeHistoryPlotter {
 		this.chart = chart;
 	}
 	
-	public void plotHistory(ArrayList<? extends TradeHistory> history) {
+	public void plotHistory(ArrayList<? extends ITradeHistory> history) {
 		if (chart.drawCandlesticks().get()) {
 			return;
 		}
 		GraphicsContext gc = chart.graphicsContext();
 		ArrayList<DataSet.DataPair> data = chart.data().tickData();
-		for (TradeHistory h : history) {			
+		for (ITradeHistory h : history) {			
 			if (inRange(h)) {
 				double x1 = Chart.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
 				double x2 = Chart.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
@@ -58,8 +58,6 @@ public class TradeHistoryPlotter {
 					tempyx = Chart.CHT_MARGIN + chart.chartWidth();
 					grad2 = (-tempy+y1)/(tempyx-x1);
 					diff2 = gradient - grad2;
-					//System.out.println(dy + " " + y1 + " " + dx + " " + x1 + " " + calcx + " " + calcy + " " + gradient);
-					//System.out.println(gradient + " " + grad1 + " " + grad2 + " " + diff1 + " " + diff2 + "\n");
 					if ((Math.abs(diff1) > Math.abs(diff2) && coordsInChart(x1, y1, tempyx, tempy)) || !coordsInChart(x1, y1, tempx, tempxy)) {
 						y2 = tempy;
 						x2 = tempyx;
@@ -90,8 +88,6 @@ public class TradeHistoryPlotter {
 					tempyx = Chart.CHT_MARGIN;
 					grad2 = (-y2+tempy)/(x2-tempyx);
 					diff2 = gradient - grad2;
-					//System.out.println(dy + " " + y2 + " " + dx + " " + x2 + " " + calcx + " " + calcy + " " + gradient);
-					//System.out.println(gradient + " " + grad1 + " " + grad2 + " " + diff1 + " " + diff2 + "\n");
 					if ((Math.abs(diff1) > Math.abs(diff2) && coordsInChart(tempyx, tempy, x2, y2)) || !coordsInChart(tempx, tempxy, x2, y2)) {
 						y1 = tempy;
 						x1 = tempyx;
@@ -123,21 +119,21 @@ public class TradeHistoryPlotter {
 		return false;
 	}
 	
-	private boolean inRange(TradeHistory h) {
+	private boolean inRange(ITradeHistory h) {
 		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 || h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean onlyCloseInRange(TradeHistory h) {
+	private boolean onlyCloseInRange(ITradeHistory h) {
 		if (!(h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1) && h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean onlyOpenInRange(TradeHistory h) {
+	private boolean onlyOpenInRange(ITradeHistory h) {
 		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 && !(h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1)) {
 			return true;
 		}

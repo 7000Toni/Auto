@@ -5,6 +5,10 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 public class Trade implements ITrade {
 	protected DataSet data;
 	protected double entryPrice;
@@ -23,9 +27,13 @@ public class Trade implements ITrade {
 	protected boolean composite = false;
 	protected boolean partial = false;
 	protected double partialVol = -1;
+	protected static boolean lastTradeShort = false;
+	protected static boolean lastTradeLong = false;
+	protected static BooleanProperty shortReport = new SimpleBooleanProperty(true);
 	protected static double net = 0;
-	protected static ArrayList<MarketReplayTradeHistory> history = new ArrayList<MarketReplayTradeHistory>();
+	protected static ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
 	protected static boolean init = false;
+	
 	
 	static class EntryPair {
 		private double volume;
@@ -78,7 +86,7 @@ public class Trade implements ITrade {
 		this.profit = t.profit;
 		this.composite = t.composite;
 		this.partial = t.partial;
-		this.partialVol = t.partialVol;		
+		this.partialVol = t.partialVol;	
 	}
 	
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
@@ -104,7 +112,7 @@ public class Trade implements ITrade {
 		net += profit;
 		if (init) {
 			for (EntryPair e : entryIndices) {
-				history.add(new MarketReplayTradeHistory(buy, e.entryIndex(), currentPriceIndex));
+				history.add(new TradeHistory(buy, e.entryIndex(), currentPriceIndex));
 			}
 		} else {
 			init = true;
@@ -125,7 +133,7 @@ public class Trade implements ITrade {
 		tp = -1;		
 	}
 	
-	public static ArrayList<MarketReplayTradeHistory> history() {
+	public static ArrayList<TradeHistory> history() {
 		return history;
 	}
 	
@@ -193,11 +201,11 @@ public class Trade implements ITrade {
 				while (vol > 0) {
 					if (entryIndices.getLast().volume() > vol) {
 						entryIndices.getLast().addVolume(-vol);
-						history.add(new MarketReplayTradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex));
+						history.add(new TradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex));
 						vol = 0;
 					} else {
 						vol -= entryIndices.getLast().volume();
-						history.add(new MarketReplayTradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex));
+						history.add(new TradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex));
 					}
 				}
 			} else {
@@ -287,6 +295,14 @@ public class Trade implements ITrade {
 		return exitTime;
 	}
 	
+	public static ReadOnlyBooleanProperty shortReport() {
+		return shortReport;
+	}
+	
+	public static void toggleShortReport() {
+		shortReport.set(!shortReport.get());
+	}
+		
 	@Override
 	public boolean buy() {
 		return buy;
@@ -304,9 +320,23 @@ public class Trade implements ITrade {
 		return closedByRewind;
 	}
 	
+	public void writeHistoryToFile() {
+		try (PrintWriter pw = new PrintWriter(new FileOutputStream(new File("./" + data.name() + ".hst"), true), true)) {
+			for (TradeHistory t : history) {
+				pw.append(t.buy() + "," + t.entryIndex() + "," + t.exitIndex() + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void writeToFile(File file) {
 		try (PrintWriter pw = new PrintWriter(new FileOutputStream(file, true), true)) {
 			pw.append(toString() + "\n");
+			if (lastTradeLong) {
+				lastTradeShort = false;
+				lastTradeLong = false;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -315,14 +345,19 @@ public class Trade implements ITrade {
 	protected String alternateToString() {		
 		String ret = "Profit: " + profit(partialVol);
 		ret += "\tRewind: " + closedByRewind;	
-		ret += "\tNet: " + Round.round(net, 2);;
+		ret += "\tNet: " + Round.round(net, 2);
+		lastTradeShort = true;
 		return ret;
 	}
 	
-	protected String originalToString() {
-		String buyOrSell = "Bought";
+	protected String originalToString() {		
+		String buyOrSell = "";
+		if (lastTradeShort) {
+			buyOrSell += '\n';
+		}
+		buyOrSell += "Bought";
 		if (!buy) {
-			buyOrSell = "Sold";
+			buyOrSell += "Sold";
 		}
 		
 		String sls; 
@@ -358,12 +393,18 @@ public class Trade implements ITrade {
 		}
 		ret += "\nChange:\t" + ((Double)(exitPrice - entryPrice)).toString();
 		ret += "\nProfit:\t" + profit(partialVol);
-		ret += "\nRewind:\t" + closedByRewind + '\n';
+		ret += "\nRewind:\t" + closedByRewind;
+		ret += "\nNet: " + Round.round(net, 2) + '\n';
+		lastTradeLong = true;
 		return ret;
 	}
 	
 	@Override
 	public String toString() {
-		return alternateToString();
+		if (shortReport.get()) {
+			return alternateToString();
+		} else {
+			return originalToString();
+		}
 	}
 }

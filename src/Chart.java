@@ -264,8 +264,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	//TODO
 	private boolean hstInit = false;
 	private TradeHistoryPlotter thp;
-	private ArrayList<TradeHistoryLoader.ApproxTradeHistory> hst;
-	private boolean plotHst = false;
+	private ArrayList<TradeHistory> hst;
+	private BooleanProperty plotHst = new SimpleBooleanProperty(false);
 	
 	public void initHst() {
 		hstInit = false;		
@@ -278,13 +278,16 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}	
 		fc.setTitle("Select History File");
 		File file = fc.showOpenDialog(null);
-		hst = TradeHistoryLoader.loadApproxHistory(file);
-		TradeHistoryLoader.generateIndices(hst, data.tickData());
+		hst = TradeHistoryLoader.loadApproxHistory(file, data.tickData());
 		hstInit = true;
 	}
 	
+	public ReadOnlyBooleanProperty plotHst() {
+		return plotHst;
+	}
+	
 	public void toggleHst() {
-		plotHst = !plotHst;
+		plotHst.set(!plotHst.get());;
 	}
 	
 	public void resetTradeButtons() {
@@ -2120,7 +2123,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		} else {		
 			drawLineChart();
 		}
-		if (plotHst) {
+		if (plotHst.get()) {
 			if (replayMode) {
 				thp.plotHistory(Trade.history());
 			} else if (hstInit) {

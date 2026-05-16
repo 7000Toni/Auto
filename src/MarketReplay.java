@@ -31,7 +31,7 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
-	private boolean writeToFile = true;
+	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -49,6 +49,14 @@ public class MarketReplay {
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
 		this.index.set(index);
 		chart.enableReplayMode(this, mrp);
+	}
+	
+	public static ReadOnlyBooleanProperty writeToFile() {
+		return writeToFile;
+	}
+	
+	public static void toggleWriteToFile() {
+		writeToFile.set(!writeToFile.get());
 	}
 	
 	public void addChart(Chart chart) {
@@ -278,7 +286,7 @@ public class MarketReplay {
 		System.out.println(trade.toString());	
 		slPrice.set(-1);
 		tpPrice.set(-1);
-		if (writeToFile) {
+		if (writeToFile.get()) {
 			trade.writeToFile(new File("./trades.txt"));
 		}
 	}

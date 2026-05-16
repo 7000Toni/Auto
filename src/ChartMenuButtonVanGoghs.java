@@ -29,6 +29,7 @@ public class ChartMenuButtonVanGoghs {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
 			gc.strokeRect(x, y, cb.width(), cb.height());
+			cb.calculateOffsets(gc.getFont());
 			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(new Font(oldFontSize));
 		};
@@ -51,24 +52,14 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}
 	
-	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2, double fontSize1, double fontSize2, double xoff1, double xoff2, double yoff1, double yoff2) {
+	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2) {
 		return (x, y, gc) -> {
-			double oldFontSize = gc.getFont().getSize();
-			double fontSize;
 			if (condition.get()) {
 				cb.setText(text1);	
-				cb.setTextXOffset(xoff1);
-				cb.setTextYOffset(yoff1);
-				fontSize = fontSize1;
 			} else {
 				cb.setText(text2);
-				cb.setTextXOffset(xoff2);
-				cb.setTextYOffset(yoff2);
-				fontSize = fontSize2;
 			}
-			gc.setFont(new Font(fontSize));
 			cb.alternateDraw(gc.getFont());
-			gc.setFont(new Font(oldFontSize));
 		};
 	}	
 	

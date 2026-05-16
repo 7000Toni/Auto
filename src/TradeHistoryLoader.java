@@ -11,32 +11,17 @@ import java.util.StringTokenizer;
 public class TradeHistoryLoader {
 	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");	
 	
-	static class ApproxTradeHistory implements TradeHistory {
-		private String original;
+	private static class ApproxTradeHistory implements ITradeHistory {
 		private boolean buy;
 		private LocalDateTime open;
 		private LocalDateTime close;
 		private int entryIndex = -1;
 		private int exitIndex = -1;
 		
-		public ApproxTradeHistory(String original, boolean buy, LocalDateTime open, LocalDateTime close) {
-			this.original = original;
+		public ApproxTradeHistory(boolean buy, LocalDateTime open, LocalDateTime close) {
 			this.buy = buy;
 			this.open = open;
 			this.close = close;
-		}
-		
-		public ApproxTradeHistory(String original, boolean buy, LocalDateTime open, LocalDateTime close, int entryIndex, int exitIndex) {
-			this.original = original;
-			this.buy = buy;
-			this.open = open;
-			this.close = close;
-			this.entryIndex = entryIndex;
-			this.exitIndex = exitIndex;
-		}
-		
-		public String original() { 
-			return original;
 		}
 		
 		public boolean buy() { 
@@ -68,15 +53,16 @@ public class TradeHistoryLoader {
 		}
 	}
 	
-	public static ArrayList<ApproxTradeHistory> loadApproxHistory(File history) {
+	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data) {
 		ArrayList<ApproxTradeHistory> approxHst = new ArrayList<ApproxTradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
-			br.readLine();
+			if (!br.readLine().equals("Time,Position,Symbol,Type,Volume,Price,S / L,T / P,Time,Price,Commission,Swap,Profit,,")) {
+				return loadMRHistory(history);
+			}			
 			String in = br.readLine();
 			while (in != null) {
-				StringTokenizer tokens = new StringTokenizer(in, ",");				
-				String original = in;
+				StringTokenizer tokens = new StringTokenizer(in, ",");	
 				LocalDateTime open = LocalDateTime.parse(tokens.nextToken(), dtf).minusHours(3);
 				tokens.nextToken();
 				tokens.nextToken();
@@ -95,7 +81,26 @@ public class TradeHistoryLoader {
 				tokens.nextToken();
 				tokens.nextToken();
 				LocalDateTime close = LocalDateTime.parse(tokens.nextToken(), dtf).minusHours(3);
-				approxHst.add(new ApproxTradeHistory(original, buy, open, close));
+				approxHst.add(new ApproxTradeHistory(buy, open, close));
+				in = br.readLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		return generateIndices(approxHst, data);
+	}
+	
+	public static ArrayList<TradeHistory> loadMRHistory(File history) {
+		ArrayList<TradeHistory> approxHst = new ArrayList<TradeHistory>();
+		try (FileInputStream fis = new FileInputStream(history);
+			BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+			String in = br.readLine();
+			while (in != null) {
+				StringTokenizer tokens = new StringTokenizer(in, ",");				
+				boolean buy = Boolean.parseBoolean(tokens.nextToken());
+				int entryIndex = Integer.parseInt(tokens.nextToken());
+				int exitIndex = Integer.parseInt(tokens.nextToken());
+				approxHst.add(new TradeHistory(buy, entryIndex, exitIndex));
 				in = br.readLine();
 			}
 		} catch (IOException e) {
@@ -104,7 +109,8 @@ public class TradeHistoryLoader {
 		return approxHst;
 	}
 	
-	public static void generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data) {
+	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data) {
+		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
 		for (ApproxTradeHistory h : history) {
 			for (int i = 0; i < data.size() - 1; i++) {
 				if (h.open().isBefore(data.get(0).dateTime()) || h.open().isAfter(data.get(data.size() - 1).dateTime())) {
@@ -118,17 +124,20 @@ public class TradeHistoryLoader {
 				if (h.close().isEqual(data.get(i).dateTime()) || h.close().isAfter(data.get(i).dateTime()) && h.close().isBefore(data.get(i + 1).dateTime())) {
 					if (h.exitIndex() == -1) {
 						h.setExitIndex(i);	
+						hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
 						break;
 					}
 				}
 				if (h.close().isAfter(data.get(data.size() - 1).dateTime())) {
 					if (h.exitIndex() == -1) {
 						h.setExitIndex(data.size() - 1);
+						hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
 					}
 					break;
 				}
 			}
-		}
+		}		
+		return hst;
 	}
 }
 
