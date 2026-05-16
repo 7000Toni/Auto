@@ -284,8 +284,10 @@ public class MarketReplay {
 	
 	public void closedTradeProc() {
 		System.out.println(trade.toString());	
-		slPrice.set(-1);
-		tpPrice.set(-1);
+		if (trade.closed()) {
+			slPrice.set(-1);
+			tpPrice.set(-1);
+		}
 		if (writeToFile.get()) {
 			trade.writeToFile(new File("./trades.txt"));
 		}
