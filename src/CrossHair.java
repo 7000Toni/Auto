@@ -124,8 +124,8 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(chart.chartWidth() + Chart.CHT_MARGIN, yPos - chart.fontSize()/2, Chart.PRICE_MARGIN, chart.fontSize());
-		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.chartWidth() + Chart.CHT_MARGIN + Chart.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, Chart.PRICE_MARGIN - Chart.PRICE_DASH_SIZE - Chart.PRICE_DASH_MARGIN);
+		chart.graphicsContext().fillRect(chart.chartWidth() + Chart.CHT_MARGIN, yPos - chart.fontSize()/2, chart.priceMargin(), chart.fontSize());
+		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.chartWidth() + Chart.CHT_MARGIN + Chart.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, chart.priceMargin() - Chart.PRICE_DASH_SIZE - Chart.PRICE_DASH_MARGIN);
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {

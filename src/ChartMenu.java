@@ -30,6 +30,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton darkMode;
 	private CanvasButton chartTypeShortcut;
 	private CanvasButton replayShortcut;
+	private CanvasButton initHst;
+	private CanvasButton toggleHst;
 	
 	private boolean functions;
 	
@@ -163,7 +165,23 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			chart.toggleMRPShortcut();
 		});;
 		
-		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 185, "TIME FRAMES");
+		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 185, "INIT HISTORY", 96, 14);
+		initHst.setVanGogh((x2, y2, gc2) -> {
+			initHst.alternateDraw(gc.getFont());
+		});
+		initHst.setOnMouseClicked(e -> {
+			chart.initHst();
+		});;
+		
+		toggleHst = new CanvasButton(gc, 290, 20, x + 5, y + 210, "TOGGLE HISTORY", 96, 14);
+		toggleHst.setVanGogh((x2, y2, gc2) -> {
+			toggleHst.alternateDraw(gc.getFont());
+		});
+		toggleHst.setOnMouseClicked(e -> {
+			chart.toggleHst();
+		});;
+		
+		timeFrames = new CanvasLabel(gc, 290, 20, x + 5, y + 235, "TIME FRAMES");
 		timeFrames.setVanGogh((x2, y2, gc2) -> {
 			timeFrames.alternateDraw(gc.getFont());
 		});
@@ -400,6 +418,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		darkMode.draw();
 		chartTypeShortcut.draw();
 		replayShortcut.draw();
+		initHst.draw();
+		toggleHst.draw();
 		//timeFrames.draw();
 	}
 	
@@ -441,6 +461,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartTypeShortcut, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode)); 
 			sceneGraph.addNode(new TNode<ICanvasNode>(timeFrames, menuNode)); 
 		} finally {
 			chart.varLock().unlock();
@@ -561,6 +583,8 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		darkMode.setX(x + 5);
 		chartTypeShortcut.setX(x + 5);
 		replayShortcut.setX(x + 5);
+		initHst.setX(x + 5);
+		toggleHst.setX(x + 5);
 		timeFrames.setX(x + 5);
 		
 		colourPicker.setX(x + 5);
@@ -606,7 +630,9 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		darkMode.setY(y + 110);
 		chartTypeShortcut.setY(y + 135);
 		replayShortcut.setY(y + 160);
-		timeFrames.setY(y + 185);
+		initHst.setY(y + 185);
+		toggleHst.setY(y + 210);
+		timeFrames.setY(y + 235);
 		
 		colourPicker.setY(y + 85);
 		for (int i = 0; i < ColourSettings.size(); i++) {

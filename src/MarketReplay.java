@@ -31,7 +31,7 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
-	private boolean writeToFile = false;
+	private boolean writeToFile = true;
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
@@ -276,6 +276,8 @@ public class MarketReplay {
 	
 	public void closedTradeProc() {
 		System.out.println(trade.toString());	
+		slPrice.set(-1);
+		tpPrice.set(-1);
 		if (writeToFile) {
 			trade.writeToFile(new File("./trades.txt"));
 		}
@@ -288,9 +290,7 @@ public class MarketReplay {
 				closedTradeProc();
 				for (Chart c : charts) {
 					c.disableTradeButtons();
-				}
-				slPrice.set(-1);
-				tpPrice.set(-1);
+				}				
 			}
 		}	
 		checkPendingOrders();	
@@ -332,9 +332,9 @@ public class MarketReplay {
 							double newHSBPos;
 							for (Chart c : charts) {
 								if (c.drawCandlesticks().get()) {
-									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
+									newHSBPos = (c.width() - c.hsb().sbWidth() - c.priceMargin()) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
 								} else {
-									newHSBPos = (c.width() - c.hsb().sbWidth() - Chart.PRICE_MARGIN) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));
+									newHSBPos = (c.width() - c.hsb().sbWidth() - c.priceMargin()) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));
 								}								
 								c.setKeepStartIndex(true);
 								c.hsb().setPosition(newHSBPos, false);

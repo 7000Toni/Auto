@@ -1,3 +1,4 @@
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 
@@ -39,8 +41,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public final static double CHT_MARGIN = 5;
 	public final static double INFO_MARGIN = 5;
-	public final static double CHT_DATA_MARGIN_COEF = 0.45;	
-	public static double PRICE_MARGIN = 100;
+	public final static double CHT_DATA_MARGIN_COEF = 0.45;		
 	public final static double END_MARGIN_COEF = 1/1.5;
 	
 	public final static double PRICE_DASH_SPACING = 50;
@@ -57,6 +58,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private DataSet data;
 	private CrossHair crossHair;
 	
+	private double priceMargin = 100;
 	private int numDecimalPts;
 	private double tickSize;
 	private BooleanProperty focusedChart = new SimpleBooleanProperty(false);
@@ -168,19 +170,19 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		this.stage = stage;
 		canvas = new Canvas(width, height);
 		gc = canvas.getGraphicsContext2D();
-		PRICE_MARGIN = data.maxLength() * gc.getFont().getSize() / 2 + 20;
-		if (PRICE_MARGIN < 35) {
-			PRICE_MARGIN = 35;
+		priceMargin = data.maxLength() * gc.getFont().getSize() / 2 + 20;
+		if (priceMargin < 35) {
+			priceMargin = 35;
 		}
-		hsb = new HorizontalChartScrollBar(this, 0, width - PRICE_MARGIN, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
+		hsb = new HorizontalChartScrollBar(this, 0, width - priceMargin, HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);
 		
 		cbvg = new ChartButtonVanGoghs(this);
-		btnMenu = new CanvasButton(gc, PRICE_MARGIN - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - PRICE_MARGIN + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", (PRICE_MARGIN - 2 - 34) / 2, 11);
+		btnMenu = new CanvasButton(gc, priceMargin - 2, HSB_HEIGHT + CHT_MARGIN - 2, width - priceMargin + 1, height - HSB_HEIGHT - CHT_MARGIN + 1, "MENU", (priceMargin - 2 - 34) / 2, 11);
 		btnMenu.setVanGogh(cbvg.menuButtonVG(btnMenu)); 
 		btnMenu.setOnMouseClicked(e -> {
 			new AnimationTimer() {
 				int i = menuHidden?1:-1;
-				double pm = menuHidden?PRICE_MARGIN:PRICE_MARGIN+300;
+				double pm = menuHidden?priceMargin:priceMargin+300;
 				double t = pm + 300*i;
 				boolean changed = false;
 				@Override
@@ -192,12 +194,12 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					pm += 50*i;
 					chartWidth -= 50*i;
 					setCandleStickVars(numCandlesticks);
-					btnMenu.setWidth(PRICE_MARGIN - 2);
+					btnMenu.setWidth(priceMargin - 2);
 					btnMenu.setHeight(HSB_HEIGHT + CHT_MARGIN - 2);
 					btnMenu.setX(CHT_MARGIN + chartWidth + 1);
 					chartTypeShortcut.setX(CHT_MARGIN + chartWidth - 15);
 					
-					menu.setX(CHT_MARGIN + chartWidth + PRICE_MARGIN);
+					menu.setX(CHT_MARGIN + chartWidth + priceMargin);
 					
 					hsb.setMaxPos(width - pm); 					
 					
@@ -223,7 +225,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			}.start();
 		});
 		
-		menu = new ChartMenu(CHT_MARGIN + chartWidth + PRICE_MARGIN, 0, 300, chartHeight, gc, this);		
+		menu = new ChartMenu(CHT_MARGIN + chartWidth + priceMargin, 0, 300, chartHeight, gc, this);		
 		chartTypeShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + chartWidth - 15, CHT_MARGIN + 5, null);
 		chartTypeShortcut.setOnMouseClicked(e -> {
 			toggleChartType();
@@ -246,7 +248,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
-		chartWidth = width - PRICE_MARGIN - CHT_MARGIN;
+		chartWidth = width - priceMargin - CHT_MARGIN;
 		chartHeight = height - hsb.sbHeight() - CHT_MARGIN*2;
 		candlestickWidth = chartWidth * CNDL_WDTH_COEF;
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
@@ -254,8 +256,35 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		chtDataMargin = CHT_MARGIN + fontSize;
 		Chart.charts.add(this);
 		setEventHandlers();	
-		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);
+		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);		
+		
 		draw();
+	}
+	//TODO
+	private boolean hstInit = false;
+	private TradeHistoryPlotter thp;
+	private ArrayList<TradeHistoryLoader.ApproxTradeHistory> hst;
+	private boolean plotHst = false;
+	
+	public void initHst() {
+		hstInit = false;
+		thp = new TradeHistoryPlotter(this);
+		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res\\history");
+		FileChooser fc = new FileChooser();
+		if (init.exists()) {
+			fc.setInitialDirectory(init);
+		} else {
+			fc.setInitialDirectory(new File("./"));
+		}	
+		fc.setTitle("Select History File");
+		File file = fc.showOpenDialog(null);
+		hst = TradeHistoryLoader.loadApproxHistory(file);
+		TradeHistoryLoader.generateIndices(hst, data.tickData());
+		hstInit = true;
+	}
+	
+	public void toggleHst() {
+		plotHst = !plotHst;
 	}
 	
 	public void resetTradeButtons() {
@@ -721,7 +750,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			if (!limitDragging && !stopDragging) {
 				drawPending = false;
 			}
-			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
+			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + priceMargin && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
 				stage.getScene().setCursor(Cursor.N_RESIZE);
 			}
 		} else {
@@ -875,7 +904,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			startX = e.getX();
 			startY = e.getY();
 		} else if (e.isPrimaryButtonDown()) {			
-			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + PRICE_MARGIN && e.getY() <= chartHeight + CHT_MARGIN) {
+			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + priceMargin && e.getY() <= chartHeight + CHT_MARGIN) {
 				priceDragging = true;
 				priceInitPos = e.getY();
 			}
@@ -1627,9 +1656,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					gc.setStroke(Color.GRAY);
 				}
 				gc.strokeLine(CHT_MARGIN, y, chartWidth + CHT_MARGIN, y);				
-				gc.fillRect(chartWidth + CHT_MARGIN, y - fontSize/2, PRICE_MARGIN, fontSize);
+				gc.fillRect(chartWidth + CHT_MARGIN, y - fontSize/2, priceMargin, fontSize);
 				gc.setStroke(Color.WHITE);
-				gc.strokeText(((Double)(roundToNearestTick(l.price()))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+				gc.strokeText(((Double)(roundToNearestTick(l.price()))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, y + fontSize/3, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 			}
 		}		
 	}
@@ -1700,7 +1729,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			gc.setStroke(Color.BLACK);
 		}				
 		gc.strokeRect(CHT_MARGIN, CHT_MARGIN, chartWidth, chartHeight);
-		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, PRICE_MARGIN, HSB_HEIGHT + CHT_MARGIN);
+		gc.strokeRect(CHT_MARGIN + chartWidth, CHT_MARGIN + chartHeight, priceMargin, HSB_HEIGHT + CHT_MARGIN);
 	}	
 	
 	private void setPreDrawVars() {
@@ -1767,9 +1796,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}	
 		double yPos = ((highest - price) / range) * (chartHeight - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 		gc.setFill(Color.SLATEBLUE);		
-		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
+		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, priceMargin, fontSize);
 		gc.setStroke(Color.WHITE);
-		gc.strokeText(((Double)(price)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+		gc.strokeText(((Double)(price)).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 	}
 	
 	private void drawCurrentPriceLine() {		
@@ -1812,7 +1841,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 		while (index > CHT_MARGIN + gc.getFont().getSize() / 3) {
 			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
-			gc.strokeText(((Double)(Round.round(lowest + (diff * i), numDecimalPts + 1))).toString(), pricePos, index + pricePosYMargin, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN * 2);
+			gc.strokeText(((Double)(Round.round(lowest + (diff * i), numDecimalPts + 1))).toString(), pricePos, index + pricePosYMargin, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN * 2);
 			index -= spacing;
 			i++;
 		}			
@@ -1921,8 +1950,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private void drawPriceBox(double yPos, double price, Color textColour, Color boxColour) {
 		gc.setStroke(textColour);
 		gc.setFill(boxColour);
-		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, PRICE_MARGIN, fontSize);
-		gc.strokeText(((Double)(roundToNearestTick(price))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, PRICE_MARGIN - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
+		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, priceMargin, fontSize);
+		gc.strokeText(((Double)(roundToNearestTick(price))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
 	}
 	
 	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
@@ -2091,6 +2120,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		} else {		
 			drawLineChart();
 		}
+		if (plotHst && hstInit) {
+			thp.plotHistory(hst);
+		}
 		if (drawChartTypeShortcut) {
 			chartTypeShortcut.draw();
 		}
@@ -2167,6 +2199,10 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public double fontSize() {
 		return this.fontSize;
+	}
+	
+	public double priceMargin() {
+		return priceMargin;
 	}
 
 	public ChartMenu chartMenu() {
