@@ -551,8 +551,10 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		this.replayMode = replayMode;
 		if (this.replayMode) {
 			replayShortcut.enable();
+			initHst.disable();
 		} else {
 			replayShortcut.disable();
+			initHst.enable();
 		}
 	}
 
