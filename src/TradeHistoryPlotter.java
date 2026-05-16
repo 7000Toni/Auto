@@ -9,18 +9,18 @@ public class TradeHistoryPlotter {
 		this.chart = chart;
 	}
 	
-	public void plotHistory(ArrayList<TradeHistoryLoader.ApproxTradeHistory> history) {
+	public void plotHistory(ArrayList<? extends TradeHistory> history) {
 		if (chart.drawCandlesticks().get()) {
 			return;
 		}
 		GraphicsContext gc = chart.graphicsContext();
 		ArrayList<DataSet.DataPair> data = chart.data().tickData();
-		for (TradeHistoryLoader.ApproxTradeHistory h : history) {
+		for (TradeHistory h : history) {			
 			if (inRange(h)) {
-				double x1 = Chart.CHT_MARGIN + (h.openIndex - chart.startIndex()) * chart.xDiff();
-				double x2 = Chart.CHT_MARGIN + (h.closeIndex - chart.startIndex()) * chart.xDiff();
-				double y1 = chart.priceToYCoord(data.get(h.openIndex).price());
-				double y2 = chart.priceToYCoord(data.get(h.closeIndex).price());
+				double x1 = Chart.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
+				double x2 = Chart.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
+				double y1 = chart.priceToYCoord(data.get(h.entryIndex()).price());
+				double y2 = chart.priceToYCoord(data.get(h.exitIndex()).price());
 				
 				double gradient = (-y2+y1)/(x2-x1);				
 				double dy = 0;
@@ -103,7 +103,7 @@ public class TradeHistoryPlotter {
 				
 				
 				
-				if (h.buy) {
+				if (h.buy()) {
 					gc.setStroke(Color.BLUE);
 				} else {
 					gc.setStroke(Color.RED);
@@ -123,22 +123,22 @@ public class TradeHistoryPlotter {
 		return false;
 	}
 	
-	private boolean inRange(TradeHistoryLoader.ApproxTradeHistory h) {
-		if (h.openIndex >= chart.startIndex() && h.openIndex < chart.endIndex() + 1 || h.closeIndex >= chart.startIndex() && h.closeIndex < chart.endIndex() + 1) {
+	private boolean inRange(TradeHistory h) {
+		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 || h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean onlyCloseInRange(TradeHistoryLoader.ApproxTradeHistory h) {
-		if (!(h.openIndex >= chart.startIndex() && h.openIndex < chart.endIndex() + 1) && h.closeIndex >= chart.startIndex() && h.closeIndex < chart.endIndex() + 1) {
+	private boolean onlyCloseInRange(TradeHistory h) {
+		if (!(h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1) && h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean onlyOpenInRange(TradeHistoryLoader.ApproxTradeHistory h) {
-		if (h.openIndex >= chart.startIndex() && h.openIndex < chart.endIndex() + 1 && !(h.closeIndex >= chart.startIndex() && h.closeIndex < chart.endIndex() + 1)) {
+	private boolean onlyOpenInRange(TradeHistory h) {
+		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 && !(h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1)) {
 			return true;
 		}
 		return false;

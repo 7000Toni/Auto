@@ -257,6 +257,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		Chart.charts.add(this);
 		setEventHandlers();	
 		menu.setFunctionsMenuSceneGraph(sceneGraph, menuNode);		
+		thp = new TradeHistoryPlotter(this);
 		
 		draw();
 	}
@@ -267,8 +268,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private boolean plotHst = false;
 	
 	public void initHst() {
-		hstInit = false;
-		thp = new TradeHistoryPlotter(this);
+		hstInit = false;		
 		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res\\history");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
@@ -2120,8 +2120,12 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		} else {		
 			drawLineChart();
 		}
-		if (plotHst && hstInit) {
-			thp.plotHistory(hst);
+		if (plotHst) {
+			if (replayMode) {
+				thp.plotHistory(Trade.history());
+			} else if (hstInit) {
+				thp.plotHistory(hst);
+			}
 		}
 		if (drawChartTypeShortcut) {
 			chartTypeShortcut.draw();

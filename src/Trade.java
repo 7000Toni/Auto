@@ -3,10 +3,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Trade implements ITrade {
 	protected DataSet data;
 	protected double entryPrice;
+	protected ArrayList<EntryPair> entryIndices = new ArrayList<EntryPair>();
 	protected int currentPriceIndex;
 	protected double sl = -1;
 	protected double tp = -1;
@@ -22,6 +24,30 @@ public class Trade implements ITrade {
 	protected boolean partial = false;
 	protected double partialVol = -1;
 	protected static double net = 0;
+	protected static ArrayList<MarketReplayTradeHistory> history = new ArrayList<MarketReplayTradeHistory>();
+	protected static boolean init = false;
+	
+	static class EntryPair {
+		private double volume;
+		private int entryIndex;
+		
+		public EntryPair(double volume, int entryIndex) {
+			this.volume = volume;
+			this.entryIndex = entryIndex;
+		}
+		
+		public double volume() {
+			return volume;
+		}
+		
+		public int entryIndex() {
+			return entryIndex;
+		}
+		
+		public void addVolume(double volume) {
+			this.volume += volume;
+		}
+	}
 	
 	public Trade() {
 		closed = true;
@@ -38,6 +64,7 @@ public class Trade implements ITrade {
 	public void replaceTrade(Trade t) {
 		this.data = t.data;
 		this.entryPrice = t.entryPrice;
+		this.entryIndices = t.entryIndices;
 		this.currentPriceIndex = t.currentPriceIndex;
 		this.buy = t.buy;
 		this.sl = t.sl;
@@ -57,13 +84,14 @@ public class Trade implements ITrade {
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
+		this.entryIndices.add(new EntryPair(volume, currentPriceIndex));		
 		this.currentPriceIndex = currentPriceIndex;
 		this.buy = buy;
 		setSL(sl);
 		setTP(tp);		
 		this.volume = volume;
 		this.entryTime = data.tickData().get(currentPriceIndex).dateTime();
-		this.exitPrice = -1;		
+		this.exitPrice = -1;
 	}
 	
 	public void close(int currentPriceIndex) {
@@ -74,6 +102,13 @@ public class Trade implements ITrade {
 		this.exitTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.closed = true;
 		net += profit;
+		if (init) {
+			for (EntryPair e : entryIndices) {
+				history.add(new MarketReplayTradeHistory(buy, e.entryIndex(), currentPriceIndex));
+			}
+		} else {
+			init = true;
+		}
 	}
 	
 	public void cancelSL() {
@@ -88,6 +123,10 @@ public class Trade implements ITrade {
 			return;
 		}
 		tp = -1;		
+	}
+	
+	public static ArrayList<MarketReplayTradeHistory> history() {
+		return history;
 	}
 	
 	public double profit() {
@@ -131,6 +170,7 @@ public class Trade implements ITrade {
 		} else {
 			entryPrice = data.tickData().get(currentPriceIndex).price() + (profit(volume) / (volume + vol));
 		}
+		entryIndices.add(new EntryPair(vol, currentPriceIndex));
 		volume += vol;
 		partialVol = volume;
 		composite = true;
@@ -149,6 +189,20 @@ public class Trade implements ITrade {
 			exitPrice = data.tickData().get(currentPriceIndex).price();
 			exitTime = data.tickData().get(currentPriceIndex).dateTime();
 			net += profit(vol);
+			if (init) {				
+				while (vol > 0) {
+					if (entryIndices.getLast().volume() > vol) {
+						entryIndices.getLast().addVolume(-vol);
+						history.add(new MarketReplayTradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex));
+						vol = 0;
+					} else {
+						vol -= entryIndices.getLast().volume();
+						history.add(new MarketReplayTradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex));
+					}
+				}
+			} else {
+				init = true;
+			}
 		}		
 	}
 	
