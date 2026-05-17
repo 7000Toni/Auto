@@ -473,12 +473,12 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private void initColourButtons() {
 		for (int i = 0; i < ColourSettings.size(); i++) {
-			CanvasButton javaisannyoing = new CanvasButton(gc, 265, 20, x + 5, y + 255 + 25*i, ColourButtonIndices.values()[i*2].text);
-			colourButtons.add(javaisannyoing);
-			javaisannyoing.setVanGogh((x2, y2, gc2) -> {
-				javaisannyoing.alternateDraw(gc2.getFont());
+			CanvasButton javaisannoying = new CanvasButton(gc, 265, 20, x + 5, y + 255 + 25*i, ColourButtonIndices.values()[i*2].text);
+			colourButtons.add(javaisannoying);
+			javaisannoying.setVanGogh((x2, y2, gc2) -> {
+				javaisannoying.alternateDraw(gc2.getFont());
 			});
-			setMouseEvent(javaisannyoing, i);
+			setMouseEvent(javaisannoying, i);
 			colourButtons.add(new CanvasButton(gc, 20, 20, x + 275, y + 255 + 25*i, null));
 			colourButtons.get(i*2+1).setVanGogh(cmbvg.colourPreviewVG(colourButtons.get(i*2+1), i));
 		}

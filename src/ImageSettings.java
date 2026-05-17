@@ -23,6 +23,7 @@ public class ImageSettings {
 		File f;
 		if (dmImgDir == null) {
 			dmImage = null;
+			dmDraw.set(false);
 		} else {
 			f = new File(dmImgDir);
 			if (f.exists()) {
@@ -34,11 +35,14 @@ public class ImageSettings {
 					Settings.saveSettings();
 					e.printStackTrace();
 				}
+			} else {
+				dmDraw.set(false);
 			}
 		}
 		
 		if (lmImgDir == null) {
 			lmImage = null;
+			lmDraw.set(false);
 		} else {
 			f = new File(lmImgDir);
 			if (f.exists()) {
@@ -50,6 +54,8 @@ public class ImageSettings {
 					Settings.saveSettings();
 					e.printStackTrace();
 				}
+			} else {
+				lmDraw.set(false);
 			}
 		}
 	}
