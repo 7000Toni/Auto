@@ -2125,7 +2125,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 		if (plotHst.get()) {
 			if (replayMode) {
-				thp.plotHistory(Trade.history());
+				thp.plotHistory(mr.trade().history());
 			} else if (hstInit) {
 				thp.plotHistory(hst);
 			}

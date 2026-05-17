@@ -27,11 +27,11 @@ public class Trade implements ITrade {
 	protected boolean composite = false;
 	protected boolean partial = false;
 	protected double partialVol = -1;
+	protected ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
 	protected static boolean lastTradeShort = false;
 	protected static boolean lastTradeLong = false;
 	protected static BooleanProperty shortReport = new SimpleBooleanProperty(true);
-	protected static double net = 0;
-	protected static ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
+	protected static double net = 0;	
 	protected static boolean init = false;
 	
 	
@@ -87,6 +87,7 @@ public class Trade implements ITrade {
 		this.composite = t.composite;
 		this.partial = t.partial;
 		this.partialVol = t.partialVol;	
+		this.history = t.history;
 	}
 	
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
@@ -133,7 +134,7 @@ public class Trade implements ITrade {
 		tp = -1;		
 	}
 	
-	public static ArrayList<TradeHistory> history() {
+	public ArrayList<TradeHistory> history() {
 		return history;
 	}
 	
