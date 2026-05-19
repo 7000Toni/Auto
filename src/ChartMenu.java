@@ -167,9 +167,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 160, "LOAD HISTORY");
-		initHst.setVanGogh((x2, y2, gc2) -> {
-			initHst.alternateDraw(gc.getFont());
-		});
+		initHst.setVanGogh(cmbvg.initHstDraw(initHst, chart));
 		initHst.setOnMouseClicked(e -> {
 			chart.initHst();
 		});;
@@ -208,7 +206,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 310, "SAVE LOADABLE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
 		saveMRHst.setOnMouseClicked(e -> {
-			chart.marketReplay().trade().writeHistoryToFile();
+			chart.marketReplay().trade().writeHistoryToFile(chart.name());
 			mrRecentlySaved.set(true);
 			new AnimationTimer() {
 				private long init = 0;				

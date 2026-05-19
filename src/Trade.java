@@ -27,15 +27,32 @@ public class Trade implements ITrade {
 	protected boolean composite = false;
 	protected boolean partial = false;
 	protected double partialVol = -1;
-	protected ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
+	protected static ArrayList<TradeHistoryPair> history = new ArrayList<TradeHistoryPair>();
 	protected static boolean lastTradeShort = false;
 	protected static boolean lastTradeLong = false;
 	protected static BooleanProperty shortReport = new SimpleBooleanProperty(true);
 	protected static double net = 0;	
 	protected static boolean init = false;
 	
+	private class TradeHistoryPair {
+		private TradeHistory history;
+		private String name;
+		
+		public TradeHistoryPair(TradeHistory history, String name) {
+			this.history = history;
+			this.name = name;
+		}
+		
+		public TradeHistory history() {
+			return history;
+		}
+		
+		public String name() {
+			return name;
+		}
+	}
 	
-	static class EntryPair {
+	private class EntryPair {
 		private double volume;
 		private int entryIndex;
 		
@@ -87,7 +104,6 @@ public class Trade implements ITrade {
 		this.composite = t.composite;
 		this.partial = t.partial;
 		this.partialVol = t.partialVol;	
-		this.history = t.history;
 	}
 	
 	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
@@ -113,7 +129,7 @@ public class Trade implements ITrade {
 		net += profit;
 		if (init) {
 			for (EntryPair e : entryIndices) {
-				history.add(new TradeHistory(buy, e.entryIndex(), currentPriceIndex));
+				history.add(new TradeHistoryPair(new TradeHistory(buy, e.entryIndex(), currentPriceIndex), data.name()));
 			}
 		} else {
 			init = true;
@@ -134,7 +150,21 @@ public class Trade implements ITrade {
 		tp = -1;		
 	}
 	
-	public ArrayList<TradeHistory> history() {
+	public static ArrayList<TradeHistory> history() {
+		ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
+		for (TradeHistoryPair thp : Trade.history) {
+			history.add(new TradeHistory(thp.history().buy(), thp.history().entryIndex(), thp.history().exitIndex()));
+		}
+		return history;
+	}
+
+	public static ArrayList<TradeHistory> history(String name) {
+		ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
+		for (TradeHistoryPair thp : Trade.history) {
+			if (thp.name().equals(name)) {
+				history.add(new TradeHistory(thp.history().buy(), thp.history().entryIndex(), thp.history().exitIndex()));
+			}
+		}
 		return history;
 	}
 	
@@ -202,11 +232,11 @@ public class Trade implements ITrade {
 				while (vol > 0) {
 					if (entryIndices.getLast().volume() > vol) {
 						entryIndices.getLast().addVolume(-vol);
-						history.add(new TradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex));
+						history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex), data.name()));
 						vol = 0;
 					} else {
 						vol -= entryIndices.getLast().volume();
-						history.add(new TradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex));
+						history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex), data.name()));
 					}
 				}
 			} else {
@@ -323,8 +353,20 @@ public class Trade implements ITrade {
 	
 	public void writeHistoryToFile() {
 		try (PrintWriter pw = new PrintWriter(new FileOutputStream(new File("./" + data.name() + ".hst"), true), true)) {
-			for (TradeHistory t : history) {
-				pw.append(t.buy() + "," + t.entryIndex() + "," + t.exitIndex() + "\n");
+			for (TradeHistoryPair t : history) {
+				pw.append(t.history().buy() + "," + t.history().entryIndex() + "," + t.history().exitIndex() + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void writeHistoryToFile(String name) {
+		try (PrintWriter pw = new PrintWriter(new FileOutputStream(new File("./" + data.name() + ".hst"), true), true)) {
+			for (TradeHistoryPair t : history) {
+				if (t.name().equals(name)) {
+					pw.append(t.history().buy() + "," + t.history().entryIndex() + "," + t.history().exitIndex() + "\n");
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

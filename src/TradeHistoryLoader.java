@@ -8,10 +8,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javafx.beans.property.IntegerProperty;
+
 public class TradeHistoryLoader {
 	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");	
 	
-	private static class ApproxTradeHistory implements ITradeHistory {
+	public static class ApproxTradeHistory implements ITradeHistory {
 		private boolean buy;
 		private LocalDateTime open;
 		private LocalDateTime close;
@@ -54,6 +56,10 @@ public class TradeHistoryLoader {
 	}
 	
 	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data) {
+		return loadApproxHistory(history, data, null, null);
+	}
+	
+	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, Chart chart) {
 		ArrayList<ApproxTradeHistory> approxHst = new ArrayList<ApproxTradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
@@ -87,7 +93,7 @@ public class TradeHistoryLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		return generateIndices(approxHst, data);
+		return generateIndices(approxHst, data, progress, chart);
 	}
 	
 	public static ArrayList<TradeHistory> loadMRHistory(File history) {
@@ -109,35 +115,59 @@ public class TradeHistoryLoader {
 		return approxHst;
 	}
 	
-	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data) {
+	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, Chart chart) {
 		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
+		long j = 0;
+		progress.set(0);		
 		for (ApproxTradeHistory h : history) {
-			for (int i = 0; i < data.size() - 1; i++) {
-				if (h.open().isBefore(data.get(0).dateTime()) || h.open().isAfter(data.get(data.size() - 1).dateTime())) {
-					break;
+			h.setEntryIndex(indexSearch(h.open(), data, 0, data.size() - 1));
+			h.setExitIndex(indexSearch(h.close(), data, 0, data.size() - 1));
+			if (h.entryIndex() != -1) {
+				hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
+				if (h.exitIndex() ==  -1) {
+					h.setExitIndex(data.size() - 1);
 				}
-				if (h.open().isEqual(data.get(i).dateTime()) || h.open().isAfter(data.get(i).dateTime()) && h.open().isBefore(data.get(i + 1).dateTime())) {
-					if (h.entryIndex() == -1) {
-						h.setEntryIndex(i);			
-					}
-				}
-				if (h.close().isEqual(data.get(i).dateTime()) || h.close().isAfter(data.get(i).dateTime()) && h.close().isBefore(data.get(i + 1).dateTime())) {
-					if (h.exitIndex() == -1) {
-						h.setExitIndex(i);	
-						hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
-						break;
-					}
-				}
-				if (h.close().isAfter(data.get(data.size() - 1).dateTime())) {
-					if (h.exitIndex() == -1) {
-						h.setExitIndex(data.size() - 1);
-						hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
-					}
-					break;
-				}
-			}
-		}		
+			}	
+			j++;
+			progress.set((int)((j / (double)history.size()) * 100));
+		}	
 		return hst;
+	}
+	
+	private static int indexSearch(LocalDateTime date, ArrayList<DataSet.DataPair> data, int start, int end) {
+		if (Math.abs(start - end) < 2) {
+			if (start == 0) {
+				if (date.isEqual(data.get(0).dateTime())) {
+					return start;
+				}
+			} else if (end == data.size() - 1) {
+				if (date.isEqual(data.get(data.size() - 1).dateTime())) {
+					return end;
+				}
+			} else if (dateNear(date, data.get(end - 1).dateTime(), data.get(end).dateTime(), data.get(end + 1).dateTime())){
+				return end;
+			}
+			return -1;
+		} else {
+			int i = start + (end - start) / 2;
+			if (dateNear(date, data.get(i-1).dateTime(),  data.get(i).dateTime(), data.get(i+1).dateTime())) {
+				return i;
+			}
+			if (date.isBefore(data.get(i).dateTime())) {
+				return indexSearch(date, data, start, i);
+			} else {
+				return indexSearch(date, data, i, end);
+			}
+		}
+	}
+	
+	private static boolean dateNear(LocalDateTime dateTest, LocalDateTime dateBefore, LocalDateTime dateMiddle, LocalDateTime dateAfter) {
+		if (dateTest.isEqual(dateMiddle) || 
+				dateTest.isAfter(dateBefore) && dateTest.isBefore(dateMiddle) ||
+				dateTest.isAfter(dateMiddle) && dateTest.isBefore(dateAfter)) {
+			return true;
+		}
+		return false;
 	}
 }
 

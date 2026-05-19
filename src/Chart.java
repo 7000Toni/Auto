@@ -146,7 +146,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private ChartMenu menu;
 	private CanvasButton chartTypeShortcut;
 	private boolean drawChartTypeShortcut = true;
-	private TNode<ICanvasNode> ctsNode;
+	private TNode<ICanvasNode> ctsNode;	
 	
 	private boolean printSpeed = false;
 	
@@ -262,13 +262,13 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		draw();
 	}
 	//TODO
-	private boolean hstInit = false;
 	private TradeHistoryPlotter thp;
 	private ArrayList<TradeHistory> hst;
 	private BooleanProperty plotHst = new SimpleBooleanProperty(false);
+	private LoadingHistory lhst;
 	
 	public void initHst() {
-		hstInit = false;		
+		hst = null;
 		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res\\history");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
@@ -278,8 +278,19 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}	
 		fc.setTitle("Select History File");
 		File file = fc.showOpenDialog(null);
-		hst = TradeHistoryLoader.loadApproxHistory(file, data.tickData());
-		hstInit = true;
+		if (lhst != null) {
+			lhst.stop();
+		}
+		lhst = new LoadingHistory(this);
+		lhst.loadApproxHistory(file, data.tickData());
+	}
+	
+	public void setHistory(ArrayList<TradeHistory> hst) {
+		this.hst = hst;
+	}
+	
+	public LoadingHistory loadingHistory() {
+		return lhst;
 	}
 	
 	public ReadOnlyBooleanProperty plotHst() {
@@ -2125,8 +2136,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 		if (plotHst.get()) {
 			if (replayMode) {
-				thp.plotHistory(mr.trade().history());
-			} else if (hstInit) {
+				thp.plotHistory(Trade.history(data.name()));
+			} else if (hst != null) {
 				thp.plotHistory(hst);
 			}
 		}
