@@ -150,6 +150,16 @@ public class Trade implements ITrade {
 		tp = -1;		
 	}
 	
+	public static void removeHistory(String name) {
+		ArrayList<TradeHistoryPair> h = new ArrayList<TradeHistoryPair>();
+		for (TradeHistoryPair thp : history) {
+			if (!thp.name().equals(name)) {
+				h.add(thp);
+			}
+		}
+		history = h;
+	}
+	
 	public static ArrayList<TradeHistory> history() {
 		ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
 		for (TradeHistoryPair thp : Trade.history) {

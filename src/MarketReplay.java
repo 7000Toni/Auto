@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 public class MarketReplay {
 	private ArrayList<Chart> charts;
+	private String name;
 	private DataSet data;
 	private MarketReplayPane mrp;
 	private IntegerProperty index = new SimpleIntegerProperty();	
@@ -35,6 +36,7 @@ public class MarketReplay {
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
+		this.name = chart.name();
 		this.data = chart.data();
 		this.mrp = mrp;
 		this.tickDataSize.set(data.tickDataSize(false).get());
@@ -200,6 +202,7 @@ public class MarketReplay {
 	
 	public void stop() {
 		this.run.set(false);
+		Trade.removeHistory(name);
 	}
 	
 	private void executePendingOrder(PendingTrade p, int i) {

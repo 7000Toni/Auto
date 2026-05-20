@@ -1523,7 +1523,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	}
 	
 	private void zoomTicks(double delta, boolean scroll) {
-		double multiplier = 1;
+		double multiplier = 1.01;
 		boolean customSI = false;
 		if (scroll) {
 			multiplier = 1.05;
