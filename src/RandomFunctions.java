@@ -14,29 +14,44 @@ import javafx.stage.FileChooser;
 public class RandomFunctions {
 	
 	public static void mergeFiles(List<File> files) {
-		ArrayList<String> nf = new ArrayList<String>();
-		for (File f : files) {										
-			try (FileInputStream fis = new FileInputStream(f);
-					BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-				String s = br.readLine();
-				while (s != null) {
-					nf.add(s);
-					s = br.readLine();
+		if (files == null) {
+			return;
+		}
+		new Thread(() -> {
+			ArrayList<String> nf = new ArrayList<String>();
+			int size = files.size();
+			int j = 0;
+			for (File f : files) {										
+				try (FileInputStream fis = new FileInputStream(f);
+						BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+					String s = br.readLine();
+					while (s != null) {
+						nf.add(s);
+						s = br.readLine();
+					}
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+				j++;
+				System.out.println("reading files: " + (int)((j*100)/(double)size) + "%");				
+			}
+			try (FileOutputStream fos = new FileOutputStream(new File("./merged"))) {
+				fos.write(("size name tickSize numDecimalPts\n").getBytes());
+				int last = -1;
+				for (int i = 0; i < nf.size(); i++) {
+					if (!Signature.validFull(nf.get(i))) {
+						fos.write((nf.get(i) + '\n').getBytes());
+					}
+					int p = (int)((i*100)/(double)(nf.size()-1));
+					if (p != last) {
+						last = p;
+						System.out.println("writing file: " + p + "%");
+					}
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-		}
-		try (FileOutputStream fos = new FileOutputStream(new File("./merged"))) {
-			fos.write(("size name tickSize numDecimalPts\n").getBytes());
-			for (String s : nf) {
-				if (!Signature.validFull(s)) {
-					fos.write((s + '\n').getBytes());
-				}
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
+		}).start();
 	}
 	
 	public static void databendoOptimizer() {
