@@ -565,7 +565,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
 			volUnits.setValue(1);
 			setNumberChooserColours();
-			menu.setReplayMode(true);
 			
 			tradeButs = new TradeButtons();
 			tradeButs.close = new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3);
@@ -595,6 +594,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			
 			drawMRP = true;
 			mr.addChart(this);
+			menu.chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
 		}
 	}
 	
@@ -633,11 +633,11 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public void disableReplayMode() {
 		if (this.replayMode) {
-			this.replayMode = false;
+			replayMode = false;
 			mr.removeChart(this);
-			this.mr = null;
-			this.mrp = null;
-			menu.setReplayMode(false);
+			mr = null;
+			mrp = null;
+			menu.chartFunctionsMenu().generalFunctionstab().setReplayMode(false);
 		}
 	}
 	

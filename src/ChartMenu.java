@@ -52,7 +52,6 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		
 		csm = new ChartSettingsMenu(x, y, width, height, this, gc, chart, cmbvg);
 		cfm = new ChartFunctionsMenu(x, y, width, height, gc, chart, cmbvg);	
-		setReplayMode(chart.replayMode());
 		init();
 	}
 	
@@ -107,16 +106,12 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		return chart;
 	}
 	
-	public CanvasButton chartFunctions() {
-		return chartFunctions;
+	public ChartSettingsMenu chartSettingsMenu() {
+		return csm;
 	}
 	
-	public CanvasButton chartSettings() {
-		return chartSettings;
-	}
-	
-	public void setReplayMode(boolean replayMode) {
-		cfm.setReplayMode(replayMode);
+	public ChartFunctionsMenu chartFunctionsMenu() {
+		return cfm;
 	}
 
 	@Override
