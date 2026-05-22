@@ -1,0 +1,45 @@
+package com.github._7000toni.auto.dataset.reader;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+
+import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.DatumChecker;
+
+public class OptimizedMarketTickFileReader implements ITickDataFileReader {
+	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyMMddHHmmssSSSSSS");	
+	private static Pattern datum = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d;([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?");
+	
+	@Override
+	public void readNextTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+		rfv.add = false;
+		rfv.in = rfv.br.readLine();
+		if (rfv.in != null) {
+			DatumChecker.check(datum, rfv.in);
+			rfv.tokens = new StringTokenizer(rfv.in, ";");
+			rfv.ldt = LocalDateTime.parse(rfv.tokens.nextToken(), dtf);
+			rfv.val = Double.parseDouble(rfv.tokens.nextToken());
+			rfv.add = true;
+		}
+	}
+	
+	@Override
+	public void readFirstTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+		while (!rfv.add && rfv.in != null) {
+			readNextTick(rfv);						
+		}
+	}
+	
+	@Override
+	public boolean validDatum(String datum) {
+		boolean valid = true;
+		try {
+			DatumChecker.check(OptimizedMarketTickFileReader.datum, datum);
+		} catch (Exception e) {
+			valid = false;
+		}	
+		return valid;
+	}
+}
