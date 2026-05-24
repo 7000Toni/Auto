@@ -352,7 +352,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	}
 	
 	private void setEventHandlers() {
-		canvas.setOnMouseDragged(e -> onMouseDragged(e));
+		cw.setOnMouseDragged(e -> onMouseDragged(e));
 		canvas.setOnMouseEntered(e -> onMouseEntered());
 		canvas.setOnMouseExited(e -> onMouseExited(e));
 		canvas.setOnMousePressed(e -> onMousePressed(e));
@@ -676,13 +676,11 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
-				} else if (!replayMode) {
-					if (onDateMargin(e.getX(), e.getY())) {
+				} else if (onDateMargin(e.getX(), e.getY())) {
 						chartDateMarginDragging = true;
-					} else {
-						chartDragging = true;
-					}				
-				}
+				} else {
+					chartDragging = true;
+				}								
 				double price = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 				double upperPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 				double lowerPrice = ((((chartHeight - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - Chart.CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;

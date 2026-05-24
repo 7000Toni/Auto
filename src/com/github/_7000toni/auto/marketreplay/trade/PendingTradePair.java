@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.CrossHair;
 import com.github._7000toni.auto.tree.TNode;
 
 public class PendingTradePair {
@@ -62,6 +63,8 @@ public class PendingTradePair {
 					penTrade.setBuy(false);
 				}
 			}
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		
 		penTradeButs.close().setOnMouseClicked(e -> {
@@ -70,10 +73,14 @@ public class PendingTradePair {
 		
 		penTradeButs.setSL().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		
 		penTradeButs.setTP().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 	}
 	

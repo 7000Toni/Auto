@@ -166,6 +166,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.setSL().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		tradeButs.setSL().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
@@ -175,6 +177,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.setTP().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		tradeButs.setTP().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
@@ -192,6 +196,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.sl().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		tradeButs.sl().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
@@ -201,6 +207,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.tp().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		});
 		tradeButs.tp().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {

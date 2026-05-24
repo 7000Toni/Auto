@@ -42,7 +42,7 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
-	private static BooleanProperty writeToFile = new SimpleBooleanProperty(false);
+	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
 		this.charts = new ArrayList<Chart>();
