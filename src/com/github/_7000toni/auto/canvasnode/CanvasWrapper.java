@@ -1,4 +1,6 @@
 package com.github._7000toni.auto.canvasnode;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 

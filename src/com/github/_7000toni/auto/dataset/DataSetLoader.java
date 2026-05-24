@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github._7000toni.auto.Main;
-import com.github._7000toni.auto.canvasnode.CanvasButton;
-import com.github._7000toni.auto.canvasnode.DataSetButton;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.DataSetButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;

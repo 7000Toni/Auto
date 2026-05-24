@@ -1,4 +1,7 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.scrollbar;
+import com.github._7000toni.auto.canvasnode.CanvasNode;
+import com.github._7000toni.auto.canvasnode.IVanGogh;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;

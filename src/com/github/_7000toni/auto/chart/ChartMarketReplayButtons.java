@@ -1,0 +1,334 @@
+package com.github._7000toni.auto.chart;
+
+import java.util.ArrayList;
+
+import com.github._7000toni.auto.canvasnode.CanvasLabel;
+import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
+import com.github._7000toni.auto.marketreplay.MarketReplay;
+import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
+import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
+import com.github._7000toni.auto.marketreplay.trade.Trade;
+import com.github._7000toni.auto.marketreplay.trade.TradeButtons;
+import com.github._7000toni.auto.tree.TNode;
+import com.github._7000toni.auto.tree.Tree;
+
+import javafx.scene.canvas.GraphicsContext;
+
+public class ChartMarketReplayButtons {
+	private Chart chart;
+	private CanvasButton buy;
+	private CanvasButton sell;
+	private CanvasNumberChooser volUnits;
+	private CanvasNumberChooser volTens;
+	
+	private TradeButtons tradeButs;
+	private ArrayList<PendingTradePair> penTrades;
+	private CanvasButton limitOrder;
+	private CanvasButton stopOrder;
+	
+	
+	public ChartMarketReplayButtons(Chart chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
+		this.chart = chart;
+		init(mr, cbvg);
+		addToSceneGraph();
+		setMouseEvents();
+	}
+	
+	private void init(MarketReplay mr, ChartButtonVanGoghs cbvg) {
+		GraphicsContext gc = chart.graphicsContext();
+		double fontSize = chart.fontSize();
+		double chartWidth = chart.chartWidth();
+		
+		double bw = 40;
+		double ncw = 20;
+		double bh = 30;
+		double mgn = 5;
+		double initx = Chart.CHT_MARGIN + Chart.INFO_MARGIN;
+		double inity = 30;		
+		
+		buy = new CanvasButton(gc, bw, bh, initx, inity, "BUY", 9, fontSize + 7);
+		buy.setVanGogh(cbvg.buyVG(buy));
+		sell = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "SELL", 9, fontSize + 7);
+		sell.setVanGogh(cbvg.sellVG(sell));
+		
+		double h = CanvasNumberChooser.getHeightForDesiredNumberHight(bh);
+		double y = bh - CanvasNumberChooser.buttonHeight(h);
+		volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
+		volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
+		volUnits.setValue(1);
+		setNumberChooserColours();
+		
+		tradeButs = new TradeButtons();
+		
+		tradeButs.setOrder(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
+		tradeButs.order().setVanGogh(cbvg.orderVG(tradeButs.order(), mr.trade()));
+		
+		tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.close().setVanGogh(cbvg.closeVG(tradeButs.close(), mr.trade()));
+		
+		tradeButs.setCancelTP(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.cancelTP().setVanGogh(cbvg.cancelTpVG(tradeButs.cancelTP()));
+		
+		tradeButs.setCancelSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.cancelSL().setVanGogh(cbvg.cancelSlVG(tradeButs.cancelSL()));
+		
+		tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102, 0, "", 5, fontSize/3));		
+		tradeButs.sl().setVanGogh(cbvg.slVG(tradeButs.sl()));
+		
+		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102, 0, "", 5, fontSize/3));
+		tradeButs.tp().setVanGogh(cbvg.tpVG(tradeButs.tp()));
+		
+		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
+		tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL()));
+		
+		tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
+		tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP()));
+		
+		limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, Chart.CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
+		limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
+		stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, Chart.CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
+		stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
+		penTrades = new ArrayList<PendingTradePair>();
+	}
+	
+	public void disablePendingOrderButtons() {
+		chart.tradeButtons().limitOrder().setY(-10); 
+		chart.tradeButtons().stopOrder().setY(-10);
+		chart.tradeButtons().limitOrder().disable(); 
+		chart.tradeButtons().stopOrder().disable();
+	}
+	
+	public void enablePendingOrderButtons() {
+		chart.tradeButtons().limitOrder().enable(); 
+		chart.tradeButtons().stopOrder().enable();
+	}
+	
+	private void setMouseEvents() {
+		MarketReplay mr = chart.marketReplay();		
+		
+		sell.setOnMouseClicked(e -> {
+			if (mr.trade().closed()) {
+				mr.setTrade(new Trade(chart.data(), chart.data().tickDataSize(true).get() - 1, false, tradeVolume()));
+			} else {
+				if (mr.trade().buy()) {
+					mr.scaleOut(tradeVolume(), chart.data().tickDataSize(true).get() - 1);
+				} else {
+					mr.scaleIn(tradeVolume(), chart.data().tickDataSize(true).get() - 1);
+				}
+			}
+		});
+		
+		buy.setOnMouseClicked(e -> {
+			if (mr.trade().closed()) {
+				mr.setTrade(new Trade(chart.data(), chart.data().tickDataSize(true).get() - 1, true, tradeVolume()));
+			} else {
+				if (mr.trade().buy()) {
+					mr.scaleIn(tradeVolume(), chart.data().tickDataSize(true).get() - 1);
+				} else {
+					mr.scaleOut(tradeVolume(), chart.data().tickDataSize(true).get() - 1);
+				}
+			}
+		});
+		
+		limitOrder.setOnMouseClicked(e -> {
+			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get()).price();
+			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
+			boolean buy = true;			
+			if (crossHairPrice != currentPrice) {
+				if (crossHairPrice > currentPrice) {
+					buy = false;
+				}
+				chart.marketReplay().addPendingTrade(new PendingTrade(true, buy, crossHairPrice, tradeVolume()));
+			}	
+		});
+		
+		stopOrder.setOnMouseClicked(e -> {
+			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get()).price();
+			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
+			boolean buy = false;			
+			if (crossHairPrice != currentPrice) {
+				if (crossHairPrice > currentPrice) {
+					buy = true;
+				}
+				chart.marketReplay().addPendingTrade(new PendingTrade(false, buy, crossHairPrice, tradeVolume()));
+			}	
+		});
+		
+		setTradeButMouseEvents();
+	}
+	
+	private void setTradeButMouseEvents() {
+		tradeButs.close().setOnMouseClicked(e -> {
+			chart.marketReplay().closeTrade(chart.data().tickDataSize(true).get());
+		});
+		
+		tradeButs.setSL().setOnMouseDragged(e -> {
+			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+		});
+		tradeButs.setSL().setOnMouseReleased(e -> {
+			if (!chart.marketReplay().trade().closed()) {
+				chart.marketReplay().validateSl();
+			}
+		});
+		
+		tradeButs.setTP().setOnMouseDragged(e -> {
+			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+		});
+		tradeButs.setTP().setOnMouseReleased(e -> {
+			if (!chart.marketReplay().trade().closed()) {
+				chart.marketReplay().validateTp();
+			}
+		});
+		
+		tradeButs.cancelSL().setOnMouseClicked(e -> {
+			chart.marketReplay().cancelSl();
+		});
+		
+		tradeButs.cancelTP().setOnMouseClicked(e -> {
+			chart.marketReplay().cancelTp();
+		});
+		
+		tradeButs.sl().setOnMouseDragged(e -> {
+			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+		});
+		tradeButs.sl().setOnMouseReleased(e -> {
+			if (!chart.marketReplay().trade().closed()) {
+				chart.marketReplay().validateSl();
+			}
+		});
+		
+		tradeButs.tp().setOnMouseDragged(e -> {
+			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+		});
+		tradeButs.tp().setOnMouseReleased(e -> {
+			if (!chart.marketReplay().trade().closed()) {
+				chart.marketReplay().validateTp();
+			}
+		});
+	}
+	
+	private double tradeVolume() {
+		CanvasNumberChooser[] c = {volTens, volUnits};
+		return CanvasNumberChooser.number(c);
+	}
+	
+	private void addToSceneGraph() {
+		Tree<ICanvasNode> sceneGraph = chart.sceneGraph();
+		chart.varLock().lock();
+		try {
+			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.sceneGraph().root()));
+			for (CanvasLabel b : tradeButs.buttons()) {
+				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.sceneGraph().root()));
+			}
+		} finally {
+			chart.varLock().unlock();
+		}
+	}
+	
+	private void setNumberChooserColours() {
+		volTens.resetColours();
+		volUnits.resetColours();
+	}
+	
+	public void resetButtons() {
+		double fontSize = chart.fontSize();
+		double chartWidth = chart.chartWidth();
+		
+		tradeButs.close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+		tradeButs.cancelTP().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
+		tradeButs.cancelSL().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+		tradeButs.sl().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+		tradeButs.tp().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+		tradeButs.setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
+		tradeButs.setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+		for (PendingTradePair p : penTrades) {
+			p.pendingTradeButtons().order().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
+			p.pendingTradeButtons().close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+			p.pendingTradeButtons().setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
+			p.pendingTradeButtons().setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+		}
+		limitOrder.setX(Chart.CHT_MARGIN + chartWidth - fontSize*2-2);
+		stopOrder.setX(Chart.CHT_MARGIN + chartWidth - fontSize*4-6);
+	}
+	
+	public void enableButtons() {
+		tradeButs.order().enable();
+		tradeButs.close().enable();
+		tradeButs.cancelTP().enable();
+		tradeButs.cancelSL().enable();
+		tradeButs.sl().enable();
+		tradeButs.tp().enable();
+		tradeButs.setSL().enable();
+		tradeButs.setTP().enable();
+	}
+	
+	public void disableButtons() {
+		tradeButs.order().disable();
+		tradeButs.close().disable();
+		tradeButs.cancelTP().disable();
+		tradeButs.cancelSL().disable();
+		tradeButs.sl().disable();
+		tradeButs.tp().disable();
+		tradeButs.setSL().disable();
+		tradeButs.setTP().disable();
+	}
+	
+	public TradeButtons buttons() {
+		return tradeButs;
+	}
+	
+	public CanvasButton limitOrder() {
+		return limitOrder;
+	}
+	
+	public CanvasButton stopOrder() {
+		return stopOrder;
+	}
+	
+	public ArrayList<PendingTradePair> pendingTradePairs() {
+		return penTrades;
+	}		
+	
+	public void addPenTradePair(PendingTradePair ptp) {
+		penTrades.add(ptp);
+	}
+	
+	public void removePenTradePair(PendingTrade penTrade) {
+		ArrayList<PendingTradePair> pt = new ArrayList<PendingTradePair>();
+		for (PendingTradePair ptp : penTrades) {
+			if (!ptp.pendingTrade().equals(penTrade)) {
+				pt.add(ptp);
+			} else {
+				ptp.removeFromSceneGraph();
+			}
+		}
+		penTrades = pt;
+	}	
+	
+	public void draw() {
+		for (PendingTradePair ptp : penTrades) {
+			ptp.draw();
+		}
+		buy.draw();
+		sell.draw();
+		volTens.draw();
+		volUnits.draw();
+		limitOrder.draw();
+		stopOrder.draw();
+		tradeButs.order().draw();
+		tradeButs.close().draw();
+		tradeButs.cancelTP().draw();
+		tradeButs.cancelSL().draw();
+		tradeButs.sl().draw();
+		tradeButs.tp().draw();
+		tradeButs.setSL().draw();
+		tradeButs.setTP().draw();
+	}
+}

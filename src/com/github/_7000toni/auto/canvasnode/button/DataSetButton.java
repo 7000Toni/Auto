@@ -1,4 +1,5 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.button;
+import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.scene.canvas.GraphicsContext;

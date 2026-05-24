@@ -1,4 +1,6 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.scrollbar;
+import com.github._7000toni.auto.canvasnode.ColourPicker;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 

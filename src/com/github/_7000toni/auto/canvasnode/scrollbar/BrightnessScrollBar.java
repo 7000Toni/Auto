@@ -1,29 +1,45 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.scrollbar;
+import com.github._7000toni.auto.canvasnode.ColourCalculator;
+import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.settings.ImageSettings;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public class ColourPickerScrollBar extends HorizontalScrollBar {
+public class BrightnessScrollBar extends HorizontalScrollBar {
 	
-	public ColourPickerScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public BrightnessScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
 		super(sbo, minPos, maxPos, sbWidth, sbHeight, y);
 		setVanGogh((x, y2, gc) -> {
 			if (hovering) {	
 				gc.setFill(Color.GRAY);
 			} else {
-				gc.setFill(ColourCalculator.colour(x, this.minPos, this.maxPos - this.sbWidth));
+				gc.setFill(ColourCalculator.grayScale(x, this.minPos, this.maxPos - this.sbWidth));
 			}
 			if (dragging) {
-				gc.setFill(ColourCalculator.colour(x, this.minPos, this.maxPos - this.sbWidth));
+				gc.setFill(ColourCalculator.grayScale(x, this.minPos, this.maxPos - this.sbWidth));
 			} 
 			gc.fillOval(x, y2, this.sbWidth, this.sbHeight);
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}
+			gc.strokeOval(x, y2, this.sbWidth, this.sbHeight);
 		});
 	}		
 	
 	private void drawHSBBar() {
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}		
 		gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
 		for (double i = minPos + 6; i < maxPos - 5; i++) {
-			gc.setStroke(ColourCalculator.colour(i, minPos + 5, maxPos - 6));
+			gc.setStroke(ColourCalculator.grayScale(i, minPos + 5, maxPos - 6));
 			gc.strokeLine(i, y + 6, i, y + 9);
 		}
 	}
@@ -32,7 +48,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 	public void draw() {
 		if (vg == null) {			
 			defaultDraw();
-		} else {
+		} else {			
 			drawHSBBar();
 			vg.draw(x, y, gc);
 		}
@@ -74,12 +90,16 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 						lastTick = now;		
 						if (add) {
 							setPosition(sbWidth / 2, true);
-							((ColourPicker)sbo).unintializeColours();
-							((ColourPicker)sbo).chartMenu().chart().draw();
+							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+							ImageSettings.setBrightness(b);
+							Chart.drawCharts(null);
+							MarketReplayPane.drawReplayPanes();
 						} else {
 							setPosition(-(sbWidth / 2), true);
-							((ColourPicker)sbo).unintializeColours();
-							((ColourPicker)sbo).chartMenu().chart().draw();
+							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+							ImageSettings.setBrightness(b);
+							Chart.drawCharts(null);
+							MarketReplayPane.drawReplayPanes();
 						}
 					} 
 				}
@@ -107,10 +127,13 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 	
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		((ColourPicker)sbo).unintializeColours();
+		double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+		ImageSettings.setBrightness(b);
+		Chart.drawCharts(null);
+		MarketReplayPane.drawReplayPanes();
 		if (onMouseDragged == null) {
 			return;
 		}
 		onMouseDragged.handle(e);
-	}	
+	}
 }

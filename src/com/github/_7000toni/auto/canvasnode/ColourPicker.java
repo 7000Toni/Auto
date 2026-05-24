@@ -1,4 +1,7 @@
 package com.github._7000toni.auto.canvasnode;
+import com.github._7000toni.auto.canvasnode.scrollbar.ColourPickerScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.ColourPickerUniversalScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
 

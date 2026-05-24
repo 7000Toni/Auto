@@ -273,10 +273,19 @@ public class CrossHair {
 		}
 	}
 	
-	public void drawCrossHair() {						
+	public void drawCrossHair() {			
 		if (chart.focusedChart().get()) {		
 			if (chart.onChart(x.get(), y.get(), true)) {
 				drawFocusedChartCrossHair();
+				if (chart.replayMode()) {
+					chart.tradeButtons().limitOrder().setY(y.get() - chart.fontSize()/2); 
+					chart.tradeButtons().stopOrder().setY(y.get() - chart.fontSize()/2);
+					chart.tradeButtons().enablePendingOrderButtons();
+				}
+			} else {
+				if (chart.replayMode()) {
+					chart.tradeButtons().disablePendingOrderButtons();
+				}
 			}
 		} else if (Chart.focusedOnChart().get() && chart.name().equals(name.get())) {
 			drawUnfocusedChartCrossHair();

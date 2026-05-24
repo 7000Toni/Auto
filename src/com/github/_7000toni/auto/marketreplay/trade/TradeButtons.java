@@ -1,7 +1,7 @@
 package com.github._7000toni.auto.marketreplay.trade;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.canvasnode.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 
 public class TradeButtons extends PendingTradeButtons {
 	private CanvasButton cancelTP;
@@ -12,6 +12,7 @@ public class TradeButtons extends PendingTradeButtons {
 	@Override
 	public ArrayList<CanvasButton> buttons() {
 		ArrayList<CanvasButton> b = new ArrayList<CanvasButton>();
+		b.add(order);
 		b.add(close);
 		b.add(cancelTP);
 		b.add(cancelSL);

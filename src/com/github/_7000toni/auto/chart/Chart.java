@@ -4,15 +4,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.github._7000toni.auto.canvasnode.ButtonChecks;
-import com.github._7000toni.auto.canvasnode.CanvasButton;
 import com.github._7000toni.auto.canvasnode.CanvasEventFilter;
-import com.github._7000toni.auto.canvasnode.CanvasNumberChooser;
 import com.github._7000toni.auto.canvasnode.CanvasWrapper;
-import com.github._7000toni.auto.canvasnode.HorizontalChartScrollBar;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasWindow;
-import com.github._7000toni.auto.canvasnode.IScrollBarOwner;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
+import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalChartScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
 import com.github._7000toni.auto.chart.listener.ChartHeightListener;
 import com.github._7000toni.auto.chart.listener.ChartWidthListener;
@@ -21,8 +20,8 @@ import com.github._7000toni.auto.dataset.DataSet;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
+import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
-import com.github._7000toni.auto.marketreplay.trade.TradeButtons;
 import com.github._7000toni.auto.marketreplay.trade.history.LoadingHistory;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistory;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
@@ -131,23 +130,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private double mrpx;
 	private double mrpy;	
 	
-	private CanvasButton buy;
-	private CanvasButton sell;
 	private CanvasNumberChooser volUnits;
 	private CanvasNumberChooser volTens;
-		
-	private TradeButtons tradeButs;
-	private CanvasButton limitOrder;
-	private CanvasButton stopOrder;
-	private boolean slDragging = false;
-	private boolean tpDragging = false;	
-	private boolean drawPending = false;
-	private boolean limitDragging = false;
-	private boolean stopDragging = false;
-	private PendingTrade penTrade = null;
-	private ArrayList<PendingTrade> pendingTrades;	
-	private PendingTrade penOrderBeingDragged = null;
-	private boolean penOrderDragging = false;
 	
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
@@ -181,6 +165,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	private TNode<ICanvasNode> ctsNode;	
 	
 	private boolean printSpeed = false;
+	private ChartMarketReplayButtons cmrb;
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -235,7 +220,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 					
 					hsb.setMaxPos(width - pm); 					
 					
-					resetTradeButtons();
+					if (cmrb != null) {
+						cmrb.resetButtons();
+					}
 					
 					if (!drawCandlesticks.get()) {
 						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.tickDataSize(replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF)), false);
@@ -243,7 +230,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 						hsb.setPosition((width - hsb.sbWidth() - pm) * ((double)startIndex /(data.m1CandlesDataSize(replayMode).get() - numCandlesticks * END_MARGIN_COEF)), false);
 					}
 					keepStartIndex = true;
-					//TODO					
 					if (pm == t) {
 						btnMenu.setHover(false);						
 						if (!menuHidden && !changed) {
@@ -329,34 +315,12 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		return plotHst;
 	}
 	
-	public void toggleHst() {
-		plotHst.set(!plotHst.get());;
+	public static ArrayList<Chart> charts() {
+		return charts;
 	}
 	
-	public void resetTradeButtons() {
-		if (replayMode) {
-			tradeButs.close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-			tradeButs.cancelTP().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
-			tradeButs.cancelSL().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-			tradeButs.sl().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-			tradeButs.tp().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-			tradeButs.setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
-			tradeButs.setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
-			if (penTrade != null) {
-				pendingTrades.add(penTrade);
-			}
-			for (PendingTrade p : pendingTrades) {
-				p.pTradeButs().order().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-				p.pTradeButs().close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-				p.pTradeButs().setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
-				p.pTradeButs().setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
-			}
-			if (penTrade != null) {
-				pendingTrades.remove(penTrade());
-			}
-			limitOrder.setX(CHT_MARGIN + chartWidth - fontSize*2-2);
-			stopOrder.setX(CHT_MARGIN + chartWidth - fontSize*4-6);
-		}	
+	public void toggleHst() {
+		plotHst.set(!plotHst.get());;
 	}
 	
 	public CanvasButton chartTypeShortcut() {
@@ -385,30 +349,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public void setChartWidth(double chartWidth) {
 		this.chartWidth = chartWidth;
-	}
-	
-	public CanvasButton limitOrder() {
-		return limitOrder;
-	}
-	
-	public CanvasButton stopOrder() {
-		return stopOrder;
-	}
-	
-	public PendingTrade penTrade() {
-		return penTrade;
-	}
-	
-	public TradeButtons tradeButs() {
-		return tradeButs;
-	}
-	
-	public CanvasButton buyButton() {
-		return buy;
-	}
-	
-	public CanvasButton sellButton() {
-		return sell;
 	}
 	
 	private void setEventHandlers() {
@@ -450,39 +390,12 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		this.y = y;
 	}
 	
-	public ArrayList<PendingTrade> pendingTrades() {
-		return pendingTrades;
-	}
-	
 	public void toggleChartTypeShortcut() {
 		drawChartTypeShortcut = !drawChartTypeShortcut;
 		if (drawChartTypeShortcut) {
 			sceneGraph.addNode(ctsNode);
 		} else {
 			sceneGraph.removeNode(ctsNode);
-		}
-	}
-	
-	public void setPendingTrades(ArrayList<PendingTrade> pendingTrades) {
-		this.pendingTrades = new ArrayList<PendingTrade>();
-		for (PendingTrade p : mr.pendingTrades()) {
-			PendingTrade p2 = new PendingTrade(p.limit(), p.buy(), p.price(), p.volume(), this);
-			p2.pTradeButs().order().setText(p.pTradeButs().order().text());
-			p2.pTradeButs().close().setText(p.pTradeButs().close().text());
-			p2.pTradeButs().setSL().setText(p.pTradeButs().setSL().text());
-			p2.pTradeButs().setTP().setText(p.pTradeButs().setTP().text());
-			this.pendingTrades.add(p2);
-		}
-		if (mr.trade().closed() && pendingTrades.size() == 1) {
-			PendingTrade p = this.pendingTrades.get(0);
-			tradeButs.sl().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), mr.slPrice().get(), p.buy(), p.volume()));
-			tradeButs.tp().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), mr.tpPrice().get(), p.buy(), p.volume()));
-		} else if (mr.trade().closed()) {
-			tradeButs.sl().setText("SL");
-			tradeButs.tp().setText("TP");
-		} else {
-			tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-			tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
 		}
 	}
 	
@@ -581,48 +494,19 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			this.replayMode = true;
 			this.mr = mr;
 			this.mrp = mrp;
-			double bw = 40;
-			double ncw = 20;
-			double bh = 30;
-			double mgn = 5;
-			double initx = CHT_MARGIN + INFO_MARGIN;
-			double inity = 30;			
-			buy = new CanvasButton(gc, bw, bh, initx, inity, "BUY", 9, fontSize + 7);
-			buy.setVanGogh(cbvg.buyVG(buy));
-			sell = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "SELL", 9, fontSize + 7);
-			sell.setVanGogh(cbvg.sellVG(sell));
-			double h = CanvasNumberChooser.getHeightForDesiredNumberHight(bh);
-			double y = bh - CanvasNumberChooser.buttonHeight(h);
-			volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
-			volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
-			volUnits.setValue(1);
-			setNumberChooserColours();
+			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			
-			tradeButs = new TradeButtons();
-			tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
-			tradeButs.close().setVanGogh(cbvg.closeVG(tradeButs.close(), mr.trade()));
-			tradeButs.setCancelTP(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
-			tradeButs.cancelTP().setVanGogh(cbvg.cancelTpVG(tradeButs.cancelTP()));
-			tradeButs.setCancelSL(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
-			tradeButs.cancelSL().setVanGogh(cbvg.cancelSlVG(tradeButs.cancelSL()));
-			tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
-			tradeButs.sl().setVanGogh(cbvg.slVG(tradeButs.sl()));
-			tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
-			tradeButs.tp().setVanGogh(cbvg.tpVG(tradeButs.tp()));
-			tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
-			tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL()));
-			tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
-			tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP()));
-			limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
-			limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
-			stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
-			stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
+			if (mr.trade() == null) {
+				mr.setTrade(new Trade(data, 1, true, 1));
+				mr.trade().close(1);
+				cmrb.disableButtons();
+			} else if (mr.trade().closed()) {
+				cmrb.disableButtons();
+			}
 			
-			mr.setTrade(new Trade(data, 1, true, 1));
-			mr.trade().close(1);
-			disableTradeButtons();
-			
-			setPendingTrades(mr.pendingTrades());
+			for (PendingTrade pt : mr.pendingTrades()) {
+				cmrb.addPenTradePair(new PendingTradePair(pt, this));
+			}
 			
 			drawMRP = true;
 			mr.addChart(this);
@@ -630,43 +514,19 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 	}
 	
-	public void enableTradeButtons() {
-		this.tradeButs.close().enable();
-		this.tradeButs.cancelTP().enable();
-		this.tradeButs.cancelSL().enable();
-		this.tradeButs.sl().enable();
-		this.tradeButs.tp().enable();
-		this.tradeButs.setSL().enable();
-		this.tradeButs.setTP().enable();
-	}
-	
-	public void disableTradeButtons() {
-		this.tradeButs.close().disable();
-		this.tradeButs.cancelTP().disable();
-		this.tradeButs.cancelSL().disable();
-		this.tradeButs.sl().disable();
-		this.tradeButs.tp().disable();
-		this.tradeButs.setSL().disable();
-		this.tradeButs.setTP().disable();
-	}
-	
 	public MarketReplay marketReplay() {
 		return mr;
 	}
 	
-	public TradeButtons tradeButtons() {
-		return tradeButs;
-	}
-	
-	private double tradeVolume() {
-		CanvasNumberChooser[] c = {volTens, volUnits};
-		return CanvasNumberChooser.number(c);
+	public ChartMarketReplayButtons tradeButtons() {
+		return cmrb;
 	}
 	
 	public void disableReplayMode() {
 		if (this.replayMode) {
 			replayMode = false;
 			mr.removeChart(this);
+			cmrb = null;
 			mr = null;
 			mrp = null;
 			menu.chartFunctionsMenu().generalFunctionstab().setReplayMode(false);
@@ -746,7 +606,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		hsb.onMouseExited(e);
 		focusedChart.set(false);
 		focusedOnChart.set(false);
-		drawPending = false;
+		if (replayMode) {
+			cmrb.disablePendingOrderButtons();
+		}
 		drawCharts(this.name());
 	}
 	
@@ -758,27 +620,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		drawCharts(this.name());
 	}
 	
-	private void tradeButtonHoverChecks(double x, double y) {
-		ButtonChecks.mouseButtonHoverCheck(buy, x, y);
-		ButtonChecks.mouseButtonHoverCheck(sell, x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.sl(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.setSL(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.tp(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.setTP(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.cancelSL(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.cancelTP(), x, y);
-		ButtonChecks.mouseButtonHoverCheck(tradeButs.close(), x, y);
-		for (PendingTrade p : pendingTrades) {
-			for (CanvasButton c : p.pTradeButs().buttons()) {
-				ButtonChecks.mouseButtonHoverCheck(c, x, y);
-			}
-		}
-		ButtonChecks.mouseNumberChooserDownHoverCheck(volTens, x, y);
-		ButtonChecks.mouseNumberChooserUpHoverCheck(volTens, x, y);
-		ButtonChecks.mouseNumberChooserDownHoverCheck(volUnits, x, y);
-		ButtonChecks.mouseNumberChooserUpHoverCheck(volUnits, x, y);
-	}
-	
 	public void onMouseMoved(MouseEvent e) {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
@@ -787,38 +628,17 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			stage.getScene().setCursor(Cursor.DEFAULT);
 		}
 		hsb.onMouseMoved(e);
-		if (!limitDragging && !stopDragging) {
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-		}
+		CrossHair.setX(e.getX());
+		CrossHair.setY(e.getY());
 		if (!onChart(e.getX(), e.getY(), true)) {
 			measuring = false;
-			if (!limitDragging && !stopDragging) {
-				drawPending = false;
-			}
 			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + priceMargin && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
 				stage.getScene().setCursor(Cursor.N_RESIZE);
 			}
 		} else {
-			if (replayMode && !limitDragging && !stopDragging && e.getY() > 30) {
-				limitOrder.enable();
-				stopOrder.enable();
-				limitOrder.setY(e.getY() - fontSize/2); 
-				stopOrder.setY(e.getY() - fontSize/2);
-				ButtonChecks.mouseButtonHoverCheck(limitOrder, e.getX(), e.getY());
-				ButtonChecks.mouseButtonHoverCheck(stopOrder, e.getX(), e.getY());
-				drawPending = true;	
-			} else if (replayMode) {
-				limitOrder.disable();
-				stopOrder.disable();
-				drawPending = false;
-			}
 			if (e.getY() >= chartHeight + CHT_MARGIN - fontSize) {
 				stage.getScene().setCursor(Cursor.E_RESIZE);
 			}
-		}
-		if (replayMode) {
-			tradeButtonHoverChecks(e.getX(), e.getY());
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
@@ -831,108 +651,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			return true;
 		}
 		return false;
-	}
-	
-	private boolean tradeButtonPressChecks(double x, double y) {
-		boolean pressed = false;
-		if (sell.onNode(x, y) && sell.enabled()) {
-			sell.setPressed(true);
-			pressed = true;
-		} else if (buy.onNode(x, y) && buy.enabled()) {
-			buy.setPressed(true);
-			pressed = true;
-		} else if (tradeButs.tp().onNode(x, y) && tradeButs.tp().enabled()) {
-			tradeButs.tp().setPressed(true);
-			tpDragging = true;
-			pressed = true;
-		} else if (tradeButs.sl().onNode(x, y) && tradeButs.sl().enabled()) {
-			tradeButs.sl().setPressed(true);
-			slDragging = true;
-			pressed = true;
-		} else if (tradeButs.setTP().onNode(x, y) && tradeButs.setTP().enabled()) {
-			tradeButs.setTP().setPressed(true);
-			tpDragging = true;
-			pressed = true;
-		} else if (tradeButs.setSL().onNode(x, y) && tradeButs.setSL().enabled()) {
-			tradeButs.setSL().setPressed(true);
-			slDragging = true;
-			pressed = true;
-		} else if (tradeButs.cancelTP().onNode(x, y) && tradeButs.cancelTP().enabled()) {
-			tradeButs.cancelTP().setPressed(true);
-			pressed = true;
-		} else if (tradeButs.cancelSL().onNode(x, y) && tradeButs.cancelSL().enabled()) {
-			tradeButs.cancelSL().setPressed(true);
-			pressed = true;
-		} else if (tradeButs.close().onNode(x, y) && tradeButs.close().enabled()) {
-			tradeButs.close().setPressed(true);
-			pressed = true;
-		} else if (volTens.onUp(x, y) && volTens.enabled()) {
-			volTens.setUpPressed(true);
-			pressed = true;
-		} else if (volTens.onDown(x, y) && volTens.enabled()) {
-			volTens.setDownPressed(true);
-			pressed = true;
-		} else if (volUnits.onUp(x, y) && volUnits.enabled()) {
-			volUnits.setUpPressed(true);
-			pressed = true;
-		} else if (volUnits.onDown(x, y) && volUnits.enabled()) {
-			volUnits.setDownPressed(true);
-			pressed = true;
-		} else if (limitOrder.onNode(x, y) && limitOrder.enabled()) {
-			limitOrder.setPressed(true);
-			limitDragging = true;			
-			boolean buy = true;
-			double currentPrice = tickData().get(data.tickDataSize(true).get() - 1).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(y));
-			if (crossHairPrice != currentPrice) {
-				if (crossHairPrice > currentPrice) {
-					buy = false;
-				}
-				penTrade = new PendingTrade(true, buy, crossHairPrice, tradeVolume(), this);
-			}	
-			pressed = true;
-		} else if (stopOrder.onNode(x, y) && stopOrder.enabled()) {
-			stopOrder.setPressed(true);
-			stopDragging = true;	
-			boolean buy = false;
-			double currentPrice = tickData().get(data.tickDataSize(true).get() - 1).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(y));
-			if (crossHairPrice != currentPrice) {
-				if (crossHairPrice > currentPrice) {
-					buy = true;
-				}
-				penTrade = new PendingTrade(false, buy, crossHairPrice, tradeVolume(), this);
-			}	
-			pressed = true;
-		} else {
-			for (PendingTrade p : pendingTrades) {
-				if (p.pTradeButs().order().onNode(x, y) && p.pTradeButs().order().enabled()) {
-					p.pTradeButs().order().setPressed(true);
-					penOrderBeingDragged = p;
-					penOrderDragging = true;
-					pressed = true;
-					break;
-				} else if (p.pTradeButs().setTP().onNode(x, y) && p.pTradeButs().setTP().enabled()) {
-					p.pTradeButs().setTP().setPressed(true);
-					penOrderBeingDragged = p;
-					tpDragging = true;
-					pressed = true;
-					break;
-				} else if (p.pTradeButs().setSL().onNode(x, y) && p.pTradeButs().setSL().enabled()) {
-					p.pTradeButs().setSL().setPressed(true);
-					penOrderBeingDragged = p;
-					slDragging = true;
-					pressed = true;
-					break;
-				} else if (p.pTradeButs().close().onNode(x, y) && p.pTradeButs().close().enabled()) {
-					p.pTradeButs().close().setPressed(true);
-					penOrderBeingDragged = p;
-					pressed = true;
-					break;
-				}
-			}
-		}
-		return pressed;
 	}
 	
 	public void onMousePressed(MouseEvent e) {		
@@ -958,7 +676,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
-				} else if (!replayMode || !tradeButtonPressChecks(e.getX(), e.getY())) {
+				} else if (!replayMode) {
 					if (onDateMargin(e.getX(), e.getY())) {
 						chartDateMarginDragging = true;
 					} else {
@@ -997,300 +715,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		drawCharts(this.name());
 	}
 	
-	private void tradeButtonReleaseChecks(double x, double y) {
-		if (sell.pressed()) {
-			sell.setPressed(false);
-			if (sell.onNode(x, y)) {				
-				if (mr.trade().closed()) {
-					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, false, tradeVolume()));
-					mr.setSlPrice(-1);
-					mr.setTpPrice(-1);
-					for (Chart c : charts) {
-						if (c.mr == null || !c.mr.equals(mr)) {
-							continue;
-						}
-						c.enableTradeButtons();
-					}
-				} else {
-					if (mr.trade().buy()) {
-						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
-						mr.closedTradeProc();
-						if (mr.trade().closed()) {
-							mr.setSlPrice(-1);
-							mr.setTpPrice(-1);
-							for (Chart c : charts) {
-								if (c.mr == null || !c.mr.equals(mr)) {
-									continue;
-								}
-								c.disableTradeButtons();
-							}
-						}
-					} else {
-						mr.trade().scaleIn(tradeVolume(), data.tickDataSize(true).get() - 1);
-					}
-				}
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-					c.tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				}	
-			}
-		} else if (buy.pressed()) {
-			buy.setPressed(false);
-			if (buy.onNode(x, y)) {				
-				if (mr.trade().closed()) {
-					mr.setTrade(new Trade(data, data.tickDataSize(true).get() - 1, true, tradeVolume()));
-					mr.setSlPrice(-1);
-					mr.setTpPrice(-1);
-					for (Chart c : charts) {
-						if (c.mr == null || !c.mr.equals(mr)) {
-							continue;
-						}
-						c.enableTradeButtons();
-					}
-				} else {
-					if (mr.trade().buy()) {
-						mr.trade().scaleIn(tradeVolume(), data.tickDataSize(true).get() - 1);
-					} else {
-						mr.trade().scaleOut(tradeVolume(), data.tickDataSize(true).get() - 1);
-						mr.closedTradeProc();
-						if (mr.trade().closed()) {
-							mr.setSlPrice(-1);
-							mr.setTpPrice(-1);
-							for (Chart c : charts) {
-								if (c.mr == null || !c.mr.equals(mr)) {
-									continue;
-								}
-								c.disableTradeButtons();
-							}
-						}
-					}
-				}
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-					c.tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				}	
-			}			
-		} else if (volTens.upPressed()) {
-			volTens.setUpPressed(false);
-			if (volTens.onUp(x, y)) {
-				volTens.incrementValue();
-				if (tradeVolume() == 0) {
-					volUnits.incrementValue();
-				}
-			}			
-		} else if (volTens.downPressed()) {
-			volTens.setDownPressed(false);
-			if (volTens.onDown(x, y)) {
-				volTens.decrementValue();
-				if (tradeVolume() == 0) {
-					volUnits.incrementValue();
-				}
-			}			
-		} else if (volUnits.upPressed()) {
-			volUnits.setUpPressed(false);
-			if (volUnits.onUp(x, y)) {
-				volUnits.incrementValue();
-				if (tradeVolume() == 0) {
-					volUnits.incrementValue();
-				}
-			}			
-		} else if (volUnits.downPressed()) {
-			volUnits.setDownPressed(false);
-			if (volUnits.onDown(x, y)) {
-				volUnits.decrementValue();
-				if (tradeVolume() == 0) {
-					volUnits.incrementValue();
-				}
-			}			
-		} else {
-			for (PendingTrade p : pendingTrades) {
-				if (p.pTradeButs().close().pressed()) {
-					p.pTradeButs().close().setPressed(false);
-					if (p.pTradeButs().close().onNode(x, y)) {
-						int i = pendingTrades.indexOf(penOrderBeingDragged);
-						for (Chart c : charts) {
-							if (c.mr == null || !c.mr.equals(mr)) {
-								continue;
-							}							
-							c.pendingTrades.remove(i);							
-							if (mr.trade().closed() && pendingTrades.size() == 1) {
-								PendingTrade pen = pendingTrades.get(0);
-								if (pen.buy()) {
-									if (mr.slPrice().get() >= pen.price()) {
-										mr.setSlPrice(-1);
-									}
-									if (mr.tpPrice().get() <= pen.price()) {
-										mr.setTpPrice(-1);
-									}
-								} else {
-									if (mr.slPrice().get() <= pen.price()) {
-										mr.setSlPrice(-1);
-									}
-									if (mr.tpPrice().get() >= pen.price()) {
-										mr.setTpPrice(-1);
-									}
-								}		
-								c.tradeButs.sl().setText(pen.volume() + "  $" + Trade.hypotheticalProfit2(pen.price(), roundToNearestTick(yCoordToPrice(y)), pen.buy(), pen.volume()));
-								c.tradeButs.tp().setText(pen.volume() + "  $" + Trade.hypotheticalProfit2(pen.price(), roundToNearestTick(yCoordToPrice(y)), pen.buy(), pen.volume()));
-							}
-						}						
-						mr.setPendingTrades(pendingTrades);
-						penOrderBeingDragged = null;
-						if (mr.trade().closed() && pendingTrades.isEmpty()) {
-							mr.setSlPrice(-1);
-							mr.setTpPrice(-1);
-						}
-					}
-					break;
-				} else if (p.pTradeButs().setSL().pressed()) {
-					p.pTradeButs().setSL().setPressed(false);
-					break;
-				} else if (p.pTradeButs().setTP().pressed()) {
-					p.pTradeButs().setTP().setPressed(false);
-					break;
-				}
-			}					
-			
-			if (penOrderBeingDragged != null) {
-				penOrderBeingDragged.pTradeButs().order().setPressed(false);
-				penOrderDragging = false;
-				
-				if (mr.trade().closed()) {		
-					if (penOrderBeingDragged.buy()) {
-						if (mr.slPrice().get() >= penOrderBeingDragged.price()) {
-							mr.setSlPrice(-1);
-						}
-						if (mr.tpPrice().get() <= penOrderBeingDragged.price()) {
-							mr.setTpPrice(-1);
-						}
-					} else {
-						if (mr.slPrice().get() <= penOrderBeingDragged.price()) {
-							mr.setSlPrice(-1);
-						}
-						if (mr.tpPrice().get() >= penOrderBeingDragged.price()) {
-							mr.setTpPrice(-1);
-						}
-					}
-				}												
-			}
-		}
-		
-		if (!mr.trade().closed() || !pendingTrades.isEmpty()) {
-			if (tradeButs.tp().pressed()) {
-				tradeButs.tp().setPressed(false);
-			} else if (tradeButs.sl().pressed()) {
-				tradeButs.sl().setPressed(false);
-			} else if (tradeButs.cancelTP().pressed()) {
-				tradeButs.cancelTP().setPressed(false);
-				if (tradeButs.cancelTP().onNode(x, y)) {
-					mr.trade().cancelTP();
-					mr.setTpPrice(-1);
-				}				
-			} else if (tradeButs.cancelSL().pressed()) {
-				tradeButs.cancelSL().setPressed(false);
-				if (tradeButs.cancelSL().onNode(x, y)) {
-					mr.trade().cancelSL();
-					mr.setSlPrice(-1);
-				}				
-			}
-		}
-		
-		if (!mr.trade().closed()) {
-			if (tradeButs.setTP().pressed()) {			
-				tradeButs.setTP().setPressed(false);
-			} else if (tradeButs.setSL().pressed()) {			
-				tradeButs.setSL().setPressed(false);
-			} else if (tradeButs.close().pressed()) {
-				tradeButs.close().setPressed(false);
-				if (tradeButs.close().onNode(x, y)) {
-					mr.trade().close(data.tickDataSize(true).get() - 1);
-					mr.closedTradeProc();
-					for (Chart c : charts) {
-						if (c.mr == null || !c.mr.equals(mr)) {
-							continue;
-						}
-						c.disableTradeButtons();
-					}
-					mr.setTpPrice(-1);
-					mr.setSlPrice(-1);
-				}				
-			} 
-			
-			if (slDragging) {		
-				if (!mr.trade().closed()) {
-					mr.trade().setSL(mr.slPrice().get());
-					mr.setSlPrice(mr.trade().sl());
-				}
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-					c.tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				}	
-			} else if (tpDragging) {
-				if (!mr.trade().closed()) {
-					mr.trade().setTP(mr.tpPrice().get());
-					mr.setTpPrice(mr.trade().tp());
-				}
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.slPrice().get()));
-					c.tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(mr.tpPrice().get()));
-				}	
-			} 		
-		}
-		
-		limitOrder.setPressed(false);
-		stopOrder.setPressed(false);
-		if (penTrade != null) {
-			if (limitDragging || stopDragging) {	
-				orderReleasedStuff(x, y);
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}										
-					c.pendingTrades.add(new PendingTrade(penTrade.limit(), penTrade.buy(), penTrade.price(), penTrade.volume(), c));
-					if (pendingTrades.size() > 1) {
-						if (mr.trade().closed()) {
-							c.tradeButs.tp().setText("TP");
-							c.tradeButs.sl().setText("SL");
-						}
-					}
-				}	
-				mr.setPendingTrades(pendingTrades);
-			}			
-		}
-		limitDragging = false;
-		stopDragging = false;
-		penTrade = null;
-		slDragging = false;
-		tpDragging = false;		
-		penOrderBeingDragged = null;
-	}
-	
-	private void orderReleasedStuff(double x, double y) {
-		CrossHair.setX(x);
-		CrossHair.setY(y);
-		limitOrder.setY(y - fontSize/2); 
-		stopOrder.setY(y - fontSize/2);
-		ButtonChecks.mouseButtonHoverCheck(limitOrder, x, y);
-		ButtonChecks.mouseButtonHoverCheck(stopOrder, x, y);
-		if (y > 30 && onChart(x, y, true)) {
-			drawPending = true;	
-		} else {
-			drawPending = false;
-		}
-	}
-	
 	public static void toggleDarkMode() {
 		darkMode.set(!darkMode.get());
 		Settings.saveDarkMode();
@@ -1321,8 +745,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			stage.getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
-		} else if (replayMode) {
-			tradeButtonReleaseChecks(e.getX(), e.getY());
 		}		
 		lineDragging = false;
 		priceDragging = false;
@@ -1351,31 +773,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		mrp.canvas().fireEvent(me);
 	}
 	
-	private void updatePendingTrade(PendingTrade pent, double currentPrice, double crossHairPrice) {
-		if (pent == null) {
-			return;
-		}
-		if (pent.limit()) {		
-			boolean buy = true;			
-			if (crossHairPrice != currentPrice) {
-				if (crossHairPrice > currentPrice) {
-					buy = false;
-				}
-				pent.setBuy(buy);
-				pent.setPrice(crossHairPrice);
-			}	
-		} else {	
-			boolean buy = false;			
-			if (crossHairPrice != currentPrice) {
-				if (crossHairPrice > currentPrice) {
-					buy = true;
-				}
-				pent.setBuy(buy);
-				pent.setPrice(crossHairPrice);
-			}	
-		}
-	}
-	
 	public void onMouseDragged(MouseEvent e) {	
 		hsb.onMouseDragged(e);
 		if (priceDragging) {
@@ -1398,64 +795,6 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			measuring = true;
 			endX = e.getX();
 			endY = e.getY();
-		}
-		if (tpDragging) {
-			mr.setTpPrice(roundToNearestTick(yCoordToPrice(e.getY())));
-			for (Chart c : charts) {
-				if (c.mr == null || !c.mr.equals(mr)) {
-					continue;
-				}
-				if (mr.trade().closed()) {
-					if (pendingTrades.size() == 1) {
-						PendingTrade p = pendingTrades.get(0);
-						c.tradeButs.tp().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), roundToNearestTick(yCoordToPrice(e.getY())), p.buy(), p.volume()));
-					} else {
-						c.tradeButs.tp().setText("TP");
-						c.tradeButs.sl().setText("SL");
-					}
-				} else {
-					c.tradeButs.tp().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
-				}				
-			}
-		}
-		if (slDragging) {
-			mr.setSlPrice(roundToNearestTick(yCoordToPrice(e.getY())));
-			for (Chart c : charts) {
-				if (c.mr == null || !c.mr.equals(mr)) {
-					continue;
-				}
-				if (mr.trade().closed()) {
-					if (pendingTrades.size() == 1) {
-						PendingTrade p = pendingTrades.get(0);
-						c.tradeButs.sl().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), roundToNearestTick(yCoordToPrice(e.getY())), p.buy(), p.volume()));
-					} else {
-						c.tradeButs.sl().setText("SL");
-						c.tradeButs.tp().setText("TP");
-					}
-				} else {
-					c.tradeButs.sl().setText(mr.trade().volume() + "  $" + mr.trade().hypotheticalProfit(roundToNearestTick(yCoordToPrice(e.getY()))));
-				}				
-			}
-		}
-		if (limitDragging || stopDragging) {
-			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
-			updatePendingTrade(penTrade, currentPrice, crossHairPrice);
-		}
-		if (penOrderDragging) {
-			double currentPrice = tickData().get(data.tickDataSize(true).get()).price();
-			double crossHairPrice = roundToNearestTick(yCoordToPrice(e.getY()));
-			int i = pendingTrades.indexOf(penOrderBeingDragged);
-			if (i == -1) {
-				penOrderDragging = false;
-			} else {
-				for (Chart c : charts) {
-					if (c.mr == null || !c.mr.equals(mr)) {
-						continue;
-					}
-					c.updatePendingTrade(c.pendingTrades.get(i), currentPrice, crossHairPrice);
-				}
-			}
 		}
 		priceInitPos = e.getY();		
 		if (chartDragging && !lineDragging) {
@@ -1978,171 +1317,12 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		crossHair.resetOHLC();
 	}
 	
-	private void drawTradeButtons() {
-		buy.draw();
-		sell.draw();
-		volTens.draw();
-		volUnits.draw();
-	}
-	
 	public double yCoordToPrice(double y) {
 		return ((((chartHeight - (chtDataMargin*2)) - (y - CHT_MARGIN - chtDataMargin)) / (double)(chartHeight - (chtDataMargin*2))) * range) + lowest;
 	}
 	
 	public double priceToYCoord(double price) {
 		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * chartHeight + CHT_MARGIN;
-	}
-	
-	private void drawPriceBox(double yPos, double price, Color textColour, Color boxColour) {
-		gc.setStroke(textColour);
-		gc.setFill(boxColour);
-		gc.fillRect(chartWidth + CHT_MARGIN, yPos - fontSize/2, priceMargin, fontSize);
-		gc.strokeText(((Double)(roundToNearestTick(price))).toString(), chartWidth + CHT_MARGIN + PRICE_DASH_MARGIN, yPos + fontSize/3, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN);
-	}
-	
-	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRect(xPos, yPos, width, fontSize * 2);
-		gc.setStroke(boxColour);
-		gc.strokeRect(xPos, yPos, width, fontSize * 2);
-		gc.setStroke(textColour);	
-		gc.strokeText(text, xPos + textMargin, yPos + 4*fontSize/3, textMaxWidth);
-	}
-	
-	private void drawPendingTrades() {
-		if (penTrade != null) {
-			pendingTrades.add(penTrade);
-		}
-		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = CHT_MARGIN + chartWidth;
-		if (mr.trade().closed()) {
-			double slY = priceToYCoord(mr.slPrice().get());
-			double tpY = priceToYCoord(mr.tpPrice().get());			
-			if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {				
-				tradeButs.tp().enable();
-				tradeButs.cancelTP().enable();
-				tradeButs.tp().setY(tpY - fontSize);
-				tradeButs.cancelTP().setY(tpY - fontSize);
-				if (mr.tpPrice().get() != -1) {
-					gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-					gc.strokeLine(x1, tpY, x2, tpY);
-					drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-					tradeButs.tp().draw();
-					tradeButs.cancelTP().draw();
-				}								
-			} else {
-				tradeButs.tp().disable();
-				tradeButs.cancelTP().disable();
-			}
-			if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {				
-				tradeButs.sl().enable();
-				tradeButs.cancelSL().enable();
-				tradeButs.sl().setY(slY - fontSize);
-				tradeButs.cancelSL().setY(slY - fontSize);
-				if (mr.slPrice().get() != -1) {
-					gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-					gc.strokeLine(x1, slY, x2, slY);
-					drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-					tradeButs.sl().draw();
-					tradeButs.cancelSL().draw();
-				}				
-			} else {
-				tradeButs.sl().disable();
-				tradeButs.cancelSL().disable();
-			}
-		}
-		for (PendingTrade trade : pendingTrades) {	
-			double entryY = priceToYCoord(roundToNearestTick(trade.price()));				
-			if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
-				Color boxColour = Color.GRAY;
-				if (trade.buy()) {
-					boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
-				} else {
-					boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
-				}			
-				gc.setStroke(boxColour);
-				gc.strokeLine(x1, entryY, x2, entryY);
-				
-				drawPriceBox(entryY, roundToNearestTick(trade.price()), Color.WHITE, boxColour);
-				trade.pTradeButs().order().setY(priceToYCoord(trade.price()) - fontSize);
-				trade.pTradeButs().order().draw();						
-				if (mr.trade().closed()) {
-					trade.pTradeButs().setSL().enable();
-					trade.pTradeButs().setTP().enable();
-					trade.pTradeButs().setSL().setY(entryY - fontSize);
-					trade.pTradeButs().setTP().setY(entryY - fontSize);
-					trade.pTradeButs().setSL().draw();
-					trade.pTradeButs().setTP().draw();
-				} else {
-					trade.pTradeButs().setSL().disable();
-					trade.pTradeButs().setTP().disable();
-				}
-				trade.pTradeButs().close().setY(entryY - fontSize);				
-				trade.pTradeButs().close().draw();
-			}	
-		}	
-		if (penTrade != null) {
-			pendingTrades.remove(penTrade);
-		}
-	}
-	
-	private void drawTrade() {
-		if (mr.trade() == null || mr.trade().closed()) {
-			return;
-		}
-		double x1 = CHT_MARGIN + chartWidth / 2;
-		double x2 = CHT_MARGIN + chartWidth;	
-		
-		double entryY = priceToYCoord(roundToNearestTick(mr.trade().entryPrice()));
-		double slY = priceToYCoord(mr.slPrice().get());
-		double tpY = priceToYCoord(mr.tpPrice().get());
-		if (onChart(CHT_MARGIN + 1, tpY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
-			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-			gc.strokeLine(x1, tpY, x2, tpY);
-			drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-			tradeButs.tp().setY(tpY - fontSize);
-			tradeButs.cancelTP().setY(tpY - fontSize);
-			tradeButs.tp().draw();
-			tradeButs.cancelTP().draw();
-		}
-		if (onChart(CHT_MARGIN + 1, slY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, slY - fontSize - 3, false)) {
-			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			gc.strokeLine(x1, slY, x2, slY);
-			drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			tradeButs.sl().setY(slY - fontSize);
-			tradeButs.cancelSL().setY(slY - fontSize);
-			tradeButs.sl().draw();
-			tradeButs.cancelSL().draw();
-		}
-		if (onChart(CHT_MARGIN + 1, entryY + fontSize + 3, false) && onChart(CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
-			Color boxColour;
-			Color textColour;
-			if (mr.trade().buy()) {
-				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
-				gc.setStroke(boxColour);
-			} else {
-				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
-				gc.setStroke(boxColour);
-			}
-			double profit = mr.trade().profit();
-			if (profit > 0) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
-			} else if (profit < 0) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
-			} else {
-				textColour = Color.GRAY;
-			}
-			gc.strokeLine(x1, entryY, x2, entryY);
-			
-			drawPriceBox(entryY, mr.trade().entryPrice(), Color.WHITE, boxColour);
-			drawTradeBox(x1 - 100, entryY - fontSize, 100, 90, 5, ((Double)(mr.trade().volume())).toString() + "\t$" + ((Double)(mr.trade().profit())).toString(), textColour, boxColour);
-			tradeButs.setSL().setY(entryY - fontSize);
-			tradeButs.setTP().setY(entryY - fontSize);
-			tradeButs.close().setY(entryY - fontSize);
-			tradeButs.setSL().draw();
-			tradeButs.setTP().draw();
-			tradeButs.close().draw();
-		}	
 	}
 	
 	private double t = 0;
@@ -2178,16 +1358,10 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 		checkDrawLines();										
 		checkMeasuring();			
-		if (replayMode) {				
+		if (replayMode) {					
 			drawCurrentPriceLine();
-			drawTradeButtons();			
-			drawPendingTrades();
-			drawTrade();
 			drawCurrentPriceBox();
-			if (drawPending) {
-				limitOrder.draw();
-				stopOrder.draw();
-			}
+			cmrb.draw();
 			if (drawMRP) {
 				mrp.drawPane(gc, mrpx, mrpy);
 			}

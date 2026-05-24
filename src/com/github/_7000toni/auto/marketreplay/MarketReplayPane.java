@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.github._7000toni.auto.Main;
-import com.github._7000toni.auto.canvasnode.CanvasButton;
 import com.github._7000toni.auto.canvasnode.CanvasEventFilter;
-import com.github._7000toni.auto.canvasnode.CanvasNumberChooser;
 import com.github._7000toni.auto.canvasnode.CanvasWrapper;
-import com.github._7000toni.auto.canvasnode.HorizontalMRPaneScrollBar;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasWindow;
-import com.github._7000toni.auto.canvasnode.IScrollBarOwner;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
+import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.dataset.DataSet;

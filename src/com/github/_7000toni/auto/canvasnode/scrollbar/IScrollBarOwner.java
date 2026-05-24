@@ -1,4 +1,4 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.scrollbar;
 import javafx.scene.canvas.GraphicsContext;
 
 public interface IScrollBarOwner {

@@ -1,7 +1,7 @@
 package com.github._7000toni.auto.marketreplay.trade;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.canvasnode.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 
 public class PendingTradeButtons {
 	protected CanvasButton order;

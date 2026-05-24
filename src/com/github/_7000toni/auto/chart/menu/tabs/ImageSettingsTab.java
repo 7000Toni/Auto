@@ -7,13 +7,13 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.github._7000toni.auto.canvasnode.BrightnessScrollBar;
-import com.github._7000toni.auto.canvasnode.CanvasButton;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
-import com.github._7000toni.auto.canvasnode.HorizontalScrollBar;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
-import com.github._7000toni.auto.canvasnode.IScrollBarOwner;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.scrollbar.BrightnessScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;

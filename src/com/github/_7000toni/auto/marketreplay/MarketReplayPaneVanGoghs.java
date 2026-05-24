@@ -1,6 +1,6 @@
 package com.github._7000toni.auto.marketreplay;
-import com.github._7000toni.auto.canvasnode.CanvasButton;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.settings.ColourSettings;
 

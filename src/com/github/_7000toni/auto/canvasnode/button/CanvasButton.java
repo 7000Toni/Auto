@@ -1,4 +1,5 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.button;
+import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -178,6 +179,7 @@ public class CanvasButton extends CanvasLabel {
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
 	
+	@Override
 	public void draw() {
 		if (vg == null) {
 			defaultDraw();

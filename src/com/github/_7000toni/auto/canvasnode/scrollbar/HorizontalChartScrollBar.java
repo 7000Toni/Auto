@@ -1,4 +1,4 @@
-package com.github._7000toni.auto.canvasnode;
+package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.animation.AnimationTimer;
