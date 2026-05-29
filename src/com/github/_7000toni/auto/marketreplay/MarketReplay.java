@@ -456,9 +456,9 @@ public class MarketReplay {
 							double newHSBPos;
 							for (Chart c : charts) {
 								if (c.drawCandlesticks().get()) {
-									newHSBPos = (c.width() - c.hsb().sbWidth() - c.priceMargin()) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
+									newHSBPos = (Chart.CHT_MARGIN + c.chartWidth() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
 								} else {
-									newHSBPos = (c.width() - c.hsb().sbWidth() - c.priceMargin()) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));
+									newHSBPos = (Chart.CHT_MARGIN + c.chartWidth() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));
 								}								
 								c.setKeepStartIndex(true);
 								c.hsb().setPosition(newHSBPos, false);
