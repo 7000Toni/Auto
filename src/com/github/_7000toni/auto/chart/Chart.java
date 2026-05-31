@@ -287,13 +287,8 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public void initHst() {
 		hst = null;
-		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res\\history");
 		FileChooser fc = new FileChooser();
-		if (init.exists()) {
-			fc.setInitialDirectory(init);
-		} else {
-			fc.setInitialDirectory(new File("./"));
-		}	
+		fc.setInitialDirectory(new File("./"));
 		fc.setTitle("Select History File");
 		File file = fc.showOpenDialog(null);
 		if (lhst != null) {
