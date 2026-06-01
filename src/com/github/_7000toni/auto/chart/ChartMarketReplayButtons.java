@@ -48,10 +48,10 @@ public class ChartMarketReplayButtons {
 		double initx = Chart.CHT_MARGIN + Chart.INFO_MARGIN;
 		double inity = 30;		
 		
-		buy = new CanvasButton(gc, bw, bh, initx, inity, "BUY", 9, fontSize + 7);
-		buy.setVanGogh(cbvg.buyVG(buy));
-		sell = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "SELL", 9, fontSize + 7);
+		sell = new CanvasButton(gc, bw, bh, initx, inity, "SELL", 9, fontSize + 7);
 		sell.setVanGogh(cbvg.sellVG(sell));
+		buy = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "BUY", 9, fontSize + 7);
+		buy.setVanGogh(cbvg.buyVG(buy));
 		
 		double h = CanvasNumberChooser.getHeightForDesiredNumberHight(bh);
 		double y = bh - CanvasNumberChooser.buttonHeight(h);
@@ -74,10 +74,10 @@ public class ChartMarketReplayButtons {
 		tradeButs.setCancelSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
 		tradeButs.cancelSL().setVanGogh(cbvg.cancelSlVG(tradeButs.cancelSL()));
 		
-		tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102, 0, "", 5, fontSize/3));		
+		tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));		
 		tradeButs.sl().setVanGogh(cbvg.slVG(tradeButs.sl()));
 		
-		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102, 0, "", 5, fontSize/3));
+		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
 		tradeButs.tp().setVanGogh(cbvg.tpVG(tradeButs.tp()));
 		
 		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
@@ -165,9 +165,10 @@ public class ChartMarketReplayButtons {
 		});
 		
 		tradeButs.setSL().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
 		});
 		tradeButs.setSL().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
@@ -176,9 +177,10 @@ public class ChartMarketReplayButtons {
 		});
 		
 		tradeButs.setTP().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
 		});
 		tradeButs.setTP().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
@@ -195,24 +197,36 @@ public class ChartMarketReplayButtons {
 		});
 		
 		tradeButs.sl().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
 		});
 		tradeButs.sl().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
 				chart.marketReplay().validateSl();
+			} else if (penTrades.size() == 1) {
+				if (chart.marketReplay().unvalidatedSlPrice().get() > penTrades.get(0).pendingTrade().price() && penTrades.get(0).pendingTrade().buy() ||
+						chart.marketReplay().unvalidatedSlPrice().get() < penTrades.get(0).pendingTrade().price() && !penTrades.get(0).pendingTrade().buy()) {
+					chart.marketReplay().cancelSl();
+				}
 			}
 		});
 		
 		tradeButs.tp().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
 		});
 		tradeButs.tp().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
 				chart.marketReplay().validateTp();
+			} else if (penTrades.size() == 1) {
+				if (chart.marketReplay().unvalidatedTpPrice().get() < penTrades.get(0).pendingTrade().price() && penTrades.get(0).pendingTrade().buy() ||
+						chart.marketReplay().unvalidatedTpPrice().get() > penTrades.get(0).pendingTrade().price() && !penTrades.get(0).pendingTrade().buy()) {
+					chart.marketReplay().cancelTp();
+				}
 			}
 		});
 	}
@@ -320,23 +334,26 @@ public class ChartMarketReplayButtons {
 		penTrades = pt;
 	}	
 	
-	public void draw() {
-		for (PendingTradePair ptp : penTrades) {
-			ptp.draw();
-		}
+	public void draw() {		
 		buy.draw();
 		sell.draw();
 		volTens.draw();
 		volUnits.draw();
-		limitOrder.draw();
-		stopOrder.draw();
+		tradeButs.sl().draw();
+		tradeButs.cancelSL().draw();		
+		tradeButs.tp().draw();
+		tradeButs.cancelTP().draw();
+		for (PendingTradePair ptp : penTrades) {
+			ptp.drawOrder();
+		}
 		tradeButs.order().draw();
 		tradeButs.close().draw();
-		tradeButs.cancelTP().draw();
-		tradeButs.cancelSL().draw();
-		tradeButs.sl().draw();
-		tradeButs.tp().draw();
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
+		for (PendingTradePair ptp : penTrades) {
+			ptp.drawSets();
+		}
+		limitOrder.draw();
+		stopOrder.draw();
 	}
 }

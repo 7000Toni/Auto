@@ -48,7 +48,7 @@ public class PendingTradePair {
 	
 	private void setEvents() {
 		penTradeButs.order().setOnMouseDragged(e -> {
-			double price = chart.yCoordToPrice(e.getY());
+			double price = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			penTrade.setPrice(price);
 			if (price > chart.tickData().get(chart.data().tickDataSize(true).get()).price()) {
 				if (penTrade.limit()) {
@@ -65,6 +65,7 @@ public class PendingTradePair {
 			}
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
 		});
 		
 		penTradeButs.close().setOnMouseClicked(e -> {
@@ -72,15 +73,29 @@ public class PendingTradePair {
 		});
 		
 		penTradeButs.setSL().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedSlPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
+		});
+		penTradeButs.setSL().setOnMouseReleased(e -> {
+			if (chart.marketReplay().unvalidatedSlPrice().get() > penTrade.price() && penTrade.buy() ||
+					chart.marketReplay().unvalidatedSlPrice().get() < penTrade.price() && !penTrade.buy()) {
+				chart.marketReplay().cancelSl();
+			}
 		});
 		
 		penTradeButs.setTP().setOnMouseDragged(e -> {
-			chart.marketReplay().setUnvalidatedTpPrice(chart.yCoordToPrice(e.getY()));
+			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			chart.draw();
+		});
+		penTradeButs.setTP().setOnMouseReleased(e -> {
+			if (chart.marketReplay().unvalidatedTpPrice().get() < penTrade.price() && penTrade.buy() ||
+					chart.marketReplay().unvalidatedTpPrice().get() > penTrade.price() && !penTrade.buy()) {
+				chart.marketReplay().cancelTp();
+			}
 		});
 	}
 	
@@ -103,6 +118,16 @@ public class PendingTradePair {
 	public void draw() {
 		penTradeButs.order().draw();
 		penTradeButs.close().draw();
+		penTradeButs.setSL().draw();
+		penTradeButs.setTP().draw();
+	}
+	
+	public void drawOrder() {
+		penTradeButs.order().draw();
+		penTradeButs.close().draw();
+	}
+	
+	public void drawSets() {
 		penTradeButs.setSL().draw();
 		penTradeButs.setTP().draw();
 	}

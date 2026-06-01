@@ -1,5 +1,4 @@
 package com.github._7000toni.auto.chart;
-import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -301,7 +300,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.sl().setY(slY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				drawPriceBox(slY, mr.unvalidatedSlPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				return true;
 			} else {
 				tradeButs.sl().disable();
@@ -312,7 +311,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.sl().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.strokeLine(x1, slY, x2, slY);
-				drawPriceBox(slY, mr.slPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				drawPriceBox(slY, mr.unvalidatedSlPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				tradeButs.sl().setY(slY - fontSize);
 				return true;
 			}
@@ -377,7 +376,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.tp().setY(tpY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+				drawPriceBox(tpY, mr.unvalidatedTpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				return true;
 			} else {
 				tradeButs.tp().disable();
@@ -388,7 +387,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.tp().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				gc.strokeLine(x1, tpY, x2, tpY);
-				drawPriceBox(tpY, mr.tpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+				drawPriceBox(tpY, mr.unvalidatedTpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				tradeButs.tp().setY(tpY - fontSize);
 				return true;
 			}
@@ -420,12 +419,12 @@ public class ChartButtonVanGoghs {
 			if (c.marketReplay().trade().closed()) {
 				if (c.marketReplay().pendingTrades().size() == 1) {
 					PendingTrade p = c.marketReplay().pendingTrades().get(0);
-					c.tradeButtons().buttons().tp().setText(p.volume() + "  $" + c.roundToNearestTick(Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedTpPrice().get(), p.buy(), p.volume())));
+					c.tradeButtons().buttons().tp().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedTpPrice().get(), p.buy(), p.volume()));
 				} else {
 					c.tradeButtons().buttons().tp().setText("TP");
 				}
 			} else {
-				c.tradeButtons().buttons().tp().setText(c.marketReplay().trade().volume() + "  $" + c.roundToNearestTick(c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedTpPrice().get())));
+				c.tradeButtons().buttons().tp().setText(c.marketReplay().trade().volume() + "  $" + c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedTpPrice().get()));
 			}				
 			drawTradeBox(tp.x(), tp.y(), tp.width(), 90, tp.textXOffset(), tp.text(), textColour, boxColour);
 		};
@@ -614,7 +613,7 @@ public class ChartButtonVanGoghs {
 				return;
 			}
 			Color textColour = Color.GRAY;
-			Color boxColour = Color.GRAY;
+			Color boxColour = Color.GRAY;			
 			if (!order.enabled()) {
 				boxColour = Color.LIGHTGRAY;
 			}
@@ -633,7 +632,7 @@ public class ChartButtonVanGoghs {
 		};
 	}
 	
-	public boolean preDrawPenOrder(CanvasLabel order, PendingTrade trade) {
+	public boolean preDrawPenOrder(CanvasButton order, PendingTrade trade) {
 		double fontSize = c.fontSize();
 		GraphicsContext gc = c.graphicsContext();
 		double chartWidth = c.chartWidth();
@@ -660,7 +659,7 @@ public class ChartButtonVanGoghs {
 		return false;
 	}
 	
-	public IVanGogh penOrderVG(CanvasLabel order, PendingTrade trade) {
+	public IVanGogh penOrderVG(CanvasButton order, PendingTrade trade) {
 		return (x, y, gc) -> {
 			boolean draw = preDrawPenOrder(order, trade);
 			if (!draw) {
@@ -668,9 +667,7 @@ public class ChartButtonVanGoghs {
 			}
 			Color textColour = Color.GRAY;
 			Color boxColour = Color.GRAY;
-			if (!order.enabled()) {
-				boxColour = Color.LIGHTGRAY;
-			}
+			
 			if (trade.buy()) {
 				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
@@ -678,6 +675,20 @@ public class ChartButtonVanGoghs {
 				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
+			
+			if (order.hover()) {
+				textColour = Color.GRAY;
+				boxColour = Color.GRAY;
+			}
+			if (order.pressed()) {
+				textColour = Color.DIMGRAY;
+				boxColour = Color.DIMGRAY;
+			}
+			if (!order.enabled()) {
+				textColour = Color.LIGHTGRAY;
+				boxColour = Color.LIGHTGRAY;
+			} 
+			
 			double x1 = Chart.CHT_MARGIN + c.chartWidth() / 2;
 			double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 			String text = trade.volume() + "  ";
