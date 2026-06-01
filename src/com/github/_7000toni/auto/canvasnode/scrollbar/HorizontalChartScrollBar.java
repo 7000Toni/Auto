@@ -1,5 +1,6 @@
 package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.CrossHair;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -79,6 +80,8 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			}
 			initPos = (int)e.getX();
 			((Chart) sbo).setKeepStartIndex(false);
+			CrossHair.setX(e.getX());
+			CrossHair.setY(e.getY());
 		}
 	}
 	
