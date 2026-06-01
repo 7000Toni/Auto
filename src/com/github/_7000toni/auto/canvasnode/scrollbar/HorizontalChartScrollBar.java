@@ -82,6 +82,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			((Chart) sbo).setKeepStartIndex(false);
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			Chart.drawCharts(((Chart) sbo).name());
 		}
 	}
 	
