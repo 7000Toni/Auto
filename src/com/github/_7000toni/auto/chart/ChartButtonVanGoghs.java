@@ -628,7 +628,7 @@ public class ChartButtonVanGoghs {
 			double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
 			order.setX(x1 - 100);
 			order.setY(entryY - c.fontSize());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, ((Double)(c.marketReplay().trade().volume())).toString() + "\t$" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, ((Double)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
 		};
 	}
 	
