@@ -72,10 +72,10 @@ public class CrossHair {
 	
 	@Override
 	public String toString() {
-		String ret = "name: " + name + '\n'; 
-		ret += "price: " + price + '\n';
-		ret += "isForCandle: " + isForCandle + '\n';
-		ret += "dateIndex: " + dateIndex + '\n';
+		String ret = "name: " + name.get() + '\n'; 
+		ret += "price: " + price.get() + '\n';
+		ret += "isForCandle: " + isForCandle.get() + '\n';
+		ret += "dateIndex: " + dateIndex.get() + '\n';
 		ret += "x: " + x + '\n';
 		ret += "y: " + y + '\n';
 		return ret;
@@ -172,8 +172,7 @@ public class CrossHair {
 		return width;
 	}
 	
-	private void drawFocusedChartCrossHair() {				
-		price.set(chart.yCoordToPrice(y.get()));
+	private void drawFocusedChartCrossHair() {						
 		drawHorizontalLine(true);
 		double width = getWidth();
 		dateIndex.set(chart.startIndex() + (int)(((x.get() - Chart.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex())));
@@ -273,7 +272,7 @@ public class CrossHair {
 		}
 	}
 	
-	public void drawCrossHair() {			
+	public void drawCrossHair() {		
 		if (chart.focusedChart().get()) {		
 			if (chart.onChart(x.get(), y.get(), true)) {
 				drawFocusedChartCrossHair();

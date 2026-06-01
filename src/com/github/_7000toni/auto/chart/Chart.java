@@ -625,6 +625,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		hsb.onMouseMoved(e);
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
+		CrossHair.setPrice(yCoordToPrice(e.getY()));
 		if (!onChart(e.getX(), e.getY(), true)) {
 			measuring = false;
 			if (e.getX() >= CHT_MARGIN + chartWidth && e.getX() <= CHT_MARGIN + chartWidth + priceMargin && e.getY() <= height - HSB_HEIGHT - CHT_MARGIN) {
@@ -1371,7 +1372,10 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		}
 	}
 	
-	public void draw() {
+	public void draw() {		
+		if (Thread.currentThread().getStackTrace()[2].getClassName().equals("com.github._7000toni.auto.canvasnode.CanvasEventFilter")) {
+			return;
+		}
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {
