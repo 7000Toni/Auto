@@ -184,6 +184,7 @@ public class MarketReplay {
 	}
 	
 	public boolean validateSl() {
+		System.out.println(unvalidatedSlPrice);
 		return validateSl(unvalidatedSlPrice.get());
 	}
 	
@@ -224,8 +225,8 @@ public class MarketReplay {
 	public void setTrade(Trade trade) {
 		this.trade.replaceTrade(trade);
 		if (!trade.closed()) {
-			validateSl(trade.sl());
-			validateTp(trade.tp());
+			validateSl(unvalidatedSlPrice.get());
+			validateTp(unvalidatedTpPrice.get());
 			for (Chart c : charts) {
 				c.tradeButtons().enableButtons();
 			}
@@ -323,9 +324,7 @@ public class MarketReplay {
 	private void executePendingOrder(PendingTrade p, int i) {
 		boolean nt = false;
 		if (trade.closed()) {
-			validateSl();
-			validateTp();
-			setTrade(new Trade(data, i, slPrice.get(), tpPrice.get(), p.buy(), p.volume()));				
+			setTrade(new Trade(data, i, slPrice.get(), tpPrice.get(), p.buy(), p.volume()));	
 			for (Chart c : charts) {
 				c.tradeButtons().enableButtons();
 				c.tradeButtons().removePenTradePair(p);

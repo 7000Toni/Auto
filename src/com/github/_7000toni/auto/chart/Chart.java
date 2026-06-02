@@ -492,8 +492,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			
 			if (mr.trade() == null) {
-				mr.setTrade(new Trade(data, 1, true, 1));
-				mr.trade().close(1);
+				Trade t = new Trade(data, 1, true, 1);
+				t.close(1);
+				mr.setTrade(t);
 				cmrb.disableButtons();
 			} else if (mr.trade().closed()) {
 				cmrb.disableButtons();
