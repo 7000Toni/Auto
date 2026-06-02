@@ -212,7 +212,7 @@ public class MarketReplay {
 	
 	public void removePendingTrade(PendingTrade pendingTrade) {
 		this.pendingTrades.remove(pendingTrade);
-		if (pendingTrades.size() == 0) {
+		if (pendingTrades.size() == 0 && trade.closed()) {
 			cancelSl();
 			cancelTp();
 		}
