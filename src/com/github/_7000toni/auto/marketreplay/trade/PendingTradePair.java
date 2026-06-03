@@ -65,6 +65,7 @@ public class PendingTradePair {
 			}
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		
@@ -76,6 +77,7 @@ public class PendingTradePair {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		penTradeButs.setSL().setOnMouseReleased(e -> {
@@ -89,6 +91,7 @@ public class PendingTradePair {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		penTradeButs.setTP().setOnMouseReleased(e -> {

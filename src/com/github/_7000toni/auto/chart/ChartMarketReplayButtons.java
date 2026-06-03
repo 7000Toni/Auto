@@ -168,6 +168,7 @@ public class ChartMarketReplayButtons {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		tradeButs.setSL().setOnMouseReleased(e -> {
@@ -180,6 +181,7 @@ public class ChartMarketReplayButtons {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		tradeButs.setTP().setOnMouseReleased(e -> {
@@ -200,6 +202,7 @@ public class ChartMarketReplayButtons {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		tradeButs.sl().setOnMouseReleased(e -> {
@@ -217,6 +220,7 @@ public class ChartMarketReplayButtons {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
 			chart.draw();
 		});
 		tradeButs.tp().setOnMouseReleased(e -> {
