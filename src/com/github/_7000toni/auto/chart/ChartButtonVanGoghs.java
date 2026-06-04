@@ -289,10 +289,12 @@ public class ChartButtonVanGoghs {
 		double x2 = Chart.CHT_MARGIN + chartWidth;
 		double slY = c.priceToYCoord(mr.unvalidatedSlPrice().get());	
 		if (mr.unvalidatedSlPrice().get() == -1) {
+			tradeButs.sl().setY(slY - fontSize);
 			tradeButs.sl().disable();
 			return false;
 		} else if (mr.trade().closed()) {		
 			if (mr.pendingTrades().size() == 0) {
+				tradeButs.sl().setY(slY - fontSize);
 				tradeButs.sl().disable();
 				return false;
 			} else if (c.onChart(Chart.CHT_MARGIN + 1, slY + fontSize + 3, false) && c.onChart(Chart.CHT_MARGIN + 1, slY - fontSize - 3, false)) {				
@@ -303,6 +305,7 @@ public class ChartButtonVanGoghs {
 				drawPriceBox(slY, mr.unvalidatedSlPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				return true;
 			} else {
+				tradeButs.sl().setY(slY - fontSize);
 				tradeButs.sl().disable();
 				return false;
 			}
@@ -315,6 +318,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.sl().setY(slY - fontSize);
 				return true;
 			}
+			tradeButs.sl().setY(slY - fontSize);
 			tradeButs.sl().disable();
 			return false;
 		}
@@ -365,10 +369,12 @@ public class ChartButtonVanGoghs {
 		double x2 = Chart.CHT_MARGIN + chartWidth;
 		double tpY = c.priceToYCoord(mr.unvalidatedTpPrice().get());
 		if (mr.unvalidatedTpPrice().get() == -1) {
+			tradeButs.tp().setY(tpY - fontSize);
 			tradeButs.tp().disable();
 			return false;
 		} else if (mr.trade().closed()) {		
 			if (mr.pendingTrades().size() == 0) {
+				tradeButs.tp().setY(tpY - fontSize);
 				tradeButs.tp().disable();
 				return false;
 			} else if (c.onChart(Chart.CHT_MARGIN + 1, tpY + fontSize + 3, false) && c.onChart(Chart.CHT_MARGIN + 1, tpY - fontSize - 3, false)) {				
@@ -379,6 +385,7 @@ public class ChartButtonVanGoghs {
 				drawPriceBox(tpY, mr.unvalidatedTpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				return true;
 			} else {
+				tradeButs.tp().setY(tpY - fontSize);
 				tradeButs.tp().disable();
 				return false;
 			}
@@ -391,6 +398,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.tp().setY(tpY - fontSize);
 				return true;
 			}
+			tradeButs.tp().setY(tpY - fontSize);
 			tradeButs.tp().disable();
 			return false;			
 		}
