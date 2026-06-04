@@ -184,7 +184,6 @@ public class MarketReplay {
 	}
 	
 	public boolean validateSl() {
-		System.out.println(unvalidatedSlPrice);
 		return validateSl(unvalidatedSlPrice.get());
 	}
 	
@@ -346,8 +345,6 @@ public class MarketReplay {
 					c.tradeButtons().disableButtons();
 					c.tradeButtons().removePenTradePair(p);
 				}
-				cancelSl();
-				cancelTp();
 			}
 		}
 	}
@@ -396,7 +393,6 @@ public class MarketReplay {
 	}
 	
 	public void closedTradeProc() {
-		System.out.println(trade.toString());	
 		if (trade.closed()) {
 			cancelSl();
 			cancelTp();
@@ -413,7 +409,7 @@ public class MarketReplay {
 				closedTradeProc();
 				for (Chart c : charts) {
 					c.tradeButtons().disableButtons();
-				}				
+				}
 			}
 		}	
 		checkPendingOrders();	

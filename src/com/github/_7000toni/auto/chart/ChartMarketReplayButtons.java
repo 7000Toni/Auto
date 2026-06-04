@@ -347,15 +347,15 @@ public class ChartMarketReplayButtons {
 		tradeButs.cancelSL().draw();		
 		tradeButs.tp().draw();
 		tradeButs.cancelTP().draw();
-		for (PendingTradePair ptp : penTrades) {
-			ptp.drawOrder();
+		for (int i = 0; i < penTrades.size(); i++) {
+			penTrades.get(penTrades.size()-i-1).drawOrder();
 		}
 		tradeButs.order().draw();
 		tradeButs.close().draw();
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
-		for (PendingTradePair ptp : penTrades) {
-			ptp.drawSets();
+		for (int i = 0; i < penTrades.size(); i++) {
+			penTrades.get(penTrades.size()-i-1).drawSets();
 		}
 		limitOrder.draw();
 		stopOrder.draw();
