@@ -178,6 +178,7 @@ public class ChartButtonVanGoghs {
 		double tpY = c.priceToYCoord(mr.unvalidatedTpPrice().get());	
 		if (mr.trade().closed()) {	
 			if (mr.pendingTrades().size() == 0) {
+				tradeButs.cancelTP().setY(tpY - fontSize);	
 				tradeButs.cancelTP().disable();
 				return false;
 			}
@@ -186,6 +187,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelTP().setY(tpY - fontSize);	
 				return true;
 			} else {
+				tradeButs.cancelTP().setY(tpY - fontSize);	
 				tradeButs.cancelTP().disable();
 				return false;
 			}
@@ -195,6 +197,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelTP().setY(tpY - fontSize);
 				return true;
 			}
+			tradeButs.cancelTP().setY(tpY - fontSize);	
 			tradeButs.cancelTP().disable();
 			return false;
 		}
@@ -232,6 +235,7 @@ public class ChartButtonVanGoghs {
 		double slY = c.priceToYCoord(mr.unvalidatedSlPrice().get());	
 		if (mr.trade().closed()) {
 			if (mr.pendingTrades().size() == 0) {
+				tradeButs.cancelSL().setY(slY - fontSize);
 				tradeButs.cancelSL().disable();
 				return false;
 			}
@@ -240,6 +244,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelSL().setY(slY - fontSize);
 				return true;
 			} else {
+				tradeButs.cancelSL().setY(slY - fontSize);
 				tradeButs.cancelSL().disable();
 				return false;
 			}
@@ -249,6 +254,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelSL().setY(slY - fontSize);
 				return true;
 			}
+			tradeButs.cancelSL().setY(slY - fontSize);
 			tradeButs.cancelSL().disable();
 			return false;
 		}
