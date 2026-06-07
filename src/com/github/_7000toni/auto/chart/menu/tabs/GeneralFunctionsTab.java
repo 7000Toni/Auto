@@ -35,6 +35,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton chartTypeShortcut;	
 	private CanvasButton initHst;
 	private CanvasButton toggleHst;
+	private CanvasButton toggleSkipDraw;
 	
 	private CanvasButton saveHst;
 	private CanvasButton replayShortcut;
@@ -111,12 +112,18 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chart.toggleHst();
 		});;
 		
-		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 235, "MARKET REPLAY");
+		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "SKIP DRAW");
+		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.skipDraw(), "DON'T SKIP DRAW", "SKIP DRAW"));
+		toggleSkipDraw.setOnMouseClicked(e -> {
+			chart.toggleSkipDraw();
+		});;
+		
+		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "MARKET REPLAY");
 		marketReplay.setVanGogh((x2, y2, gc2) -> {
 			marketReplay.alternateDraw(gc.getFont());
 		});
 		
-		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 260, "REPLAY SHORTCUT");
+		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 285, "REPLAY SHORTCUT");
 		replayShortcut.setVanGogh((x2, y2, gc2) -> {
 			replayShortcut.alternateDraw(gc.getFont());
 		});
@@ -124,19 +131,19 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chart.toggleMRPShortcut();
 		});;		
 		
-		saveHst = new CanvasButton(gc, 290, 20, x + 5, y + 285, "DON'T SAVE TRADE HISTORY");
+		saveHst = new CanvasButton(gc, 290, 20, x + 5, y + 310, "DON'T SAVE TRADE HISTORY");
 		saveHst.setVanGogh(cmbvg.toggleVG(saveHst, MarketReplay.writeToFile(), "DON'T SAVE TRADE HISTORY", "SAVE TRADE HISTORY"));
 		saveHst.setOnMouseClicked(e -> {
 			MarketReplay.toggleWriteToFile();
 		});;
 		
-		toggleShortReport = new CanvasButton(gc, 290, 20, x + 5, y + 310, "WRITE LONG REPORT");
+		toggleShortReport = new CanvasButton(gc, 290, 20, x + 5, y + 335, "WRITE LONG REPORT");
 		toggleShortReport.setVanGogh(cmbvg.toggleVG(toggleShortReport, Trade.shortReport(), "WRITE LONG REPORT", "WRITE SHORT REPORT"));
 		toggleShortReport.setOnMouseClicked(e -> {
 			Trade.toggleShortReport();
 		});;
 		
-		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 335, "SAVE LOADABLE HISTORY");
+		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 360, "SAVE LOADABLE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
 		saveMRHst.setOnMouseClicked(e -> {
 			chart.marketReplay().trade().writeHistoryToFile(chart.name());
@@ -166,6 +173,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartTypeShortcut.draw();		
 		initHst.draw();
 		toggleHst.draw();
+		toggleSkipDraw.draw();
 		marketReplay.draw();
 		replayShortcut.draw();
 		saveHst.draw();
@@ -181,6 +189,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(chartTypeShortcut, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(marketReplay, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
@@ -249,6 +258,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartTypeShortcut.setX(x + 5);
 		initHst.setX(x + 5);
 		toggleHst.setX(x + 5);
+		toggleSkipDraw.setX(x + 5);
 		marketReplay.setX(x + 5);
 		replayShortcut.setX(x + 5);
 		saveHst.setX(x + 5);
@@ -270,10 +280,11 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartTypeShortcut.setY(y + 185);		
 		initHst.setY(y + 210);
 		toggleHst.setY(y + 235);
-		marketReplay.setY(y + 260);
-		replayShortcut.setY(y + 285);
-		saveHst.setY(y + 310);
-		toggleShortReport.setY(y + 335);
-		saveMRHst.setY(y + 360);
+		toggleSkipDraw.setY(y + 260);
+		marketReplay.setY(y + 285);
+		replayShortcut.setY(y + 310);
+		saveHst.setY(y + 335);
+		toggleShortReport.setY(y + 360);
+		saveMRHst.setY(y + 385);
 	}
 }

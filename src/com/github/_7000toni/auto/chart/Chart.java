@@ -166,6 +166,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	private boolean printSpeed = false;
 	private ChartMarketReplayButtons cmrb;
+	private BooleanProperty skipDraw = new SimpleBooleanProperty(false);
 	
 	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -363,6 +364,18 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public GraphicsContext graphicsContext() {
 		return this.gc;
+	}
+	
+	public ReadOnlyBooleanProperty skipDraw() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(skipDraw);
+	}
+	
+	public void toggleSkipDraw() {
+		skipDraw.set(!skipDraw.get());
+	}
+	
+	public void setSkipDraw(boolean skipDraw) {
+		this.skipDraw.set(skipDraw);
 	}
 	
 	public void setGraphicsContext(GraphicsContext gc) {
@@ -592,7 +605,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	public static void drawCharts(String name) {
 		for (Chart c : charts) {
-			if (name == null || c.name().equals(name)) {
+			if (name == null || c.name().equals(name) && (c.focusedChart().get() || !c.skipDraw().get())) {
 				c.draw();
 			}
 		}
