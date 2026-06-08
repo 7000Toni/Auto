@@ -149,7 +149,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			} else {
 				fc.setInitialDirectory(new File("./"));
 			}	
-			fc.setTitle("Select MarketTick Files");
+			fc.setTitle("Select Image");
 			File file = fc.showOpenDialog(null);		
 			if (file != null) {
 				ImageSettings.setImage(file);
