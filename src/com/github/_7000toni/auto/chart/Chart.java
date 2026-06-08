@@ -858,7 +858,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	}
 	
 	private void zoomCandlesticks(double delta, boolean scroll) {
-		double multiplier = 1.002;
+		double multiplier = 1.005;
 		boolean customSI = false;
 		if (scroll) {
 			multiplier = 1.05;
