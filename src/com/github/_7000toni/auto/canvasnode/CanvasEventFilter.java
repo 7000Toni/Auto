@@ -22,7 +22,7 @@ public class CanvasEventFilter {
 				ICanvasNode cn = t.element();
 				if (e instanceof MouseEvent) {
 					me = (MouseEvent)e;					
-					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging()) {
+					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging() || !cn.enabled()) {
 						continue;
 					}
 					if (!cw.dragging()) {
