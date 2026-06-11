@@ -279,7 +279,7 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 	
 	private void drawChart() {
 		drawFrame();
-		cn.draw();
+		cn.drawChart();
 		btnMenu.draw();
 		if (!menuHidden) {
 			menu.draw();

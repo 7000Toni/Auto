@@ -71,7 +71,6 @@ public class ChartNode extends CanvasNode {
 	private double xDiff;
 	private double fontSize;
 	private double chtDataMargin;
-	private boolean chartDateMarginDragging = false;
 	private double chartInitPos;
 	private boolean endMargin = false;
 	private boolean replayMode = false;
@@ -102,6 +101,7 @@ public class ChartNode extends CanvasNode {
 	private boolean mrpSBDragging = false;
 
 	private CanvasButton chartTypeShortcut;
+	private DateMargin dateMargin;
 	private boolean drawChartTypeShortcut = true;
 	private TNode<ICanvasNode> ctsNode;	
 	private TNode<ICanvasNode> chartNode;	
@@ -134,11 +134,13 @@ public class ChartNode extends CanvasNode {
 		chartTypeShortcut.setOnMouseClicked(e -> {
 			toggleChartType();
 		});
+		dateMargin = new DateMargin(this);
 		
 		chartNode = new TNode<ICanvasNode>(this, sceneGraph.root());
 		sceneGraph.addNode(chartNode);
 		ctsNode = new TNode<ICanvasNode>(chartTypeShortcut, chartNode);
 		sceneGraph.addNode(ctsNode);
+		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));
 		
 		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
@@ -388,6 +390,9 @@ public class ChartNode extends CanvasNode {
 		focusedChart.set(false);
 		focusedOnChart.set(false);
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
+		if (replayMode) {
+			cmrb.disablePendingOrderButtons();
+		}
 	}
 	
 	public void onMouseEntered() {
@@ -401,30 +406,16 @@ public class ChartNode extends CanvasNode {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
 		}
-		if (!chartDateMarginDragging) {
-			c.stage().getScene().setCursor(Cursor.DEFAULT);
-		}
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
 		CrossHair.setPrice(yCoordToPrice(e.getY()));
 		if (!onChart(e.getX(), e.getY(), true)) {
 			measuring = false;
-		} else {
-			if (e.getY() >= height + CHT_MARGIN - fontSize) {
-				c.stage().getScene().setCursor(Cursor.E_RESIZE);
-			}
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
 		}		
 	}	
-	
-	private boolean onDateMargin(double x, double y) {
-		if (x >= CHT_MARGIN && x <= CHT_MARGIN + width && y >= CHT_MARGIN + height - fontSize && y <= CHT_MARGIN + height) {
-			return true;
-		}
-		return false;
-	}
 	
 	public void onMousePressed(MouseEvent e) {		
 		if (e.getButton() == MouseButton.MIDDLE) {
@@ -444,8 +435,6 @@ public class ChartNode extends CanvasNode {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
-				} else if (onDateMargin(e.getX(), e.getY())) {
-						chartDateMarginDragging = true;
 				}								
 				double price = ((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
 				double upperPrice = ((((height - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
@@ -479,14 +468,12 @@ public class ChartNode extends CanvasNode {
 	}
 		
 	public void onMouseReleased(MouseEvent e) {
-		//TODO
 		if (measuring) {
 			measuring = false;			
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}		
 		lineDragging = false;
-		chartDateMarginDragging = false;
 		rightPressed = false;
 		if (mrpSBDragging) {
 			mrpSBDragging = false;
@@ -551,14 +538,6 @@ public class ChartNode extends CanvasNode {
 				c.hsb().setPosition(newHSBPos, false);
 			}
 		}
-		if (chartDateMarginDragging && !lineDragging) {	
-			c.stage().getScene().setCursor(Cursor.E_RESIZE);
-			if (drawCandlesticks.get()) {
-				zoomCandlesticks(e.getX() - chartInitPos, false);
-			} else {
-				zoomTicks(e.getX() - chartInitPos, false);
-			}
-		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 || mrpSBDragging) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
@@ -571,7 +550,7 @@ public class ChartNode extends CanvasNode {
 		onMouseMoved(e);
 	}
 	
-	private void zoomCandlesticks(double delta, boolean scroll) {
+	public void zoomCandlesticks(double delta, boolean scroll) {
 		double multiplier = 1.005;
 		boolean customSI = false;
 		if (scroll) {
@@ -615,7 +594,7 @@ public class ChartNode extends CanvasNode {
 		c.hsb().setPosition(newHSBPos, false);
 	}
 	
-	private void zoomTicks(double delta, boolean scroll) {
+	public void zoomTicks(double delta, boolean scroll) {
 		double multiplier = 1.01;
 		boolean customSI = false;
 		if (scroll) {
@@ -1039,8 +1018,7 @@ public class ChartNode extends CanvasNode {
 		}
 	}
 	
-	@Override
-	public void draw() {
+	public void drawChart() {
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {
@@ -1048,6 +1026,11 @@ public class ChartNode extends CanvasNode {
 				drawUI();
 			});
 		}
+	}
+	
+	@Override
+	public void draw() {
+		c.draw();
 	}
 	
 	public MarketReplay mr() {

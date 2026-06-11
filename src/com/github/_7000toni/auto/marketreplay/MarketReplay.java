@@ -299,9 +299,7 @@ public class MarketReplay {
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		tick();
 		
-		for (ChartNode c : charts) {
-			c.draw();
-		}
+		charts.get(0).draw();
 		mrp.draw();
 	}
 	
@@ -408,9 +406,7 @@ public class MarketReplay {
 			trade().updateTrade(data.tickDataSize(true).get() - 1);			
 			if (trade().closed()) {
 				closedTradeProc();
-				for (ChartNode c : charts) {
-					c.tradeButtons().disableButtons();
-				}
+				charts.get(0).draw();
 			}
 		}	
 		checkPendingOrders();	
@@ -469,9 +465,7 @@ public class MarketReplay {
 						}
 					}	
 					
-					for (ChartNode c : charts) {
-						c.draw();
-					}
+					charts.get(0).draw();
 					mrp.draw();
 					
 					lastTickTime = now;
