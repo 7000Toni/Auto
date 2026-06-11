@@ -213,7 +213,7 @@ public class ChartNode extends CanvasNode {
 	
 	private void setEventHandlers() {
 		setOnMouseDragged(e -> onMouseDragged(e));
-		setOnMouseEntered(e -> onMouseEntered());
+		setOnMouseEntered(e -> onMouseEntered(e));
 		setOnMouseExited(e -> onMouseExited(e));
 		setOnMousePressed(e -> onMousePressed(e));
 		setOnMouseReleased(e -> onMouseReleased(e));
@@ -403,11 +403,13 @@ public class ChartNode extends CanvasNode {
 		}
 	}
 	
-	public void onMouseEntered() {
+	public void onMouseEntered(MouseEvent e) {
 		focusedChart.set(true);
 		CrossHair.setIsForCandle(drawCandlesticks.get());
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
+		CrossHair.setX(e.getX());
+		CrossHair.setY(e.getY());
 	}
 	
 	public void onMouseMoved(MouseEvent e) {
@@ -478,7 +480,8 @@ public class ChartNode extends CanvasNode {
 		
 	public void onMouseReleased(MouseEvent e) {
 		if (measuring) {
-			measuring = false;			
+			measuring = false;		
+			c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}		
@@ -515,7 +518,7 @@ public class ChartNode extends CanvasNode {
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging) {
+		if (!lineDragging && !measuring) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
@@ -929,11 +932,11 @@ public class ChartNode extends CanvasNode {
 				ey += fontSize + 3;
 				if (right) {
 					dropped = true;
-					ex += 12;	
+					//ex += 12;//for default cursor
 				}
 			}
-			if (endX > CHT_MARGIN + width - prc_msrmnt_length - 12 && dropped && right) {
-				ex -= prc_msrmnt_length + 5 + 12;
+			if (endX > CHT_MARGIN + width - prc_msrmnt_length /*- 12*/ && dropped && right) {
+				ex -= prc_msrmnt_length + 5 /*+ 12*/;
 			}
 			if (endY >= height + CHT_MARGIN - fontSize) {
 				ey = height + CHT_MARGIN - fontSize;

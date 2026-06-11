@@ -31,7 +31,7 @@ public class CanvasEventFilter {
 						currentNode = cw.lastNode();
 						cn = currentNode.element();
 					}
-					if (!currentNode.equals(cw.lastNode())) {
+					if (!currentNode.equals(cw.lastNode()) && cw.lastNode() == null) {
 						cn.onMouseEntered(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {	
 						cn.onMouseDragged(me);						
@@ -63,6 +63,7 @@ public class CanvasEventFilter {
 				if (currentNode != null && !currentNode.equals(cw.lastNode())) {
 					if (cw.lastNode() != null) {
 						cw.lastNode().element().onMouseExited(me);
+						currentNode.element().onMouseEntered(me);
 						cw.setLastNode(null);
 					}
 					cw.setLastNode(currentNode);
