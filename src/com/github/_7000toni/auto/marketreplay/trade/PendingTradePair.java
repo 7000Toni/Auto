@@ -4,17 +4,17 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.CrossHair;
 import com.github._7000toni.auto.tree.TNode;
 
 public class PendingTradePair {
 	private PendingTrade penTrade;
 	private PendingTradeButtons penTradeButs;
-	private Chart chart;
+	private ChartNode chart;
 	private ArrayList<TNode<ICanvasNode>> nodes;
 	
-	public PendingTradePair(PendingTrade penTrade, Chart chart) {
+	public PendingTradePair(PendingTrade penTrade, ChartNode chart) {
 		this.penTrade = penTrade;
 		this.chart = chart;
 		
@@ -30,16 +30,16 @@ public class PendingTradePair {
 		} else {
 			text += "STOP";
 		}
-		penTradeButs.setOrder(new CanvasButton(chart.graphicsContext(), 100, chart.fontSize()*2, Chart.CHT_MARGIN + chart.chartWidth() / 2 - 100 - chart.fontSize()*2, 0, text, 6, chart.fontSize()/3));
+		penTradeButs.setOrder(new CanvasButton(chart.graphicsContext(), 100, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 - 100 - chart.fontSize()*2, 0, text, 6, chart.fontSize()/3));
 		penTradeButs.order().setVanGogh(chart.chartButtonVanGoghs().penOrderVG(penTradeButs.order(), penTrade));
 		
-		penTradeButs.setClose(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, Chart.CHT_MARGIN + chart.chartWidth() / 2 - 102 - chart.fontSize()*2, 0, "X", 9, chart.fontSize()/3));
+		penTradeButs.setClose(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 - 102 - chart.fontSize()*2, 0, "X", 9, chart.fontSize()/3));
 		penTradeButs.close().setVanGogh(chart.chartButtonVanGoghs().penCloseVG(penTradeButs.close(), penTrade));		
 		
-		penTradeButs.setSetSL(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, Chart.CHT_MARGIN + chart.chartWidth() / 2 + 10, 0, "SL", 6, chart.fontSize()/3));
+		penTradeButs.setSetSL(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 + 10, 0, "SL", 6, chart.fontSize()/3));
 		penTradeButs.setSL().setVanGogh(chart.chartButtonVanGoghs().penSetSlVG(penTradeButs.setSL(), penTrade));		
 		
-		penTradeButs.setSetTP(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, Chart.CHT_MARGIN + chart.chartWidth() / 2 + 20 + chart.fontSize()*2, 0, "TP", 6, chart.fontSize()/3));
+		penTradeButs.setSetTP(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 + 20 + chart.fontSize()*2, 0, "TP", 6, chart.fontSize()/3));
 		penTradeButs.setTP().setVanGogh(chart.chartButtonVanGoghs().penSetTpVG(penTradeButs.setTP(), penTrade));
 		
 		addToSceneGraph();
@@ -104,18 +104,18 @@ public class PendingTradePair {
 	
 	private void addToSceneGraph() {
 		nodes = new ArrayList<TNode<ICanvasNode>>();
-		TNode<ICanvasNode> order = new TNode<ICanvasNode>(penTradeButs.order(), chart.sceneGraph().root());
-		TNode<ICanvasNode> close = new TNode<ICanvasNode>(penTradeButs.close(), chart.sceneGraph().root());
-		TNode<ICanvasNode> setSL = new TNode<ICanvasNode>(penTradeButs.setSL(), chart.sceneGraph().root());
-		TNode<ICanvasNode> setTP = new TNode<ICanvasNode>(penTradeButs.setTP(), chart.sceneGraph().root());
+		TNode<ICanvasNode> order = new TNode<ICanvasNode>(penTradeButs.order(), chart.chart().sceneGraph().root());
+		TNode<ICanvasNode> close = new TNode<ICanvasNode>(penTradeButs.close(), chart.chart().sceneGraph().root());
+		TNode<ICanvasNode> setSL = new TNode<ICanvasNode>(penTradeButs.setSL(), chart.chart().sceneGraph().root());
+		TNode<ICanvasNode> setTP = new TNode<ICanvasNode>(penTradeButs.setTP(), chart.chart().sceneGraph().root());
 		nodes.add(order);
 		nodes.add(close);
 		nodes.add(setSL);
 		nodes.add(setTP);
-		chart.sceneGraph().addNode(order);
-		chart.sceneGraph().addNode(close);
-		chart.sceneGraph().addNode(setSL);
-		chart.sceneGraph().addNode(setTP);
+		chart.chart().sceneGraph().addNode(order);
+		chart.chart().sceneGraph().addNode(close);
+		chart.chart().sceneGraph().addNode(setSL);
+		chart.chart().sceneGraph().addNode(setTP);
 	}
 	
 	public void draw() {
@@ -137,7 +137,7 @@ public class PendingTradePair {
 	
 	public void removeFromSceneGraph() {
 		for (TNode<ICanvasNode> n : nodes) {
-			chart.sceneGraph().removeNode(n);
+			chart.chart().sceneGraph().removeNode(n);
 		}
 	}
 	

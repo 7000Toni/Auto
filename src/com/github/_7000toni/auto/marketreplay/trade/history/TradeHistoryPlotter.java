@@ -1,17 +1,17 @@
 package com.github._7000toni.auto.marketreplay.trade.history;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.DataSet;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class TradeHistoryPlotter {
-	private Chart chart;
+	private ChartNode chart;
 	
-	public TradeHistoryPlotter(Chart chart) {
-		this.chart = chart;
+	public TradeHistoryPlotter(ChartNode chartNode) {
+		this.chart = chartNode;
 	}
 	
 	public void plotHistory(ArrayList<? extends ITradeHistory> history) {
@@ -22,8 +22,8 @@ public class TradeHistoryPlotter {
 		ArrayList<DataSet.DataPair> data = chart.data().tickData();
 		for (ITradeHistory h : history) {			
 			if (inRange(h)) {
-				double x1 = Chart.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
-				double x2 = Chart.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
+				double x1 = ChartNode.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
+				double x2 = ChartNode.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
 				double y1 = chart.priceToYCoord(data.get(h.entryIndex()).price());
 				double y2 = chart.priceToYCoord(data.get(h.exitIndex()).price());
 				
@@ -42,25 +42,25 @@ public class TradeHistoryPlotter {
 				double diff2;
 				if (onlyOpenInRange(h)) {
 					if (gradient > 0) {
-						dy = -(y1 - Chart.CHT_MARGIN);
+						dy = -(y1 - ChartNode.CHT_MARGIN);
 					} else {
-						dy = chart.chartHeight() + Chart.CHT_MARGIN - y1;						
+						dy = chart.height() + ChartNode.CHT_MARGIN - y1;						
 					}
-					dx = -(chart.chartWidth() + Chart.CHT_MARGIN - x1);					
+					dx = -(chart.width() + ChartNode.CHT_MARGIN - x1);					
 					calcx = -dy / gradient;
 					calcy = -gradient * dx;
 					
 					tempx = x1 + calcx;
 					if (gradient > 0) {
-						tempxy = Chart.CHT_MARGIN;
+						tempxy = ChartNode.CHT_MARGIN;
 					} else {
-						tempxy = Chart.CHT_MARGIN + chart.chartHeight();
+						tempxy = ChartNode.CHT_MARGIN + chart.height();
 					}
 					grad1 = (-tempxy+y1)/(tempx-x1);
 					diff1 = gradient - grad1;
 					
 					tempy = y1 - calcy;
-					tempyx = Chart.CHT_MARGIN + chart.chartWidth();
+					tempyx = ChartNode.CHT_MARGIN + chart.width();
 					grad2 = (-tempy+y1)/(tempyx-x1);
 					diff2 = gradient - grad2;
 					if ((Math.abs(diff1) > Math.abs(diff2) && coordsInChart(x1, y1, tempyx, tempy)) || !coordsInChart(x1, y1, tempx, tempxy)) {
@@ -72,25 +72,25 @@ public class TradeHistoryPlotter {
 					}					
 				} else if (onlyCloseInRange(h)) {
 					if (gradient < 0) {
-						dy = -(y2 - Chart.CHT_MARGIN);
+						dy = -(y2 - ChartNode.CHT_MARGIN);
 					} else {
-						dy = chart.chartHeight() + Chart.CHT_MARGIN - y2;						
+						dy = chart.height() + ChartNode.CHT_MARGIN - y2;						
 					}
-					dx = -(x2 - Chart.CHT_MARGIN);					
+					dx = -(x2 - ChartNode.CHT_MARGIN);					
 					calcx = -dy / gradient;
 					calcy = -gradient * dx;
 					
 					tempx = x2 + calcx;
 					if (gradient > 0) {
-						tempxy = Chart.CHT_MARGIN + chart.chartHeight();
+						tempxy = ChartNode.CHT_MARGIN + chart.height();
 					} else {
-						tempxy = Chart.CHT_MARGIN;
+						tempxy = ChartNode.CHT_MARGIN;
 					}
 					grad1 = (-y2+tempxy)/(x2-tempx);
 					diff1 = gradient - grad1;
 					
 					tempy = y2 + calcy;
-					tempyx = Chart.CHT_MARGIN;
+					tempyx = ChartNode.CHT_MARGIN;
 					grad2 = (-y2+tempy)/(x2-tempyx);
 					diff2 = gradient - grad2;
 					if ((Math.abs(diff1) > Math.abs(diff2) && coordsInChart(tempyx, tempy, x2, y2)) || !coordsInChart(tempx, tempxy, x2, y2)) {
@@ -115,10 +115,10 @@ public class TradeHistoryPlotter {
 	}
 	
 	private boolean coordsInChart(double x1, double y1, double x2, double y2) {
-		if (x1 >= Chart.CHT_MARGIN && x1 <= Chart.CHT_MARGIN + chart.chartWidth() &&
-				y1 >= Chart.CHT_MARGIN && y1 <= Chart.CHT_MARGIN + chart.chartHeight() &&
-				x2 >= Chart.CHT_MARGIN && x2 <= Chart.CHT_MARGIN + chart.chartWidth() &&
-				y2 >= Chart.CHT_MARGIN && y2 <= Chart.CHT_MARGIN + chart.chartHeight()) {
+		if (x1 >= ChartNode.CHT_MARGIN && x1 <= ChartNode.CHT_MARGIN + chart.width() &&
+				y1 >= ChartNode.CHT_MARGIN && y1 <= ChartNode.CHT_MARGIN + chart.height() &&
+				x2 >= ChartNode.CHT_MARGIN && x2 <= ChartNode.CHT_MARGIN + chart.width() &&
+				y2 >= ChartNode.CHT_MARGIN && y2 <= ChartNode.CHT_MARGIN + chart.height()) {
 			return true;
 		}
 		return false;

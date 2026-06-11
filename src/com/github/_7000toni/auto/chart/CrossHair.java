@@ -20,12 +20,12 @@ public class CrossHair {
 	private static BooleanProperty isForCandle = new SimpleBooleanProperty(false);
 	private static StringProperty name = new SimpleStringProperty();
 	
-	private Chart chart;
+	private ChartNode chart;
 	private double dateBarHalfWidth;
 	private double dateBarX;
 	private String ohlc;
 
-	public CrossHair(Chart chart) {
+	public CrossHair(ChartNode chart) {
 		this.chart = chart;
 		this.dateBarHalfWidth = chart.fontSize() * 5;
 	}
@@ -82,10 +82,10 @@ public class CrossHair {
 	}
 	
 	private void setDateBarX(double xPos) {
-		if (xPos < Chart.CHT_MARGIN + dateBarHalfWidth) {
-			dateBarX = Chart.CHT_MARGIN;
-		} else if (xPos > chart.chartWidth() + Chart.CHT_MARGIN - dateBarHalfWidth) {
-			dateBarX = chart.chartWidth() + Chart.CHT_MARGIN - dateBarHalfWidth * 2;
+		if (xPos < ChartNode.CHT_MARGIN + dateBarHalfWidth) {
+			dateBarX = ChartNode.CHT_MARGIN;
+		} else if (xPos > chart.width() + ChartNode.CHT_MARGIN - dateBarHalfWidth) {
+			dateBarX = chart.width() + ChartNode.CHT_MARGIN - dateBarHalfWidth * 2;
 		} else {
 			dateBarX = xPos - dateBarHalfWidth;
 		}
@@ -106,14 +106,14 @@ public class CrossHair {
 		if (focusedChart) {
 			yPos = y.get();
 		} else {
-			yPos = ((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.chartHeight() + Chart.CHT_MARGIN;
+			yPos = ((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN;
 		}
 		if (Chart.darkMode().get()) {
 			chart.graphicsContext().setStroke(Color.WHITE);
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(Chart.CHT_MARGIN, yPos, Chart.CHT_MARGIN + chart.chartWidth(), yPos);
+		chart.graphicsContext().strokeLine(ChartNode.CHT_MARGIN, yPos, ChartNode.CHT_MARGIN + chart.width(), yPos);
 		drawPriceBox(yPos);
 	}
 	
@@ -125,8 +125,8 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(chart.chartWidth() + Chart.CHT_MARGIN, yPos - chart.fontSize()/2, chart.priceMargin(), chart.fontSize());
-		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.chartWidth() + Chart.CHT_MARGIN + Chart.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, chart.priceMargin() - Chart.PRICE_DASH_SIZE - Chart.PRICE_DASH_MARGIN);
+		chart.graphicsContext().fillRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize());
+		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.width() + ChartNode.CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, chart.chart().priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
@@ -135,7 +135,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(xPos, Chart.CHT_MARGIN, xPos, chart.height() - chart.hsb().sbHeight() - Chart.CHT_MARGIN);
+		chart.graphicsContext().strokeLine(xPos, ChartNode.CHT_MARGIN, xPos, chart.height() + ChartNode.CHT_MARGIN);
 		setDateBarX(xPos);
 		drawDateBox(index);
 	}
@@ -148,20 +148,20 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(dateBarX, chart.chartHeight() + Chart.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize());
+		chart.graphicsContext().fillRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize());
 		if (index != -1) {
 			if (chart.drawCandlesticks().get()) {
-				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.height() + ChartNode.CHT_MARGIN - 1, dateBarHalfWidth*2);
 			} else {
-				chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().minusNanos(chart.tickData().get(index).dateTime().getNano()).toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+				chart.graphicsContext().strokeText(chart.tickData().get(index).dateTime().minusNanos(chart.tickData().get(index).dateTime().getNano()).toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.height() + ChartNode.CHT_MARGIN - 1, dateBarHalfWidth*2);
 			}
 		} else {
-			chart.graphicsContext().strokeText("DONTBEDUMB", dateBarX + chart.fontSize() / 3, chart.chartHeight() + Chart.CHT_MARGIN - 1, dateBarHalfWidth*2);
+			chart.graphicsContext().strokeText("DONTBEDUMB", dateBarX + chart.fontSize() / 3, chart.height() + ChartNode.CHT_MARGIN - 1, dateBarHalfWidth*2);
 		}
 	}
 	
 	private double getWidth() {
-		double width = chart.chartWidth();
+		double width = chart.width();
 		if (chart.endMargin()) {
 			if (chart.drawCandlesticks().get()) {
 				width = (chart.candlestickWidth() + chart.candlestickSpacing()) * (chart.endIndex() - chart.startIndex()); 
@@ -175,7 +175,7 @@ public class CrossHair {
 	private void drawFocusedChartCrossHair() {						
 		drawHorizontalLine(true);
 		double width = getWidth();
-		dateIndex.set(chart.startIndex() + (int)(((x.get() - Chart.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex())));
+		dateIndex.set(chart.startIndex() + (int)(((x.get() - ChartNode.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex())));
 		if (dateIndex.get() >= chart.endIndex()) {
 			if (chart.endMargin()) {
 				dateIndex.set(-1);
@@ -197,7 +197,7 @@ public class CrossHair {
 		int indexRange = chart.endIndex() - chart.startIndex();
 		double percOfRange = (dateIndex.get() - chart.startIndex()) / (double)indexRange;
 		double width = getWidth();
-		double xPos = width * percOfRange + Chart.CHT_MARGIN;			
+		double xPos = width * percOfRange + ChartNode.CHT_MARGIN;			
 		drawVerticalLine(xPos, dateIndex.get());
 	}
 	
@@ -210,7 +210,7 @@ public class CrossHair {
 		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex.get()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
 			int chdi = chart.m1Candles().get(dateIndex.get()).firstTickIndex();
-			double xPos = (chdi - chart.startIndex()) * chart.xDiff() + Chart.CHT_MARGIN;
+			double xPos = (chdi - chart.startIndex()) * chart.xDiff() + ChartNode.CHT_MARGIN;
 			drawVerticalLine(xPos, chdi);
 		}
 	}
@@ -219,7 +219,7 @@ public class CrossHair {
 		if (dateIndex.get() == -1) {
 			return;
 		}
-		double xPos = (dateIndex.get() - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + Chart.CHT_MARGIN;				
+		double xPos = (dateIndex.get() - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + ChartNode.CHT_MARGIN;				
 		setOHLC(dateIndex.get());					
 		drawVerticalLine(xPos, dateIndex.get());
 	}
@@ -241,7 +241,7 @@ public class CrossHair {
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
 			double width = getWidth();
-			double xPos = width * percOfRange + Chart.CHT_MARGIN + chart.candlestickWidth() / 2;	
+			double xPos = width * percOfRange + ChartNode.CHT_MARGIN + chart.candlestickWidth() / 2;	
 			if (isForCandle.get()) {
 				setOHLC(dateIndex.get());
 			} else {
@@ -272,7 +272,7 @@ public class CrossHair {
 		}
 	}
 	
-	public void drawCrossHair() {		
+	public void drawCrossHair() {
 		if (chart.focusedChart().get()) {		
 			if (chart.onChart(x.get(), y.get(), true)) {
 				drawFocusedChartCrossHair();
@@ -286,7 +286,7 @@ public class CrossHair {
 					chart.tradeButtons().disablePendingOrderButtons();
 				}
 			}
-		} else if (Chart.focusedOnChart().get() && chart.name().equals(name.get())) {
+		} else if (ChartNode.focusedOnChart().get() && chart.name().equals(name.get())) {
 			drawUnfocusedChartCrossHair();
 		}
 	}

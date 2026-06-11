@@ -111,7 +111,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 	@Override
 	public void onMouseDragged(MouseEvent e) {
 		((ColourPicker)sbo).unintializeColours();
-		if (onMouseDragged == null) {
+		if (onMouseDragged == null || !enabled) {
 			return;
 		}
 		onMouseDragged.handle(e);

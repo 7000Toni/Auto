@@ -131,7 +131,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 		ImageSettings.setBrightness(b);
 		Chart.drawCharts(null);
 		MarketReplayPane.drawReplayPanes();
-		if (onMouseDragged == null) {
+		if (onMouseDragged == null || !enabled) {
 			return;
 		}
 		onMouseDragged.handle(e);

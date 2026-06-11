@@ -72,8 +72,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			if (Main.icon() != null) {
 				s.getIcons().add(Main.icon());
 			}
-			s.setTitle(chart.name());
-			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.data(), chart.replayMode(), chart.mr(), chart.mrp());			
+			s.setTitle(chart.chartNode().name());
+			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.chartNode().data(), chart.chartNode().replayMode(), chart.chartNode().mr(), chart.chartNode().mrp());			
 			Scene scene = new Scene(cpane);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> cpane.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
@@ -81,9 +81,9 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 110, "CANDLESTICK CHART");
-		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART"));
+		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.chartNode().drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART"));
 		chartType.setOnMouseClicked(e -> {
-			chart.toggleChartType();
+			chart.chartNode().toggleChartType();
 		});
 		
 		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 135, "DARK MODE");
@@ -97,25 +97,25 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chartTypeShortcut.alternateDraw(gc.getFont());
 		});
 		chartTypeShortcut.setOnMouseClicked(e -> {
-			chart.toggleChartTypeShortcut();
+			chart.chartNode().toggleChartTypeShortcut();
 		});
 		
 		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 185, "LOAD HISTORY");
 		initHst.setVanGogh(cmbvg.initHstDraw(initHst, chart));
 		initHst.setOnMouseClicked(e -> {
-			chart.initHst();
+			chart.chartNode().initHst();
 		});;
 		
 		toggleHst = new CanvasButton(gc, 290, 20, x + 5, y + 210, "SHOW TRADE HISTORY");
-		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.plotHst(), "HIDE TRADE HISTORY", "SHOW TRADE HISTORY"));
+		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.chartNode().plotHst(), "HIDE TRADE HISTORY", "SHOW TRADE HISTORY"));
 		toggleHst.setOnMouseClicked(e -> {
-			chart.toggleHst();
+			chart.chartNode().toggleHst();
 		});;
 		
 		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "SKIP DRAW");
-		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.skipDraw(), "DON'T SKIP DRAW", "SKIP DRAW"));
+		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "DON'T SKIP DRAW", "SKIP DRAW"));
 		toggleSkipDraw.setOnMouseClicked(e -> {
-			chart.toggleSkipDraw();
+			chart.chartNode().toggleSkipDraw();
 		});;
 		
 		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "MARKET REPLAY");
@@ -128,7 +128,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			replayShortcut.alternateDraw(gc.getFont());
 		});
 		replayShortcut.setOnMouseClicked(e -> {
-			chart.toggleMRPShortcut();
+			chart.chartNode().toggleMRPShortcut();
 		});;		
 		
 		saveHst = new CanvasButton(gc, 290, 20, x + 5, y + 310, "DON'T SAVE TRADE HISTORY");
@@ -146,7 +146,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 360, "SAVE LOADABLE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
 		saveMRHst.setOnMouseClicked(e -> {
-			chart.marketReplay().trade().writeHistoryToFile(chart.name());
+			chart.chartNode().marketReplay().trade().writeHistoryToFile(chart.chartNode().name());
 			mrRecentlySaved.set(true);
 			new AnimationTimer() {
 				private long init = 0;				

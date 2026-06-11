@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.DataSet;
 
 import javafx.beans.property.IntegerProperty;
@@ -63,7 +63,7 @@ public class TradeHistoryLoader {
 		return loadApproxHistory(history, data, null, null);
 	}
 	
-	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, Chart chart) {
+	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, ChartNode chart) {
 		ArrayList<ApproxTradeHistory> approxHst = new ArrayList<ApproxTradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
@@ -119,7 +119,7 @@ public class TradeHistoryLoader {
 		return approxHst;
 	}
 	
-	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, Chart chart) {
+	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, ChartNode chart) {
 		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
 		long j = 0;
 		progress.set(0);		

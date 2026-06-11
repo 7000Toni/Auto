@@ -68,7 +68,7 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	
 	public MarketReplayPane(Chart chart, int index, Stage stage) {
 		this.stage = stage;				
-		name = chart.name();
+		name = chart.chartNode().name();
 		stage.setTitle(name + " Replay");
 		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
@@ -138,15 +138,11 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		});
 		back.setOnMouseClicked(e -> {
 			mr.setIndex(-moveNumber(), true);
-			for (Chart c : mr.charts()) {
-				c.draw();
-			}		
+			mr.charts().getFirst().draw();
 		});
 		forward.setOnMouseClicked(e -> {
 			mr.setIndex(moveNumber(), true);
-			for (Chart c : mr.charts()) {
-				c.draw();
-			}		
+			mr.charts().getFirst().draw();		
 		});
 		live.setOnMouseClicked(e -> {
 			if (bLive.get()) {

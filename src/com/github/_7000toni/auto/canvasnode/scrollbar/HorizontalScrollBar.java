@@ -265,7 +265,7 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 		if (!onNode(e.getX(), e.getY())) {
 			hovering = false;
 		}
-		if (onMouseReleased == null) {
+		if (onMouseReleased == null || !enabled) {
 			return;
 		}
 		onMouseReleased.handle(e);

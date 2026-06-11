@@ -13,7 +13,7 @@ public class ChartPane extends GridPane {
 		try {
 			chart = new Chart(width, height, stage, ch);
 			if (replayMode) {
-				chart.enableReplayMode(mr, mrp);
+				chart.chartNode().enableReplayMode(mr, mrp);
 			}
 			this.add(chart.canvas(), 0, 0);
 		} catch (Exception e) {

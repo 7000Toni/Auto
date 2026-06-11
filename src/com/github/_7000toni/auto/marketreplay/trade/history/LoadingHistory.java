@@ -2,7 +2,7 @@ package com.github._7000toni.auto.marketreplay.trade.history;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.DataSet;
 
 import javafx.beans.property.BooleanProperty;
@@ -17,11 +17,11 @@ public class LoadingHistory {
 	private IntegerProperty progress = new SimpleIntegerProperty(0);
 	private BooleanProperty complete = new SimpleBooleanProperty(false);
 	private BooleanProperty started = new SimpleBooleanProperty(false);
-	private Chart chart;
+	private ChartNode chart;
 	private Task<Void> task = null;
 	
-	public LoadingHistory(Chart chart) {
-		this.chart = chart;
+	public LoadingHistory(ChartNode chartNode) {
+		this.chart = chartNode;
 	}
 	
 	public void loadApproxHistory(File history, ArrayList<DataSet.DataPair> data) {	

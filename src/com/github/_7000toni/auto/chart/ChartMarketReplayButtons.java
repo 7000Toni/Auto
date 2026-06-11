@@ -17,7 +17,7 @@ import com.github._7000toni.auto.tree.Tree;
 import javafx.scene.canvas.GraphicsContext;
 
 public class ChartMarketReplayButtons {
-	private Chart chart;
+	private ChartNode chart;
 	private CanvasButton buy;
 	private CanvasButton sell;
 	private CanvasNumberChooser volUnits;
@@ -29,7 +29,7 @@ public class ChartMarketReplayButtons {
 	private CanvasButton stopOrder;
 	
 	
-	public ChartMarketReplayButtons(Chart chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
+	public ChartMarketReplayButtons(ChartNode chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
 		this.chart = chart;
 		init(mr, cbvg);
 		addToSceneGraph();
@@ -39,13 +39,13 @@ public class ChartMarketReplayButtons {
 	private void init(MarketReplay mr, ChartButtonVanGoghs cbvg) {
 		GraphicsContext gc = chart.graphicsContext();
 		double fontSize = chart.fontSize();
-		double chartWidth = chart.chartWidth();
+		double chartWidth = chart.width();
 		
 		double bw = 40;
 		double ncw = 20;
 		double bh = 30;
 		double mgn = 5;
-		double initx = Chart.CHT_MARGIN + Chart.INFO_MARGIN;
+		double initx = ChartNode.CHT_MARGIN + ChartNode.INFO_MARGIN;
 		double inity = 30;		
 		
 		sell = new CanvasButton(gc, bw, bh, initx, inity, "SELL", 9, fontSize + 7);
@@ -62,33 +62,33 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs = new TradeButtons();
 		
-		tradeButs.setOrder(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
+		tradeButs.setOrder(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
 		tradeButs.order().setVanGogh(cbvg.orderVG(tradeButs.order(), mr.trade()));
 		
-		tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
 		tradeButs.close().setVanGogh(cbvg.closeVG(tradeButs.close(), mr.trade()));
 		
-		tradeButs.setCancelTP(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.setCancelTP(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
 		tradeButs.cancelTP().setVanGogh(cbvg.cancelTpVG(tradeButs.cancelTP()));
 		
-		tradeButs.setCancelSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
+		tradeButs.setCancelSL(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
 		tradeButs.cancelSL().setVanGogh(cbvg.cancelSlVG(tradeButs.cancelSL()));
 		
-		tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));		
+		tradeButs.setSL(new CanvasButton(gc, 100, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));		
 		tradeButs.sl().setVanGogh(cbvg.slVG(tradeButs.sl()));
 		
-		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
+		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
 		tradeButs.tp().setVanGogh(cbvg.tpVG(tradeButs.tp()));
 		
-		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
+		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
 		tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL()));
 		
-		tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
+		tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
 		tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP()));
 		
-		limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, Chart.CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
+		limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, ChartNode.CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
 		limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
-		stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, Chart.CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
+		stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, ChartNode.CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
 		stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
 		penTrades = new ArrayList<PendingTradePair>();
 	}
@@ -241,20 +241,20 @@ public class ChartMarketReplayButtons {
 	}
 	
 	private void addToSceneGraph() {
-		Tree<ICanvasNode> sceneGraph = chart.sceneGraph();
-		chart.varLock().lock();
+		Tree<ICanvasNode> sceneGraph = chart.chart().sceneGraph();
+		chart.chart().varLock().lock();
 		try {
-			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chart().sceneGraph().root()));
 			for (CanvasLabel b : tradeButs.buttons()) {
-				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.sceneGraph().root()));
+				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.chart().sceneGraph().root()));
 			}
 		} finally {
-			chart.varLock().unlock();
+			chart.chart().varLock().unlock();
 		}
 	}
 	
@@ -265,23 +265,23 @@ public class ChartMarketReplayButtons {
 	
 	public void resetButtons() {
 		double fontSize = chart.fontSize();
-		double chartWidth = chart.chartWidth();
+		double chartWidth = chart.width();
 		
-		tradeButs.close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-		tradeButs.cancelTP().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
-		tradeButs.cancelSL().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-		tradeButs.sl().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-		tradeButs.tp().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-		tradeButs.setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
-		tradeButs.setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+		tradeButs.close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+		tradeButs.cancelTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
+		tradeButs.cancelSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+		tradeButs.sl().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
+		tradeButs.tp().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
+		tradeButs.setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
+		tradeButs.setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
 		for (PendingTradePair p : penTrades) {
-			p.pendingTradeButtons().order().setX(Chart.CHT_MARGIN + chartWidth / 2 - 100);
-			p.pendingTradeButtons().close().setX(Chart.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-			p.pendingTradeButtons().setSL().setX(Chart.CHT_MARGIN + chartWidth / 2 + 10);
-			p.pendingTradeButtons().setTP().setX(Chart.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+			p.pendingTradeButtons().order().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
+			p.pendingTradeButtons().close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
+			p.pendingTradeButtons().setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
+			p.pendingTradeButtons().setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
 		}
-		limitOrder.setX(Chart.CHT_MARGIN + chartWidth - fontSize*2-2);
-		stopOrder.setX(Chart.CHT_MARGIN + chartWidth - fontSize*4-6);
+		limitOrder.setX(ChartNode.CHT_MARGIN + chartWidth - fontSize*2-2);
+		stopOrder.setX(ChartNode.CHT_MARGIN + chartWidth - fontSize*4-6);
 	}
 	
 	public void enableButtons() {

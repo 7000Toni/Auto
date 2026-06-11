@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.DataSet;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
@@ -22,7 +23,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class MarketReplay {
-	private ArrayList<Chart> charts;
+	private ArrayList<ChartNode> charts;
 	private String name;
 	private DataSet data;
 	private MarketReplayPane mrp;
@@ -45,9 +46,9 @@ public class MarketReplay {
 	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
 	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
-		this.charts = new ArrayList<Chart>();
-		this.name = chart.name();
-		this.data = chart.data();
+		this.charts = new ArrayList<ChartNode>();
+		this.name = chart.chartNode().name();
+		this.data = chart.chartNode().data();
 		this.mrp = mrp;
 		this.tickDataSize.set(data.tickDataSize(false).get());
 		if (index < 1) {
@@ -60,7 +61,7 @@ public class MarketReplay {
 		}
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
 		this.index.set(index);
-		chart.enableReplayMode(this, mrp);
+		chart.chartNode().enableReplayMode(this, mrp);
 	}
 	
 	public static ReadOnlyBooleanProperty writeToFile() {
@@ -71,16 +72,16 @@ public class MarketReplay {
 		writeToFile.set(!writeToFile.get());
 	}
 	
-	public void addChart(Chart chart) {
-		this.charts.add(chart);
+	public void addChart(ChartNode chart) {
+		charts.add(chart);
 	}
 	
-	public void removeChart(Chart chart) {
-		this.charts.remove(chart);
+	public void removeChart(ChartNode chart) {
+		charts.remove(chart);
 	}
 	
-	public ArrayList<Chart> charts() {
-		return this.charts;
+	public ArrayList<ChartNode> charts() {
+		return charts;
 	}
 	
 	public void togglePause() {		
@@ -92,7 +93,7 @@ public class MarketReplay {
 			live.set(false);
 		} else {
 			live.set(true);
-			for (Chart c : charts) {
+			for (ChartNode c : charts) {
 				if (!c.mr().equals(this)) {
 					continue;
 				}
@@ -205,8 +206,8 @@ public class MarketReplay {
 	
 	public void addPendingTrade(PendingTrade pendingTrade) {
 		this.pendingTrades.add(pendingTrade);
-		for (Chart c : charts) {
-			c.tradeButtons().addPenTradePair(new PendingTradePair(pendingTrade, c));
+		for (ChartNode c : charts) {
+			c.tradeButtons().addPenTradePair(new PendingTradePair(pendingTrade, c.chart().chartNode()));
 		}
 	}
 	
@@ -216,7 +217,7 @@ public class MarketReplay {
 			cancelSl();
 			cancelTp();
 		}
-		for (Chart c : charts) {
+		for (ChartNode c : charts) {
 			c.tradeButtons().removePenTradePair(pendingTrade);
 		}
 	}
@@ -226,7 +227,7 @@ public class MarketReplay {
 		if (!trade.closed()) {
 			validateSl(unvalidatedSlPrice.get());
 			validateTp(unvalidatedTpPrice.get());
-			for (Chart c : charts) {
+			for (ChartNode c : charts) {
 				c.tradeButtons().enableButtons();
 			}
 		} else {
@@ -252,7 +253,7 @@ public class MarketReplay {
 		if (trade.closed()) {
 			cancelSl();
 			cancelTp();
-			for (Chart c : charts) {
+			for (ChartNode c : charts) {
 				c.tradeButtons().disableButtons();
 			}
 		}
@@ -298,7 +299,7 @@ public class MarketReplay {
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 		tick();
 		
-		for (Chart c : charts) {
+		for (ChartNode c : charts) {
 			c.draw();
 		}
 		mrp.draw();
@@ -324,7 +325,7 @@ public class MarketReplay {
 		boolean nt = false;
 		if (trade.closed()) {
 			setTrade(new Trade(data, i, slPrice.get(), tpPrice.get(), p.buy(), p.volume()));	
-			for (Chart c : charts) {
+			for (ChartNode c : charts) {
 				c.tradeButtons().enableButtons();
 				c.tradeButtons().removePenTradePair(p);
 			}
@@ -341,7 +342,7 @@ public class MarketReplay {
 			trade().updateTrade(data.tickDataSize(true).get() - 1);
 			if (trade().closed()) {
 				closedTradeProc();
-				for (Chart c : charts) {
+				for (ChartNode c : charts) {
 					c.tradeButtons().disableButtons();
 					c.tradeButtons().removePenTradePair(p);
 				}
@@ -383,7 +384,7 @@ public class MarketReplay {
 					}
 				}
 				if (changed) {
-					for (Chart c : charts) {
+					for (ChartNode c : charts) {
 						c.tradeButtons().removePenTradePair(p);
 					}	
 				}
@@ -407,7 +408,7 @@ public class MarketReplay {
 			trade().updateTrade(data.tickDataSize(true).get() - 1);			
 			if (trade().closed()) {
 				closedTradeProc();
-				for (Chart c : charts) {
+				for (ChartNode c : charts) {
 					c.tradeButtons().disableButtons();
 				}
 			}
@@ -443,20 +444,20 @@ public class MarketReplay {
 						if (live.get()) {
 							double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);		
-							for (Chart c : charts) {
+							for (ChartNode c : charts) {
 								c.setKeepStartIndex(false);
-								c.hsb().setPosition(Integer.MAX_VALUE, false);
+								c.chart().hsb().setPosition(Integer.MAX_VALUE, false);
 							}
 						} else {
 							double newHSBPos;
-							for (Chart c : charts) {
+							for (ChartNode c : charts) {
 								if (c.drawCandlesticks().get()) {
-									newHSBPos = (Chart.CHT_MARGIN + c.chartWidth() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * Chart.END_MARGIN_COEF));
+									newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * ChartNode.END_MARGIN_COEF));
 								} else {
-									newHSBPos = (Chart.CHT_MARGIN + c.chartWidth() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * Chart.END_MARGIN_COEF));
+									newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * ChartNode.END_MARGIN_COEF));
 								}								
 								c.setKeepStartIndex(true);
-								c.hsb().setPosition(newHSBPos, false);
+								c.chart().hsb().setPosition(newHSBPos, false);
 							}
 							newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
 							mrp.hsb().setPosition(newHSBPos, false);											
@@ -468,7 +469,7 @@ public class MarketReplay {
 						}
 					}	
 					
-					for (Chart c : charts) {
+					for (ChartNode c : charts) {
 						c.draw();
 					}
 					mrp.draw();

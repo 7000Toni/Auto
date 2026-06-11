@@ -86,7 +86,7 @@ public class ChartMenuButtonVanGoghs {
 	
 	public IVanGogh initHstDraw(CanvasButton cb, Chart c) {
 		return (x, y, gc) -> {
-			LoadingHistory lh = c.loadingHistory();
+			LoadingHistory lh = c.chartNode().loadingHistory();
 			if (lh != null && lh.started().get() && !lh.complete().get()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRect(x+1, y+1, (cb.width()-2)*(lh.progress().get()/100.0), cb.height()-2);
