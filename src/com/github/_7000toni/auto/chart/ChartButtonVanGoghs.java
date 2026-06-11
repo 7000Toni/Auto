@@ -1,4 +1,5 @@
 package com.github._7000toni.auto.chart;
+
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -88,7 +89,7 @@ public class ChartButtonVanGoghs {
 		
 		double entryY = c.priceToYCoord(c.roundToNearestTick(mr.trade().entryPrice()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false) && !c.marketReplay().trade().closed()) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.close().setY(entryY - fontSize);
 			return true;
 		}
@@ -130,7 +131,7 @@ public class ChartButtonVanGoghs {
 		double fontSize = c.fontSize();
 		
 		double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3)) {
 			close.enable();
 			close.setY(entryY - fontSize);
 			return true;
@@ -181,7 +182,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelTP().disable();
 				return false;
 			}
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3, false)) {	
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3)) {	
 				tradeButs.cancelTP().enable();
 				tradeButs.cancelTP().setY(tpY - fontSize);	
 				return true;
@@ -190,7 +191,7 @@ public class ChartButtonVanGoghs {
 				return false;
 			}
 		} else {
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3)) {
 				tradeButs.cancelTP().enable();
 				tradeButs.cancelTP().setY(tpY - fontSize);
 				return true;
@@ -235,7 +236,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.cancelSL().disable();
 				return false;
 			}
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3, false)) {	
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3)) {	
 				tradeButs.cancelSL().enable();
 				tradeButs.cancelSL().setY(slY - fontSize);
 				return true;
@@ -244,7 +245,7 @@ public class ChartButtonVanGoghs {
 				return false;
 			}
 		} else {
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3, false)) {
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3)) {
 				tradeButs.cancelSL().enable();
 				tradeButs.cancelSL().setY(slY - fontSize);
 				return true;
@@ -295,7 +296,7 @@ public class ChartButtonVanGoghs {
 			if (mr.pendingTrades().size() == 0) {
 				tradeButs.sl().disable();
 				return false;
-			} else if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3, false)) {				
+			} else if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3)) {				
 				tradeButs.sl().enable();
 				tradeButs.sl().setY(slY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
@@ -307,7 +308,7 @@ public class ChartButtonVanGoghs {
 				return false;
 			}
 		} else {
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3, false)) {
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3)) {
 				tradeButs.sl().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.strokeLine(x1, slY, x2, slY);
@@ -371,7 +372,7 @@ public class ChartButtonVanGoghs {
 			if (mr.pendingTrades().size() == 0) {
 				tradeButs.tp().disable();
 				return false;
-			} else if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3, false)) {				
+			} else if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3)) {				
 				tradeButs.tp().enable();
 				tradeButs.tp().setY(tpY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
@@ -383,7 +384,7 @@ public class ChartButtonVanGoghs {
 				return false;
 			}
 		} else {			
-			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3, false)) {
+			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3)) {
 				tradeButs.tp().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				gc.strokeLine(x1, tpY, x2, tpY);
@@ -435,7 +436,7 @@ public class ChartButtonVanGoghs {
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false) && !c.marketReplay().trade().closed()) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.setSL().setY(entryY - fontSize);
 			return true;
 		}
@@ -471,7 +472,7 @@ public class ChartButtonVanGoghs {
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false) && !c.marketReplay().trade().closed()) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.setTP().setY(entryY - fontSize);			
 			return true;
 		}
@@ -506,7 +507,7 @@ public class ChartButtonVanGoghs {
 		double fontSize = c.fontSize();
 		double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false) && c.marketReplay().trade().closed()) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && c.marketReplay().trade().closed()) {
 			setSL.enable();
 			setSL.setY(entryY - fontSize);
 			return true;
@@ -543,7 +544,7 @@ public class ChartButtonVanGoghs {
 		double fontSize = c.fontSize();
 		double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false) && c.marketReplay().trade().closed()) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && c.marketReplay().trade().closed()) {
 			setTP.enable();
 			setTP.setY(entryY - fontSize);			
 			return true;
@@ -590,7 +591,7 @@ public class ChartButtonVanGoghs {
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double entryY = c.priceToYCoord(c.roundToNearestTick(mr.trade().entryPrice()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3)) {
 			Color boxColour;
 			if (mr.trade().buy()) {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
@@ -641,7 +642,7 @@ public class ChartButtonVanGoghs {
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 		
-		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3, false) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3, false)) {
+		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3)) {
 			Color boxColour;
 			if (trade.buy()) {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
@@ -705,7 +706,7 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
-			if (!c.onChart(x, y, false) || y < 25) {
+			if (!c.onChart(x, y) || y < ChartNode.CHT_MARGIN*5 || y + c.fontSize() > c.height() + ChartNode.CHT_MARGIN - c.fontSize()) {
 				btn.disable(); 
 				return;
 			}

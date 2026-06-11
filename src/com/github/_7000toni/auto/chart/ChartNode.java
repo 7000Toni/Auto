@@ -51,8 +51,6 @@ public class ChartNode extends CanvasNode {
 	
 	public final static double CNDL_WDTH_COEF = 0.005;
 	public final static double CNDL_SPAC_COEF = 0.4;
-		
-	private static BooleanProperty focusedOnChart = new SimpleBooleanProperty(false);
 	
 	private Chart c;
 	private DataSet data;
@@ -171,6 +169,10 @@ public class ChartNode extends CanvasNode {
 	
 	public void setHistory(ArrayList<TradeHistory> hst) {
 		this.hst = hst;
+	}
+	
+	public TNode<ICanvasNode> chartNode() {
+		return chartNode;
 	}
 	
 	public LoadingHistory loadingHistory() {
@@ -293,10 +295,6 @@ public class ChartNode extends CanvasNode {
 		return this.numCandlesticks;
 	}
 	
-	public static ReadOnlyBooleanProperty focusedOnChart() {
-		return BooleanProperty.readOnlyBooleanProperty(focusedOnChart);
-	}
-	
 	public ArrayList<DataSet.Candlestick> m1Candles() {
 		return this.data.m1Candles();
 	}
@@ -386,9 +384,19 @@ public class ChartNode extends CanvasNode {
 		return this.xDiff;
 	}
 	
+	public static boolean onSomeChart(String name) {
+		for (Chart c : Chart.charts()) {
+			if (c.chartNode().focusedChart().get() && c.chartNode().name().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void onMouseExited(MouseEvent e) {
-		focusedChart.set(false);
-		focusedOnChart.set(false);
+		if (!onChart(e.getX(), e.getY())) {
+			focusedChart.set(false);	
+		}
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		if (replayMode) {
 			cmrb.disablePendingOrderButtons();
@@ -406,10 +414,11 @@ public class ChartNode extends CanvasNode {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
 		}
+		focusedChart.set(true);
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
 		CrossHair.setPrice(yCoordToPrice(e.getY()));
-		if (!onChart(e.getX(), e.getY(), true)) {
+		if (!onChart(e.getX(), e.getY())) {
 			measuring = false;
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
@@ -422,7 +431,7 @@ public class ChartNode extends CanvasNode {
 			if (lineHighlighted != -1) {
 				data.lines().remove(lineHighlighted);
 				lineHighlighted = -1;
-			} else if (onChart(e.getX(), e.getY(), true)) {
+			} else if (onChart(e.getX(), e.getY())) {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY) {
@@ -431,7 +440,7 @@ public class ChartNode extends CanvasNode {
 			startX = e.getX();
 			startY = e.getY();
 		} else if (e.isPrimaryButtonDown()) {
-			if (onChart(e.getX(), e.getY(), true)) {
+			if (onChart(e.getX(), e.getY())) {
 				chartInitPos = e.getX();
 				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
 					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
@@ -642,19 +651,8 @@ public class ChartNode extends CanvasNode {
 		}
 	}		
 	
-	public boolean onChart(double x, double y, boolean setFocused) {
-		if (y <= height + CHT_MARGIN && y >= CHT_MARGIN) {
-			if (x <= width + CHT_MARGIN && x >= CHT_MARGIN) {
-				if (focusedChart.get() && setFocused) {
-					focusedOnChart.set(true);
-				}
-				return true;
-			}
-		}
-		if (focusedChart.get() && setFocused) {
-			focusedOnChart.set(false);
-		}
-		return false;
+	public boolean onChart(double x, double y) {
+		return onNode(x, y);
 	}
 	
 	

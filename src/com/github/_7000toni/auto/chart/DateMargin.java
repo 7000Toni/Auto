@@ -15,6 +15,11 @@ public class DateMargin extends CanvasNode {
 	public DateMargin(ChartNode cn) {
 		this.cn = cn;
 		this.gc = cn.graphicsContext();
+		setOnMouseEntered(e -> {
+			cn.chart().stage().getScene().setCursor(Cursor.E_RESIZE);
+			cn.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
 		setOnMouseMoved(e -> {
 			cn.chart().stage().getScene().setCursor(Cursor.E_RESIZE);
 			cn.setFocusedChart(true);
@@ -46,9 +51,13 @@ public class DateMargin extends CanvasNode {
 	}
 	
 	private void setCrossHairVars(double x, double y) {
-		CrossHair.setX(x);
-		CrossHair.setY(y);
-		CrossHair.setPrice(cn.yCoordToPrice(y));
+		if (!cn.onChart(x, y)) {
+			cn.setFocusedChart(false);
+		} else {
+			CrossHair.setX(x);
+			CrossHair.setY(y);
+			CrossHair.setPrice(cn.yCoordToPrice(y));
+		}
 	}
 	
 	@Override

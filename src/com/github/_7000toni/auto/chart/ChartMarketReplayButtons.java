@@ -144,7 +144,7 @@ public class ChartMarketReplayButtons {
 			}	
 		});
 		
-		stopOrder.setOnMouseClicked(e -> {
+		stopOrder.setOnMouseClicked(e -> {			
 			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get()).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = false;			
@@ -166,9 +166,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.setSL().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.draw();
 		});
 		tradeButs.setSL().setOnMouseReleased(e -> {
@@ -179,9 +178,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.setTP().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.draw();
 		});
 		tradeButs.setTP().setOnMouseReleased(e -> {
@@ -200,9 +198,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.sl().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.draw();
 		});
 		tradeButs.sl().setOnMouseReleased(e -> {
@@ -218,9 +215,8 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs.tp().setOnMouseDragged(e -> {
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.draw();
 		});
 		tradeButs.tp().setOnMouseReleased(e -> {
@@ -233,6 +229,58 @@ public class ChartMarketReplayButtons {
 				}
 			}
 		});
+		
+		setCrossHairStuff();
+	}
+	
+	private void setCrossHairStuff() {
+		limitOrder.setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		limitOrder.setOnMouseExited(e -> {
+			chart.onMouseExited(e);
+		});
+		
+		stopOrder.setOnMouseMoved(e -> {			
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});		
+		
+		tradeButs.close().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.setSL().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.setTP().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.cancelSL().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.cancelTP().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.sl().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		tradeButs.tp().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
 	}
 	
 	private double tradeVolume() {
@@ -244,14 +292,14 @@ public class ChartMarketReplayButtons {
 		Tree<ICanvasNode> sceneGraph = chart.chart().sceneGraph();
 		chart.chart().varLock().lock();
 		try {
-			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chart().sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chart().sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.chart().sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.chart().sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chart().sceneGraph().root()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chart().sceneGraph().root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chartNode()));
 			for (CanvasLabel b : tradeButs.buttons()) {
-				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.chart().sceneGraph().root()));
+				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.chartNode()));
 			}
 		} finally {
 			chart.chart().varLock().unlock();
@@ -337,6 +385,16 @@ public class ChartMarketReplayButtons {
 		}
 		penTrades = pt;
 	}	
+	
+	private void setCrossHairVars(double x, double y) {
+		if (!chart.onChart(x, y)) {
+			chart.setFocusedChart(false);
+		} else {
+			CrossHair.setX(x);
+			CrossHair.setY(y);
+			CrossHair.setPrice(chart.yCoordToPrice(y));
+		}
+	}
 	
 	public void draw() {		
 		buy.draw();

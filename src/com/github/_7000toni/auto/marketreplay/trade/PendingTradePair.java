@@ -48,6 +48,8 @@ public class PendingTradePair {
 	
 	private void setEvents() {
 		penTradeButs.order().setOnMouseDragged(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			double price = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			penTrade.setPrice(price);
 			if (price > chart.tickData().get(chart.data().tickDataSize(true).get()).price()) {
@@ -74,6 +76,8 @@ public class PendingTradePair {
 		});
 		
 		penTradeButs.setSL().setOnMouseDragged(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.marketReplay().setUnvalidatedSlPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
@@ -88,6 +92,8 @@ public class PendingTradePair {
 		});
 		
 		penTradeButs.setTP().setOnMouseDragged(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
 			chart.marketReplay().setUnvalidatedTpPrice(chart.roundToNearestTick(chart.yCoordToPrice(e.getY())));
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
@@ -100,14 +106,38 @@ public class PendingTradePair {
 				chart.marketReplay().cancelTp();
 			}
 		});
+		
+		setCrossHairStuff();
+	}
+	
+	private void setCrossHairStuff() {
+		penTradeButs.order().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		penTradeButs.close().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		penTradeButs.setSL().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
+		penTradeButs.setTP().setOnMouseMoved(e -> {
+			chart.setFocusedChart(true);
+			setCrossHairVars(e.getX(), e.getY());
+		});
 	}
 	
 	private void addToSceneGraph() {
 		nodes = new ArrayList<TNode<ICanvasNode>>();
-		TNode<ICanvasNode> order = new TNode<ICanvasNode>(penTradeButs.order(), chart.chart().sceneGraph().root());
-		TNode<ICanvasNode> close = new TNode<ICanvasNode>(penTradeButs.close(), chart.chart().sceneGraph().root());
-		TNode<ICanvasNode> setSL = new TNode<ICanvasNode>(penTradeButs.setSL(), chart.chart().sceneGraph().root());
-		TNode<ICanvasNode> setTP = new TNode<ICanvasNode>(penTradeButs.setTP(), chart.chart().sceneGraph().root());
+		TNode<ICanvasNode> order = new TNode<ICanvasNode>(penTradeButs.order(), chart.chartNode());
+		TNode<ICanvasNode> close = new TNode<ICanvasNode>(penTradeButs.close(), chart.chartNode());
+		TNode<ICanvasNode> setSL = new TNode<ICanvasNode>(penTradeButs.setSL(), chart.chartNode());
+		TNode<ICanvasNode> setTP = new TNode<ICanvasNode>(penTradeButs.setTP(), chart.chartNode());
 		nodes.add(order);
 		nodes.add(close);
 		nodes.add(setSL);
@@ -147,5 +177,15 @@ public class PendingTradePair {
 	
 	public PendingTradeButtons pendingTradeButtons() {
 		return penTradeButs;
+	}
+	
+	private void setCrossHairVars(double x, double y) {
+		if (!chart.onChart(x, y)) {
+			chart.setFocusedChart(false);
+		} else {
+			CrossHair.setX(x);
+			CrossHair.setY(y);
+			CrossHair.setPrice(chart.yCoordToPrice(y));
+		}
 	}
 }
