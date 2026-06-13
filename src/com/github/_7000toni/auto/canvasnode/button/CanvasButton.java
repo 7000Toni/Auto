@@ -3,13 +3,10 @@ import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 public class CanvasButton extends CanvasLabel {
-	protected boolean hover = false;
-	protected boolean pressed = false;
 	protected boolean on = false;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
@@ -19,29 +16,7 @@ public class CanvasButton extends CanvasLabel {
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text) {
 		super(gc, width, height, x, y, text);
 		this.enabled = true;
-	}
-	
-	public boolean hover() {
-		return hover;
-	}
-	
-	public boolean pressed() {
-		return pressed;
-	}
-	
-	public void setHover(boolean hover) {
-		this.hover = hover;		
-		if (!enabled) {
-			this.hover = false;
-		}
-	}
-	
-	public void setPressed(boolean pressed) {		
-		this.pressed = pressed;
-		if (!enabled) {
-			this.pressed = false;
-		}
-	}
+	}	
 	
 	public boolean on() {
 		return on;
@@ -186,42 +161,5 @@ public class CanvasButton extends CanvasLabel {
 		} else {
 			vg.draw(x, y, gc);
 		}
-	}
-
-	@Override
-	public void onMouseExited(MouseEvent e) {
-		setPressed(false);
-		setHover(false);
-		if (onMouseExited == null || !enabled) {
-			return;
-		}
-		onMouseExited.handle(e);
-	}
-
-	@Override
-	public void onMousePressed(MouseEvent e) {
-		setPressed(true);
-		if (onMousePressed == null || !enabled) {
-			return;
-		}
-		onMousePressed.handle(e);
-	}
-	
-	@Override
-	public void onMouseReleased(MouseEvent e) {	
-		setPressed(false);	
-		if (onMouseReleased == null || !enabled) {
-			return;
-		}
-		onMouseReleased.handle(e);		
-	}
-
-	@Override
-	public void onMouseMoved(MouseEvent e) {
-		ButtonChecks.mouseButtonHoverCheck(this, e.getX(), e.getY());
-		if (onMouseMoved == null || !enabled) {
-			return;
-		}
-		onMouseMoved.handle(e);
 	}
 }

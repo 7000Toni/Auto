@@ -415,13 +415,15 @@ public class ChartNode extends CanvasNode {
 	public void onMouseMoved(MouseEvent e) {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
-		}
-		focusedChart.set(true);
+		}		
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
 		CrossHair.setPrice(yCoordToPrice(e.getY()));
 		if (!onChart(e.getX(), e.getY())) {
 			measuring = false;
+			focusedChart.set(false);
+		} else {
+			focusedChart.set(true);
 		}
 		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);

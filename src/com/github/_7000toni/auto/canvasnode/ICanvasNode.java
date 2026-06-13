@@ -23,6 +23,10 @@ public interface ICanvasNode {
 	public void setOnMouseMoved(EventHandler<? super MouseEvent> e);
 	public void setOnScroll(EventHandler<? super ScrollEvent> e);
 	
+	public void setHover(boolean hover);
+	public boolean hover();
+	public void setPressed(boolean pressed);
+	public boolean pressed();
 	public boolean onNode(double x, double y);	
 	public void draw();
 	public GraphicsContext graphicsContext();

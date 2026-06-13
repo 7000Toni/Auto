@@ -11,6 +11,8 @@ public abstract class CanvasNode implements ICanvasNode {
 	protected double x;
 	protected double y;
 	protected boolean enabled = true;
+	protected boolean pressed = false;
+	protected boolean hover = false;
 	
 	protected EventHandler<? super MouseEvent> onMouseDragged;
 	protected EventHandler<? super MouseEvent> onMouseEntered;
@@ -20,6 +22,32 @@ public abstract class CanvasNode implements ICanvasNode {
 	protected EventHandler<? super MouseEvent> onMouseReleased;
 	protected EventHandler<? super MouseEvent> onMouseMoved;
 	protected EventHandler<? super ScrollEvent> onScroll;
+	
+	@Override
+	public void setHover(boolean hover) {
+		this.hover = hover;		
+		if (!enabled) {
+			this.hover = false;
+		}
+	}
+	
+	@Override
+	public void setPressed(boolean pressed) {		
+		this.pressed = pressed;
+		if (!enabled) {
+			this.pressed = false;
+		}
+	}
+	
+	@Override
+	public boolean hover() {
+		return hover;
+	}
+	
+	@Override
+	public boolean pressed() {
+		return pressed;
+	}
 	
 	@Override
 	public GraphicsContext graphicsContext() {
@@ -89,6 +117,8 @@ public abstract class CanvasNode implements ICanvasNode {
 
 	@Override
 	public void onMouseExited(MouseEvent e) {
+		setPressed(false);
+		setHover(false);
 		if (onMouseExited == null || !enabled) {
 			return;
 		}
@@ -97,6 +127,7 @@ public abstract class CanvasNode implements ICanvasNode {
 
 	@Override
 	public void onMousePressed(MouseEvent e) {
+		setPressed(true);
 		if (onMousePressed == null || !enabled) {
 			return;
 		}
@@ -105,14 +136,15 @@ public abstract class CanvasNode implements ICanvasNode {
 	
 	@Override
 	public void onMouseClicked(MouseEvent e) {	
-		if (onMouseClicked == null || !enabled) {
+		if (onMouseClicked == null || !enabled || !pressed) {
 			return;
 		}
+		setPressed(false);
 		onMouseClicked.handle(e);
 	}
 	
 	@Override
-	public void onMouseReleased(MouseEvent e) {	
+	public void onMouseReleased(MouseEvent e) {					
 		if (onMouseReleased == null || !enabled) {
 			return;
 		}
@@ -121,6 +153,7 @@ public abstract class CanvasNode implements ICanvasNode {
 
 	@Override
 	public void onMouseMoved(MouseEvent e) {
+		NodeChecks.mouseNodeHoverCheck(this, e.getX(), e.getY());
 		if (onMouseMoved == null || !enabled) {
 			return;
 		}

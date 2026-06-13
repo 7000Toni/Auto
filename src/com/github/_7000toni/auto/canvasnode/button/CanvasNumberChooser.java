@@ -1,5 +1,6 @@
 package com.github._7000toni.auto.canvasnode.button;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
+import com.github._7000toni.auto.canvasnode.NodeChecks;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -379,8 +380,8 @@ public class CanvasNumberChooser extends CanvasNode {
 
 	@Override
 	public void onMouseMoved(MouseEvent e) {
-		ButtonChecks.mouseNumberChooserUpHoverCheck(this, e.getX(), e.getY());
-		ButtonChecks.mouseNumberChooserDownHoverCheck(this, e.getX(), e.getY());
+		NodeChecks.mouseNumberChooserUpHoverCheck(this, e.getX(), e.getY());
+		NodeChecks.mouseNumberChooserDownHoverCheck(this, e.getX(), e.getY());
 		if (onMouseMoved == null || !enabled) {
 			return;
 		}

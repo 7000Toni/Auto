@@ -1,19 +1,22 @@
-package com.github._7000toni.auto.canvasnode.button;
+package com.github._7000toni.auto.canvasnode;
 
-public class ButtonChecks {
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
+
+public class NodeChecks {
 	
-	public static boolean mouseButtonHoverCheck(CanvasButton button, double x, double y) {
-		if (!button.enabled()) {
+	public static boolean mouseNodeHoverCheck(CanvasNode node, double x, double y) {
+		if (!node.enabled()) {
 			return false;
 		}
-		if (button.onNode(x, y)) {			
-			if (!button.pressed()) {
-				button.setHover(true);				
+		if (node.onNode(x, y)) {			
+			if (!node.pressed()) {
+				node.setHover(true);				
 			}
 			return true;
 		} else {			
-			button.setPressed(false);
-			button.setHover(false);
+			node.setPressed(false);
+			node.setHover(false);
 			return false;
 		}
 	}
