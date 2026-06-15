@@ -129,8 +129,11 @@ public class ChartNode extends CanvasNode {
 		
 		cbvg = new ChartButtonVanGoghs(this);	
 		chartTypeShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
+		chartTypeShortcut.setOnMouseMoved(e -> {
+			focusedChart.set(false);
+		});
 		chartTypeShortcut.setOnMouseClicked(e -> {
-			toggleChartType();
+			toggleChartType();			
 		});
 		dateMargin = new DateMargin(this);
 		
