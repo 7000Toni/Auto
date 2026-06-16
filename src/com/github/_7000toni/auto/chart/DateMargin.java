@@ -54,6 +54,7 @@ public class DateMargin extends CanvasNode {
 		if (!cn.onChart(x, y)) {
 			cn.setFocusedChart(false);
 		} else {
+			cn.setFocusedChart(true);
 			CrossHair.setX(x);
 			CrossHair.setY(y);
 			CrossHair.setPrice(cn.yCoordToPrice(y));

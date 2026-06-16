@@ -390,6 +390,7 @@ public class ChartMarketReplayButtons {
 		if (!chart.onChart(x, y)) {
 			chart.setFocusedChart(false);
 		} else {
+			chart.setFocusedChart(true);
 			CrossHair.setX(x);
 			CrossHair.setY(y);
 			CrossHair.setPrice(chart.yCoordToPrice(y));

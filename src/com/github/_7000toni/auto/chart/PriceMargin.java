@@ -32,6 +32,7 @@ public class PriceMargin extends CanvasNode{
 			priceInitPos = e.getY();
 		});
 		setOnMouseDragged(e -> {
+			setCrossHairVars(e.getX(), e.getY());
 			double posDiff = e.getY() - priceInitPos;
 			adjustDataMargin(posDiff);
 			priceInitPos = e.getY();
@@ -40,6 +41,17 @@ public class PriceMargin extends CanvasNode{
 			double posDiff = -e.getDeltaY()*0.5;
 			adjustDataMargin(posDiff);
 		});
+	}
+	
+	private void setCrossHairVars(double x, double y) {
+		if (!c.chartNode().onChart(x, y)) {
+			c.chartNode().setFocusedChart(false);
+		} else {
+			c.chartNode().setFocusedChart(true);
+			CrossHair.setX(x);
+			CrossHair.setY(y);
+			CrossHair.setPrice(c.chartNode().yCoordToPrice(y));
+		}
 	}
 	
 	private void adjustDataMargin(double posDiff) {
