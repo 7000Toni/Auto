@@ -82,7 +82,6 @@ public class ChartNode extends CanvasNode {
 	
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
-	private boolean rightPressed = false;
 	private boolean measuring = false;
 	private double startPrice = 0;
 	private double startX = 0;
@@ -442,7 +441,6 @@ public class ChartNode extends CanvasNode {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY) {
-			rightPressed = true;			
 			startPrice = roundToNearestTick(CrossHair.price());
 			startX = e.getX();
 			startY = e.getY();
@@ -491,7 +489,6 @@ public class ChartNode extends CanvasNode {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}		
 		lineDragging = false;
-		rightPressed = false;
 		if (mrpSBDragging) {
 			mrpSBDragging = false;
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
@@ -517,13 +514,13 @@ public class ChartNode extends CanvasNode {
 			double price = roundToNearestTick(((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest); 
 			data.lines().get(lineHighlighted).setPrice(price);
 		}
-		if (rightPressed) {
+		if (e.getButton() == MouseButton.SECONDARY) {
 			c.stage().getScene().cursorProperty().set(Cursor.CROSSHAIR);
 			measuring = true;
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging && !measuring) {
+		if (!lineDragging && !measuring && e.isPrimaryButtonDown()) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
