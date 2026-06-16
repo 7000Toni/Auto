@@ -351,6 +351,7 @@ public class CanvasNumberChooser extends CanvasNode {
 
 	@Override
 	public void onMousePressed(MouseEvent e) {
+		setPressed(true);
 		if (onUp(e.getX(), e.getY())) {
 			setUpPressed(true);
 		}
@@ -364,18 +365,19 @@ public class CanvasNumberChooser extends CanvasNode {
 	}
 	
 	@Override
-	public void onMouseReleased(MouseEvent e) {
+	public void onMouseClicked(MouseEvent e) {
 		if (upPressed) {
 			incrementValue();
 		} else if (downPressed) {
 			decrementValue();
 		}
-		setUpPressed(false);
-		setDownPressed(false);
-		if (onMouseReleased == null || !enabled) {
+		if (onMouseClicked == null || !enabled || !pressed) {
 			return;
 		}
-		onMouseReleased.handle(e);		
+		setUpPressed(false);
+		setDownPressed(false);
+		setPressed(false);
+		onMouseClicked.handle(e);
 	}
 
 	@Override
