@@ -137,6 +137,7 @@ public abstract class CanvasNode implements ICanvasNode {
 	@Override
 	public void onMouseClicked(MouseEvent e) {	
 		if (onMouseClicked == null || !enabled || !pressed) {
+			setPressed(false);
 			return;
 		}
 		setPressed(false);

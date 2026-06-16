@@ -372,6 +372,9 @@ public class CanvasNumberChooser extends CanvasNode {
 			decrementValue();
 		}
 		if (onMouseClicked == null || !enabled || !pressed) {
+			setUpPressed(false);
+			setDownPressed(false);
+			setPressed(false);
 			return;
 		}
 		setUpPressed(false);

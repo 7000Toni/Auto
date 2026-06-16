@@ -62,7 +62,7 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs = new TradeButtons();
 		
-		tradeButs.setOrder(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
+		tradeButs.setOrder(new CanvasButton(gc, 0, 0, ChartNode.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
 		tradeButs.order().setVanGogh(cbvg.orderVG(tradeButs.order(), mr.trade()));
 		
 		tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
