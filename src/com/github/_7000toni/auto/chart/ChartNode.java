@@ -414,6 +414,10 @@ public class ChartNode extends CanvasNode {
 		CrossHair.setY(e.getY());
 	}
 	
+	private boolean onMRP(double x, double y) {
+		return x >= mrpx && x <= mrpx + 399 && y >= mrpy && y <= mrpy + 100;
+	}
+	
 	public void onMouseMoved(MouseEvent e) {
 		if (CrossHair.dateIndex().get() >= data.m1CandlesDataSize(replayMode).get() && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
@@ -427,7 +431,7 @@ public class ChartNode extends CanvasNode {
 		} else {
 			focusedChart.set(true);
 		}
-		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !mrpSBDragging) {
+		if (drawMRP && onMRP(e.getX(), e.getY()) && !mrpSBDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
 		}		
 	}	
@@ -447,7 +451,7 @@ public class ChartNode extends CanvasNode {
 		} else if (e.isPrimaryButtonDown()) {
 			if (onChart(e.getX(), e.getY())) {
 				chartInitPos = e.getX();
-				if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+				if (drawMRP && onMRP(e.getX(), e.getY())) {
 					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
 				}								
 				double price = ((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
@@ -485,7 +489,7 @@ public class ChartNode extends CanvasNode {
 		if (measuring) {
 			measuring = false;		
 			c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
-		} else if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100) {
+		} else if (drawMRP && onMRP(e.getX(), e.getY())) {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}		
 		lineDragging = false;
@@ -496,7 +500,7 @@ public class ChartNode extends CanvasNode {
 	}
 	
 	public void onMouseClicked(MouseEvent e) {
-		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 && !measuring) {
+		if (drawMRP && onMRP(e.getX(), e.getY()) && !measuring) {
 			fireMRPEvent(MouseEvent.MOUSE_CLICKED, e);
 		}
 	}
@@ -520,7 +524,7 @@ public class ChartNode extends CanvasNode {
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging && !measuring && e.isPrimaryButtonDown()) {
+		if (!lineDragging && !measuring && e.isPrimaryButtonDown() && !onMRP(e.getX(), e.getY())) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
@@ -552,7 +556,7 @@ public class ChartNode extends CanvasNode {
 				c.hsb().setPosition(newHSBPos, false);
 			}
 		}
-		if (drawMRP && e.getX() >= mrpx && e.getX() <= mrpx + 399 && e.getY() >= mrpy && e.getY() <= mrpy + 100 || mrpSBDragging) {
+		if (drawMRP && onMRP(e.getX(), e.getY()) || mrpSBDragging) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
