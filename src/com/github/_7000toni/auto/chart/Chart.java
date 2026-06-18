@@ -9,7 +9,6 @@ import com.github._7000toni.auto.canvasnode.ICanvasWindow;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalChartScrollBar;
-import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.listener.ChartHeightListener;
 import com.github._7000toni.auto.chart.listener.ChartWidthListener;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
@@ -33,7 +32,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class Chart implements IScrollBarOwner, ICanvasWindow {
+public class Chart implements ICanvasWindow {
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
 	
@@ -91,9 +90,9 @@ public class Chart implements IScrollBarOwner, ICanvasWindow {
 		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
 		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
-		priceMargin = new PriceMargin(this, data.maxLength());
-		hsb = new HorizontalChartScrollBar(this, 0, width - priceMargin.width(), HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);	
+		priceMargin = new PriceMargin(this, data.maxLength());		
 		cn = new ChartNode(width - priceMargin.width() - ChartNode.CHT_MARGIN, height - HSB_HEIGHT - ChartNode.CHT_MARGIN*2, stage, data, this, sceneGraph);
+		hsb = new HorizontalChartScrollBar(cn, 0, width - priceMargin.width(), HSB_WIDTH, HSB_HEIGHT, height - HSB_HEIGHT);	
 		menu = new ChartMenu(ChartNode.CHT_MARGIN + cn.width() + priceMargin.width(), 0, 300, cn.height(), gc, this);				
 		btnMenu = new CanvasButton(gc, priceMargin.width() - 2, HSB_HEIGHT + ChartNode.CHT_MARGIN - 2, width - priceMargin.width() + 1, height - HSB_HEIGHT - ChartNode.CHT_MARGIN + 1, "MENU", (priceMargin.width() - 2 - 34) / 2, 11);
 		

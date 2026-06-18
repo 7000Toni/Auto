@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
 import com.github._7000toni.auto.dataset.DataSet;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -35,7 +36,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 
-public class ChartNode extends CanvasNode {
+public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public final static double CNDL_MOVE_COEF = 0.001;
 	public final static int CNDL_INDX_MOVE_COEF = 2;
 	
@@ -147,7 +148,7 @@ public class ChartNode extends CanvasNode {
 		x = CHT_MARGIN;
 		y = CHT_MARGIN;
 		width = c.width() - c.priceMargin().width() - CHT_MARGIN;
-		height = c.height() - c.hsb().sbHeight() - CHT_MARGIN*2;
+		height = c.height() - Chart.HSB_HEIGHT - CHT_MARGIN*2;
 		candlestickWidth = width * CNDL_WDTH_COEF;
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 		numCandlesticks = (int)(width / (candlestickWidth + candlestickSpacing));

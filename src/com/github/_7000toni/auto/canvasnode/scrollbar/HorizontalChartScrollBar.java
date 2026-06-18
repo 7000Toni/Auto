@@ -10,13 +10,13 @@ import javafx.scene.input.MouseEvent;
 
 public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	
-	public HorizontalChartScrollBar(Chart chart, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
+	public HorizontalChartScrollBar(ChartNode chart, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
 		super(chart, minPos, maxPos, sbWidth, sbHeight, yPos);
 	}
 	
 	@Override
 	public void onMousePressed(MouseEvent e) {
-		if (((Chart) sbo).chartNode().replayMode()) {
+		if (((ChartNode) sbo).replayMode()) {
 			if (onScrollBar(e.getX(), e.getY())) {
 				dragging = true;
 				initPos = e.getX();
@@ -55,11 +55,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 						lastTick = now;		
 						if (add) {
 							setPosition(sbWidth / 2, true);
-							((Chart) sbo).chartNode().setKeepStartIndex(false);
+							((ChartNode) sbo).setKeepStartIndex(false);
 							sbo.draw();
 						} else {
 							setPosition(-(sbWidth / 2), true);
-							((Chart) sbo).chartNode().setKeepStartIndex(false);
+							((ChartNode) sbo).setKeepStartIndex(false);
 							sbo.draw();
 						}
 					} 
@@ -80,10 +80,15 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 				x += posDiff;
 			}
 			initPos = (int)e.getX();
-			((Chart) sbo).chartNode().setKeepStartIndex(false);
-			CrossHair.setX(e.getX());
-			CrossHair.setY(e.getY());
-			CrossHair.setPrice(((Chart) sbo).chartNode().yCoordToPrice(e.getY()));
+			((ChartNode) sbo).setKeepStartIndex(false);
+			if (!((ChartNode) sbo).onChart(e.getX(), e.getY())) {
+				((ChartNode) sbo).setFocusedChart(false);
+			} else {
+				((ChartNode) sbo).setFocusedChart(true);
+				CrossHair.setX(e.getX());
+				CrossHair.setY(e.getY());
+				CrossHair.setPrice(((ChartNode) sbo).yCoordToPrice(e.getY()));
+			}
 		}
 	}
 	
@@ -94,17 +99,17 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			speed *= 2;
 		}
 		double newHSBPos;
-		int startIndex = ((Chart) sbo).chartNode().startIndex();
-		if (((Chart) sbo).chartNode().drawCandlesticks().get()) {
+		int startIndex = ((ChartNode) sbo).startIndex();
+		if (((ChartNode) sbo).drawCandlesticks().get()) {
 			startIndex -= ChartNode.CNDL_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((Chart) sbo).chartNode().data().m1CandlesDataSize(((Chart) sbo).chartNode().replayMode()).get() - ((Chart) sbo).chartNode().numCandlesticks() * ChartNode.END_MARGIN_COEF));
-			((Chart) sbo).chartNode().setKeepStartIndex(false);
+			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			((ChartNode) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex -= ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((Chart) sbo).chartNode().data().tickDataSize(((Chart) sbo).chartNode().replayMode()).get() - ((Chart) sbo).chartNode().numDataPoints() * ChartNode.END_MARGIN_COEF));
-			((Chart) sbo).chartNode().setKeepStartIndex(false);
+			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
+			((ChartNode) sbo).setKeepStartIndex(false);
 		}			
-		((Chart) sbo).chartNode().setKeepStartIndex(false);
+		((ChartNode) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -115,17 +120,17 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			speed *= 2;
 		}
 		double newHSBPos;
-		int startIndex = ((Chart) sbo).chartNode().startIndex();
-		if (((Chart) sbo).chartNode().drawCandlesticks().get()) {
+		int startIndex = ((ChartNode) sbo).startIndex();
+		if (((ChartNode) sbo).drawCandlesticks().get()) {
 			startIndex += ChartNode.CNDL_INDX_MOVE_COEF * speed;
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((Chart) sbo).chartNode().data().m1CandlesDataSize(((Chart) sbo).chartNode().replayMode()).get() - ((Chart) sbo).chartNode().numCandlesticks() * ChartNode.END_MARGIN_COEF));
-			((Chart) sbo).chartNode().setKeepStartIndex(false);
+			newHSBPos = (((ChartNode) sbo).width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			((ChartNode) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex += ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((Chart) sbo).chartNode().data().tickDataSize(((Chart) sbo).chartNode().replayMode()).get() - ((Chart) sbo).chartNode().numDataPoints() * ChartNode.END_MARGIN_COEF));
-			((Chart) sbo).chartNode().setKeepStartIndex(false);
+			newHSBPos = (((ChartNode) sbo).width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
+			((ChartNode) sbo).setKeepStartIndex(false);
 		}			
-		((Chart) sbo).chartNode().setKeepStartIndex(false);
+		((ChartNode) sbo).setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -134,11 +139,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		switch (e.getCode()) {
 			case KeyCode.LEFT:				
 				reduceSBPos(e);
-				Chart.drawCharts(((Chart) sbo).chartNode().name());
+				Chart.drawCharts(((ChartNode) sbo).name());
 				break;
 			case KeyCode.RIGHT:				
 				increaseSBPos(e);
-				Chart.drawCharts(((Chart) sbo).chartNode().name());
+				Chart.drawCharts(((ChartNode) sbo).name());
 				break;
 			default:				
 		}
