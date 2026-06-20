@@ -37,7 +37,6 @@ public class Trade implements ITrade {
 	protected static boolean lastTradeLong = false;
 	protected static BooleanProperty shortReport = new SimpleBooleanProperty(true);
 	protected static double net = 0;	
-	protected static boolean init = false;
 	
 	private class TradeHistoryPair {
 		private TradeHistory history;
@@ -130,15 +129,12 @@ public class Trade implements ITrade {
 		this.exitPrice = data.tickData().get(currentPriceIndex).price();
 		profit(volume);
 		this.exitTime = data.tickData().get(currentPriceIndex).dateTime();
-		this.closed = true;
+		this.closed = true;	
 		net += profit;
-		if (init) {
-			for (EntryPair e : entryIndices) {
-				history.add(new TradeHistoryPair(new TradeHistory(buy, e.entryIndex(), currentPriceIndex), data.name()));
-			}
-		} else {
-			init = true;
+		for (EntryPair e : entryIndices) {
+			history.add(new TradeHistoryPair(new TradeHistory(buy, e.entryIndex(), currentPriceIndex), data.name()));
 		}
+		entryIndices.removeAll(entryIndices);
 	}
 	
 	public void cancelSL() {
@@ -242,20 +238,16 @@ public class Trade implements ITrade {
 			partialVol = vol;
 			exitPrice = data.tickData().get(currentPriceIndex).price();
 			exitTime = data.tickData().get(currentPriceIndex).dateTime();
-			net += profit(vol);
-			if (init) {				
-				while (vol > 0) {
-					if (entryIndices.getLast().volume() > vol) {
-						entryIndices.getLast().addVolume(-vol);
-						history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex), data.name()));
-						vol = 0;
-					} else {
-						vol -= entryIndices.getLast().volume();
-						history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex), data.name()));
-					}
+			net += profit(vol);		
+			while (vol > 0) {
+				if (entryIndices.getLast().volume() > vol) {
+					entryIndices.getLast().addVolume(-vol);
+					history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.getLast().entryIndex(), currentPriceIndex), data.name()));
+					vol = 0;
+				} else {
+					vol -= entryIndices.getLast().volume();
+					history.add(new TradeHistoryPair(new TradeHistory(buy, entryIndices.removeLast().entryIndex(), currentPriceIndex), data.name()));
 				}
-			} else {
-				init = true;
 			}
 		}		
 	}

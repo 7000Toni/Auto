@@ -22,7 +22,7 @@ public class PriceMargin extends CanvasNode{
 		if (priceMargin < 35) {
 			priceMargin = 35;
 		}
-		setOnMouseMoved(e -> {
+		setOnMouseMoved(e -> {			
 			c.stage().getScene().setCursor(Cursor.N_RESIZE);
 		});
 		setOnMouseExited(e -> {
@@ -46,6 +46,7 @@ public class PriceMargin extends CanvasNode{
 	private void setCrossHairVars(double x, double y) {
 		if (!c.chartNode().onChart(x, y)) {
 			c.chartNode().setFocusedChart(false);
+			c.draw();
 		} else {
 			c.chartNode().setFocusedChart(true);
 			CrossHair.setX(x);

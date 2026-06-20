@@ -91,8 +91,10 @@ public class ChartButtonVanGoghs {
 		
 		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.close().setY(entryY - fontSize);
+			tradeButs.close().enable();
 			return true;
 		}
+		tradeButs.close().disable();
 		return false;
 	}
 	
@@ -438,8 +440,10 @@ public class ChartButtonVanGoghs {
 		
 		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.setSL().setY(entryY - fontSize);
+			tradeButs.setSL().enable();
 			return true;
 		}
+		tradeButs.setSL().disable();;
 		return false;
 	}
 	
@@ -474,8 +478,10 @@ public class ChartButtonVanGoghs {
 		
 		if (c.onChart(ChartNode.CHT_MARGIN + 1, entryY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, entryY - fontSize - 3) && !c.marketReplay().trade().closed()) {
 			tradeButs.setTP().setY(entryY - fontSize);			
+			tradeButs.setTP().enable();
 			return true;
 		}
+		tradeButs.setTP().disable();
 		return false;
 	}
 	

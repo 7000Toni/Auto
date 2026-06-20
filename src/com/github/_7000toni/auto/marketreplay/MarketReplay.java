@@ -238,8 +238,6 @@ public class MarketReplay {
 	
 	public void closeTrade(int currentPriceIndex) {
 		trade.close(currentPriceIndex);
-		cancelSl();
-		cancelTp();
 		closedTradeProc();
 	}
 	
@@ -251,8 +249,6 @@ public class MarketReplay {
 		trade.scaleOut(volume, index);
 		closedTradeProc();
 		if (trade.closed()) {
-			cancelSl();
-			cancelTp();
 			for (ChartNode c : charts) {
 				c.tradeButtons().disableButtons();
 			}

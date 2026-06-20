@@ -312,15 +312,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			this.mr = mr;
 			this.mrp = mrp;
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
-			
-			if (mr.trade() == null) {
-				Trade t = new Trade(data, 1, true, 1);
-				t.close(1);
-				mr.setTrade(t);
-				cmrb.disableButtons();
-			} else if (mr.trade().closed()) {
-				cmrb.disableButtons();
-			}
+			cmrb.disableButtons();
 			
 			for (PendingTrade pt : mr.pendingTrades()) {
 				cmrb.addPenTradePair(new PendingTradePair(pt, this));
@@ -397,9 +389,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void onMouseExited(MouseEvent e) {
-		if (!onChart(e.getX(), e.getY())) {
-			focusedChart.set(false);	
-		}
+		focusedChart.set(false);	
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		if (replayMode) {
 			cmrb.disablePendingOrderButtons();

@@ -31,8 +31,11 @@ public class CanvasEventFilter {
 						currentNode = cw.lastNode();
 						cn = currentNode.element();
 					}
-					if (!currentNode.equals(cw.lastNode()) && cw.lastNode() == null) {
-						cn.onMouseEntered(me);
+					if (!currentNode.equals(cw.lastNode())) {
+						if (cw.lastNode() != null) {
+							cw.lastNode().element().onMouseExited(me);
+						}
+						cn.onMouseEntered(me);						
 					} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {	
 						cn.onMouseDragged(me);						
 						cw.setDragging(true);
@@ -45,6 +48,8 @@ public class CanvasEventFilter {
 						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
 						cn.onMouseMoved(me);
+					} else if (e.getEventType() == MouseEvent.MOUSE_EXITED) {
+						cn.onMouseExited(me);
 					}
 					break;
 				} else if (e instanceof ScrollEvent) {
@@ -61,11 +66,6 @@ public class CanvasEventFilter {
 			}		
 			if (me != null) {
 				if (currentNode != null && !currentNode.equals(cw.lastNode())) {
-					if (cw.lastNode() != null) {
-						cw.lastNode().element().onMouseExited(me);
-						currentNode.element().onMouseEntered(me);
-						cw.setLastNode(null);
-					}
 					cw.setLastNode(currentNode);
 				} else if (!cw.onWindow(me.getX(), me.getY()) && !cw.dragging()) {
 					cw.sceneGraph().root().element().onMouseExited(me);

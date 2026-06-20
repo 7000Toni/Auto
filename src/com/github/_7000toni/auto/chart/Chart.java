@@ -88,7 +88,7 @@ public class Chart implements ICanvasWindow {
 		gc = canvas.getGraphicsContext2D();
 		
 		sceneGraph = new Tree<ICanvasNode>();
-		cw = new CanvasWrapper(canvas, sceneGraph);
+		cw = new CanvasWrapper(canvas, sceneGraph);		
 		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
 		priceMargin = new PriceMargin(this, data.maxLength());		
 		cn = new ChartNode(width - priceMargin.width() - ChartNode.CHT_MARGIN, height - HSB_HEIGHT - ChartNode.CHT_MARGIN*2, stage, data, this, sceneGraph);
