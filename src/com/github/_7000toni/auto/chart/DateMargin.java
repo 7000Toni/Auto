@@ -17,12 +17,10 @@ public class DateMargin extends CanvasNode {
 		this.gc = cn.graphicsContext();
 		setOnMouseEntered(e -> {
 			cn.chart().stage().getScene().setCursor(Cursor.E_RESIZE);
-			cn.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		setOnMouseMoved(e -> {
 			cn.chart().stage().getScene().setCursor(Cursor.E_RESIZE);
-			cn.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		setOnMouseExited(e -> {

@@ -388,11 +388,15 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return false;
 	}
 	
-	public void onMouseExited(MouseEvent e) {
-		focusedChart.set(false);	
+	public void onMouseExited(MouseEvent e) {			
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		if (replayMode) {
-			cmrb.disablePendingOrderButtons();
+			if (!onChart(e.getX(), e.getY())) {
+				cmrb.disablePendingOrderButtons();
+				focusedChart.set(false);
+			}
+		} else {
+			focusedChart.set(false);
 		}
 	}
 	

@@ -235,50 +235,43 @@ public class ChartMarketReplayButtons {
 	
 	private void setCrossHairStuff() {
 		limitOrder.setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		limitOrder.setOnMouseExited(e -> {
-			chart.onMouseExited(e);
+			if (e.getX() > chart.width() + ChartNode.CHT_MARGIN) {
+				chart.onMouseExited(e);
+			}
 		});
 		
-		stopOrder.setOnMouseMoved(e -> {			
-			chart.setFocusedChart(true);
+		stopOrder.setOnMouseMoved(e -> {	
 			setCrossHairVars(e.getX(), e.getY());
-		});		
+		});	
 		
 		tradeButs.close().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.setSL().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.setTP().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.cancelSL().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.cancelTP().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.sl().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 		
 		tradeButs.tp().setOnMouseMoved(e -> {
-			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 		});
 	}
