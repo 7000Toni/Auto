@@ -280,7 +280,7 @@ public class CrossHair {
 			if (chart.replayMode()) {
 				chart.tradeButtons().limitOrder().setY(y.get() - chart.fontSize()/2); 
 				chart.tradeButtons().stopOrder().setY(y.get() - chart.fontSize()/2);
-				chart.tradeButtons().enablePendingOrderButtons();
+				//chart.tradeButtons().enablePendingOrderButtons();
 			}
 		} else if (chart.name().equals(name.get()) && ChartNode.onSomeChart(name.get())) {
 			drawUnfocusedChartCrossHair();

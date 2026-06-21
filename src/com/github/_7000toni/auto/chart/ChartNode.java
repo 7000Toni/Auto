@@ -395,7 +395,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void onMouseExited(MouseEvent e) {			
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		if (replayMode) {
-			if (!onPendingButtonArea(e.getX(), e.getY())) {
+			if (!onPendingButtonArea(e.getX(), e.getY())) {				
 				cmrb.disablePendingOrderButtons();
 				setFocusedChart(false);
 			}
@@ -408,7 +408,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (y < CHT_MARGIN || y > CHT_MARGIN + height) {
 			return false;
 		}
-		if (x < CHT_MARGIN + width - (fontSize*2+2)*2 || x > CHT_MARGIN + width) {
+		if (x < CHT_MARGIN + width - (fontSize*4+6)*2 || x > CHT_MARGIN + width) {
 			return false;
 		}
 		return true;
@@ -434,6 +434,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		CrossHair.setX(e.getX());
 		CrossHair.setY(e.getY());
 		CrossHair.setPrice(yCoordToPrice(e.getY()));
+		if (replayMode) {
+			cmrb.enablePendingOrderButtons();
+		}
 		if (!onChart(e.getX(), e.getY())) {
 			measuring = false;
 			setFocusedChart(false);

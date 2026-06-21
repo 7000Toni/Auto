@@ -93,16 +93,14 @@ public class ChartMarketReplayButtons {
 		penTrades = new ArrayList<PendingTradePair>();
 	}
 	
-	public void disablePendingOrderButtons() {
-		chart.tradeButtons().limitOrder().setY(-10); 
-		chart.tradeButtons().stopOrder().setY(-10);
-		chart.tradeButtons().limitOrder().disable(); 
-		chart.tradeButtons().stopOrder().disable();
+	public void disablePendingOrderButtons() {		
+		limitOrder.disable(); 
+		stopOrder.disable();
 	}
 	
 	public void enablePendingOrderButtons() {
-		chart.tradeButtons().limitOrder().enable(); 
-		chart.tradeButtons().stopOrder().enable();
+		limitOrder.enable(); 
+		stopOrder.enable();
 	}
 	
 	private void setMouseEvents() {
