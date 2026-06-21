@@ -4,6 +4,7 @@ import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.marketreplay.trade.history.LoadingHistory;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.ImageSettings;
 
 import javafx.beans.property.BooleanProperty;
@@ -18,25 +19,25 @@ public class ChartMenuButtonVanGoghs {
 			double oldFontSize = gc.getFont().getSize();
 			gc.setFont(new Font(fontSize));
 			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
+				gc.setStroke(Color.BLACK);
 				gc.setFill(Color.WHITE);
 			} else {
-				gc.setStroke(Color.BLACK);
+				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on()) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				gc.setStroke(Color.WHITE);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.hover()) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				gc.setStroke(Color.WHITE);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.pressed()) {				
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+				gc.setStroke(Color.BLACK);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
-			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 			cb.calculateOffsets(gc.getFont());
 			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(new Font(oldFontSize));
@@ -72,15 +73,16 @@ public class ChartMenuButtonVanGoghs {
 	}	
 	
 	public IVanGogh colourPreviewVG(CanvasButton cb, int index) {
-		return (x, y, gc) -> {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}
-			gc.strokeRect(x, y, cb.width(), cb.height());
+		return (x, y, gc) -> {			
 			gc.setFill(ColourSettings.colour(index));
-			gc.fillRect(x+1, y+1, cb.width()-2, cb.height()-2);
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			if (Chart.darkMode().get() && ColourSettings.colour(index).equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
+				gc.setStroke(Color.WHITE);
+				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+			} else if (!Chart.darkMode().get() && ColourSettings.colour(index).equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
+				gc.setStroke(Color.BLACK);
+				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+			}
 		};
 	}	
 	

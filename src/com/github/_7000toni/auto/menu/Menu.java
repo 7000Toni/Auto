@@ -73,28 +73,23 @@ public class Menu implements ICanvasWindow {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(22));
 		if (numJobs.get() > 0) {
-			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 		} else if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.WHITE);
 		} else {
-			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.BLACK);
 		}		
 		if (optimize.hover()) {
-			gc.setStroke(Color.GRAY);
 			gc.setFill(Color.GRAY);
 		}
 		if (optimize.pressed()) {
-			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.DIMGRAY);
 		}
 		if (!optimize.enabled()) {
-			gc.setStroke(Color.LIGHTGRAY);
 			gc.setFill(Color.LIGHTGRAY);
 		}
-		gc.strokeRect(x, y, optimize.width(), optimize.height());
+		gc.fillRoundRect(x, y, optimize.width(), optimize.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+		optimize.setColoursText();
 		gc.fillText(optimize.text(), x + optimize.textXOffset(), y + optimize.textYOffset());		
 		gc.setFont(new Font(oldFontSize));
 	};
@@ -273,27 +268,22 @@ public class Menu implements ICanvasWindow {
 	private IVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
 			double oldFontSize = gc.getFont().getSize();
-			gc.setFont(new Font(fontSize));
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
+			gc.setFont(new Font(fontSize));			
+			if (cb.on()) {
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+			} else if (Chart.darkMode().get()) {
 				gc.setFill(Color.WHITE);
 			} else {
-				gc.setStroke(Color.BLACK);
 				gc.setFill(Color.BLACK);
 			}
-			if (cb.on()) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			} 
 			if (cb.hover()) {
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.pressed()) {				
-				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
-			gc.strokeRect(x, y, cb.width(), cb.height());
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			cb.setColoursText();
 			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(new Font(oldFontSize));
 		};
@@ -358,15 +348,9 @@ public class Menu implements ICanvasWindow {
 	}
 	
 	private void drawLoadingSets() {
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-		}		
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 		for (LoadingDataSet l : loadingSets) {
-			gc.strokeRect(120, l.y(), 510, 48);	
-			gc.fillRect(121, l.y() + 1, 508 * l.progress().get() / 100.0, 46);
+			gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		}
 	}	
 	

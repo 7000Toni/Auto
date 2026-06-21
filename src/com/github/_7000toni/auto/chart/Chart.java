@@ -265,15 +265,15 @@ public class Chart implements ICanvasWindow {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRect(0, 0, width, height);
 		if (ImageSettings.draw().get()) {
-			ImageFunctions.drawImage(gc, ImageSettings.image(), 0, 0, width, height);
+			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height());
 		}
 		if (Chart.darkMode().get()) {	
 			gc.setStroke(Color.WHITE);
 		} else {
 			gc.setStroke(Color.BLACK);
-		}				
-		gc.strokeRect(ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height());
-		gc.strokeRect(ChartNode.CHT_MARGIN + cn.width(), ChartNode.CHT_MARGIN + cn.height(), priceMargin.width(), Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN);
+		}
+		gc.strokeRoundRect(ChartNode.CHT_MARGIN - 0.5, ChartNode.CHT_MARGIN - 0.5, cn.width() + 1, cn.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.strokeRoundRect(ChartNode.CHT_MARGIN + cn.width() + 0.5, ChartNode.CHT_MARGIN + cn.height() - 0.5, priceMargin.width() - 1, Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN, CanvasButton.ARC_W, CanvasButton.ARC_H);
 	}
 	
 	private void drawChart() {

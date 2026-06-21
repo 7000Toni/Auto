@@ -14,6 +14,7 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	private Color[][] colours;
 	private boolean coloursInitialized;
 	private ChartMenu chartMenu;
+	private Color finalColour;
 	
 	public ColourPicker(double x, double y, double width, double height, GraphicsContext gc, ChartMenu chartMenu) {
 		this.x = x;
@@ -59,6 +60,7 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 				gc.getPixelWriter().setColor((int)i, (int)j, Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")"));
 			}
 		}
+		calculateFinalColour();
 		coloursInitialized = true;
 	}
 	
@@ -94,10 +96,18 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 		return chartMenu;
 	}
 	
-	public Color finalColour() {
+	public void calculateFinalColour() {
 		int r = (int)(142 * (usb.x() - usb.minXPos())/(usb.maxXPos() - usb.minXPos() - usb.sbWidth()));
 		int c = (int)(142 * (usb.y() - usb.minYPos())/(usb.maxYPos() - usb.minYPos() - usb.sbHeight()));
-		return colours[r][c];
+		finalColour = colours[r][c];
+	}
+	
+	public Color finalColour() {
+		return finalColour;
+	}
+	
+	public void setFinalColour(Color colour) {
+		finalColour = colour;
 	}
 	
 	@Override
@@ -108,10 +118,10 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 			gc.setStroke(Color.BLACK);
 		}			
 		
-		gc.strokeRect(x, y, width, 145);
-		gc.strokeLine(x + 145, y, x + 145, y + 145);		
+		//gc.strokeRect(x, y, width, 145);
+		//gc.strokeLine(x + 145, y, x + 145, y + 145);		
 		fillBrightnessSquare();
-		gc.setFill(finalColour());
+		gc.setFill(finalColour);
 		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
 		hsb.draw();
 		usb.draw();

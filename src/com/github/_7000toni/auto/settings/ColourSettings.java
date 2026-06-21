@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 public class ColourSettings {
 	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
 																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
-	private static final int size = 9;
+	public static final int SIZE = 9;
 	
 	public enum ColourIndex {
 		UP_CANDLESTICK_FILL(0),		
@@ -27,10 +27,6 @@ public class ColourSettings {
 		private ColourIndex(int index) {
 			this.index = index;
 		}
-	}
-	
-	public static int size() {
-		return size;
 	}
 	
 	public static int index(ColourIndex colour) {

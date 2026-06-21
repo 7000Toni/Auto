@@ -79,8 +79,8 @@ public class CanvasLabel extends CanvasNode {
 			gc.setFill(Color.BLACK);
 		}	
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.strokeLine(x, y+height/2, x+textXOffset-5, y+height/2);
-		gc.strokeLine(x+width-textXOffset+5, y+height/2, x+width, y+height/2);
+		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
+		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
 		gc.setFont(new Font(oldFontSize));
 	}
 	
@@ -96,8 +96,8 @@ public class CanvasLabel extends CanvasNode {
 			gc.setFill(Color.BLACK);
 		}	
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.strokeLine(x, y+height/2, x+textXOffset-5, y+height/2);
-		gc.strokeLine(x+width-textXOffset+5, y+height/2, x+width, y+height/2);
+		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
+		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
 		gc.setFont(new Font(oldFontSize));
 	}
 	
@@ -111,8 +111,8 @@ public class CanvasLabel extends CanvasNode {
 			gc.setFill(Color.BLACK);
 		}	
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.strokeLine(x, y+height/2, x+textXOffset-5, y+height/2);
-		gc.strokeLine(x+width-textXOffset+5, y+height/2, x+width, y+height/2);
+		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
+		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
 	}
 	
 	public void alternateDraw(Font font) {
@@ -125,8 +125,8 @@ public class CanvasLabel extends CanvasNode {
 			gc.setFill(Color.BLACK);
 		}	
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.strokeLine(x, y+height/2, x+textXOffset-5, y+height/2);
-		gc.strokeLine(x+width-textXOffset+5, y+height/2, x+width, y+height/2);
+		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
+		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
 	}
 	
 	public void draw() {

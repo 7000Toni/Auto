@@ -44,7 +44,7 @@ public class Settings {
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			darkMode = Boolean.parseBoolean(br.readLine());		
 			settings = darkMode + "\n";
-			for (int i = 0; i < ColourSettings.size()*2; i++) {
+			for (int i = 0; i < ColourSettings.SIZE*2; i++) {
 				String colour = br.readLine();
 				settings += colour + "\n";
 				if (colour == null || colour.isBlank()) {
@@ -95,6 +95,7 @@ public class Settings {
 			pw.println(Chart.darkMode().get());
 			pw.print(ColourSettings.string());
 			pw.print(ImageSettings.string());
+			pw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -104,6 +105,7 @@ public class Settings {
 		try (PrintWriter pw = new PrintWriter(settings())) {
 			pw.println(Chart.darkMode().get());
 			pw.print(settings.substring(settings.indexOf('\n') + 1));
+			pw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -8,6 +8,8 @@ import javafx.scene.text.Font;
 
 public class CanvasButton extends CanvasLabel {
 	protected boolean on = false;
+	public final static double ARC_W = 8;
+	public final static double ARC_H = 8;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
@@ -44,31 +46,70 @@ public class CanvasButton extends CanvasLabel {
 		return this.enabled;
 	}
 	
+	public void setColoursRect() {
+		if (Chart.darkMode().get()) {
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+		}		
+		if (hover) {
+			gc.setFill(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+	}
+	
+	public void setColoursText() {
+		if (Chart.darkMode().get()) {
+			gc.setFill(Color.BLACK);
+		} else {
+			gc.setFill(Color.WHITE);
+		}		
+		if (hover) {
+			gc.setFill(Color.WHITE);
+		}
+		if (pressed) {
+			gc.setFill(Color.BLACK);
+		}
+		if (!enabled) {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+	}
+	
+	public void setColoursAlt() {
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.BLACK);
+		}		
+		if (hover) {
+			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.DIMGRAY);
+		}
+		if (!enabled) {
+			gc.setStroke(Color.DIMGRAY);
+			gc.setFill(Color.LIGHTGRAY);
+		}
+	}
+	
 	@Override
 	public void defaultDraw() {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(height - 5));
 		calculateOffsets(gc.getFont());
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}		
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!enabled) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
+		setColoursRect();
+		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.setFont(new Font(oldFontSize));
 	}
@@ -78,26 +119,8 @@ public class CanvasButton extends CanvasLabel {
 		double oldFontSize = gc.getFont().getSize();
 		gc.setFont(new Font(height - 5));
 		calculateOffsets(gc.getFont());
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}		
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!enabled) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
+		setColoursAlt();
+		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.setFont(new Font(oldFontSize));
 	}
@@ -105,52 +128,17 @@ public class CanvasButton extends CanvasLabel {
 	@Override
 	public void defaultDraw(Font font) {
 		calculateOffsets(font);
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}		
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!enabled) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
+		setColoursRect();
+		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
 	
 	@Override
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}		
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!enabled) {
-			gc.setStroke(Color.LIGHTGRAY);
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
+		setColoursAlt();
+		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
 	

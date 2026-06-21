@@ -29,15 +29,23 @@ public class ColourPickerUniversalScrollBar extends UniversalScrollBar {
 	}	
 	
 	@Override
+	public void defaultOnMouseDragged(MouseEvent e) {
+		super.defaultOnMouseDragged(e);
+		((ColourPicker)sbo).calculateFinalColour();
+	}
+	
+	@Override
 	public void defaultOnMousePressed(MouseEvent e) {
 		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
 			initXPos = e.getX();
 			initYPos = e.getY();
+			((ColourPicker)sbo).calculateFinalColour();
 		} else if (inScrollBarArea(e.getX(), e.getY())) {
 			clickedInScrollBarArea = true;
 			setXPosition(e.getX() - 7.5, false);
 			setYPosition(e.getY() - 7.5, false);
+			((ColourPicker)sbo).calculateFinalColour();
 		}
 	}
 

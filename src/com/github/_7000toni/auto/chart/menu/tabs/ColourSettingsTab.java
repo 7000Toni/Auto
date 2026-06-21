@@ -131,19 +131,20 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initColourButtons() {
-		for (int i = 0; i < ColourSettings.size(); i++) {
+		for (int i = 0; i < ColourSettings.SIZE; i++) {
 			CanvasButton javaisannoying = new CanvasButton(gc, 265, 20, x + 5, y + 255 + 25*i, ChartMenu.ColourButtonIndices.values()[i*2].text);
 			colourButtons.add(javaisannoying);
 			javaisannoying.setVanGogh((x2, y2, gc2) -> {
 				javaisannoying.alternateDraw(gc2.getFont());
-			});
-			setMouseEvent(javaisannoying, i);
-			colourButtons.add(new CanvasButton(gc, 20, 20, x + 275, y + 255 + 25*i, null));
+			});			
+			CanvasButton colPrev = new CanvasButton(gc, 20, 20, x + 275, y + 255 + 25*i, null);
+			setMouseEvent(javaisannoying, colPrev, i);
+			colourButtons.add(colPrev);
 			colourButtons.get(i*2+1).setVanGogh(cmbvg.colourPreviewVG(colourButtons.get(i*2+1), i));
 		}
 	}
 	
-	private void setMouseEvent(CanvasButton cb, int index) {
+	private void setMouseEvent(CanvasButton cb, CanvasButton cbPrev, int index) {
 		cb.setOnMouseClicked(e -> {
 			if (Chart.darkMode().get()) {
 				ColourSettings.colours().set(index + 9, colourPicker.finalColour());
@@ -153,6 +154,9 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayPane.drawReplayPanes();
+		});
+		cbPrev.setOnMouseClicked(e -> {
+			colourPicker.setFinalColour(ColourSettings.colour(index));
 		});
 	}
 	
@@ -214,7 +218,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		colourSettings.setY(y + 35);	
 		
 		colourPicker.setY(y + 85);
-		for (int i = 0; i < ColourSettings.size(); i++) {
+		for (int i = 0; i < ColourSettings.SIZE; i++) {
 			colourButtons.get(i*2).setY(y + 255 + 25*i);
 			colourButtons.get(i*2+1).setY(y + 255 + 25*i);
 		}		

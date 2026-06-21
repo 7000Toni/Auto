@@ -1,6 +1,8 @@
 package com.github._7000toni.auto.chart;
 import java.time.ZoneOffset;
 
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -113,7 +115,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(ChartNode.CHT_MARGIN, yPos, ChartNode.CHT_MARGIN + chart.width(), yPos);
+		chart.graphicsContext().strokeLine(ChartNode.CHT_MARGIN, yPos+0.5, ChartNode.CHT_MARGIN + chart.width(), yPos+0.5);
 		drawPriceBox(yPos);
 	}
 	
@@ -125,7 +127,7 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize());
+		chart.graphicsContext().fillRoundRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 		chart.graphicsContext().strokeText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.width() + ChartNode.CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, yPos + chart.fontSize()/3, chart.chart().priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
 	}
 	
@@ -135,7 +137,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(xPos, ChartNode.CHT_MARGIN, xPos, chart.height() + ChartNode.CHT_MARGIN);
+		chart.graphicsContext().strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN);
 		setDateBarX(xPos);
 		drawDateBox(index);
 	}
@@ -148,7 +150,7 @@ public class CrossHair {
 			chart.graphicsContext().setStroke(Color.WHITE);
 			chart.graphicsContext().setFill(Color.BLACK);
 		}
-		chart.graphicsContext().fillRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize());
+		chart.graphicsContext().fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 		if (index != -1) {
 			if (chart.drawCandlesticks().get()) {
 				chart.graphicsContext().strokeText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + chart.fontSize() / 3, chart.height() + ChartNode.CHT_MARGIN - 1, dateBarHalfWidth*2);

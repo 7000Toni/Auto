@@ -20,6 +20,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
@@ -179,6 +180,19 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		saveHst.draw();
 		toggleShortReport.draw();
 		saveMRHst.draw();
+		drawNetProfit();
+	}
+	
+	private void drawNetProfit() {
+		if (!chart.chartNode().replayMode()) {
+			return;
+		}
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+			gc.strokeText("NET PROFIT: " + Trade.net(), x + 7, y + 400);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
 	}
 	
 	public void setGeneralFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {

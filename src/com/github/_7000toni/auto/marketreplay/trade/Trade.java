@@ -358,6 +358,10 @@ public class Trade implements ITrade {
 		return closedByRewind;
 	}
 	
+	public static double net() {
+		return net;
+	}
+	
 	public void writeHistoryToFile() {
 		try (PrintWriter pw = new PrintWriter(new FileOutputStream(new File("./" + data.name() + ".hst"), true), true)) {
 			for (TradeHistoryPair t : history) {

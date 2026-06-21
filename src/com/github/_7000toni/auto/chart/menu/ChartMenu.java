@@ -89,7 +89,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	
 	public void setFunctionsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
 		chart.varLock().lock();
-		try {
+		try {			
 			menuNode.removeAllChildren();
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));

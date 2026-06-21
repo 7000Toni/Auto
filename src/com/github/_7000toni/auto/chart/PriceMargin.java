@@ -90,7 +90,7 @@ public class PriceMargin extends CanvasNode{
 			gc.setStroke(Color.BLACK);
 		}
 		while (index > ChartNode.CHT_MARGIN + gc.getFont().getSize() / 3) {
-			gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
+			//gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
 			gc.strokeText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts() + 1))).toString(), pricePos, index + pricePosYMargin, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN * 2);
 			index -= spacing;
 			i++;

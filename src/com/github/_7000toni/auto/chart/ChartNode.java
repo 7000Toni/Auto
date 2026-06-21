@@ -306,6 +306,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return this.data.tickData();
 	}
 	
+	public boolean drawChartTypeShortcut() {
+		return drawChartTypeShortcut;
+	}
+	
 	public void enableReplayMode(MarketReplay mr, MarketReplayPane mrp) {
 		if (!this.replayMode) {
 			this.replayMode = true;
@@ -391,13 +395,23 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void onMouseExited(MouseEvent e) {			
 		c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
 		if (replayMode) {
-			if (!onChart(e.getX(), e.getY())) {
+			if (!onPendingButtonArea(e.getX(), e.getY())) {
 				cmrb.disablePendingOrderButtons();
 				focusedChart.set(false);
 			}
 		} else {
 			focusedChart.set(false);
 		}
+	}
+	
+	private boolean onPendingButtonArea(double x, double y) {
+		if (y < CHT_MARGIN || y > CHT_MARGIN + height) {
+			return false;
+		}
+		if (x < CHT_MARGIN + width - (fontSize*2+2)*2 || x > CHT_MARGIN + width) {
+			return false;
+		}
+		return true;
 	}
 	
 	public void onMouseEntered(MouseEvent e) {
@@ -738,7 +752,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					gc.setStroke(Color.GRAY);
 				}
 				gc.strokeLine(CHT_MARGIN, y, width + CHT_MARGIN, y);				
-				gc.fillRect(width + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize);
+				gc.fillRoundRect(width + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
 				gc.setStroke(Color.WHITE);
 				gc.strokeText(((Double)(roundToNearestTick(l.price()))).toString(), width + CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, y + fontSize/3, c.priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
 			}
@@ -861,7 +875,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}	
 		double yPos = ((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 		gc.setFill(Color.SLATEBLUE);		
-		gc.fillRect(width + CHT_MARGIN, yPos - fontSize/2, c.priceMargin().width(), fontSize);
+		gc.fillRoundRect(width + CHT_MARGIN, yPos - fontSize/2, c.priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.setStroke(Color.WHITE);
 		gc.strokeText(((Double)(price)).toString(), width + CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
 	}
@@ -985,7 +999,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		calculateRange();
 		setPreDrawVars();			
 		c.priceMargin().draw();
-		drawTopRightText();	
+		drawTopRightText();
+		checkDrawLines();		
 		crossHair.drawCrossHair();
 		if (drawCandlesticks.get()) {
 			drawCandlestickChart();
@@ -1001,8 +1016,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 		if (drawChartTypeShortcut) {
 			chartTypeShortcut.draw();
-		}
-		checkDrawLines();										
+		}									
 		checkMeasuring();			
 		if (replayMode) {					
 			drawCurrentPriceLine();

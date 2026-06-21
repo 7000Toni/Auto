@@ -269,7 +269,7 @@ public class DataSet {
 		}
 		rfv.last = (int)rfv.percent.get();
 		if (rfv.changed) {
-			System.out.println(name + ": " + rfv.percent.get() + "%");
+			//System.out.println(name + ": " + rfv.percent.get() + "%");
 			Menu m = Menu.menu();
 			if (m != null) {				
 				m.draw();
@@ -321,6 +321,7 @@ public class DataSet {
 			}
 			rfv.br = br;			
 			readSignature(rfv);
+			System.out.println("began loading: " + name);
 			try {
 				tdfr.readFirstTick(rfv);
 			} catch (Exception e) {
@@ -361,6 +362,7 @@ public class DataSet {
 				checkLength(rfv.val);
 			}
 			addCandlestick(rfv, false);
+			System.out.println("finished loading: " + name);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

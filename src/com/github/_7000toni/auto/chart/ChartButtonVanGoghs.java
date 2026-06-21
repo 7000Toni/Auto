@@ -30,19 +30,19 @@ public class ChartButtonVanGoghs {
 			if (menu.hover()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.GRAY);
-				gc.fillRect(x, y, menu.width(), menu.height());
+				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
 			if (menu.pressed()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.DIMGRAY);
-				gc.fillRect(x, y, menu.width(), menu.height());
+				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
 			if (!menu.enabled()) {
 				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.LIGHTGRAY);
-				gc.fillRect(x, y, menu.width(), menu.height());
+				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
-			gc.strokeText(menu.text(), menu.x() + menu.textXOffset(), menu.y() + menu.textYOffset());
+			gc.strokeText(menu.text(), menu.x() + menu.textXOffset(), menu.y() + menu.textYOffset() - 1);
 		};
 	}
 	
@@ -59,7 +59,7 @@ public class ChartButtonVanGoghs {
 			if (!buy.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
 			}
-			gc.fillRect(x, y, buy.width(), buy.height());
+			gc.fillRoundRect(x, y, buy.width(), buy.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 			gc.strokeText(buy.text(), x + buy.textXOffset(), y + buy.textYOffset());
 		};
 	}
@@ -77,7 +77,7 @@ public class ChartButtonVanGoghs {
 			if (!sell.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
 			}
-			gc.fillRect(x, y, sell.width(), sell.height());
+			gc.fillRoundRect(x, y, sell.width(), sell.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 			gc.strokeText(sell.text(), x + sell.textXOffset(), y + sell.textYOffset());
 		};
 	}
@@ -107,22 +107,22 @@ public class ChartButtonVanGoghs {
 			Color textColour;
 			Color boxColour;
 			if (trade.buy()) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			} else {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
 			if (close.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (close.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!close.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.text(), textColour, boxColour);
@@ -151,22 +151,22 @@ public class ChartButtonVanGoghs {
 			Color textColour;
 			Color boxColour;
 			if (trade.buy()) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			} else {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
 			if (close.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (close.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!close.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.text(), textColour, boxColour);
@@ -209,18 +209,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			if (cancelTP.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (cancelTP.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!cancelTP.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(cancelTP.x(), cancelTP.y(), cancelTP.width(), c.fontSize() * 2, cancelTP.textXOffset(), cancelTP.text(), textColour, boxColour);
@@ -263,18 +263,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}			
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			if (cancelSL.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (cancelSL.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!cancelSL.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(cancelSL.x(), cancelSL.y(), cancelSL.width(), c.fontSize() * 2, cancelSL.textXOffset(), cancelSL.text(), textColour, boxColour);
@@ -329,18 +329,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			if (sl.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (sl.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!sl.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			if (c.marketReplay().trade().closed()) {
@@ -405,18 +405,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			if (tp.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (tp.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!tp.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			if (c.marketReplay().trade().closed()) {
@@ -453,18 +453,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			if (setSL.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (setSL.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!setSL.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.text(), textColour, boxColour);
@@ -491,18 +491,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			if (setTP.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (setTP.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!setTP.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.text(), textColour, boxColour);
@@ -528,18 +528,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			if (setSL.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (setSL.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!setSL.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.text(), textColour, boxColour);
@@ -565,18 +565,18 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+			Color textColour = Color.WHITE;
 			Color boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			if (setTP.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (setTP.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!setTP.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
 			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.text(), textColour, boxColour);
@@ -619,16 +619,16 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = Color.GRAY;
+			Color textColour = Color.WHITE;
 			Color boxColour = Color.GRAY;			
 			if (!order.enabled()) {
 				boxColour = Color.LIGHTGRAY;
 			}
 			if (trade.buy()) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			} else {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
 			double x1 = ChartNode.CHT_MARGIN + c.width() / 2;
@@ -672,27 +672,27 @@ public class ChartButtonVanGoghs {
 			if (!draw) {
 				return;
 			}
-			Color textColour = Color.GRAY;
+			Color textColour = Color.WHITE;
 			Color boxColour = Color.GRAY;
 			
 			if (trade.buy()) {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1);
 			} else {
-				textColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
+				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
 			
 			if (order.hover()) {
-				textColour = Color.GRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.GRAY;
 			}
 			if (order.pressed()) {
-				textColour = Color.DIMGRAY;
+				textColour = Color.BLACK;
 				boxColour = Color.DIMGRAY;
 			}
 			if (!order.enabled()) {
-				textColour = Color.LIGHTGRAY;
+				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			} 
 			
@@ -712,7 +712,7 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
-			if (!c.onChart(x, y) || y < ChartNode.CHT_MARGIN*5 || y + c.fontSize() > c.height() + ChartNode.CHT_MARGIN - c.fontSize()) {
+			if (!c.onChart(x, y) || y < ChartNode.CHT_MARGIN*5 && c.drawChartTypeShortcut() || y + c.fontSize() > c.height() + ChartNode.CHT_MARGIN - c.fontSize() && c.drawChartTypeShortcut()) {
 				btn.disable(); 
 				return;
 			}
@@ -722,7 +722,10 @@ public class ChartButtonVanGoghs {
 			} else {
 				gc.setFill(Color.BLACK);
 			}
-			gc.fillRect(x, y, btn.width()+2, btn.height());
+			gc.fillRoundRect(x, y, btn.width() + 2, btn.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			if (btn.text().contains("LMT")) {
+				gc.fillRect(x - 4, y, btn.width() + 8, btn.height());
+			}
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.BLACK);
 			} else {
@@ -748,7 +751,7 @@ public class ChartButtonVanGoghs {
 			}
 			if (!btn.enabled()) {
 				gc.setStroke(Color.LIGHTGRAY);
-			}
+			}				
 			gc.strokeText(btn.text(), x + btn.textXOffset(), y + btn.textYOffset());
 		};
 	}
@@ -759,7 +762,7 @@ public class ChartButtonVanGoghs {
 		
 		gc.setStroke(textColour);
 		gc.setFill(boxColour);
-		gc.fillRect(c.width() + ChartNode.CHT_MARGIN, yPos - fontSize/2, c.chart().priceMargin().width(), fontSize);
+		gc.fillRoundRect(c.width() + ChartNode.CHT_MARGIN, yPos - fontSize/2, c.chart().priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.strokeText(((Double)(c.roundToNearestTick(price))).toString(), c.width() + ChartNode.CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, yPos + fontSize/3, c.chart().priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
 	}
 	
@@ -768,9 +771,8 @@ public class ChartButtonVanGoghs {
 		GraphicsContext gc = c.graphicsContext();
 		
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRect(xPos, yPos, width, fontSize * 2);
-		gc.setStroke(boxColour);
-		gc.strokeRect(xPos, yPos, width, fontSize * 2);
+		gc.setFill(boxColour);
+		gc.fillRoundRect(xPos, yPos, width, fontSize * 2, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.setStroke(textColour);	
 		gc.strokeText(text, xPos + textMargin, yPos + 4*fontSize/3, textMaxWidth);
 	}

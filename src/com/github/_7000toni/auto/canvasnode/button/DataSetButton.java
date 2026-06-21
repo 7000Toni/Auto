@@ -14,21 +14,18 @@ public class DataSetButton extends CanvasButton {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
 		IVanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
-				gc2.setStroke(Color.WHITE);
-				gc2.setFill(Color.WHITE);
-			} else {
-				gc2.setStroke(Color.BLACK);
 				gc2.setFill(Color.BLACK);
+			} else {
+				gc2.setFill(Color.WHITE);
 			}	
 			if (close.hover()) {
 				gc2.setFill(Color.GRAY);
-				gc2.setStroke(Color.GRAY);
 			}
 			if (close.pressed()) {
 				gc2.setFill(Color.RED);
-				gc2.setStroke(Color.RED);
 			}			
-			gc2.strokeRect(x2, y2, 42, 42);			
+			gc2.fillRoundRect(x2, y2, 42, 42, ARC_W, ARC_H);	
+			setColoursShape(close, gc2);
 			double valx = x2 + 3 + 12;
 			double val2x = x2 + 3 + 24;
 			double val3x = x2 + 3 + 36;
@@ -43,22 +40,22 @@ public class DataSetButton extends CanvasButton {
 		};
 		IVanGogh mrvg = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
-				gc2.setStroke(Color.WHITE);
-				gc2.setFill(Color.WHITE);
-			} else {
-				gc2.setStroke(Color.BLACK);
 				gc2.setFill(Color.BLACK);
-			}	
+			} else {
+				gc2.setFill(Color.WHITE);
+			}		
 			if (mr.hover()) {
 				gc2.setFill(Color.GRAY);
-				gc2.setStroke(Color.GRAY);
 			}
 			if (mr.pressed()) {
 				gc2.setFill(Color.DIMGRAY);
-				gc2.setStroke(Color.DIMGRAY);
-			}			
-			gc2.strokeRect(x2, y2, 42, 42);
+			}
+			if (!mr.enabled()) {
+				gc2.setFill(Color.LIGHTGRAY);
+			}
+			gc2.fillRoundRect(x2, y2, 42, 42, ARC_W, ARC_H);
 			
+			setColoursShape(mr, gc2);
 			double[] xa = {x2 + 7, x2 + 21, x2 + 21, x2 + 35, x2 + 35, x2 + 7};
 			double[] ya = {y2 + 19, y2 + 9, y2 + 14, y2 + 14, y2 + 19, y2 + 19};
 			gc2.fillPolygon(xa, ya, 6);
@@ -73,6 +70,23 @@ public class DataSetButton extends CanvasButton {
 		mr.setVanGogh(mrvg);
 	}
 	
+	private void setColoursShape(CanvasButton cb, GraphicsContext gc) {
+		if (Chart.darkMode().get()) {
+			gc.setFill(Color.WHITE);
+		} else {
+			gc.setFill(Color.BLACK);
+		}		
+		if (cb.hover()) {
+			gc.setFill(Color.WHITE);
+		}
+		if (cb.pressed()) {
+			gc.setFill(Color.BLACK);
+		}
+		if (!cb.enabled()) {
+			gc.setFill(Color.LIGHTGRAY);
+		}
+	}
+	
 	public void setDataSetIndex(int index) {
 		dataSetIndex = index;
 	}
@@ -83,22 +97,9 @@ public class DataSetButton extends CanvasButton {
 	
 	@Override
 	public void defaultDraw() {
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}		
-		if (hover) {
-			gc.setStroke(Color.GRAY);
-			gc.setFill(Color.GRAY);
-		}
-		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
-			gc.setFill(Color.DIMGRAY);
-		}
-		gc.strokeRect(x, y, width, height);
+		setColoursRect();
+		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 93);
 		close.draw();
 		mr.draw();

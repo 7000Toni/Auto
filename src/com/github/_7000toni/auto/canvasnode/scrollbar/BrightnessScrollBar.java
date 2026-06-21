@@ -37,7 +37,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 		} else {
 			gc.setStroke(Color.BLACK);
 		}		
-		gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
+		//gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
 		for (double i = minPos + 6; i < maxPos - 5; i++) {
 			gc.setStroke(ColourCalculator.grayScale(i, minPos + 5, maxPos - 6));
 			gc.strokeLine(i, y + 6, i, y + 9);

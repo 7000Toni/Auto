@@ -1,6 +1,7 @@
 package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
+import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -248,7 +249,7 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 		if (dragging) {
 			gc.setFill(Color.DIMGRAY);
 		} 
-		gc.fillRect(x, y, sbWidth, sbHeight);
+		gc.fillRoundRect(x, y, sbWidth, sbHeight, CanvasButton.ARC_W, CanvasButton.ARC_H);
 	}
 	
 	@Override

@@ -107,6 +107,12 @@ public class ChartMarketReplayButtons {
 	
 	private void setMouseEvents() {
 		MarketReplay mr = chart.marketReplay();		
+		volUnits.setOnMouseMoved(e -> {
+			chart.setFocusedChart(false);
+		});
+		volTens.setOnMouseMoved(e -> {
+			chart.setFocusedChart(false);
+		});
 		
 		sell.setOnMouseClicked(e -> {
 			if (mr.trade().closed()) {
@@ -119,6 +125,9 @@ public class ChartMarketReplayButtons {
 				}
 			}
 		});
+		sell.setOnMouseMoved(e -> {
+			chart.setFocusedChart(false);
+		});
 		
 		buy.setOnMouseClicked(e -> {
 			if (mr.trade().closed()) {
@@ -130,6 +139,9 @@ public class ChartMarketReplayButtons {
 					mr.scaleOut(tradeVolume(), chart.data().tickDataSize(true).get() - 1);
 				}
 			}
+		});
+		buy.setOnMouseMoved(e -> {
+			chart.setFocusedChart(false);
 		});
 		
 		limitOrder.setOnMouseClicked(e -> {
