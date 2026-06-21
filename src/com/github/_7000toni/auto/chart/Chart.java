@@ -7,7 +7,6 @@ import com.github._7000toni.auto.canvasnode.CanvasWrapper;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasWindow;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalChartScrollBar;
 import com.github._7000toni.auto.chart.listener.ChartHeightListener;
 import com.github._7000toni.auto.chart.listener.ChartWidthListener;
@@ -54,9 +53,6 @@ public class Chart implements ICanvasWindow {
 	private HorizontalChartScrollBar hsb;
 	private PriceMargin priceMargin;
 	private Stage stage;	
-	
-	private CanvasNumberChooser volUnits;
-	private CanvasNumberChooser volTens;
 	
 	private Tree<ICanvasNode> sceneGraph;
 	private TNode<ICanvasNode> lastNode = null;
@@ -240,11 +236,11 @@ public class Chart implements ICanvasWindow {
 	}
 	
 	public static void toggleDarkMode() {
-		darkMode.set(!darkMode.get());
+		darkMode.set(!darkMode.get());		
 		Settings.saveDarkMode();
 		for (Chart c : charts) {
 			if (c.chartNode().replayMode()) {					
-				c.setNumberChooserColours();				
+				c.chartNode().tradeButtons().resetNumberChooserColours();				
 			}
 			c.draw();
 		}
@@ -253,11 +249,6 @@ public class Chart implements ICanvasWindow {
 			m.draw();
 		}
 		MarketReplayPane.drawReplayPanes();
-	}	
-	
-	private void setNumberChooserColours() {
-		volTens.resetColours();
-		volUnits.resetColours();
 	}
 	
 	private void drawFrame() {

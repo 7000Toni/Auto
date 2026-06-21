@@ -58,7 +58,7 @@ public class ChartMarketReplayButtons {
 		volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
 		volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
 		volUnits.setValue(1);
-		setNumberChooserColours();
+		resetNumberChooserColours();
 		
 		tradeButs = new TradeButtons();
 		
@@ -311,7 +311,7 @@ public class ChartMarketReplayButtons {
 		}
 	}
 	
-	private void setNumberChooserColours() {
+	public void resetNumberChooserColours() {
 		volTens.resetColours();
 		volUnits.resetColours();
 	}
