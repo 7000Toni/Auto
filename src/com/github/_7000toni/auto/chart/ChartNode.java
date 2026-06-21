@@ -130,7 +130,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		cbvg = new ChartButtonVanGoghs(this);	
 		chartTypeShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
 		chartTypeShortcut.setOnMouseMoved(e -> {
-			focusedChart.set(false);
+			setFocusedChart(false);
 		});
 		chartTypeShortcut.setOnMouseClicked(e -> {
 			toggleChartType();			
@@ -397,10 +397,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (replayMode) {
 			if (!onPendingButtonArea(e.getX(), e.getY())) {
 				cmrb.disablePendingOrderButtons();
-				focusedChart.set(false);
+				setFocusedChart(false);
 			}
 		} else {
-			focusedChart.set(false);
+			setFocusedChart(false);
 		}
 	}
 	
@@ -415,7 +415,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void onMouseEntered(MouseEvent e) {
-		focusedChart.set(true);
+		setFocusedChart(true);
 		CrossHair.setIsForCandle(drawCandlesticks.get());
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
@@ -436,9 +436,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		CrossHair.setPrice(yCoordToPrice(e.getY()));
 		if (!onChart(e.getX(), e.getY())) {
 			measuring = false;
-			focusedChart.set(false);
+			setFocusedChart(false);
 		} else {
-			focusedChart.set(true);
+			setFocusedChart(true);
 		}
 		if (drawMRP && onMRP(e.getX(), e.getY()) && !mrpSBDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
@@ -1084,6 +1084,13 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setFocusedChart(boolean focusedChart) {
 		this.focusedChart.set(focusedChart);
+		if (focusedChart) {
+			for (Chart c : Chart.charts()) {
+				if (!c.chartNode().equals(this)) {
+					c.chartNode().setFocusedChart(false);
+				}
+			}
+		}
 	}
 	
 	public double tickSizeOnChart() {
