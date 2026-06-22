@@ -926,9 +926,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					double ex = endX + 50;
 					if (ex >= CHT_MARGIN + width) {
 						ex -= 100;
-						gc.strokeLine(ex, n100, endX, n100);
+						gc.strokeLine(ex, n100 + 0.5, endX, n100 + 0.5);
 					} else {
-						gc.strokeLine(endX, n100, ex, n100);
+						gc.strokeLine(endX, n100 + 0.5, ex, n100 + 0.5);
 					}				
 				}
 			}
@@ -950,11 +950,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				ey += fontSize + 3;
 				if (right) {
 					dropped = true;
-					//ex += 12;//for default cursor
 				}
 			}
-			if (endX > CHT_MARGIN + width - prc_msrmnt_length /*- 12*/ && dropped && right) {
-				ex -= prc_msrmnt_length + 5 /*+ 12*/;
+			if (endX > CHT_MARGIN + width - prc_msrmnt_length && dropped && right) {
+				ex -= prc_msrmnt_length + 5;
 			}
 			if (endY >= height + CHT_MARGIN - fontSize) {
 				ey = height + CHT_MARGIN - fontSize;
