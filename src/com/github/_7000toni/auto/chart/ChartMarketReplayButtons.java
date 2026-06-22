@@ -105,6 +105,17 @@ public class ChartMarketReplayButtons {
 	
 	private void setMouseEvents() {
 		MarketReplay mr = chart.marketReplay();		
+		
+		volUnits.setOnMouseClicked(e -> {
+			if (tradeVolume() == 0) {
+				volUnits.incrementValue();
+			}
+		});
+		volTens.setOnMouseClicked(e -> {
+			if (tradeVolume() == 0) {
+				volUnits.incrementValue();
+			}
+		});
 		volUnits.setOnMouseMoved(e -> {
 			chart.setFocusedChart(false);
 		});
