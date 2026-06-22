@@ -76,7 +76,7 @@ public class CanvasButton extends CanvasLabel {
 			gc.setFill(Color.BLACK);
 		}
 		if (!enabled) {
-			gc.setFill(Color.LIGHTGRAY);
+			gc.setFill(Color.WHITE);
 		}
 	}
 	
