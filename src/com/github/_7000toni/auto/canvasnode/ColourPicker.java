@@ -4,6 +4,8 @@ import com.github._7000toni.auto.canvasnode.scrollbar.ColourPickerUniversalScrol
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -68,7 +70,7 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 		coloursInitialized = false;
 	}
 	
-	private void fillBrightnessSquare() {
+	private void fillColourSquare() {
 		if (coloursInitialized) {
 			for (double i = x + 146; i < x + 289; i++) {
 				for (double j = y + 1; j < y + 144; j++) {			
@@ -117,12 +119,19 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 		} else {
 			gc.setStroke(Color.BLACK);
 		}			
-		
-		//gc.strokeRect(x, y, width, 145);
-		//gc.strokeLine(x + 145, y, x + 145, y + 145);		
-		fillBrightnessSquare();
+			
+		fillColourSquare();
 		gc.setFill(finalColour);
 		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
+		if (finalColour.equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+				gc.strokeRect(x + 1.5, y + 1.5, width/2 - 3, width / 2 - 3);
+			} else {
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(x + 1.5, y + 1.5, width/2 - 3, width / 2 - 3);
+			}
+		}
 		hsb.draw();
 		usb.draw();
 	}
