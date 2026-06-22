@@ -11,6 +11,7 @@ import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
+import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -189,7 +190,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		}
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
-			gc.strokeText("NET PROFIT: " + Trade.net(), x + 7, y + 400);
+			gc.strokeText("NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 400);
 		} else {
 			gc.setStroke(Color.BLACK);
 		}
