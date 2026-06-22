@@ -269,10 +269,15 @@ public class DataSetLoader {
 	
 	private void setDSBMREventHandler(CanvasButton mr, DataSetButton dsb) {
 		mr.setOnMouseClicked(e -> {
+			for (MarketReplayPane mrp : replays) {
+				if (mrp.name().equals(datasets.get(dsb.dataSetIndex()).name())) {
+					return;
+				}
+			}
 			int index = (int)((e.getY() - Menu.MARGIN) / 58);
 			if (index < 0) {
 				index = 0;
-			}
+			}			
 			Stage s = new Stage();
 			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
