@@ -255,10 +255,15 @@ public class DataSetLoader {
 				}
 				String name = datasets.get(((DataSetButton)dsbNode.element()).dataSetIndex()).name();
 				Chart.closeAll(name, false);
-				for (MarketReplayPane mrp : replays) {
-					if (mrp.name().equals(name)) {
-						mrp.endReplay();
+				MarketReplayPane mrp = null;
+				for (MarketReplayPane m : replays) {
+					if (m.name().equals(name)) {
+						m.endReplay();
+						mrp = m;
 					}
+				}
+				if (mrp != null) {
+					replays.remove(mrp);
 				}
 				datasets.remove(((DataSetButton)dsbNode.element()).dataSetIndex());
 			} finally {
