@@ -28,8 +28,18 @@ public class Main extends Application {
 	
 	private static void setOutputFile() {
 		try {
-			DualPrintStream ps1 = new DualPrintStream(System.out, new PrintStream(new FileOutputStream(new File("./out.txt"), true)));
-			DualPrintStream ps2 = new DualPrintStream(System.err, new PrintStream(new FileOutputStream(new File("./err.txt"), true)));
+			File out = new File("./out.txt");
+			File err = new File("./err.txt");
+			boolean outAppend = true;
+			boolean errAppend = true;
+			if (out.length() > 104857600) {
+				outAppend = false;
+			}
+			if (err.length() > 104857600) {
+				errAppend = false;
+			}
+			DualPrintStream ps1 = new DualPrintStream(System.out, new PrintStream(new FileOutputStream(out, outAppend)));
+			DualPrintStream ps2 = new DualPrintStream(System.err, new PrintStream(new FileOutputStream(err, errAppend)));
             System.setOut(ps1);
             System.setErr(ps2);
             LocalDateTime ldt = LocalDateTime.now();
