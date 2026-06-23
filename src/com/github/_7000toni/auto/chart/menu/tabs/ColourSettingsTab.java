@@ -55,7 +55,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private void initColourSettingsMenu(BrightnessScrollBar bsb) {
 		colourSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "COLOUR SETTINGS");
 		colourSettings.setVanGogh((x2, y2, gc2) -> {
-			colourSettings.alternateDraw(gc.getFont());
+			colourSettings.defaultDraw(gc.getFont());
 		});
 		
 		colourPicker = new ColourPicker(x + 5, y + 85, 290, 165, gc, chartMenu);
@@ -65,7 +65,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 480, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
-			reset.alternateDraw(gc.getFont());
+			reset.defaultDraw(gc.getFont());
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
@@ -77,7 +77,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 480, "DEFAULT");
 		defaultColours.setVanGogh((x2, y2, gc2) -> {
-			defaultColours.alternateDraw(gc.getFont());
+			defaultColours.defaultDraw(gc.getFont());
 		});
 		defaultColours.setOnMouseClicked(e -> {
 			ColourSettings.setDefaultColours();
@@ -88,7 +88,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 505, "SAVE");
 		save.setVanGogh((x2, y2, gc2) -> {
-			save.alternateDraw(gc.getFont());
+			save.defaultDraw(gc.getFont());
 		});
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -112,7 +112,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 530, "SAVED"); 
 		saved.setVanGogh((x2, y2, gc2) -> {
-			saved.alternateDraw(gc.getFont());
+			saved.defaultDraw(gc.getFont());
 		});
 	}
 	
@@ -135,7 +135,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			CanvasButton javaisannoying = new CanvasButton(gc, 265, 20, x + 5, y + 255 + 25*i, ChartMenu.ColourButtonIndices.values()[i*2].text);
 			colourButtons.add(javaisannoying);
 			javaisannoying.setVanGogh((x2, y2, gc2) -> {
-				javaisannoying.alternateDraw(gc2.getFont());
+				javaisannoying.defaultDraw(gc2.getFont());
 			});			
 			CanvasButton colPrev = new CanvasButton(gc, 20, 20, x + 275, y + 255 + 25*i, null);
 			setMouseEvent(javaisannoying, colPrev, i);

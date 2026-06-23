@@ -11,36 +11,46 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 public class ChartMenuButtonVanGoghs {
 	
 	public IVanGogh menuButtonVG(CanvasButton cb, double fontSize) {
 		return (x, y, gc) -> {
-			double oldFontSize = gc.getFont().getSize();
-			gc.setFont(new Font(fontSize));
+			Font oldFont = gc.getFont();
+			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, fontSize));
 			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.BLACK);
 				gc.setFill(Color.WHITE);
 			} else {
-				gc.setStroke(Color.WHITE);
 				gc.setFill(Color.BLACK);
 			}
 			if (cb.on()) {
-				gc.setStroke(Color.WHITE);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.hover()) {
-				gc.setStroke(Color.WHITE);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
 			if (cb.pressed()) {				
-				gc.setStroke(Color.BLACK);
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
 			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			if (Chart.darkMode().get()) {
+				gc.setFill(Color.BLACK);
+			} else {
+				gc.setFill(Color.WHITE);
+			}
+			if (cb.on()) {
+				gc.setFill(Color.WHITE);
+			} 
+			if (cb.hover()) {
+				gc.setFill(Color.WHITE);
+			} 
+			if (cb.pressed()) {				
+				gc.setFill(Color.BLACK);
+			}	
 			cb.calculateOffsets(gc.getFont());
-			gc.strokeText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
-			gc.setFont(new Font(oldFontSize));
+			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
+			gc.setFont(oldFont);
 		};
 	}
 	
@@ -57,7 +67,7 @@ public class ChartMenuButtonVanGoghs {
 			} else {
 				cb.setText(text2);
 			}
-			cb.alternateDraw(gc.getFont());
+			cb.defaultDraw(gc.getFont());
 		};
 	}
 	
@@ -68,7 +78,7 @@ public class ChartMenuButtonVanGoghs {
 			} else {
 				cb.setText(text2);
 			}
-			cb.alternateDraw(gc.getFont());
+			cb.defaultDraw(gc.getFont());
 		};
 	}	
 	
@@ -93,7 +103,7 @@ public class ChartMenuButtonVanGoghs {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRect(x+1, y+1, (cb.width()-2)*(lh.progress().get()/100.0), cb.height()-2);
 			}
-			cb.alternateDraw(gc.getFont());
+			cb.defaultDraw(gc.getFont());
 		};
 	}	
 }

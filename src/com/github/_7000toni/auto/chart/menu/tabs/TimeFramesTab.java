@@ -30,7 +30,7 @@ public class TimeFramesTab extends CanvasNode implements IScrollBarOwner {
 	
 	private void initTimeFramesMenu() {timeFramesFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "TIME FRAME FUNCTIONS");
 		timeFramesFunctions.setVanGogh((x2, y2, gc2) -> {
-			timeFramesFunctions.alternateDraw(gc.getFont());
+			timeFramesFunctions.defaultDraw(gc.getFont());
 		});					
 	}
 	

@@ -29,6 +29,8 @@ import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class Chart implements ICanvasWindow {
@@ -82,6 +84,8 @@ public class Chart implements ICanvasWindow {
 		this.stage = stage;
 		canvas = new Canvas(width, height);
 		gc = canvas.getGraphicsContext2D();
+		Font f = Menu.menu().graphicsContext().getFont();
+		gc.setFont(Font.font(f.getFamily(), FontWeight.EXTRA_BOLD, 12));
 		
 		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);		

@@ -41,7 +41,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	private void initFunctionsMenu() {		
 		previousFunctions = new CanvasButton(gc, 142.5, 20, x + 5, y + 60, "PREVIOUS");
 		previousFunctions.setVanGogh((x2, y2, gc2) -> {
-			previousFunctions.alternateDraw(gc.getFont());
+			previousFunctions.defaultDraw(gc.getFont());
 		});
 		previousFunctions.setOnMouseClicked(e -> {
 			functionsMenuIndex = functionsMenuIndex==0?2:Math.abs((functionsMenuIndex - 1) % 3);
@@ -50,7 +50,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		
 		nextFunctions = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 60, "NEXT");	
 		nextFunctions.setVanGogh((x2, y2, gc2) -> {
-			nextFunctions.alternateDraw(gc.getFont());
+			nextFunctions.defaultDraw(gc.getFont());
 		});
 		nextFunctions.setOnMouseClicked(e -> {
 			functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 3); 

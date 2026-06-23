@@ -58,12 +58,12 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private void initImageSettingsMenu() {
 		imageSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "IMAGE SETTINGS");
 		imageSettings.setVanGogh((x2, y2, gc2) -> {
-			imageSettings.alternateDraw(gc.getFont());
+			imageSettings.defaultDraw(gc.getFont());
 		});
 		
 		reset = new CanvasButton(gc, 290, 20, x + 5, y + 230, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
-			reset.alternateDraw(gc.getFont());
+			reset.defaultDraw(gc.getFont());
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
@@ -75,7 +75,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 255, "SAVE");
 		save.setVanGogh((x2, y2, gc2) -> {
-			save.alternateDraw(gc.getFont());
+			save.defaultDraw(gc.getFont());
 		});
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -99,12 +99,12 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 280, "SAVED"); 
 		saved.setVanGogh((x2, y2, gc2) -> {
-			saved.alternateDraw(gc.getFont());
+			saved.defaultDraw(gc.getFont());
 		});
 		
 		brightness = new CanvasLabel(gc, 290, 20, x + 5, y + 85, "BRIGHTNESS");
 		brightness.setVanGogh((x2, y2, gc2) -> {
-			brightness.alternateDraw(gc.getFont());
+			brightness.defaultDraw(gc.getFont());
 		});
 		
 		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 289, x + 299, 15, 15, y + 105);
@@ -127,7 +127,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		clearImage = new CanvasButton(gc, 290, 20, x + 5, y + 180, "CLEAR IMAGE");
 		clearImage.setVanGogh((x2, y2, gc2) -> {
-			clearImage.alternateDraw(gc.getFont());
+			clearImage.defaultDraw(gc.getFont());
 		});
 		clearImage.setOnMouseClicked(e -> {
 			ImageSettings.clearImage();
@@ -137,7 +137,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		setImage = new CanvasButton(gc, 290, 20, x + 5, y + 205, "SET IMAGE");
 		setImage.setVanGogh((x2, y2, gc2) -> {
-			setImage.alternateDraw(gc.getFont());
+			setImage.defaultDraw(gc.getFont());
 		});
 		setImage.setOnMouseClicked(e -> {
 			String userHome = System.getProperty("user.home");
@@ -160,7 +160,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		
 		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 305, "NO IMAGE SELECTED");
 		noImage.setVanGogh((x2, y2, gc2) -> {
-			noImage.alternateDraw(gc.getFont());
+			noImage.defaultDraw(gc.getFont());
 		});
 	}
 	

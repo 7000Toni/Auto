@@ -31,7 +31,7 @@ public class DrawingsTab extends CanvasNode implements IScrollBarOwner {
 	private void initDrawingsMenu() {
 		drawingFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "DRAWING FUNCTIONS");
 		drawingFunctions.setVanGogh((x2, y2, gc2) -> {
-			drawingFunctions.alternateDraw(gc.getFont());
+			drawingFunctions.defaultDraw(gc.getFont());
 		});				
 	}
 	

@@ -35,6 +35,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 
 public class Menu implements ICanvasWindow {
@@ -70,8 +71,8 @@ public class Menu implements ICanvasWindow {
 	private TNode<ICanvasNode> lastNode = null;
 	
 	private IVanGogh optimizeVG = (x, y, gc) -> {
-		double oldFontSize = gc.getFont().getSize();
-		gc.setFont(new Font(22));
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 22));
 		if (numJobs.get() > 0) {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 		} else if (Chart.darkMode().get()) {
@@ -90,22 +91,24 @@ public class Menu implements ICanvasWindow {
 		}
 		gc.fillRoundRect(x, y, optimize.width(), optimize.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 		optimize.setColoursText();
+		optimize.calculateOffsets(gc.getFont());
 		gc.fillText(optimize.text(), x + optimize.textXOffset(), y + optimize.textYOffset());		
-		gc.setFont(new Font(oldFontSize));
+		gc.setFont(oldFont);
 	};
 	
 	public Menu(double width, double height) {		
 		this.canvas = new Canvas(width, height);		
 		this.gc = canvas.getGraphicsContext2D();
+		gc.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 14));
 		this.width = width;
 		this.height = height;				
 		
 		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
-			double oldFontSize = gc.getFont().getSize();
-			gc.setFont(new Font(37));
+			Font oldFont = gc.getFont();
+			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 37));
 			loadData.defaultDraw(gc.getFont());
-			gc.setFont(new Font(oldFontSize));
+			gc.setFont(oldFont);
 		});
 		this.loadData.setOnMouseClicked(e -> {
 			DataSetLoader dsl = new DataSetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
@@ -178,7 +181,7 @@ public class Menu implements ICanvasWindow {
 		
 		this.darkMode = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2, "DARK", 2, 0);
 		this.darkMode.setVanGogh((x, y, gc) -> {
-			double oldFontSize = gc.getFont().getSize();
+			Font oldFont = gc.getFont();
 			int fontSize;
 			if (Chart.darkMode().get()) {
 				darkMode.setText("LIGHT MODE");	
@@ -189,9 +192,9 @@ public class Menu implements ICanvasWindow {
 				darkMode.setTextYOffset(17);
 				fontSize = 17;
 			}
-			gc.setFont(new Font(fontSize));
+			gc.setFont(Font.font(oldFont.getName(), FontWeight.findByName(oldFont.getStyle()), fontSize));
 			darkMode.defaultDraw(gc.getFont());
-			gc.setFont(new Font(oldFontSize));
+			gc.setFont(oldFont);
 		});
 		this.darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();	
@@ -267,8 +270,8 @@ public class Menu implements ICanvasWindow {
 	
 	private IVanGogh readerVG(CanvasButton cb, int fontSize) {
 		return (x, y, gc) -> {
-			double oldFontSize = gc.getFont().getSize();
-			gc.setFont(new Font(fontSize));			
+			Font oldFont = gc.getFont();
+			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, fontSize));		
 			if (cb.on()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} else if (Chart.darkMode().get()) {
@@ -284,9 +287,14 @@ public class Menu implements ICanvasWindow {
 			}	
 			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 			cb.setColoursText();
+			cb.calculateOffsets(gc.getFont());
 			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
-			gc.setFont(new Font(oldFontSize));
+			gc.setFont(oldFont);
 		};
+	}
+	
+	public GraphicsContext graphicsContext() {
+		return gc;
 	}
 	
 	public Canvas canvas() {

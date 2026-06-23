@@ -43,7 +43,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	private void initSettingsMenu() {
 		previousSettings = new CanvasButton(gc, 142.5, 20, x + 5, y + 60, "PREVIOUS");
 		previousSettings.setVanGogh((x2, y2, gc2) -> {
-			previousSettings.alternateDraw(gc.getFont());
+			previousSettings.defaultDraw(gc.getFont());
 		});
 		previousSettings.setOnMouseClicked(e -> {
 			settingsMenuIndex = Math.abs((settingsMenuIndex - 1) % 2); 
@@ -52,7 +52,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		
 		nextSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 60, "NEXT");	
 		nextSettings.setVanGogh((x2, y2, gc2) -> {
-			nextSettings.alternateDraw(gc.getFont());
+			nextSettings.defaultDraw(gc.getFont());
 		});
 		nextSettings.setOnMouseClicked(e -> {
 			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 2); 

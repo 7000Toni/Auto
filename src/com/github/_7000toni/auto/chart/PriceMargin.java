@@ -5,22 +5,28 @@ import com.github._7000toni.auto.miscellaneous.Round;
 
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class PriceMargin extends CanvasNode{
 	public final static double PRICE_DASH_SPACING = 50;
-	public final static double PRICE_DASH_SIZE = 5;
-	public final static double PRICE_DASH_MARGIN = 5;
+	public final static double EXTRA_SPACE = 10;
 	
 	private Chart c;
-	private double priceMargin = 100;
+	private double width;
 	private double priceInitPos;
 	
 	public PriceMargin(Chart c, double dataMaxLength) {
 		this.c = c;
 		this.gc = c.graphicsContext();
-		priceMargin = dataMaxLength * gc.getFont().getSize() / 2 + 20;
-		if (priceMargin < 35) {
-			priceMargin = 35;
+		String s = "";
+		for (int i = 0; i < dataMaxLength; i++) {
+			s += "8";
+		}		
+		Text t = new Text(s);
+		t.setFont(gc.getFont());
+		width = t.getLayoutBounds().getWidth() + EXTRA_SPACE;		
+		if (width < 35) {
+			width = 35;
 		}
 		setOnMouseMoved(e -> {			
 			c.stage().getScene().setCursor(Cursor.N_RESIZE);
@@ -81,17 +87,16 @@ public class PriceMargin extends CanvasNode{
 			}			
 		}
 		double priceDashPos = c.chartNode().width() + ChartNode.CHT_MARGIN;
-		double pricePos = priceDashPos + PRICE_DASH_SIZE + PRICE_DASH_MARGIN;
+		double pricePos = priceDashPos + EXTRA_SPACE/2;
 		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
 		double diff = (spacing / c.chartNode().tickSizeOnChart()) * c.chartNode().data().tickSize();		
 		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
+			gc.setFill(Color.WHITE);
 		} else {
-			gc.setStroke(Color.BLACK);
+			gc.setFill(Color.BLACK);
 		}
 		while (index > ChartNode.CHT_MARGIN + gc.getFont().getSize() / 3) {
-			//gc.strokeLine(priceDashPos, index, priceDashPos + PRICE_DASH_SIZE, index);
-			gc.strokeText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts() + 1))).toString(), pricePos, index + pricePosYMargin, priceMargin - PRICE_DASH_SIZE - PRICE_DASH_MARGIN * 2);
+			gc.fillText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts() + 1))).toString(), pricePos, index + pricePosYMargin, width - EXTRA_SPACE);
 			index -= spacing;
 			i++;
 		}			
@@ -120,7 +125,7 @@ public class PriceMargin extends CanvasNode{
 	
 	@Override
 	public double width() {
-		return priceMargin;
+		return width;
 	}
 	
 	@Override

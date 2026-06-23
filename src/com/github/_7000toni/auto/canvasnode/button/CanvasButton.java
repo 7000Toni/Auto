@@ -5,6 +5,7 @@ import com.github._7000toni.auto.chart.Chart;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 public class CanvasButton extends CanvasLabel {
 	protected boolean on = false;
@@ -76,7 +77,7 @@ public class CanvasButton extends CanvasLabel {
 			gc.setFill(Color.BLACK);
 		}
 		if (!enabled) {
-			gc.setFill(Color.WHITE);
+			gc.setFill(Color.DIMGRAY);
 		}
 	}
 	
@@ -104,25 +105,25 @@ public class CanvasButton extends CanvasLabel {
 	
 	@Override
 	public void defaultDraw() {
-		double oldFontSize = gc.getFont().getSize();
-		gc.setFont(new Font(height - 5));
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.setFont(new Font(oldFontSize));
+		gc.setFont(oldFont);
 	}
 	
 	@Override
 	public void alternateDraw() {
-		double oldFontSize = gc.getFont().getSize();
-		gc.setFont(new Font(height - 5));
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
-		gc.setFont(new Font(oldFontSize));
+		gc.setFont(oldFont);
 	}
 	
 	@Override

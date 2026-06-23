@@ -26,6 +26,7 @@ import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -156,8 +157,10 @@ public class DataSetLoader {
 					datasets.set(l.addIndex().get(), ds);
 					DataSetButton dsb = new DataSetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
 					dsb.setVanGogh((x2, y2, gc) -> {
-						gc.setFont(new Font(37));
-						dsb.defaultDraw();		
+						Font oldFont = gc.getFont();
+						gc.setFont(Font.font(oldFont.getName(), FontWeight.findByName(oldFont.getStyle()), 37));
+						dsb.defaultDraw();	
+						gc.setFont(oldFont);
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
 					dsb.setDataSetIndex(l.addIndex().get());

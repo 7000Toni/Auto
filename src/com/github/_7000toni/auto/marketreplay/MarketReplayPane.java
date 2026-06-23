@@ -15,6 +15,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -30,6 +31,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanvasWindow {
@@ -73,6 +75,8 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		mr = new MarketReplay(chart, this, index);	
 		canvas = new Canvas(399, 100);
 		gc = canvas.getGraphicsContext2D();
+		Font f = Menu.menu().graphicsContext().getFont();
+		gc.setFont(Font.font(f.getFamily(), FontWeight.NORMAL, 20));
 		hsb = new HorizontalMRPaneScrollBar(this, 0, 399, 50, 10, 90);
 		numbers = new ArrayList<CanvasNumberChooser>();
 		
@@ -248,7 +252,8 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	}
 	
 	private void draw(GraphicsContext gc, double x, double y) {
-		double fontSize = gc.getFont().getSize();
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
 		} else {			
@@ -257,7 +262,6 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.setFont(new Font(20));		
 		int percent = (int)(mr.index().get() * 100 / (double)(mr.maxSize().get() - 1));
 		if (percent > 100) {
 			percent = 100;
@@ -279,7 +283,7 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		}
 		gc.fillText(percent + "%  " + time, x + 10, y + 25, 240);
 		gc.fillText("SPEED", x + 260, y + 25);
-		gc.setFont(new Font(fontSize));
+		gc.setFont(oldFont);
 		int i = 0;
 		for (TNode<ICanvasNode> tn : sceneGraph.postOrderArray()) {
 			ICanvasNode d = tn.element();

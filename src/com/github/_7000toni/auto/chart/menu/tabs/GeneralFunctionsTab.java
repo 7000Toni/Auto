@@ -62,12 +62,12 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private void initGeneralFunctionsMenu() {
 		generalFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "GENERAL FUNCTIONS");
 		generalFunctions.setVanGogh((x2, y2, gc2) -> {
-			generalFunctions.alternateDraw(gc.getFont());
+			generalFunctions.defaultDraw(gc.getFont());
 		});		
 		
 		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 85, "NEW CHART");
 		newChart.setVanGogh((x2, y2, gc2) -> {
-			newChart.alternateDraw(gc.getFont());
+			newChart.defaultDraw(gc.getFont());
 		});
 		newChart.setOnMouseClicked(e -> {
 			Stage s = new Stage();
@@ -96,7 +96,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		
 		chartTypeShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "CHART TYPE SHORTCUT");
 		chartTypeShortcut.setVanGogh((x2, y2, gc2) -> {
-			chartTypeShortcut.alternateDraw(gc.getFont());
+			chartTypeShortcut.defaultDraw(gc.getFont());
 		});
 		chartTypeShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleChartTypeShortcut();
@@ -122,12 +122,12 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		
 		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "MARKET REPLAY");
 		marketReplay.setVanGogh((x2, y2, gc2) -> {
-			marketReplay.alternateDraw(gc.getFont());
+			marketReplay.defaultDraw(gc.getFont());
 		});
 		
 		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 285, "REPLAY SHORTCUT");
 		replayShortcut.setVanGogh((x2, y2, gc2) -> {
-			replayShortcut.alternateDraw(gc.getFont());
+			replayShortcut.defaultDraw(gc.getFont());
 		});
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleMRPShortcut();

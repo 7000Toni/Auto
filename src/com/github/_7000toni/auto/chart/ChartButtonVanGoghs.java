@@ -19,36 +19,41 @@ public class ChartButtonVanGoghs {
 		this.c = c;
 	}
 	
-	public IVanGogh menuButtonVG(CanvasButton menu) {
-		return (x, y, gc) -> {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}			
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-			if (menu.hover()) {
-				gc.setStroke(Color.WHITE);
+	public IVanGogh menuButtonVG(CanvasButton menuBtn) {
+		return (x, y, gc) -> {			
+			if (menuBtn.hover()) {
 				gc.setFill(Color.GRAY);
-				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
-			if (menu.pressed()) {
-				gc.setStroke(Color.WHITE);
+			if (menuBtn.pressed()) {
 				gc.setFill(Color.DIMGRAY);
-				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
-			if (!menu.enabled()) {
-				gc.setStroke(Color.WHITE);
+			if (!menuBtn.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
-				gc.fillRoundRect(x, y - 1, menu.width(), menu.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			}
-			gc.strokeText(menu.text(), menu.x() + menu.textXOffset(), menu.y() + menu.textYOffset() - 1);
+			if (Chart.darkMode().get()) {
+				gc.setFill(Color.WHITE);
+			} else {
+				gc.setFill(Color.BLACK);
+			}			
+			if (menuBtn.hover()) {
+				gc.setFill(Color.WHITE);
+			}
+			if (menuBtn.pressed()) {
+				gc.setFill(Color.WHITE);
+			}
+			if (!menuBtn.enabled()) {
+				gc.setFill(Color.WHITE);
+			}
+			menuBtn.calculateOffsets(gc.getFont());
+			gc.fillText(menuBtn.text(), menuBtn.x() + menuBtn.textXOffset(), menuBtn.y() + menuBtn.textYOffset() - 1);
 		};
 	}
 	
 	public IVanGogh buyVG(CanvasButton buy) {  
-		return (x, y, gc) -> {
-			gc.setStroke(Color.WHITE);
+		return (x, y, gc) -> {			
 			gc.setFill(Color.DODGERBLUE);
 			if (buy.hover()) {
 				gc.setFill(Color.STEELBLUE);
@@ -60,13 +65,14 @@ public class ChartButtonVanGoghs {
 				gc.setFill(Color.LIGHTGRAY);
 			}
 			gc.fillRoundRect(x, y, buy.width(), buy.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
-			gc.strokeText(buy.text(), x + buy.textXOffset(), y + buy.textYOffset());
+			gc.setFill(Color.WHITE);
+			buy.calculateOffsets(gc.getFont());
+			gc.fillText(buy.text(), x + buy.textXOffset(), y + buy.textYOffset());
 		};
 	}
 	
 	public IVanGogh sellVG(CanvasButton sell) { 
-		return (x, y, gc) -> {
-			gc.setStroke(Color.WHITE);
+		return (x, y, gc) -> {			
 			gc.setFill(Color.ORANGERED);
 			if (sell.hover()) {
 				gc.setFill(Color.INDIANRED);
@@ -78,7 +84,9 @@ public class ChartButtonVanGoghs {
 				gc.setFill(Color.LIGHTGRAY);
 			}
 			gc.fillRoundRect(x, y, sell.width(), sell.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
-			gc.strokeText(sell.text(), x + sell.textXOffset(), y + sell.textYOffset());
+			gc.setFill(Color.WHITE);
+			sell.calculateOffsets(gc.getFont());
+			gc.fillText(sell.text(), x + sell.textXOffset(), y + sell.textYOffset());
 		};
 	}
 	
@@ -125,7 +133,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.text(), textColour, boxColour);
+			close.calculateOffsets(gc.getFont());
+			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
 		};
 	}
 	
@@ -169,7 +178,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.text(), textColour, boxColour);
+			close.calculateOffsets(gc.getFont());
+			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
 		};
 	}
 	
@@ -223,7 +233,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(cancelTP.x(), cancelTP.y(), cancelTP.width(), c.fontSize() * 2, cancelTP.textXOffset(), cancelTP.text(), textColour, boxColour);
+			cancelTP.calculateOffsets(gc.getFont());
+			drawTradeBox(cancelTP.x(), cancelTP.y(), cancelTP.width(), c.fontSize() * 2, cancelTP.textXOffset(), cancelTP.textYOffset(), cancelTP.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -277,7 +288,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(cancelSL.x(), cancelSL.y(), cancelSL.width(), c.fontSize() * 2, cancelSL.textXOffset(), cancelSL.text(), textColour, boxColour);
+			cancelSL.calculateOffsets(gc.getFont());
+			drawTradeBox(cancelSL.x(), cancelSL.y(), cancelSL.width(), c.fontSize() * 2, cancelSL.textXOffset(), cancelSL.textYOffset(), cancelSL.text(), textColour, boxColour);
 		};
 	}
 	
@@ -353,7 +365,8 @@ public class ChartButtonVanGoghs {
 			} else {
 				c.tradeButtons().buttons().sl().setText(c.marketReplay().trade().volume() + "  $" + c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedSlPrice().get()));
 			}	
-			drawTradeBox(sl.x(), sl.y(), sl.width(), 90, sl.textXOffset(), sl.text(), textColour, boxColour);
+			sl.calculateOffsets(gc.getFont());
+			drawTradeBox(sl.x(), sl.y(), sl.width(), 90, 5, sl.textYOffset(), sl.text(), textColour, boxColour);
 		};
 	}
 	
@@ -429,7 +442,8 @@ public class ChartButtonVanGoghs {
 			} else {
 				c.tradeButtons().buttons().tp().setText(c.marketReplay().trade().volume() + "  $" + c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedTpPrice().get()));
 			}				
-			drawTradeBox(tp.x(), tp.y(), tp.width(), 90, tp.textXOffset(), tp.text(), textColour, boxColour);
+			tp.calculateOffsets(gc.getFont());
+			drawTradeBox(tp.x(), tp.y(), tp.width(), 90, 5, tp.textYOffset(), tp.text(), textColour, boxColour);
 		};
 	}
 	
@@ -467,7 +481,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.text(), textColour, boxColour);
+			setSL.calculateOffsets(gc.getFont());
+			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -505,7 +520,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.text(), textColour, boxColour);
+			setTP.calculateOffsets(gc.getFont());
+			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
 		};
 	}
 	
@@ -542,7 +558,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.text(), textColour, boxColour);
+			setSL.calculateOffsets(gc.getFont());
+			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -579,7 +596,8 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			}
-			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.text(), textColour, boxColour);
+			setTP.calculateOffsets(gc.getFont());
+			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
 		};
 	}
 	
@@ -635,7 +653,9 @@ public class ChartButtonVanGoghs {
 			double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
 			order.setX(x1 - 100);
 			order.setY(entryY - c.fontSize());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, ((Double)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
+			order.setText(null);
+			order.calculateOffsets(gc.getFont());
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, ((Double)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
 		};
 	}
 	
@@ -706,7 +726,7 @@ public class ChartButtonVanGoghs {
 			}
 			order.setX(x1 - 100);
 			order.setY(entryY - c.fontSize());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, text, textColour, boxColour);
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, text, textColour, boxColour);
 		};
 	}
 	
@@ -727,53 +747,53 @@ public class ChartButtonVanGoghs {
 				gc.fillRect(x - 4, y, btn.width() + 8, btn.height());
 			}
 			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.BLACK);
+				gc.setFill(Color.BLACK);
 			} else {
-				gc.setStroke(Color.WHITE);
+				gc.setFill(Color.WHITE);
 			}	
 			if (btn.hover()) {
 				if (c.yCoordToPrice(y + gc.getFont().getSize() / 3) > c.data().tickData().get(c.data().tickDataSize(c.replayMode()).get() - 1).price()) {
 					if (btn.text().contains("STP")) {
-						gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+						gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 					} else {
-						gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+						gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 					}
 				} else {
 					if (btn.text().contains("STP")) {
-						gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+						gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 					} else {
-						gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+						gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 					}					
 				}	
 			}
 			if (btn.pressed()) {
-				gc.setStroke(Color.DIMGRAY);
+				gc.setFill(Color.DIMGRAY);
 			}
 			if (!btn.enabled()) {
-				gc.setStroke(Color.LIGHTGRAY);
+				gc.setFill(Color.LIGHTGRAY);
 			}				
-			gc.strokeText(btn.text(), x + btn.textXOffset(), y + btn.textYOffset());
+			gc.fillText(btn.text(), x + btn.textXOffset(), y + btn.textYOffset());
 		};
 	}
 	
 	public void drawPriceBox(double yPos, double price, Color textColour, Color boxColour) {
 		double fontSize = c.fontSize();
 		GraphicsContext gc = c.graphicsContext();
-		
-		gc.setStroke(textColour);
+				
 		gc.setFill(boxColour);
 		gc.fillRoundRect(c.width() + ChartNode.CHT_MARGIN, yPos - fontSize/2, c.chart().priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.strokeText(((Double)(c.roundToNearestTick(price))).toString(), c.width() + ChartNode.CHT_MARGIN + PriceMargin.PRICE_DASH_MARGIN, yPos + fontSize/3, c.chart().priceMargin().width() - PriceMargin.PRICE_DASH_SIZE - PriceMargin.PRICE_DASH_MARGIN);
+		gc.setFill(textColour);
+		gc.fillText(((Double)(c.roundToNearestTick(price))).toString(), c.width() + ChartNode.CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.chart().priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
 	
-	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textMargin, String text, Color textColour, Color boxColour) {
+	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textXMargin, double textYMargin, String text, Color textColour, Color boxColour) {
 		double fontSize = c.fontSize();
 		GraphicsContext gc = c.graphicsContext();
 		
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.setFill(boxColour);
 		gc.fillRoundRect(xPos, yPos, width, fontSize * 2, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.setStroke(textColour);	
-		gc.strokeText(text, xPos + textMargin, yPos + 4*fontSize/3, textMaxWidth);
+		gc.setFill(textColour);	
+		gc.fillText(text, xPos + textXMargin, yPos + textYMargin, textMaxWidth);
 	}
 }

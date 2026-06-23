@@ -51,10 +51,10 @@ public class MarketReplay {
 		this.data = chart.chartNode().data();
 		this.mrp = mrp;
 		this.tickDataSize.set(data.tickDataSize(false).get());
-		if (index < 1) {
-			index = 1;
+		if (index < 0) {
+			index = 0;
 		}
-		data.setReplayTickDataSize(index);		
+		data.setReplayTickDataSize(index + 1);		
 		int ci = index;
 		if (ci >= tickDataSize.get()) {
 			ci = tickDataSize.get() - 1;
@@ -410,6 +410,10 @@ public class MarketReplay {
 			}
 		}	
 		checkPendingOrders();	
+		if (!charts.isEmpty()) {
+			charts.get(0).draw();
+		}
+		mrp.draw();
 	}
 	
 	public void run() {
@@ -431,7 +435,7 @@ public class MarketReplay {
 						index.set(index.get() + 1);
 						diff -= timeToNextTick.get();
 						timeToNextTick.set(timeToNextTick(index.get()));
-						data.setReplayTickDataSize(index.get());
+						data.setReplayTickDataSize(index.get() + 1);
 						int ci = index.get();
 						if (ci >= tickDataSize.get()) {
 							ci = tickDataSize.get() - 1;
@@ -463,12 +467,7 @@ public class MarketReplay {
 						if (diff < timeToNextTick.get()) {
 							break;
 						}
-					}	
-					
-					if (!charts.isEmpty()) {
-						charts.get(0).draw();
-					}
-					mrp.draw();
+					}											
 					
 					lastTickTime = now;
 				}				
