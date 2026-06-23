@@ -59,7 +59,7 @@ public class Menu implements ICanvasWindow {
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
 		
-	private boolean openChartOnStart = false;
+	private static ArrayList<String> chartsOnStart = new ArrayList<String>();
 	
 	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -231,8 +231,8 @@ public class Menu implements ICanvasWindow {
 		
 		menu = this;
 		
-		if (openChartOnStart) {
-			openChartOnStart();
+		if (!chartsOnStart.isEmpty()) {
+			openChartsOnStart();
 		}
 		
 		draw();
@@ -250,11 +250,22 @@ public class Menu implements ICanvasWindow {
 		this.lastNode = lastNode;
 	}
 	
-	private void openChartOnStart() {	
-		File f = new File("res/20220901_DBG.csv");
-		if (f.exists()) {				
-			DataSetLoader dsl = new DataSetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
-			dsl.load();	
+	public static void setChartsOnStart(ArrayList<String> chartsOnStart) {
+		Menu.chartsOnStart = chartsOnStart;
+	}
+	
+	private void openChartsOnStart() {	
+		for (int i = 0; i < chartsOnStart.size(); i++) {
+			if (i >= 6) {
+				break;
+			}
+			File f = new File(chartsOnStart.get(i));
+			if (f.exists()) {				
+				DataSetLoader dsl = new DataSetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+				dsl.load();	
+			} else {
+				System.out.println(chartsOnStart.get(i) + " does not exist");
+			}
 		}
 	}
 	

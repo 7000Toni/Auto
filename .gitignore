@@ -3,3 +3,4 @@ bin/
 trades.txt
 err.txt
 out.txt
+onstart.txt
