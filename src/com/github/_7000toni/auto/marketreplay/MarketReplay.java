@@ -409,11 +409,7 @@ public class MarketReplay {
 				}
 			}
 		}	
-		checkPendingOrders();	
-		if (!charts.isEmpty()) {
-			charts.get(0).draw();
-		}
-		mrp.draw();
+		checkPendingOrders();			
 	}
 	
 	public void run() {
@@ -469,6 +465,10 @@ public class MarketReplay {
 						}
 					}											
 					
+					if (!charts.isEmpty()) {
+						charts.get(0).draw();
+					}
+					mrp.draw();
 					lastTickTime = now;
 				}				
 			}
