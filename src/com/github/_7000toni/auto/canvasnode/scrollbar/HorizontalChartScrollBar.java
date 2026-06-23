@@ -102,11 +102,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		int startIndex = ((ChartNode) sbo).startIndex();
 		if (((ChartNode) sbo).drawCandlesticks().get()) {
 			startIndex -= ChartNode.CNDL_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
 			((ChartNode) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex -= ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((Chart) sbo).width() - sbWidth - ((Chart) sbo).priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
+			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
 			((ChartNode) sbo).setKeepStartIndex(false);
 		}			
 		((ChartNode) sbo).setKeepStartIndex(false);
@@ -123,11 +123,11 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 		int startIndex = ((ChartNode) sbo).startIndex();
 		if (((ChartNode) sbo).drawCandlesticks().get()) {
 			startIndex += ChartNode.CNDL_INDX_MOVE_COEF * speed;
-			newHSBPos = (((ChartNode) sbo).width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
 			((ChartNode) sbo).setKeepStartIndex(false);
 		} else {
 			startIndex += ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((ChartNode) sbo).width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
+			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
 			((ChartNode) sbo).setKeepStartIndex(false);
 		}			
 		((ChartNode) sbo).setKeepStartIndex(false);
@@ -141,7 +141,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 				reduceSBPos(e);
 				Chart.drawCharts(((ChartNode) sbo).name());
 				break;
-			case KeyCode.RIGHT:				
+			case KeyCode.RIGHT:			
 				increaseSBPos(e);
 				Chart.drawCharts(((ChartNode) sbo).name());
 				break;
