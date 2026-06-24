@@ -1131,6 +1131,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					c.chartNode().setFocusedChart(false);
 				}
 			}
+			int i = Chart.charts().indexOf(c);
+			Chart c = Chart.charts().getFirst();
+			Chart.charts().set(i, c);
+			Chart.charts().set(0, this.c);
 		}
 	}
 	
