@@ -54,7 +54,7 @@ public class CanvasEventFilter {
 					break;
 				} else if (e instanceof ScrollEvent) {
 					se = (ScrollEvent)e;
-					if (!cn.onNode(se.getX(), se.getY())) {
+					if (!cn.onNode(se.getX(), se.getY()) || !cn.enabled()) {
 						continue;
 					}
 					currentNode = t;
