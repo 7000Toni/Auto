@@ -227,9 +227,17 @@ public class Chart implements ICanvasWindow {
 		this.height = height;
 	}
 	
+	private static void drawCharts(String name, ChartNode cn) {
+		for (Chart c : charts) {
+			if (name == null || c.chartNode().name().equals(name) && (c.chartNode().equals(cn) || !c.chartNode().skipDraw().get())) {
+				c.drawChart();
+			}
+		}
+	}	
+	
 	public static void drawCharts(String name) {
 		for (Chart c : charts) {
-			if (name == null || c.chartNode().name().equals(name) && (c.chartNode().focusedChart().get() || !c.chartNode().skipDraw().get())) {
+			if (name == null || c.chartNode().name().equals(name) && !c.chartNode().skipDraw().get()) {
 				c.drawChart();
 			}
 		}
@@ -246,8 +254,8 @@ public class Chart implements ICanvasWindow {
 			if (c.chartNode().replayMode()) {					
 				c.chartNode().tradeButtons().resetNumberChooserColours();				
 			}
-			c.draw();
 		}
+		drawCharts(null);
 		Menu m = Menu.menu();
 		if (m != null) {
 			m.draw();
@@ -282,7 +290,7 @@ public class Chart implements ICanvasWindow {
 	
 	@Override
 	public void draw() {		
-		drawCharts(cn.name());
+		drawCharts(cn.name(), cn);
 	}	
 	
 	public PriceMargin priceMargin() {
