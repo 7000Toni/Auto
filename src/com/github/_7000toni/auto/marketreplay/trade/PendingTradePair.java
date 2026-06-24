@@ -1,18 +1,13 @@
 package com.github._7000toni.auto.marketreplay.trade;
 
-import java.util.ArrayList;
-
-import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.CrossHair;
-import com.github._7000toni.auto.tree.TNode;
 
 public class PendingTradePair {
 	private PendingTrade penTrade;
 	private PendingTradeButtons penTradeButs;
-	private ChartNode chart;
-	private ArrayList<TNode<ICanvasNode>> nodes;
+	private ChartNode chart;	
 	
 	public PendingTradePair(PendingTrade penTrade, ChartNode chart) {
 		this.penTrade = penTrade;
@@ -42,8 +37,25 @@ public class PendingTradePair {
 		penTradeButs.setSetTP(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 + 20 + chart.fontSize()*2, 0, "TP", 6, chart.fontSize()/3));
 		penTradeButs.setTP().setVanGogh(chart.chartButtonVanGoghs().penSetTpVG(penTradeButs.setTP(), penTrade));
 		
-		addToSceneGraph();
 		setEvents();
+	}
+	
+	private void checkTP() {
+		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedTpPrice().get() != -1 && chart.marketReplay().trade().closed()) {	
+			if (chart.marketReplay().unvalidatedTpPrice().get() < penTrade.price() && penTrade.buy() ||
+					chart.marketReplay().unvalidatedTpPrice().get() > penTrade.price() && !penTrade.buy()) {
+				chart.marketReplay().cancelTp();
+			}
+		}
+	}
+	
+	private void checkSL() {		
+		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedSlPrice().get() != -1 && chart.marketReplay().trade().closed()) {
+			if (chart.marketReplay().unvalidatedSlPrice().get() > penTrade.price() && penTrade.buy() ||
+					chart.marketReplay().unvalidatedSlPrice().get() < penTrade.price() && !penTrade.buy()) {
+				chart.marketReplay().cancelSl();
+			}
+		}
 	}
 	
 	private void setEvents() {
@@ -51,24 +63,30 @@ public class PendingTradePair {
 			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 			double price = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
-			penTrade.setPrice(price);
-			if (price > chart.tickData().get(chart.data().tickDataSize(true).get()).price()) {
-				if (penTrade.limit()) {
-					penTrade.setBuy(false);
+			if (price != chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
+				penTrade.setPrice(price);
+				if (price > chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
+					if (penTrade.limit()) {
+						penTrade.setBuy(false);
+					} else {
+						penTrade.setBuy(true);
+					}
 				} else {
-					penTrade.setBuy(true);
-				}
-			} else {
-				if (penTrade.limit()) {
-					penTrade.setBuy(true);
-				} else {
-					penTrade.setBuy(false);
+					if (penTrade.limit()) {
+						penTrade.setBuy(true);
+					} else {
+						penTrade.setBuy(false);
+					}
 				}
 			}
 			CrossHair.setX(e.getX());
 			CrossHair.setY(e.getY());
-			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));
+			CrossHair.setPrice(chart.yCoordToPrice(e.getY()));			
 			chart.draw();
+		});
+		penTradeButs.order().setOnMouseReleased(e -> {
+			checkTP();
+			checkSL();
 		});
 		
 		penTradeButs.close().setOnMouseClicked(e -> {
@@ -132,22 +150,6 @@ public class PendingTradePair {
 		});
 	}
 	
-	private void addToSceneGraph() {
-		nodes = new ArrayList<TNode<ICanvasNode>>();
-		TNode<ICanvasNode> order = new TNode<ICanvasNode>(penTradeButs.order(), chart.chartNode());
-		TNode<ICanvasNode> close = new TNode<ICanvasNode>(penTradeButs.close(), chart.chartNode());
-		TNode<ICanvasNode> setSL = new TNode<ICanvasNode>(penTradeButs.setSL(), chart.chartNode());
-		TNode<ICanvasNode> setTP = new TNode<ICanvasNode>(penTradeButs.setTP(), chart.chartNode());
-		nodes.add(order);
-		nodes.add(close);
-		nodes.add(setSL);
-		nodes.add(setTP);
-		chart.chart().sceneGraph().addNode(order);
-		chart.chart().sceneGraph().addNode(close);
-		chart.chart().sceneGraph().addNode(setSL);
-		chart.chart().sceneGraph().addNode(setTP);
-	}
-	
 	public void draw() {
 		penTradeButs.order().draw();
 		penTradeButs.close().draw();
@@ -163,12 +165,6 @@ public class PendingTradePair {
 	public void drawSets() {
 		penTradeButs.setSL().draw();
 		penTradeButs.setTP().draw();
-	}
-	
-	public void removeFromSceneGraph() {
-		for (TNode<ICanvasNode> n : nodes) {
-			chart.chart().sceneGraph().removeNode(n);
-		}
 	}
 	
 	public PendingTrade pendingTrade() {

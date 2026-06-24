@@ -1,7 +1,5 @@
 package com.github._7000toni.auto.chart;
 
-import java.util.ArrayList;
-
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
@@ -24,13 +22,13 @@ public class ChartMarketReplayButtons {
 	private CanvasNumberChooser volTens;
 	
 	private TradeButtons tradeButs;
-	private ArrayList<PendingTradePair> penTrades;
 	private CanvasButton limitOrder;
 	private CanvasButton stopOrder;
+	private PendingButtonsNode pbn;
 	
 	
 	public ChartMarketReplayButtons(ChartNode chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
-		this.chart = chart;
+		this.chart = chart;		
 		init(mr, cbvg);
 		addToSceneGraph();
 		setMouseEvents();
@@ -90,7 +88,7 @@ public class ChartMarketReplayButtons {
 		limitOrder.setVanGogh(cbvg.pendingVG(limitOrder));
 		stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, ChartNode.CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
 		stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
-		penTrades = new ArrayList<PendingTradePair>();
+		pbn = new PendingButtonsNode();
 	}
 	
 	public void disablePendingOrderButtons() {		
@@ -154,7 +152,7 @@ public class ChartMarketReplayButtons {
 		});
 		
 		limitOrder.setOnMouseClicked(e -> {
-			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get()).price();
+			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = true;			
 			if (crossHairPrice != currentPrice) {
@@ -166,7 +164,7 @@ public class ChartMarketReplayButtons {
 		});
 		
 		stopOrder.setOnMouseClicked(e -> {			
-			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get()).price();
+			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = false;			
 			if (crossHairPrice != currentPrice) {
@@ -182,7 +180,7 @@ public class ChartMarketReplayButtons {
 	
 	private void setTradeButMouseEvents() {
 		tradeButs.close().setOnMouseClicked(e -> {
-			chart.marketReplay().closeTrade(chart.data().tickDataSize(true).get());
+			chart.marketReplay().closeTrade(chart.data().tickDataSize(true).get() - 1);
 		});
 		
 		tradeButs.setSL().setOnMouseDragged(e -> {
@@ -226,9 +224,9 @@ public class ChartMarketReplayButtons {
 		tradeButs.sl().setOnMouseReleased(e -> {
 			if (!chart.marketReplay().trade().closed()) {
 				chart.marketReplay().validateSl();
-			} else if (penTrades.size() == 1) {
-				if (chart.marketReplay().unvalidatedSlPrice().get() > penTrades.get(0).pendingTrade().price() && penTrades.get(0).pendingTrade().buy() ||
-						chart.marketReplay().unvalidatedSlPrice().get() < penTrades.get(0).pendingTrade().price() && !penTrades.get(0).pendingTrade().buy()) {
+			} else if (pbn.tradePairs().size() == 1) {
+				if (chart.marketReplay().unvalidatedSlPrice().get() > pbn.tradePairs().getFirst().pendingTrade().price() && pbn.tradePairs().getFirst().pendingTrade().buy() ||
+						chart.marketReplay().unvalidatedSlPrice().get() < pbn.tradePairs().getFirst().pendingTrade().price() && !pbn.tradePairs().getFirst().pendingTrade().buy()) {
 					chart.marketReplay().cancelSl();
 				}
 			}
@@ -240,12 +238,12 @@ public class ChartMarketReplayButtons {
 			setCrossHairVars(e.getX(), e.getY());
 			chart.draw();
 		});
-		tradeButs.tp().setOnMouseReleased(e -> {
+		tradeButs.tp().setOnMouseReleased(e -> {			
 			if (!chart.marketReplay().trade().closed()) {
 				chart.marketReplay().validateTp();
-			} else if (penTrades.size() == 1) {
-				if (chart.marketReplay().unvalidatedTpPrice().get() < penTrades.get(0).pendingTrade().price() && penTrades.get(0).pendingTrade().buy() ||
-						chart.marketReplay().unvalidatedTpPrice().get() > penTrades.get(0).pendingTrade().price() && !penTrades.get(0).pendingTrade().buy()) {
+			} else if (pbn.tradePairs().size() == 1) {				
+				if (chart.marketReplay().unvalidatedTpPrice().get() < pbn.tradePairs().getFirst().pendingTrade().price() && pbn.tradePairs().getFirst().pendingTrade().buy() ||
+						chart.marketReplay().unvalidatedTpPrice().get() > pbn.tradePairs().getFirst().pendingTrade().price() && !pbn.tradePairs().getFirst().pendingTrade().buy()) {
 					chart.marketReplay().cancelTp();
 				}
 			}
@@ -306,6 +304,7 @@ public class ChartMarketReplayButtons {
 		Tree<ICanvasNode> sceneGraph = chart.chart().sceneGraph();
 		chart.chart().varLock().lock();
 		try {
+			sceneGraph.addNode(new TNode<ICanvasNode>(pbn, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.chartNode()));
@@ -336,7 +335,7 @@ public class ChartMarketReplayButtons {
 		tradeButs.tp().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
 		tradeButs.setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
 		tradeButs.setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
-		for (PendingTradePair p : penTrades) {
+		for (PendingTradePair p : pbn.tradePairs()) {
 			p.pendingTradeButtons().order().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
 			p.pendingTradeButtons().close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
 			p.pendingTradeButtons().setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
@@ -380,24 +379,16 @@ public class ChartMarketReplayButtons {
 		return stopOrder;
 	}
 	
-	public ArrayList<PendingTradePair> pendingTradePairs() {
-		return penTrades;
-	}		
-	
-	public void addPenTradePair(PendingTradePair ptp) {
-		penTrades.add(ptp);
+	public PendingButtonsNode pendingButtonsNode() {
+		return pbn;
 	}
 	
-	public void removePenTradePair(PendingTrade penTrade) {
-		ArrayList<PendingTradePair> pt = new ArrayList<PendingTradePair>();
-		for (PendingTradePair ptp : penTrades) {
-			if (!ptp.pendingTrade().equals(penTrade)) {
-				pt.add(ptp);
-			} else {
-				ptp.removeFromSceneGraph();
-			}
-		}
-		penTrades = pt;
+	public void addPenTradePair(PendingTradePair ptp) {
+		pbn.addPair(ptp);
+	}
+	
+	public void removePenTradePair(PendingTrade p) {
+		pbn.removePair(p);
 	}	
 	
 	private void setCrossHairVars(double x, double y) {
@@ -415,21 +406,16 @@ public class ChartMarketReplayButtons {
 		buy.draw();
 		sell.draw();
 		volTens.draw();
-		volUnits.draw();
+		volUnits.draw();	
+		pbn.draw();		
 		tradeButs.sl().draw();
 		tradeButs.cancelSL().draw();		
 		tradeButs.tp().draw();
 		tradeButs.cancelTP().draw();
-		for (int i = 0; i < penTrades.size(); i++) {
-			penTrades.get(penTrades.size()-i-1).drawOrder();
-		}
 		tradeButs.order().draw();
 		tradeButs.close().draw();
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
-		for (int i = 0; i < penTrades.size(); i++) {
-			penTrades.get(penTrades.size()-i-1).drawSets();
-		}
 		limitOrder.draw();
 		stopOrder.draw();
 	}
