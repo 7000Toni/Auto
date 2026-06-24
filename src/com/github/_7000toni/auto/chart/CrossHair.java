@@ -127,8 +127,12 @@ public class CrossHair {
 		double yPos;
 		if (focusedChart) {
 			yPos = y.get();
+			if (yPos <= ChartNode.CHT_MARGIN || yPos >= ChartNode.CHT_MARGIN + chart.height()) {
+				chart.setFocusedChart(false);
+				return;
+			}
 		} else {
-			yPos = ((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN;
+			yPos = ((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN;			
 		}
 		if (Chart.darkMode().get()) {
 			chart.graphicsContext().setStroke(Color.WHITE);
@@ -155,6 +159,10 @@ public class CrossHair {
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
+		if (xPos <= ChartNode.CHT_MARGIN || xPos >= ChartNode.CHT_MARGIN + chart.width()) {
+			chart.setFocusedChart(false);
+			return;
+		}
 		if (Chart.darkMode().get()) {
 			chart.graphicsContext().setStroke(Color.WHITE);
 		} else {
