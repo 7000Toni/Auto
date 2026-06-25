@@ -75,9 +75,9 @@ public class RandomFunctions {
 			PrintWriter pw = null;
 			try(FileInputStream fis = new FileInputStream(f);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-				br.readLine();	
-				String contract = br.readLine();
-				pw = new PrintWriter(new File("./res/mostly es trades/" + contract.substring(0, 2) + f.getName().substring(10, 18) + ".txt"));
+				br.readLine();
+				String contract = br.readLine();					
+				pw = new PrintWriter(new File("./res/mostly es/" + contract.substring(0, 2) + f.getName().substring(10, 18) + ".txt"));
 				String in = br.readLine();
 				String signature = contract.substring(0, 2) + f.getName().substring(10, 18) + " 0.25 2";
 				int n = 0;
