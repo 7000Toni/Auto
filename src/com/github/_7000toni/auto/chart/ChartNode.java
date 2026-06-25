@@ -557,7 +557,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				diff = (int)(dragDiffAccum / xDiff);
 				if (diff != 0) {
 					startIndex = startIndex - diff;
-					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - numDataPoints * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			}
@@ -616,7 +616,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)(startIndex) /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
+				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
 			}
 		} else { 
 			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.m1CandlesDataSize(this.replayMode).get() - numCandlesticks * END_MARGIN_COEF));
@@ -656,10 +656,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)(startIndex) /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));				
+				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - numDataPoints * END_MARGIN_COEF));				
 			}
 		} else {
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(data.tickDataSize(this.replayMode).get() - numDataPoints * END_MARGIN_COEF));
 		}
 		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH || customSI) {
 			keepStartIndex = true;
@@ -1164,7 +1164,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				startIndex = m1Candles().get(startIndex).firstTickIndex();
 			}
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - (numDataPoints - 1) * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (data.tickDataSize(this.replayMode).get() - numDataPoints * END_MARGIN_COEF));
 			c.hsb().setPosition(newHSBPos, false);				
 		} else {
 			if (m1Candles().isEmpty()) {
