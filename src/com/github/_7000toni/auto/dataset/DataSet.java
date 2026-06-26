@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -37,12 +38,12 @@ public class DataSet {
 	public class DataPair {
 		private double price;
 		private int candleIndex;
-		private LocalDateTime dateTime;		
+		private long dateTime;		
 		
 		public DataPair(double price, LocalDateTime dateTime, int candleIndex) {
 			this.price = price;
 			this.candleIndex = candleIndex;
-			this.dateTime = dateTime;
+			this.dateTime = dateTime.toInstant(ZoneOffset.UTC).getEpochSecond()*1000000000 + dateTime.toInstant(ZoneOffset.UTC).getNano();
 		}
 		
 		public double price() {
@@ -54,7 +55,11 @@ public class DataSet {
 		}
 		
 		public LocalDateTime dateTime() {
-			return this.dateTime;
+			long seconds = dateTime / 1_000_000_000;
+	        long nanosRemainder = dateTime % 1_000_000_000;
+	        Instant instant = Instant.ofEpochSecond(seconds, nanosRemainder);
+	        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+			return localDateTime;
 		}
 	}
 	
@@ -164,7 +169,7 @@ public class DataSet {
 	public Candlestick makeLastReplayCandlestick(int startIndex) {
 		ReadFileVars rfv = new ReadFileVars();
 		rfv.val = tickData().get(startIndex).price;
-		rfv.ldt = tickData().get(startIndex).dateTime;
+		rfv.ldt = tickData().get(startIndex).dateTime();
 		rfv.firstTickIndex = startIndex;
 		rfv.open = rfv.val;
 		rfv.high = rfv.val;
