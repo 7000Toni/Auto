@@ -1,6 +1,7 @@
 package com.github._7000toni.auto.canvasnode;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
@@ -101,7 +102,7 @@ public abstract class CanvasNode implements ICanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		if (onMouseDragged == null || !enabled) {
+		if (onMouseDragged == null || !enabled || e.getButton() != MouseButton.PRIMARY) {
 			return;
 		}
 		onMouseDragged.handle(e);
@@ -136,7 +137,7 @@ public abstract class CanvasNode implements ICanvasNode {
 	
 	@Override
 	public void onMouseClicked(MouseEvent e) {	
-		if (onMouseClicked == null || !enabled || !pressed) {
+		if (onMouseClicked == null || !enabled || !pressed || e.getButton() != MouseButton.PRIMARY) {
 			setPressed(false);
 			return;
 		}
