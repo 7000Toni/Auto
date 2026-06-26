@@ -22,7 +22,7 @@ public class DukascopyNodeReader implements ITickDataFileReader {
 			Instant ins = Instant.ofEpochMilli(Long.parseLong(rfv.tokens.nextToken()));
 			rfv.tokens.nextToken();
 			rfv.ldt = LocalDateTime.ofInstant(ins, ZoneId.of("Z"));
-			rfv.val = Double.parseDouble(rfv.tokens.nextToken());
+			rfv.val = Float.parseFloat(rfv.tokens.nextToken());
 			rfv.add = true;
 		}
 	}

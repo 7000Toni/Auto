@@ -20,7 +20,7 @@ public class OriginalTickFileReader implements ITickDataFileReader {
 			rfv.price = rfv.in.substring(0, rfv.in.indexOf(' '));
 			rfv.dateTime = rfv.in.substring(rfv.in.indexOf(' '));
 			rfv.ldt = LocalDateTime.parse(rfv.dateTime, dtf);
-			rfv.val = Double.parseDouble(rfv.price);
+			rfv.val = Float.parseFloat(rfv.price);
 			rfv.add = true;
 		}
 	}

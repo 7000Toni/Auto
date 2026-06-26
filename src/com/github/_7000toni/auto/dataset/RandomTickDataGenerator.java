@@ -22,9 +22,9 @@ public class RandomTickDataGenerator implements ITickDataFileReader {
 			size--;
 			rfv.ldt = Instant.ofEpochMilli(System.currentTimeMillis() - (size - 1000000) * 1000).atZone(ZoneId.systemDefault()).toLocalDateTime();
 			if (ran.nextBoolean()) {
-				rfv.val = rfv.prevPrice + 0.25;
+				rfv.val = rfv.prevPrice + 0.25f;
 			} else {
-				rfv.val = rfv.prevPrice - 0.25;
+				rfv.val = rfv.prevPrice - 0.25f;
 			}
 			rfv.add = true;
 		}

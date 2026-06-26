@@ -112,7 +112,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private double t = 0;
 	private int c2 = 0;
 	
-	//TODO
 	private TradeHistoryPlotter thp;
 	private ArrayList<TradeHistory> hst;
 	private BooleanProperty plotHst = new SimpleBooleanProperty(false);

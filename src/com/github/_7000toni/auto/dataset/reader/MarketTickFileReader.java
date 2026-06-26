@@ -24,7 +24,7 @@ public class MarketTickFileReader implements ITickDataFileReader {
 			if (!rfv.tokens.nextToken().equals("2")) {
 				return;
 			}
-			rfv.val = Double.parseDouble(rfv.tokens.nextToken());
+			rfv.val = Float.parseFloat(rfv.tokens.nextToken());
 			rfv.add = true;
 		}
 	}

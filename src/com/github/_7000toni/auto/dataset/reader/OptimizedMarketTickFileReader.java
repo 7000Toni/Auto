@@ -20,7 +20,7 @@ public class OptimizedMarketTickFileReader implements ITickDataFileReader {
 			DatumChecker.check(datum, rfv.in);
 			rfv.tokens = new StringTokenizer(rfv.in, ";");
 			rfv.ldt = LocalDateTime.parse(rfv.tokens.nextToken(), dtf);
-			rfv.val = Double.parseDouble(rfv.tokens.nextToken());
+			rfv.val = Float.parseFloat(rfv.tokens.nextToken());
 			rfv.add = true;
 		}
 	}

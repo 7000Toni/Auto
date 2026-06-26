@@ -36,11 +36,11 @@ public class DataSet {
 	private int maxLength = 0;
 	
 	public class DataPair {
-		private double price;
+		private float price;
 		private int candleIndex;
 		private long dateTime;		
 		
-		public DataPair(double price, LocalDateTime dateTime, int candleIndex) {
+		public DataPair(float price, LocalDateTime dateTime, int candleIndex) {
 			this.price = price;
 			this.candleIndex = candleIndex;
 			this.dateTime = dateTime.toInstant(ZoneOffset.UTC).getEpochSecond()*1000000000 + dateTime.toInstant(ZoneOffset.UTC).getNano();
@@ -56,28 +56,28 @@ public class DataSet {
 		
 		public LocalDateTime dateTime() {
 			long seconds = dateTime / 1_000_000_000;
-	        long nanosRemainder = dateTime % 1_000_000_000;
-	        Instant instant = Instant.ofEpochSecond(seconds, nanosRemainder);
-	        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
-			return localDateTime;
+	        long nanos = dateTime % 1_000_000_000;
+	        Instant i = Instant.ofEpochSecond(seconds, nanos);
+	        LocalDateTime ldt = LocalDateTime.ofInstant(i, ZoneOffset.UTC);
+			return ldt;
 		}
 	}
 	
 	public class Candlestick {
-		private double open;
-		private double high;
-		private double low;
-		private double close;
+		private float open;
+		private float high;
+		private float low;
+		private float close;
 		private int firstTickIndex;
-		private LocalDateTime dateTime;
+		private long dateTime;
 		private boolean complete;
 		
-		public Candlestick(double open, double high, double low, double close, LocalDateTime dateTime, boolean complete, int firstTickIndex) {
+		public Candlestick(float open, float high, float low, float close, LocalDateTime dateTime, boolean complete, int firstTickIndex) {
 			this.open = open;
 			this.high = high;
 			this.low = low;
 			this.close = close;
-			this.dateTime = dateTime;
+			this.dateTime = dateTime.toInstant(ZoneOffset.UTC).getEpochSecond()*1000000000 + dateTime.toInstant(ZoneOffset.UTC).getNano();
 			this.complete = complete;
 			this.firstTickIndex = firstTickIndex;
 		}
@@ -103,7 +103,11 @@ public class DataSet {
 		}
 		
 		public LocalDateTime dateTime() {
-			return this.dateTime;
+			long seconds = dateTime / 1_000_000_000;
+	        long nanos = dateTime % 1_000_000_000;
+	        Instant i = Instant.ofEpochSecond(seconds, nanos);
+	        LocalDateTime ldt = LocalDateTime.ofInstant(i, ZoneOffset.UTC);
+			return ldt;
 		}
 		
 		public boolean complete() {
@@ -131,14 +135,14 @@ public class DataSet {
 		public BufferedReader br;	
 		public int firstTickIndex;
 		public int candleIndex;
-		public double val;
+		public float val;
 		public boolean add;
-		public double open;
-		public double high;
-		double low;
-		double close;
+		public float open;
+		public float high;
+		public float low;
+		public float close;
 		public LocalDateTime ldtPrev;
-		public double prevPrice;
+		public float prevPrice;
 		public int progress;
 		public int trueProgress;
 		public boolean changed = true;
@@ -285,7 +289,7 @@ public class DataSet {
 	
 	private void addCandlestick(ReadFileVars rfv, boolean complete) {
 		rfv.close = rfv.prevPrice;	
-		m1Candles.add(new Candlestick(Round.round(rfv.open, numDecimalPts), Round.round(rfv.high, numDecimalPts), Round.round(rfv.low, numDecimalPts), Round.round(rfv.close, numDecimalPts), rfv.ldtPrev, complete, rfv.firstTickIndex));
+		m1Candles.add(new Candlestick((float)Round.round(rfv.open, numDecimalPts), (float)Round.round(rfv.high, numDecimalPts), (float)Round.round(rfv.low, numDecimalPts), (float)Round.round(rfv.close, numDecimalPts), rfv.ldtPrev, complete, rfv.firstTickIndex));
 	}
 	
 	private void checkAddCandlestick(ReadFileVars rfv) {
@@ -363,7 +367,7 @@ public class DataSet {
 					continue;
 				}										
 				checkAddCandlestick(rfv);
-				tickData.add(new DataPair(Round.round(rfv.val, numDecimalPts), rfv.ldt, m1Candles.size()));
+				tickData.add(new DataPair((float)Round.round(rfv.val, numDecimalPts), rfv.ldt, m1Candles.size()));
 				checkLength(rfv.val);
 			}
 			addCandlestick(rfv, false);
