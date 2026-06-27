@@ -14,6 +14,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private ChartMenu chartMenu;
 	
 	private GeneralFunctionsTab gft;
 	private DrawingsTab dt;
@@ -24,11 +25,12 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private int functionsMenuIndex = 0;
 	
-	public ChartFunctionsMenu(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+	public ChartFunctionsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
 		gft = new GeneralFunctionsTab(x, y, width, height, gc, chart, cmbvg);
@@ -45,7 +47,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		previousFunctions.setOnMouseClicked(e -> {
 			functionsMenuIndex = functionsMenuIndex==0?2:Math.abs((functionsMenuIndex - 1) % 3);
-			setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
 		nextFunctions = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 60, "NEXT");	
@@ -54,7 +56,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		});
 		nextFunctions.setOnMouseClicked(e -> {
 			functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 3); 
-			setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});				
 	}
 	

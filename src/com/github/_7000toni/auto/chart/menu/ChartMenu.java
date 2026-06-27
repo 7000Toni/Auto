@@ -60,7 +60,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		cmbvg = new ChartMenuButtonVanGoghs();
 		
 		csm = new ChartSettingsMenu(x, y, width, height, this, gc, chart, cmbvg);
-		cfm = new ChartFunctionsMenu(x, y, width, height, gc, chart, cmbvg);	
+		cfm = new ChartFunctionsMenu(x, y, width, height, this, gc, chart, cmbvg);	
 		init();
 	}
 	

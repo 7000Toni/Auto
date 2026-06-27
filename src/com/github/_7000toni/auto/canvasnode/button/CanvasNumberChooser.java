@@ -35,7 +35,7 @@ public class CanvasNumberChooser extends CanvasNode {
 		this.y = y + this.height*0.125*1.3;
 	}
 	
-	public static int number(CanvasNumberChooser[] numbers) {	
+	public static int number(CanvasNumberChooser... numbers) {	
 		String num = "";
 		for (CanvasNumberChooser c : numbers) {
 			num += ((Integer) c.value()).toString();
