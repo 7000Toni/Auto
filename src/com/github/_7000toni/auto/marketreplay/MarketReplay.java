@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
@@ -25,7 +25,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 public class MarketReplay {
 	private ArrayList<ChartNode> charts;
 	private String name;
-	private DataSet data;
+	private Dataset data;
 	private MarketReplayPane mrp;
 	private IntegerProperty index = new SimpleIntegerProperty();	
 	private BooleanProperty paused = new SimpleBooleanProperty(false);
@@ -114,7 +114,7 @@ public class MarketReplay {
 		return IntegerProperty.readOnlyIntegerProperty(tickDataSize);
 	}
 	
-	public DataSet data() {
+	public Dataset data() {
 		return this.data;
 	}
 	

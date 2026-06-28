@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatumChecker;
 
 public class OriginalTickFileReader implements ITickDataFileReader {
@@ -12,7 +12,7 @@ public class OriginalTickFileReader implements ITickDataFileReader {
 	private static Pattern datum = Pattern.compile("([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?\\s\\d\\d/\\d\\d/\\d\\d\\d\\d\\s\\d\\d:\\d\\d:\\d\\d");
 	
 	@Override
-	public void readNextTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readNextTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		rfv.add = false;
 		rfv.in = rfv.br.readLine();
 		if (rfv.in != null) {
@@ -26,7 +26,7 @@ public class OriginalTickFileReader implements ITickDataFileReader {
 	}
 	
 	@Override
-	public void readFirstTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readFirstTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		readNextTick(rfv);
 	}
 	

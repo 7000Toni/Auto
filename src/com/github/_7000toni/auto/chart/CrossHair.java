@@ -2,7 +2,7 @@ package com.github._7000toni.auto.chart;
 import java.time.ZoneOffset;
 
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -116,7 +116,7 @@ public class CrossHair {
 		}
 	}
 	
-	public void setOHLC(DataSet.Candlestick candle) {
+	public void setOHLC(Dataset.Candlestick candle) {
 		ohlc = "O: " + candle.open();
 		ohlc += "  H: " + candle.high();
 		ohlc += "  L: " + candle.low();

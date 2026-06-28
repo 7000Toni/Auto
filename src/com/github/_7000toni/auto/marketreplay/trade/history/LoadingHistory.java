@@ -3,7 +3,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.chart.ChartNode;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -24,7 +24,7 @@ public class LoadingHistory {
 		this.chart = chartNode;
 	}
 	
-	public void loadApproxHistory(File history, ArrayList<DataSet.DataPair> data) {	
+	public void loadApproxHistory(File history, ArrayList<Dataset.DataPair> data) {	
 		Task<Void> task = new Task<Void>() {
 			@Override
 			public Void call() {	

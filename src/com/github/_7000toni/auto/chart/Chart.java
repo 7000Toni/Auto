@@ -11,7 +11,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalChartScrollBar;
 import com.github._7000toni.auto.chart.listener.ChartHeightListener;
 import com.github._7000toni.auto.chart.listener.ChartWidthListener;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
@@ -67,11 +67,11 @@ public class Chart implements ICanvasWindow {
 	private CanvasButton btnMenu;
 	private ChartMenu menu;
 	
-	public Chart(double width, double height, Stage stage, DataSet data) throws Exception {
+	public Chart(double width, double height, Stage stage, Dataset data) throws Exception {
 		constructorStuff(width, height, stage, data);
 	}
 	
-	private void constructorStuff(double widthParam, double heightParam, Stage stage, DataSet data) throws Exception {		
+	private void constructorStuff(double widthParam, double heightParam, Stage stage, Dataset data) throws Exception {		
 		this.width = widthParam;
 		this.height = heightParam;
 		stage.setMinWidth(MIN_WIDTH);

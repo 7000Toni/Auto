@@ -6,7 +6,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.tabs.DrawingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.GeneralFunctionsTab;
-import com.github._7000toni.auto.chart.menu.tabs.TimeFramesTab;
+import com.github._7000toni.auto.chart.menu.tabs.TimeframesTab;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -18,7 +18,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private GeneralFunctionsTab gft;
 	private DrawingsTab dt;
-	private TimeFramesTab tft;
+	private TimeframesTab tft;
 	
 	private CanvasButton previousFunctions;
 	private CanvasButton nextFunctions;
@@ -35,7 +35,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		this.chart = chart;
 		gft = new GeneralFunctionsTab(x, y, width, height, gc, chart, cmbvg);
 		dt = new DrawingsTab(x, y, width, height, gc, chart, cmbvg);
-		tft = new TimeFramesTab(x, y, width, height, gc, chart, cmbvg);
+		tft = new TimeframesTab(x, y, width, height, gc, chart, cmbvg);
 		
 		initFunctionsMenu();
 	}
@@ -101,7 +101,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		return dt;
 	}
 	
-	public TimeFramesTab timeFramesTab() {
+	public TimeframesTab timeFramesTab() {
 		return tft;
 	}
 

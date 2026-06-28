@@ -14,7 +14,6 @@ import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
-import com.github._7000toni.auto.dataset.DataSet;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.tree.TNode;
@@ -267,13 +266,12 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 			percent = 100;
 		} else if (percent < 0) {
 			percent = 0;
-		}
-		DataSet data = mr.data();		
-		int index = data.tickDataSize(true).get() - 1;
+		}		
+		int index = mr.data().tickDataSize(true).get() - 1;
 		LocalDateTime tick = null;
 		String time = "";
 		if (index > -1) {
-			tick = data.tickData().get(index).dateTime();
+			tick = mr.data().tickData().get(index).dateTime();
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
 		if (Chart.darkMode().get()) {

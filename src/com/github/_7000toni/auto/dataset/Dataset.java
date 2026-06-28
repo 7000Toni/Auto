@@ -20,7 +20,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class DataSet {
+public class Dataset {
 	private String name;
 	private String signature;
 	private int size;
@@ -31,11 +31,12 @@ public class DataSet {
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Line> lines = new ArrayList<Line>();
+	private ArrayList<Timeframe> timeframes;
 	private long startEpochMinutes;
 	private boolean failed = false;
 	private int maxLength = 0;
 	
-	public class DataPair {
+	public static class DataPair {
 		private float price;
 		private int candleIndex;
 		private long dateTime;		
@@ -46,7 +47,7 @@ public class DataSet {
 			this.dateTime = dateTime.toInstant(ZoneOffset.UTC).getEpochSecond()*1000000000 + dateTime.toInstant(ZoneOffset.UTC).getNano();
 		}
 		
-		public double price() {
+		public float price() {
 			return this.price;
 		}
 		
@@ -63,7 +64,7 @@ public class DataSet {
 		}
 	}
 	
-	public class Candlestick {
+	public static class Candlestick {
 		private float open;
 		private float high;
 		private float low;
@@ -82,19 +83,19 @@ public class DataSet {
 			this.firstTickIndex = firstTickIndex;
 		}
 		
-		public double open() {
+		public float open() {
 			return this.open;
 		}
 		
-		public double high() {
+		public float high() {
 			return this.high;
 		}
 		
-		public double low() {
+		public float low() {
 			return this.low;
 		}
 		
-		public double close() {
+		public float close() {
 			return this.close;
 		}
 		
@@ -125,7 +126,7 @@ public class DataSet {
 		}
 	}
 	
-	public class ReadFileVars {
+	public static class ReadFileVars {
 		public DateTimeFormatter dtf;
 		public String in;		
 		public String dateTime;
@@ -150,11 +151,11 @@ public class DataSet {
 		public IntegerProperty percent = new SimpleIntegerProperty();
 	}
 	
-	public DataSet(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
+	public Dataset(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
 		readData(file, tdfr, prog);
 	}
 	
-	public DataSet(File file, ITickDataFileReader tdfr) {
+	public Dataset(File file, ITickDataFileReader tdfr) {
 		readData(file, tdfr, null);
 	}
 	
@@ -242,6 +243,10 @@ public class DataSet {
 	
 	public long startEpochMinutes() {
 		return this.startEpochMinutes;
+	}
+	
+	public ArrayList<Timeframe> timeframes() {
+		return timeframes;
 	}
 	
 	private void readSignature(ReadFileVars rfv) {
@@ -395,8 +400,8 @@ public class DataSet {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof DataSet) {
-			if (this.name.equals(((DataSet)obj).name())) {
+		if (obj instanceof Dataset) {
+			if (this.name.equals(((Dataset)obj).name())) {
 				return true;
 			} else {
 				return false;

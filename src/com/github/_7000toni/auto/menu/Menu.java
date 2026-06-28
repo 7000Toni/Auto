@@ -13,9 +13,9 @@ import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.DataSetButton;
 import com.github._7000toni.auto.chart.Chart;
-import com.github._7000toni.auto.dataset.DataSet;
-import com.github._7000toni.auto.dataset.DataSetLoader;
-import com.github._7000toni.auto.dataset.LoadingDataSet;
+import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.dataset.DatasetLoader;
+import com.github._7000toni.auto.dataset.LoadingDataset;
 import com.github._7000toni.auto.dataset.OptimizeTask;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
@@ -53,7 +53,7 @@ public class Menu implements ICanvasWindow {
 	private CanvasButton auto;
 	private double width;
 	private double height;
-	private ArrayList<DataSet> datasets = new ArrayList<DataSet>();
+	private ArrayList<Dataset> datasets = new ArrayList<Dataset>();
 	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private ITickDataFileReader reader = null;	
@@ -61,7 +61,7 @@ public class Menu implements ICanvasWindow {
 		
 	private static ArrayList<String> chartsOnStart = new ArrayList<String>();
 	
-	private ArrayList<LoadingDataSet> loadingSets = new ArrayList<LoadingDataSet>();
+	private ArrayList<LoadingDataset> loadingSets = new ArrayList<LoadingDataset>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
 	private final ReentrantLock varLock = new ReentrantLock();
 	private boolean dragging = false;
@@ -111,7 +111,7 @@ public class Menu implements ICanvasWindow {
 			gc.setFont(oldFont);
 		});
 		this.loadData.setOnMouseClicked(e -> {
-			DataSetLoader dsl = new DataSetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+			DatasetLoader dsl = new DatasetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
 			dsl.load();
 		});
 		
@@ -261,7 +261,7 @@ public class Menu implements ICanvasWindow {
 			}
 			File f = new File(chartsOnStart.get(i));
 			if (f.exists()) {				
-				DataSetLoader dsl = new DataSetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+				DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
 				dsl.load();	
 			} else {
 				System.out.println(chartsOnStart.get(i) + " does not exist");
@@ -368,7 +368,7 @@ public class Menu implements ICanvasWindow {
 	
 	private void drawLoadingSets() {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-		for (LoadingDataSet l : loadingSets) {
+		for (LoadingDataset l : loadingSets) {
 			gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		}
 	}	

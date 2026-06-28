@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistory;
 import com.github._7000toni.auto.miscellaneous.Round;
 
@@ -15,7 +15,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class Trade implements ITrade {
-	protected DataSet data;
+	protected Dataset data;
 	protected double entryPrice;
 	protected ArrayList<EntryPair> entryIndices = new ArrayList<EntryPair>();
 	protected int currentPriceIndex;
@@ -82,11 +82,11 @@ public class Trade implements ITrade {
 		closed = true;
 	}
 	
-	public Trade(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+	public Trade(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	
-	public Trade(DataSet data, int currentPriceIndex, boolean buy, double volume) {
+	public Trade(Dataset data, int currentPriceIndex, boolean buy, double volume) {
 		constructorStuff(data, currentPriceIndex, -1, -1, buy, volume);
 	}
 	
@@ -110,7 +110,7 @@ public class Trade implements ITrade {
 		this.partialVol = t.partialVol;	
 	}
 	
-	private void constructorStuff(DataSet data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+	private void constructorStuff(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
 		this.entryIndices.add(new EntryPair(volume, currentPriceIndex));		

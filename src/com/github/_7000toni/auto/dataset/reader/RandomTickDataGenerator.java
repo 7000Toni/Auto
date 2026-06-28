@@ -1,16 +1,16 @@
-package com.github._7000toni.auto.dataset;
+package com.github._7000toni.auto.dataset.reader;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Random;
 
-import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
+import com.github._7000toni.auto.dataset.Dataset;
 
 public class RandomTickDataGenerator implements ITickDataFileReader {
 	private static int size;
 	
 	@Override
-	public void readNextTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readNextTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		Random ran = new Random();
 		rfv.add = false;
 		if (size > -1) {
@@ -31,7 +31,7 @@ public class RandomTickDataGenerator implements ITickDataFileReader {
 	}
 	
 	@Override
-	public void readFirstTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readFirstTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		size = 1000000;
 		while (!rfv.add) {
 			readNextTick(rfv);						

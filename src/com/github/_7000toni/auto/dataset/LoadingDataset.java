@@ -7,20 +7,20 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class LoadingDataSet {
+public class LoadingDataset {
 	private String signature;
 	private double y;
 	private IntegerProperty progress = new SimpleIntegerProperty(0);
 	private IntegerProperty addIndex = new SimpleIntegerProperty(0);
 	
-	public LoadingDataSet(double y, int addIndex, String signature) {
+	public LoadingDataset(double y, int addIndex, String signature) {
 		this.y = y;
 		this.addIndex.set(addIndex);
 		this.signature = signature;
 	}
 	
-	public DataSet load(File file, ITickDataFileReader reader) {		
-		DataSet data = new DataSet(file, reader, progress);
+	public Dataset load(File file, ITickDataFileReader reader) {		
+		Dataset data = new Dataset(file, reader, progress);
 		if (data.failed()) {
 			return null;
 		} else {

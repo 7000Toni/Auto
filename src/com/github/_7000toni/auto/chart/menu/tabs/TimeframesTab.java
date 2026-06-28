@@ -12,7 +12,7 @@ import com.github._7000toni.auto.tree.Tree;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class TimeFramesTab extends CanvasNode implements IScrollBarOwner {
+public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
 	private ChartMenuButtonVanGoghs cmbvg;
 	
@@ -32,7 +32,7 @@ public class TimeFramesTab extends CanvasNode implements IScrollBarOwner {
 	private boolean addTicks = true;
 	private boolean addStaticTF = true;
 	
-	public TimeFramesTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+	public TimeframesTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -45,7 +45,7 @@ public class TimeFramesTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initTimeFramesMenu() {
-		timeFramesFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "TIME FRAME FUNCTIONS");
+		timeFramesFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "TIMEFRAME FUNCTIONS");
 		timeFramesFunctions.setVanGogh((x2, y2, gc2) -> {
 			timeFramesFunctions.defaultDraw(gc.getFont());
 		});	
@@ -107,7 +107,7 @@ public class TimeFramesTab extends CanvasNode implements IScrollBarOwner {
 		add.setVanGogh((x2, y2, gc2) -> {
 			add.defaultDraw(gc.getFont());
 		});
-		added = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "ADDED TIME FRAMES");
+		added = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "ADDED TIMEFRAMES");
 		added.setVanGogh((x2, y2, gc2) -> {
 			added.defaultDraw(gc.getFont());
 		});	

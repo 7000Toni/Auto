@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import com.github._7000toni.auto.chart.ChartNode;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 
 import javafx.beans.property.IntegerProperty;
 
@@ -59,11 +60,11 @@ public class TradeHistoryLoader {
 		}
 	}
 	
-	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data) {
+	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data) {
 		return loadApproxHistory(history, data, null, null);
 	}
 	
-	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, ChartNode chart) {
+	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data, IntegerProperty progress, ChartNode chart) {
 		ArrayList<ApproxTradeHistory> approxHst = new ArrayList<ApproxTradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
@@ -97,7 +98,7 @@ public class TradeHistoryLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		return generateIndices(approxHst, data, progress, chart);
+		return generateIndices(approxHst, data, progress);
 	}
 	
 	public static ArrayList<TradeHistory> loadMRHistory(File history) {
@@ -119,7 +120,7 @@ public class TradeHistoryLoader {
 		return approxHst;
 	}
 	
-	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<DataSet.DataPair> data, IntegerProperty progress, ChartNode chart) {
+	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<Dataset.DataPair> data, IntegerProperty progress) {
 		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
 		long j = 0;
 		progress.set(0);		
@@ -138,40 +139,46 @@ public class TradeHistoryLoader {
 		return hst;
 	}
 	
-	private static int indexSearch(LocalDateTime date, ArrayList<DataSet.DataPair> data, int start, int end) {
-		if (Math.abs(start - end) < 2) {
-			if (start == 0) {
-				if (date.isEqual(data.get(0).dateTime())) {
-					return start;
-				}
-			} else if (end == data.size() - 1) {
-				if (date.isEqual(data.get(data.size() - 1).dateTime())) {
-					return end;
-				}
-			} else if (dateNear(date, data.get(end - 1).dateTime(), data.get(end).dateTime(), data.get(end + 1).dateTime())){
-				return end;
-			}
+	private static int indexSearch(LocalDateTime date, ArrayList<Dataset.DataPair> data, int start, int end) {
+		if (start > end) {
 			return -1;
-		} else {
-			int i = start + (end - start) / 2;
-			if (dateNear(date, data.get(i-1).dateTime(),  data.get(i).dateTime(), data.get(i+1).dateTime())) {
+		}
+		int i = start + (end - start) / 2;	
+		int b = i==0?0:i-1;
+		int a = i==data.size()-1?data.size()-1:i+1;
+		int j;
+		if ((j = dateNear(date, data.get(b).dateTime(), data.get(i).dateTime(), data.get(a).dateTime())) != -1) {
+			if (j == 0 || j == 2) {
 				return i;
-			}
-			if (date.isBefore(data.get(i).dateTime())) {
-				return indexSearch(date, data, start, i);
+			} else if (j == 1) {
+				return b;
 			} else {
-				return indexSearch(date, data, i, end);
+				return a;
 			}
+		}
+		if (date.isBefore(data.get(i).dateTime())) {
+			return indexSearch(date, data, start, i - 1);
+		} else {
+			return indexSearch(date, data, i + 1, end);
 		}
 	}
 	
-	private static boolean dateNear(LocalDateTime dateTest, LocalDateTime dateBefore, LocalDateTime dateMiddle, LocalDateTime dateAfter) {
-		if (dateTest.isEqual(dateMiddle) || 
-				dateTest.isAfter(dateBefore) && dateTest.isBefore(dateMiddle) ||
-				dateTest.isAfter(dateMiddle) && dateTest.isBefore(dateAfter)) {
-			return true;
+	private static int dateNear(LocalDateTime dateTest, LocalDateTime dateBefore, LocalDateTime dateMiddle, LocalDateTime dateAfter) {
+		if (dateTest.isEqual(dateMiddle)) {
+			return 0; 
+		}		
+		if (dateTest.isAfter(dateBefore) && dateTest.isBefore(dateMiddle)) {
+			
+			long b = Duration.between(dateMiddle, dateTest).toMillis();
+			long m = Duration.between(dateTest, dateMiddle).toMillis();
+			return b<m?1:2;
 		}
-		return false;
+		if (dateTest.isAfter(dateMiddle) && dateTest.isBefore(dateAfter)) {
+			long m = Duration.between(dateMiddle, dateTest).toMillis();
+			long a = Duration.between(dateTest, dateAfter).toMillis();
+			return m<a?2:3;
+		}
+		return -1;
 	}
 }
 

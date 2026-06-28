@@ -2,7 +2,7 @@ package com.github._7000toni.auto.marketreplay.trade.history;
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.chart.ChartNode;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -19,7 +19,7 @@ public class TradeHistoryPlotter {
 			return;
 		}
 		GraphicsContext gc = chart.graphicsContext();
-		ArrayList<DataSet.DataPair> data = chart.data().tickData();
+		ArrayList<Dataset.DataPair> data = chart.data().tickData();
 		for (ITradeHistory h : history) {			
 			if (inRange(h)) {
 				double x1 = ChartNode.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();

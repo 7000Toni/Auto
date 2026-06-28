@@ -8,7 +8,7 @@ import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
@@ -55,7 +55,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public final static double CNDL_SPAC_COEF = 0.4;
 	
 	private Chart c;
-	private DataSet data;
+	private Dataset data;
 	private CrossHair crossHair;
 	
 	private BooleanProperty focusedChart = new SimpleBooleanProperty(false);
@@ -106,7 +106,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private TNode<ICanvasNode> chartNode;	
 	private ChartMarketReplayButtons cmrb;
 	private BooleanProperty skipDraw = new SimpleBooleanProperty(false);
-	private DataSet.Candlestick lastCandlestick;
+	private Dataset.Candlestick lastCandlestick;
 	
 	private boolean printSpeed = false;
 	private double t = 0;
@@ -117,11 +117,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private BooleanProperty plotHst = new SimpleBooleanProperty(false);
 	private LoadingHistory lhst;
 	
-	public ChartNode(double width, double height, Stage stage, DataSet data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {
+	public ChartNode(double width, double height, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {
 		constructorStuff(width, height, stage, data, c, sceneGraph);
 	}
 	
-	private void constructorStuff(double widthParam, double heightParam, Stage stage, DataSet data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {		
+	private void constructorStuff(double widthParam, double heightParam, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {		
 		this.width = widthParam;
 		this.height = heightParam;
 		this.data = data;
@@ -246,7 +246,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	public DataSet data() {
+	public Dataset data() {
 		return this.data;
 	}
 	
@@ -286,7 +286,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return this.candlestickSpacing;
 	}
 	
-	public DataSet.Candlestick lastCandlestick() {
+	public Dataset.Candlestick lastCandlestick() {
 		return lastCandlestick;
 	}
 	
@@ -302,11 +302,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return this.numCandlesticks;
 	}
 	
-	public ArrayList<DataSet.Candlestick> m1Candles() {
+	public ArrayList<Dataset.Candlestick> m1Candles() {
 		return this.data.m1Candles();
 	}
 	
-	public ArrayList<DataSet.DataPair> tickData() {
+	public ArrayList<Dataset.DataPair> tickData() {
 		return this.data.tickData();
 	}
 	
@@ -701,7 +701,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				}				
 			}
 			if (replayMode) {
-				DataSet.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(ei).firstTickIndex());
+				Dataset.Candlestick c = data.makeLastReplayCandlestick(m1Candles().get(ei).firstTickIndex());
 				if (c.high() > highest) {
 					highest = c.high();	
 				} 
@@ -766,7 +766,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}		
 	}
 	
-	public void drawCandleStick(DataSet.Candlestick candle, double xPos, double yPos) {
+	public void drawCandleStick(Dataset.Candlestick candle, double xPos, double yPos) {
 		if (candle.open() < candle.close()) {
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
 			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
@@ -986,7 +986,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			}
 			if (crossHair.ohlc() != null) {				
 				String trt2 = crossHair.ohlc();
-				DataSet.Candlestick c;
+				Dataset.Candlestick c;
 				if (useLast) {
 					c = lastCandlestick;
 				} else if (CrossHair.isForCandle().get()) {

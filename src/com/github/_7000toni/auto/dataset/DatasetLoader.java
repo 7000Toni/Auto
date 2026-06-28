@@ -30,16 +30,16 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-public class DataSetLoader {
-	private ArrayList<DataSet> datasets;
+public class DatasetLoader {
+	private ArrayList<Dataset> datasets;
 	private ArrayList<DataSetButton> dsButtons;
 	private ArrayList<MarketReplayPane> replays;
 	private ITickDataFileReader reader;	
-	private ArrayList<LoadingDataSet> loadingSets;
+	private ArrayList<LoadingDataset> loadingSets;
 	private Tree<ICanvasNode> sceneGraph;
 	private File file;
 	
-	public DataSetLoader(ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
@@ -48,7 +48,7 @@ public class DataSetLoader {
 		this.sceneGraph = sceneGraph;
 	}
 	
-	public DataSetLoader(File file, ArrayList<DataSet> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataSet> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.file = file;
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
@@ -96,7 +96,7 @@ public class DataSetLoader {
 					default:
 						break;
 				}
-				LoadingDataSet l = new LoadingDataSet(Menu.MARGIN + datasets.size() * 58, datasets.size(), signature);
+				LoadingDataset l = new LoadingDataset(Menu.MARGIN + datasets.size() * 58, datasets.size(), signature);
 				Menu.menu().varLock().lock();
 				try {
 					loadingSets.add(l);
@@ -119,7 +119,7 @@ public class DataSetLoader {
 		}				
 		Menu.menu().varLock().lock();
 		try {
-			for (DataSet d : datasets) {
+			for (Dataset d : datasets) {
 				if (d == null) {
 					continue;
 				}
@@ -127,7 +127,7 @@ public class DataSetLoader {
 					return 1;
 				}
 			}		
-			for (LoadingDataSet l : loadingSets) {
+			for (LoadingDataset l : loadingSets) {
 				if (signature.equals(l.signature())) {
 					return 1;
 				}
@@ -141,12 +141,12 @@ public class DataSetLoader {
 		return 0;
 	}
 	
-	private void startTask(String datum, LoadingDataSet l, File file) {
+	private void startTask(String datum, LoadingDataset l, File file) {
 		Task<Void> task = new Task<Void>() {
 			@Override
 			public Void call() {	
 				ITickDataFileReader thisReader = setReader(datum);				
-				DataSet ds = l.load(file, thisReader);
+				Dataset ds = l.load(file, thisReader);
 				Menu.menu().varLock().lock();
 				try {
 					loadingSets.remove(l);				
@@ -203,7 +203,7 @@ public class DataSetLoader {
 		return reader;
 	}
 	
-	private void abort(LoadingDataSet l) {
+	private void abort(LoadingDataset l) {
 		dsButtons.remove(l.addIndex().get());
 		for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
 			DataSetButton dsb = dsButtons.get(j);
@@ -212,7 +212,7 @@ public class DataSetLoader {
 			}
 			dsButtons.get(j).setY(dsb.y() - 58);				
 		}
-		for (LoadingDataSet l2 : loadingSets) {
+		for (LoadingDataset l2 : loadingSets) {
 			if (l2.addIndex().get() > l.addIndex().get()) {
 				l2.setAddIndex(l2.addIndex().get() - 1);
 				l2.setY(l2.y() - 58);				
@@ -250,7 +250,7 @@ public class DataSetLoader {
 					d.setY(d.y() - 58);	
 					d.setDataSetIndex(d.dataSetIndex() - 1);
 				}
-				for (LoadingDataSet l : loadingSets) {	
+				for (LoadingDataset l : loadingSets) {	
 					if (l.addIndex().get() > ((DataSetButton)dsbNode.element()).dataSetIndex()) {
 						l.setAddIndex(l.addIndex().get() - 1);
 						l.setY(l.y() - 58);	

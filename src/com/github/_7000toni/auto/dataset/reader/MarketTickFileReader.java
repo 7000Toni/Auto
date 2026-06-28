@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import com.github._7000toni.auto.dataset.DataSet;
+import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatumChecker;
 
 public class MarketTickFileReader implements ITickDataFileReader {
@@ -13,7 +13,7 @@ public class MarketTickFileReader implements ITickDataFileReader {
 	private static Pattern datum = Pattern.compile("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d;\\d;\\d;([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?;[0-9]+");	
 	
 	@Override
-	public void readNextTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readNextTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		rfv.add = false;
 		rfv.in = rfv.br.readLine();
 		if (rfv.in != null) {
@@ -30,7 +30,7 @@ public class MarketTickFileReader implements ITickDataFileReader {
 	}
 	
 	@Override
-	public void readFirstTick(DataSet.ReadFileVars rfv) throws IOException, Exception {
+	public void readFirstTick(Dataset.ReadFileVars rfv) throws IOException, Exception {
 		while (!rfv.add && rfv.in != null) {
 			readNextTick(rfv);						
 		}
