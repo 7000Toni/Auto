@@ -164,6 +164,16 @@ public class Chart implements ICanvasWindow {
 		return stage;
 	}
 	
+	public static ArrayList<Chart> charts(String name) {
+		ArrayList<Chart> charts = new ArrayList<Chart>();
+		for (Chart c : Chart.charts) {
+			if (c.chartNode().name().equals(name)) {
+				charts.add(c);
+			}
+		}
+		return charts;
+	}
+	
 	public static ArrayList<Chart> charts() {
 		return charts;
 	}

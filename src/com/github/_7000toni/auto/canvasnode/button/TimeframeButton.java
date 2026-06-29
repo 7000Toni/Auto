@@ -11,6 +11,7 @@ public class TimeframeButton extends CanvasButton {
 	
 	public TimeframeButton(GraphicsContext gc, double width, double height, double x, double y, String text, String name) {
 		super(gc, width, height, x, y, text);
+		timeframeName = name;
 		IVanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
 				gc2.setFill(Color.BLACK);
@@ -65,7 +66,7 @@ public class TimeframeButton extends CanvasButton {
 		timeframeName = name;
 	}
 	
-	public String timeframenName() {
+	public String timeframeName() {
 		return timeframeName;
 	}
 	

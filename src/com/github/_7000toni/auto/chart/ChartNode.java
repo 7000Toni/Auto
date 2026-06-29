@@ -537,7 +537,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		mrp.canvas().fireEvent(me);
 	}
 	
-	public void onMouseDragged(MouseEvent e) {	
+	public void onMouseDragged(MouseEvent e) {			
 		if (lineDragging) {
 			double price = roundToNearestTick(((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest); 
 			data.lines().get(lineHighlighted).setPrice(price);

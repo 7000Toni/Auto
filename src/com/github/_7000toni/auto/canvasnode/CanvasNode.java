@@ -14,6 +14,7 @@ public abstract class CanvasNode implements ICanvasNode {
 	protected boolean enabled = true;
 	protected boolean pressed = false;
 	protected boolean hover = false;
+	protected boolean focused = false;
 	
 	protected EventHandler<? super MouseEvent> onMouseDragged;
 	protected EventHandler<? super MouseEvent> onMouseEntered;
@@ -234,5 +235,15 @@ public abstract class CanvasNode implements ICanvasNode {
 	@Override
 	public void disable() {
 		enabled = false;
+	}
+	
+	@Override
+	public boolean focused() {
+		return focused;
+	}
+	
+	@Override
+	public void setFocused(boolean focused) {
+		this.focused = focused;
 	}
 }

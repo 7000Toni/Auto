@@ -42,4 +42,6 @@ public interface ICanvasNode {
 	public boolean enabled();
 	public void enable();
 	public void disable();
+	public boolean focused();
+	public void setFocused(boolean focused);
 }

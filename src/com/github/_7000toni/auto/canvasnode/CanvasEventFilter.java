@@ -19,7 +19,7 @@ public class CanvasEventFilter {
 		cw.varLock().lock();
 		try {
 			for (TNode<ICanvasNode> t : cw.sceneGraph().postOrderArray()) {	
-				ICanvasNode cn = t.element();
+				ICanvasNode cn = t.element();	
 				if (e instanceof MouseEvent) {
 					me = (MouseEvent)e;			
 					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging() || !cn.enabled()) {
@@ -44,7 +44,11 @@ public class CanvasEventFilter {
 					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
 						cn.onMouseReleased(me);
 						cw.setDragging(false);
-					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) { 
+					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
+						if (cw.lastNode() != null) {
+							cw.lastNode().element().setFocused(false);
+						}
+						cn.setFocused(true);
 						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
 						cn.onMouseMoved(me);
