@@ -56,7 +56,6 @@ public class ChartMarketReplayButtons {
 		volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
 		volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
 		volUnits.setValue(1);
-		resetNumberChooserColours();
 		
 		tradeButs = new TradeButtons();
 		
@@ -152,7 +151,7 @@ public class ChartMarketReplayButtons {
 		});
 		
 		limitOrder.setOnMouseClicked(e -> {
-			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price();
+			double currentPrice = chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = true;			
 			if (crossHairPrice != currentPrice) {
@@ -164,7 +163,7 @@ public class ChartMarketReplayButtons {
 		});
 		
 		stopOrder.setOnMouseClicked(e -> {			
-			double currentPrice = chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price();
+			double currentPrice = chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = false;			
 			if (crossHairPrice != currentPrice) {
@@ -317,11 +316,6 @@ public class ChartMarketReplayButtons {
 		} finally {
 			chart.chart().varLock().unlock();
 		}
-	}
-	
-	public void resetNumberChooserColours() {
-		volTens.resetColours();
-		volUnits.resetColours();
 	}
 	
 	public void resetButtons() {

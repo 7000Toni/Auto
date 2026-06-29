@@ -65,9 +65,9 @@ public class PendingTradePair {
 			chart.setFocusedChart(true);
 			setCrossHairVars(e.getX(), e.getY());
 			double price = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
-			if (price != chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
+			if (price != chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
 				penTrade.setPrice(price);
-				if (price > chart.tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
+				if (price > chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price()) {
 					if (penTrade.limit()) {
 						penTrade.setBuy(false);
 					} else {

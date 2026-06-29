@@ -5,12 +5,12 @@ import com.github._7000toni.auto.chart.Chart;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class DataSetButton extends CanvasButton {
+public class DatasetButton extends CanvasButton {
 	private CanvasButton close;
 	private CanvasButton mr;
-	private int dataSetIndex;
+	private int datasetIndex;
 	
-	public DataSetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
+	public DatasetButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
 		IVanGogh drawCross = (x2, y2, gc2) -> {
 			if (Chart.darkMode().get()) {
@@ -26,16 +26,19 @@ public class DataSetButton extends CanvasButton {
 			}			
 			gc2.fillRoundRect(x2, y2, 42, 42, ARC_W, ARC_H);	
 			setColoursShape(close, gc2);
-			double valx = x2 + 3 + 12;
-			double val2x = x2 + 3 + 24;
-			double val3x = x2 + 3 + 36;
-			double val4x = x2 + 3 + 18;
-			double valy = y2 + 3 + 9;
-			double val2y = y2 + 3 + 27;
-			double val3y = y2 + 3 + 36;
-			double val4y = y2 + 3 + 18;
-			double[] x3 = {x2 + 3, valx, val4x, val2x, val3x, val2x, val3x, val2x, val4x, valx, x2 + 3, valx, x2 + 3};
-			double[] y3 = {y2 + 3, y2 + 3, valy, y2 + 3, y2 + 3, val4y, val3y, val3y, val2y, val3y, val3y, val4y, y2 + 3};
+			double mgn = close.textXOffset();
+			double v = (close.width() - mgn*2) / 3;
+			double v2 = (close.width() - mgn*2) / 4;
+			double valx = x2 + mgn + v;
+			double val2x = x2 + mgn + v*2;
+			double val3x = x2 + mgn + v*3;
+			double val4x = x2 + mgn + v*1.5;
+			double valy = y2 + mgn + v2;
+			double val2y = y2 + mgn + v2*3;
+			double val3y = y2 + mgn + v2*4;
+			double val4y = y2 + mgn + v2*2;
+			double[] x3 = {x2 + mgn, valx, val4x, val2x, val3x, val2x, val3x, val2x, val4x, valx, x2 + mgn, valx, x2 + mgn};
+			double[] y3 = {y2 + mgn, y2 + mgn, valy, y2 + mgn, y2 + mgn, val4y, val3y, val3y, val2y, val3y, val3y, val4y, y2 + mgn};
 			gc2.fillPolygon(x3, y3, 13);
 		};
 		IVanGogh mrvg = (x2, y2, gc2) -> {
@@ -87,12 +90,12 @@ public class DataSetButton extends CanvasButton {
 		}
 	}
 	
-	public void setDataSetIndex(int index) {
-		dataSetIndex = index;
+	public void setDatasetIndex(int index) {
+		datasetIndex = index;
 	}
 	
-	public int dataSetIndex() {
-		return dataSetIndex;
+	public int datasetIndex() {
+		return datasetIndex;
 	}
 	
 	@Override

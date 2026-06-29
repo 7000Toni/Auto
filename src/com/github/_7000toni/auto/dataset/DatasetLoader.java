@@ -9,7 +9,7 @@ import java.util.List;
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.button.DataSetButton;
+import com.github._7000toni.auto.canvasnode.button.DatasetButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;
@@ -32,14 +32,14 @@ import javafx.stage.Stage;
 
 public class DatasetLoader {
 	private ArrayList<Dataset> datasets;
-	private ArrayList<DataSetButton> dsButtons;
+	private ArrayList<DatasetButton> dsButtons;
 	private ArrayList<MarketReplayPane> replays;
 	private ITickDataFileReader reader;	
 	private ArrayList<LoadingDataset> loadingSets;
 	private Tree<ICanvasNode> sceneGraph;
 	private File file;
 	
-	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
@@ -48,7 +48,7 @@ public class DatasetLoader {
 		this.sceneGraph = sceneGraph;
 	}
 	
-	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DataSetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.file = file;
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
@@ -155,7 +155,7 @@ public class DatasetLoader {
 						return null;
 					}			
 					datasets.set(l.addIndex().get(), ds);
-					DataSetButton dsb = new DataSetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
+					DatasetButton dsb = new DatasetButton(Menu.menu().canvas().getGraphicsContext2D(), 510, 48, 120, l.y(), "Name: " + ds.name() + " Size: " + ds.tickData().size(), 2, 37);
 					dsb.setVanGogh((x2, y2, gc) -> {
 						Font oldFont = gc.getFont();
 						gc.setFont(Font.font(oldFont.getName(), FontWeight.findByName(oldFont.getStyle()), 37));
@@ -163,7 +163,7 @@ public class DatasetLoader {
 						gc.setFont(oldFont);
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
-					dsb.setDataSetIndex(l.addIndex().get());
+					dsb.setDatasetIndex(l.addIndex().get());
 					TNode<ICanvasNode> dsbNode = new TNode<ICanvasNode>(dsb, sceneGraph.root());
 					TNode<ICanvasNode> mrNode = new TNode<ICanvasNode>(dsb.mrButton(), dsbNode);
 					TNode<ICanvasNode> closeNode = new TNode<ICanvasNode>(dsb.closeButton(), dsbNode);
@@ -206,7 +206,7 @@ public class DatasetLoader {
 	private void abort(LoadingDataset l) {
 		dsButtons.remove(l.addIndex().get());
 		for (int j = l.addIndex().get() + 1; j < dsButtons.size(); j++) {		
-			DataSetButton dsb = dsButtons.get(j);
+			DatasetButton dsb = dsButtons.get(j);
 			if (dsb == null) {
 				continue;
 			}
@@ -221,14 +221,14 @@ public class DatasetLoader {
 		datasets.remove(l.addIndex().get());		
 	}
 	
-	private void setDSBEventHandler(DataSetButton dsb) {
+	private void setDSBEventHandler(DatasetButton dsb) {
 		dsb.setOnMouseClicked(e -> {
 			Stage s = new Stage();
 			if (Main.icon() != null) {
 				s.getIcons().add(Main.icon());
 			}
-			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.dataSetIndex()), false, null, null);
+			s.setTitle(datasets.get(dsb.datasetIndex()).name());
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.datasetIndex()), false, null, null);
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
 			s.setScene(scene);
@@ -241,22 +241,22 @@ public class DatasetLoader {
 			Menu.menu().varLock().lock();
 			try {
 				sceneGraph.removeNode(dsbNode);
-				dsButtons.remove(((DataSetButton)dsbNode.element()).dataSetIndex());			
-				for (int j = ((DataSetButton)dsbNode.element()).dataSetIndex(); j < dsButtons.size(); j++) {					
-					DataSetButton d = dsButtons.get(j);
+				dsButtons.remove(((DatasetButton)dsbNode.element()).datasetIndex());			
+				for (int j = ((DatasetButton)dsbNode.element()).datasetIndex(); j < dsButtons.size(); j++) {					
+					DatasetButton d = dsButtons.get(j);
 					if (d == null) {
 						continue;
 					}
 					d.setY(d.y() - 58);	
-					d.setDataSetIndex(d.dataSetIndex() - 1);
+					d.setDatasetIndex(d.datasetIndex() - 1);
 				}
 				for (LoadingDataset l : loadingSets) {	
-					if (l.addIndex().get() > ((DataSetButton)dsbNode.element()).dataSetIndex()) {
+					if (l.addIndex().get() > ((DatasetButton)dsbNode.element()).datasetIndex()) {
 						l.setAddIndex(l.addIndex().get() - 1);
 						l.setY(l.y() - 58);	
 					}								
 				}
-				String name = datasets.get(((DataSetButton)dsbNode.element()).dataSetIndex()).name();
+				String name = datasets.get(((DatasetButton)dsbNode.element()).datasetIndex()).name();
 				Chart.closeAll(name, false);
 				MarketReplayPane mrp = null;
 				for (MarketReplayPane m : replays) {
@@ -268,17 +268,17 @@ public class DatasetLoader {
 				if (mrp != null) {
 					replays.remove(mrp);
 				}
-				datasets.remove(((DataSetButton)dsbNode.element()).dataSetIndex());
+				datasets.remove(((DatasetButton)dsbNode.element()).datasetIndex());
 			} finally {
 				Menu.menu().varLock().unlock();
 			}
 		});	
 	}
 	
-	private void setDSBMREventHandler(CanvasButton mr, DataSetButton dsb) {
+	private void setDSBMREventHandler(CanvasButton mr, DatasetButton dsb) {
 		mr.setOnMouseClicked(e -> {
 			for (MarketReplayPane mrp : replays) {
-				if (mrp.name().equals(datasets.get(dsb.dataSetIndex()).name())) {
+				if (mrp.name().equals(datasets.get(dsb.datasetIndex()).name())) {
 					return;
 				}
 			}
@@ -287,7 +287,7 @@ public class DatasetLoader {
 				index = 0;
 			}			
 			Stage s = new Stage();
-			s.setTitle(datasets.get(dsb.dataSetIndex()).name());
+			s.setTitle(datasets.get(dsb.datasetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
 			Scene scene = new Scene(c);	
 			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));

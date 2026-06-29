@@ -285,9 +285,6 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		int i = 0;
 		for (TNode<ICanvasNode> tn : sceneGraph.postOrderArray()) {
 			ICanvasNode d = tn.element();
-			if (d instanceof CanvasNumberChooser) {
-				((CanvasNumberChooser)d).resetColours();
-			}
 			GraphicsContext g = d.graphicsContext();
 			d.setGraphicsContext(gc);
 			double x2 = d.x();

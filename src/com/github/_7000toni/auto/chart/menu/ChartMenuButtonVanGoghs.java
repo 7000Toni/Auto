@@ -33,6 +33,9 @@ public class ChartMenuButtonVanGoghs {
 			if (cb.pressed()) {				
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
+			if (!cb.enabled()) {
+				gc.setFill(Color.LIGHTGRAY);
+			}
 			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
 			if (Chart.darkMode().get()) {
 				gc.setFill(Color.BLACK);
@@ -48,6 +51,9 @@ public class ChartMenuButtonVanGoghs {
 			if (cb.pressed()) {				
 				gc.setFill(Color.BLACK);
 			}	
+			if (!cb.enabled()) {
+				gc.setFill(Color.DIMGRAY);
+			}
 			cb.calculateOffsets(gc.getFont());
 			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
 			gc.setFont(oldFont);

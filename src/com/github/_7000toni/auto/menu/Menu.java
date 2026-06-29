@@ -11,7 +11,7 @@ import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasWindow;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.button.DataSetButton;
+import com.github._7000toni.auto.canvasnode.button.DatasetButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatasetLoader;
@@ -54,7 +54,7 @@ public class Menu implements ICanvasWindow {
 	private double width;
 	private double height;
 	private ArrayList<Dataset> datasets = new ArrayList<Dataset>();
-	private ArrayList<DataSetButton> dsButtons = new ArrayList<DataSetButton>();
+	private ArrayList<DatasetButton> dsButtons = new ArrayList<DatasetButton>();
 	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
@@ -335,7 +335,7 @@ public class Menu implements ICanvasWindow {
 			darkMode.draw();
 			auto.draw();
 			drawLoadingSets();
-			for (DataSetButton dsb : dsButtons) {
+			for (DatasetButton dsb : dsButtons) {
 				if (dsb == null) {
 					continue;
 				}

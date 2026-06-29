@@ -250,11 +250,6 @@ public class Chart implements ICanvasWindow {
 	public static void toggleDarkMode() {
 		darkMode.set(!darkMode.get());		
 		Settings.saveDarkMode();
-		for (Chart c : charts) {
-			if (c.chartNode().replayMode()) {					
-				c.chartNode().tradeButtons().resetNumberChooserColours();				
-			}
-		}
 		drawCharts(null);
 		Menu m = Menu.menu();
 		if (m != null) {

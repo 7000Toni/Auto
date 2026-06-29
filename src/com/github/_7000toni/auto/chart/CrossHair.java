@@ -97,12 +97,12 @@ public class CrossHair {
 		if (index == -1) {
 			t = new Text("DONTBEDUMB");
 		} else if (chart.drawCandlesticks().get()) {
-			t = new Text(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '));
+			t = new Text(chart.data().m1Candles().get(index).dateTime().toString().replace('T', ' '));
 		} else {
 			if (chart.focusedChart().get() || !isForCandle.get()) {
-				t = new Text(chart.tickData().get(index).dateTime().toString().replace('T', ' '));
+				t = new Text(chart.data().tickData().get(index).dateTime().toString().replace('T', ' '));
 			} else {
-				t = new Text(chart.tickData().get(index).dateTime().minusNanos(chart.tickData().get(index).dateTime().getNano()).minusSeconds(chart.tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '));
+				t = new Text(chart.data().tickData().get(index).dateTime().minusNanos(chart.data().tickData().get(index).dateTime().getNano()).minusSeconds(chart.data().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '));
 			}
 		}
 		t.setFont(chart.graphicsContext().getFont());
@@ -187,12 +187,12 @@ public class CrossHair {
 		}
 		if (index != -1) {
 			if (chart.drawCandlesticks().get()) {
-				chart.graphicsContext().fillText(chart.m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+				chart.graphicsContext().fillText(chart.data().m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 			} else {
 				if (chart.focusedChart().get() || !isForCandle.get()) {
-					chart.graphicsContext().fillText(chart.tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);									
+					chart.graphicsContext().fillText(chart.data().tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);									
 				} else {					
-					chart.graphicsContext().fillText(chart.tickData().get(index).dateTime().minusNanos(chart.tickData().get(index).dateTime().getNano()).minusSeconds(chart.tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+					chart.graphicsContext().fillText(chart.data().tickData().get(index).dateTime().minusNanos(chart.data().tickData().get(index).dateTime().getNano()).minusSeconds(chart.data().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 				}
 			}
 		} else {
@@ -225,7 +225,7 @@ public class CrossHair {
 		} 
 		
 		if (chart.drawCandlesticks().get() && dateIndex.get() != -1) {
-			setOHLC(chart.m1Candles().get(dateIndex.get()));
+			setOHLC(chart.timeframe().data().get(dateIndex.get()));
 		}					
 		drawVerticalLine(x.get(), dateIndex.get());
 	}	
@@ -245,11 +245,11 @@ public class CrossHair {
 		if (dateIndex.get() == -1) {
 			return;
 		}
-		long startEpochMin = (int)(chart.tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-		long endEpochMin = (int)(chart.tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
-		long chdiEpochMin = (int)(chart.m1Candles().get(dateIndex.get()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long startEpochMin = (int)(chart.data().tickData().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long endEpochMin = (int)(chart.data().tickData().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long chdiEpochMin = (int)(chart.data().m1Candles().get(dateIndex.get()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-			int chdi = chart.m1Candles().get(dateIndex.get()).firstTickIndex();
+			int chdi = chart.data().m1Candles().get(dateIndex.get()).firstTickIndex();
 			double xPos = (chdi - chart.startIndex()) * chart.xDiff() + ChartNode.CHT_MARGIN;
 			drawVerticalLine(xPos, chdi);
 		}
@@ -260,7 +260,7 @@ public class CrossHair {
 			return;
 		}
 		double xPos = (dateIndex.get() - chart.startIndex()) * (chart.candlestickWidth() + chart.candlestickSpacing()) + chart.candlestickWidth() / 2 + ChartNode.CHT_MARGIN;				
-		setOHLC(chart.m1Candles().get(dateIndex.get()));					
+		setOHLC(chart.data().m1Candles().get(dateIndex.get()));					
 		drawVerticalLine(xPos, dateIndex.get());
 	}
 
@@ -268,24 +268,24 @@ public class CrossHair {
 		if (dateIndex.get() == -1) {
 			return;
 		}
-		long startEpochMin = (int)(chart.m1Candles().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long startEpochMin = (int)(chart.data().m1Candles().get(chart.startIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		long endEpochMin;
-		if (chart.endIndex() == chart.m1Candles().size()) {
-			endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()-1).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		if (chart.endIndex() == chart.data().m1Candles().size()) {
+			endEpochMin = (int)(chart.data().m1Candles().get(chart.endIndex()-1).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		} else {
-			endEpochMin = (int)(chart.m1Candles().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+			endEpochMin = (int)(chart.data().m1Candles().get(chart.endIndex()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		}
-		long chdiEpochMin = (int)(chart.tickData().get(dateIndex.get()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
+		long chdiEpochMin = (int)(chart.data().tickData().get(dateIndex.get()).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond() / 60.0);
 		if (chdiEpochMin >= startEpochMin && chdiEpochMin <= endEpochMin) {
-			int chdi = chart.tickData().get(dateIndex.get()).candleIndex();
+			int chdi = chart.data().tickData().get(dateIndex.get()).candleIndex();
 			int indexRange = chart.endIndex() - chart.startIndex();
 			double percOfRange = (chdi - chart.startIndex()) / (double)indexRange;
 			double width = getWidth();
 			double xPos = width * percOfRange + ChartNode.CHT_MARGIN + chart.candlestickWidth() / 2;
-			if (chart.tickData().get(dateIndex.get()).candleIndex() == chart.data().m1CandlesDataSize(chart.replayMode()).get() - 1) {
+			if (chart.data().tickData().get(dateIndex.get()).candleIndex() == chart.data().m1CandlesDataSize(chart.replayMode()).get() - 1) {
 				setOHLC(chart.lastCandlestick());
 			} else {
-				setOHLC(chart.m1Candles().get(chart.tickData().get(dateIndex.get()).candleIndex()));
+				setOHLC(chart.data().m1Candles().get(chart.data().tickData().get(dateIndex.get()).candleIndex()));
 			}
 			drawVerticalLine(xPos, chdi);				
 		}

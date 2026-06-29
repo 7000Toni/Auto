@@ -71,7 +71,7 @@ public class CanvasNumberChooser extends CanvasNode {
 		this.pressColour = pressColour;
 	}
 	
-	public void resetColours() {
+	private void resetColours() {
 		if (Chart.darkMode().get()) {
 			onColour = Color.RED;
 			offColour = Color.MAROON;
@@ -234,6 +234,7 @@ public class CanvasNumberChooser extends CanvasNode {
 	}
 	
 	public void draw() {
+		resetColours();
 		double t = 0.125*height;
 		setVars();
 		if (l1) {

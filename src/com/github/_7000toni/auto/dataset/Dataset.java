@@ -10,9 +10,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.github._7000toni.auto.chart.drawing.Line;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.miscellaneous.Round;
 
@@ -21,6 +23,8 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class Dataset {
+	public static final String BASE_TF_NAME = "T1/M1";
+	
 	private String name;
 	private String signature;
 	private int size;
@@ -31,10 +35,11 @@ public class Dataset {
 	private ArrayList<DataPair> tickData = new ArrayList<DataPair>();
 	private ArrayList<Candlestick> m1Candles = new ArrayList<Candlestick>();
 	private ArrayList<Line> lines = new ArrayList<Line>();
-	private ArrayList<Timeframe> timeframes;
+	private ArrayList<Timeframe> timeframes = new ArrayList<Timeframe>();
 	private long startEpochMinutes;
 	private boolean failed = false;
 	private int maxLength = 0;
+	private final ReentrantLock varLock = new ReentrantLock();
 	
 	public static class DataPair {
 		private float price;
@@ -99,6 +104,18 @@ public class Dataset {
 			return this.close;
 		}
 		
+		public float price(char ohlc) {
+			if (ohlc == 'o') {
+				return open;
+			} else if (ohlc == 'h') {
+				return high;
+			} else if (ohlc == 'l') {
+				return low;
+			} else {
+				return close;
+			}
+		}
+		
 		public int firstTickIndex() {
 			return this.firstTickIndex;
 		}
@@ -161,6 +178,10 @@ public class Dataset {
 	
 	public boolean failed() {
 		return failed;
+	}
+	
+	public ReentrantLock varLock() {
+		return varLock;
 	}
 	
 	public ReadOnlyIntegerProperty tickDataSize(boolean replayMode) {
@@ -377,8 +398,37 @@ public class Dataset {
 			}
 			addCandlestick(rfv, false);
 			System.out.println("finished loading: " + name);
+			timeframes.add(new Timeframe(this, true));
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public boolean addTimeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
+		String name = Timeframe.determineName(tickBased, period);
+		for (Timeframe tf : timeframes) {
+			if (tf.name().equals(name)) {
+				return false;
+			}
+		}
+		timeframes.add(new Timeframe(dataSet, tickBased, staticTF, period));
+		return true;
+	}
+	
+	public Timeframe getTimeframe(String name) {
+		for (Timeframe tf : timeframes) {
+			if (tf.name().equals(name)) {
+				return tf;
+			}
+		}
+		return null;
+	}
+	
+	public void removeTimeframe(String name) {
+		for (int i = timeframes.size() - 1; i > -1; i--) {
+			if (timeframes.get(i).name().equals(name)) {
+				this.timeframes.remove(i);
+			}
 		}
 	}
 	

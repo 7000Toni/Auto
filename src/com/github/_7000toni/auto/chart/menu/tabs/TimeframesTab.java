@@ -1,12 +1,18 @@
 package com.github._7000toni.auto.chart.menu.tabs;
+import java.util.ArrayList;
+
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
+import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
+import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -31,6 +37,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	
 	private boolean addTicks = true;
 	private boolean addStaticTF = true;
+	private ArrayList<TimeframeButton> tfButtons = new ArrayList<TimeframeButton>();
 	
 	public TimeframesTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
@@ -107,6 +114,10 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		add.setVanGogh((x2, y2, gc2) -> {
 			add.defaultDraw(gc.getFont());
 		});
+		add.setOnMouseClicked(e -> {
+			addTimeframe();
+		});
+		
 		added = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "ADDED TIMEFRAMES");
 		added.setVanGogh((x2, y2, gc2) -> {
 			added.defaultDraw(gc.getFont());
@@ -115,13 +126,75 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		units.setValue(2);
 		ticks.setOn(true);
 		staticTF.setOn(true);
+		dynamicTF.disable();
+		addBaseTimeframe();
+	}
+	
+	private void addBaseTimeframe() {
+		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 285, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
+		tfb.setVanGogh((x2, y2, gc) -> {
+			tfb.calculateOffsets(gc.getFont());
+			tfb.setColoursRect();
+			gc.fillRoundRect(tfb.x(), tfb.y(), tfb.width(), tfb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			tfb.setColoursText();
+			gc.fillText(tfb.text(), tfb.x() + 2, tfb.y() + tfb.textYOffset(), tfb.width() - 20);
+		});
+		tfb.removeButton().disable();
+		tfb.setOnMouseClicked(e -> {
+			chart.chartNode().setTimeframe(chart.chartNode().data().getTimeframe(Dataset.BASE_TF_NAME));
+		});
+		tfButtons.add(tfb);
+	}
+	
+	private void addTimeframe() {
+		Dataset dataset = chart.chartNode().data();
+		int period = CanvasNumberChooser.number(tenThousands, thousands, hundreds, tens, units);
+		if (dataset.addTimeframe(dataset, addTicks, addStaticTF, period)) {		
+			String name = Timeframe.determineName(addTicks, period);
+			int x = tfButtons.size() % 2 == 0?5:153;
+			int y = 285 + (tfButtons.size() / 2) * 25;
+			TimeframeButton tfb = new TimeframeButton(gc, 142, 20, this.x + x, this.y + y, name, name);
+			tfButtons.add(tfb);
+			if (tfButtons.size() == 20) {
+				add.disable();
+			}
+			tfb.setOnMouseClicked(e -> {
+				chart.chartNode().setTimeframe(dataset.getTimeframe(name));
+			});
+			tfb.removeButton().setOnMouseClicked(e -> {
+				int index = tfButtons.indexOf(tfb);
+				tfButtons.remove(tfb);
+				dataset.removeTimeframe(name);
+				chart.chartMenu().setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+				for (int i = index; i < tfButtons.size(); i++) {
+					TimeframeButton t = tfButtons.get(i);
+					if (i % 2 == 0) {
+						t.setX(this.x + 5);
+					} else {						
+						t.setX(this.x + 153);
+						t.setY(t.y() - 25);
+					}
+				}
+				ChartNode cn = chart.chartNode();
+				if (cn.timeframe().name().equals(name)) {
+					cn.setTimeframe(dataset.getTimeframe(Dataset.BASE_TF_NAME));
+				}
+				add.enable();
+			});
+			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tfb, chart.menuNode());
+			chart.sceneGraph().addNode(tfNode);
+			chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.removeButton(), tfNode));
+		}
+	}
+	
+	private void upDateTimeframes() {
 	}
 	
 	private void checkNumber() {
 		if (CanvasNumberChooser.number(tenThousands, thousands, hundreds, tens, units) < 2) {
 			units.setValue(2);
 		}
-	}
+	}	
 	
 	private void drawTimeframeFunctionsMenu() {
 		timeFramesFunctions.draw();
@@ -136,6 +209,9 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		units.draw();
 		add.draw();
 		added.draw();
+		for (TimeframeButton tfb : tfButtons) {
+			tfb.draw();
+		}
 	}
 	
 	public void setTimeframeFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
@@ -151,6 +227,11 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(units, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(add, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(added, menuNode));
+		for (TimeframeButton tf : tfButtons) {
+			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tf, menuNode);
+			sceneGraph.addNode(tfNode);
+			sceneGraph.addNode(new TNode<ICanvasNode>(tf.removeButton(), tfNode));
+		}
 	}
 	
 	public Chart chart() {
@@ -176,14 +257,17 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		units.setX(x + 241);
 		add.setX(x + 5);
 		added.setX(x + 5);
+		for (TimeframeButton tfb : tfButtons) {
+			if (tfb != null) {
+				tfb.setX(x + 5);
+			}
+		}
 		
 		this.x = x;
 	}
 
 	@Override
 	public void setY(double y) {
-		this.y = y;
-		
 		timeFramesFunctions.setY(y + 35);
 		ticks.setY(y + 85);
 		minutes.setY(y + 85);
@@ -196,5 +280,13 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		units.setY(y + 135);
 		add.setY(y + 235);
 		added.setY(y + 260);
+		for (int i = 0; i < tfButtons.size(); i++) {
+			TimeframeButton tfb = tfButtons.get(i);
+			if (tfb != null) {
+				tfb.setY(y + 285 * tfButtons.size());				
+			}
+		}
+		
+		this.y = y;
 	}
 }
