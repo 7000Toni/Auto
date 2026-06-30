@@ -153,10 +153,10 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		String name = Timeframe.determineName(addTicks, period);
 		if (dataset.addTimeframe(dataset, addTicks, addStaticTF, period)) {		
 			addTimeframe(name, dataset);
-		}
-		for (Chart c : Chart.charts(chart.chartNode().name())) {
-			if (!c.equals(chart)) {
-				c.menu().chartFunctionsMenu().timeFramesTab().addTimeframe(name);
+			for (Chart c : Chart.charts(chart.chartNode().name())) {
+				if (!c.equals(chart)) {
+					c.menu().chartFunctionsMenu().timeFramesTab().addTimeframe(name);
+				}
 			}
 		}
 	}
@@ -205,9 +205,6 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 			chart.chartMenu().setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 			resetTFButtonsPos(index);
 			for (Chart c : Chart.charts(chart.chartNode().name())) {
-				if (c.equals(chart)) {
-					continue;
-				}
 				ChartNode cn = c.chartNode();
 				if (cn.timeframe().name().equals(name)) {
 					cn.setTimeframe(dataset.getTimeframe(Dataset.BASE_TF_NAME));

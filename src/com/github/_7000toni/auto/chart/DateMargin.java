@@ -40,7 +40,7 @@ public class DateMargin extends CanvasNode {
 			chartInitPos = e.getX();
 		});
 		setOnScroll(e -> {
-			if (cn.drawCandlesticks().get()) {
+			if (cn.drawCandlesticks().get() || !cn.timeframe().base()) {
 				cn.zoomCandlesticks(e.getDeltaY(), true);
 			} else {
 				cn.zoomTicks(e.getDeltaY(), true);

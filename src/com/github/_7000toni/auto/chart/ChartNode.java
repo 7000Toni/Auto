@@ -517,6 +517,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}		
 		lineDragging = false;
+		dragDiffAccum = 0;
 		if (mrpSBDragging) {
 			mrpSBDragging = false;
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
@@ -552,8 +553,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
-			dragDiffAccum += posDiff;
-			if (drawCandlesticks.get()) {
+			//TODO
+			dragDiffAccum += posDiff;			
+			if (drawCandlesticks.get() || !tf.base()) {
 				diff = (int)(dragDiffAccum / (candlestickWidth + candlestickSpacing));
 				if (diff != 0) {
 					startIndex = startIndex - diff;
@@ -679,7 +681,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void onScroll(ScrollEvent e) {	
-		if (drawCandlesticks.get()) {
+		if (drawCandlesticks.get() || !tf.base()) {
 			zoomCandlesticks(e.getDeltaY(), true);
 		} else {
 			zoomTicks(e.getDeltaY(), true);
@@ -689,8 +691,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public boolean onChart(double x, double y) {
 		return onNode(x, y);
 	}
-	
-	
 	
 	private void calculateRange() {		
 		if (drawCandlesticks.get()) {
@@ -725,7 +725,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			ArrayList<Candlestick> data = tf.data();
 			lowest = data.get(startIndex).price(lineChartDataPoint);
 			highest = data.get(startIndex).price(lineChartDataPoint);	
-			for (int i = startIndex; i < endIndex + 1; i++) {			
+			for (int i = startIndex; i < endIndex; i++) {			
 				double val = data.get(i).price(lineChartDataPoint);
 				if (val > highest) {
 					highest = val;
@@ -817,13 +817,14 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	private void calculateIndices() {
-		if (drawCandlesticks.get()) {
-			int size = tf.size(replayMode, false);
+	private void calculateIndices() {		
+		//TODO
+		if (drawCandlesticks.get() || !tf.base()) {
+			int size = tf.size(replayMode, false);			
 			if (!keepStartIndex || tfChanged) {
 				if (size < numCandlesticks * END_MARGIN_COEF) {
 					startIndex = 0;
-				} else {
+				} else {					
 					startIndex = (int)((c.hsb().x() / (width + CHT_MARGIN - Chart.HSB_WIDTH)) * (size - numCandlesticks * END_MARGIN_COEF));
 				}
 			}
@@ -845,18 +846,19 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				endIndex = size - 1;
 			}
 		}
+		tfChanged = false;
 	}
 	
 	private void setPreDrawVars() {
-		if (drawCandlesticks.get()) {
-			tickSizeOnChart = (height - chtDataMargin * 2) / (range / data.tickSize());
-			dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * data.tickSize();
-			conversionVar = data.tickSize() / tickSizeOnChart;	
-		} else {
-			xDiff = width / (double)numDataPoints;	
-			tickSizeOnChart = (height - chtDataMargin * 2) / (range / data.tickSize());
-			dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * data.tickSize();
-			conversionVar = data.tickSize() / tickSizeOnChart;	
+		tickSizeOnChart = (height - chtDataMargin * 2) / (range / data.tickSize());
+		dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * data.tickSize();
+		conversionVar = data.tickSize() / tickSizeOnChart;	
+		if (!drawCandlesticks.get()) {
+			if (tf.base()) {
+				xDiff = width / (double)numDataPoints;
+			} else {
+				xDiff = width / (double)numCandlesticks;
+			}
 		}
 	}
 	
@@ -888,7 +890,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		double prevY = startY - ((data.get(startIndex + 1).price(lineChartDataPoint) - data.get(startIndex).price(lineChartDataPoint)) / conversionVar);
 		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
-		for (int i = 1; i < numDataPoints; i++) {
+		for (int i = 1; i < numCandlesticks; i++) {
 			if (startIndex + i > tf.size(this.replayMode, false) - 2) {
 				endMargin = true;
 				break;
@@ -1087,13 +1089,18 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * height + CHT_MARGIN;
 	}
 	
-	
+	private void checkTF() {
+		if (tf == null) {
+			tf = data.getTimeframe(Dataset.BASE_TF_NAME);
+		}
+	}
 	
 	private void drawUI() {	
 		long b = 0;
 		if (printSpeed) {
 			b = System.nanoTime();
 		}	
+		//checkTF();
 		calculateIndices();
 		c.hsb().draw();
 		calculateRange();
