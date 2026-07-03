@@ -549,7 +549,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging && !measuring && e.isPrimaryButtonDown() && !onMRP(e.getX(), e.getY())) {
+		if (!lineDragging && !measuring && e.isPrimaryButtonDown()) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
@@ -890,12 +890,18 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		double prevY = startY - ((data.get(startIndex + 1).price(lineChartDataPoint) - data.get(startIndex).price(lineChartDataPoint)) / conversionVar);
 		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
+		int size = tf.size(this.replayMode, false);
 		for (int i = 1; i < numCandlesticks; i++) {
 			if (startIndex + i > tf.size(this.replayMode, false) - 2) {
 				endMargin = true;
 				break;
 			}
-			gc.strokeLine((i * xDiff)+CHT_MARGIN, prevY, ((i + 1) * xDiff)+CHT_MARGIN, prevY - ((data.get(startIndex + i + 1).price(lineChartDataPoint) - data.get(startIndex + i).price(lineChartDataPoint)) / conversionVar));
+			if (replayMode && startIndex + i > tf.size(true, false) - 3) {
+				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex());
+			} else {
+				lastCandlestick = data.get(startIndex + i + 1);
+			}
+			gc.strokeLine((i * xDiff)+CHT_MARGIN, prevY, ((i + 1) * xDiff)+CHT_MARGIN, prevY - ((lastCandlestick.price(lineChartDataPoint) - data.get(startIndex + i).price(lineChartDataPoint)) / conversionVar));
 			prevY = prevY - ((data.get(startIndex + i + 1).price(lineChartDataPoint) - data.get(startIndex + i).price(lineChartDataPoint)) / conversionVar);	
 		}
 	}

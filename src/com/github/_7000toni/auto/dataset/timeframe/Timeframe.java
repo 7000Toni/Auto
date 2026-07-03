@@ -1,13 +1,13 @@
 package com.github._7000toni.auto.dataset.timeframe;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.Dataset.Candlestick;
 import com.github._7000toni.auto.dataset.Dataset.DataPair;
-
-import javafx.beans.property.IntegerProperty;
 
 public class Timeframe {
 	private String name;
@@ -27,23 +27,19 @@ public class Timeframe {
 		this.tickData = dataSet.tickData();
 	}
 	
-	public Timeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period, IntegerProperty prog) {
-		constructorStuff(dataSet, tickBased, staticTF, period, prog);
-	}
-	
 	public Timeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
-		constructorStuff(dataSet, tickBased, staticTF, period, null);
+		constructorStuff(dataSet, tickBased, staticTF, period);
 	}
 	
-	private void constructorStuff(Dataset dataSet, boolean tickBased, boolean staticTF, int period, IntegerProperty prog) {
+	private void constructorStuff(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
 		this.dataSet = dataSet;
 		this.tickBased = tickBased;
 		this.period = period;
 		name = determineName(tickBased, period);
 		if (tickBased) {
-			calculateTickComposite(prog);
+			calculateTickComposite();
 		} else {
-			calculateCandleComposite(prog);
+			calculateCandleComposite();
 		}
 	}
 	
@@ -52,6 +48,7 @@ public class Timeframe {
 		if (tickBased) {
 			name = "T" + period;
 		} else {
+			int M = period/43800;
 			int w = period/10080;
 			int d = period/1440;
 			int h = period/60;
@@ -59,14 +56,17 @@ public class Timeframe {
 			int od = d;
 			d = d - 7*w;			
 			h = h - 24*od;
+			if (M > 0) {
+				name += w==0&&d==0&&h==0&&m==0?"MONTHLY":"M"+M+"+";
+			}
 			if (w > 0) {
-				name += d==0&&h==0&&m==0?"WEEKLY":"W"+w+"+";
+				name += M==0&&d==0&&h==0&&m==0?"WEEKLY":"W"+w+"+";
 			}
 			if (d > 0) {
-				name += w==0&&h==0&&m==0?"DAILY":"D"+d+"+";
+				name += M==0&&w==0&&h==0&&m==0?"DAILY":"D"+d+"+";
 			}
 			if (h > 0) {
-				name += w==0&&d==0&&m==0?"HOURLY":"H"+h+"+";
+				name += M==0&&w==0&&d==0&&m==0?"HOURLY":"H"+h+"+";
 			}
 			if (m > 0) {
 				name += "M"+m;
@@ -78,14 +78,13 @@ public class Timeframe {
 		return name.trim();
 	}
 	
-	private void calculateTickComposite(IntegerProperty prog) {
+	private void calculateTickComposite() {
 		this.data = new ArrayList<Candlestick>();
 		float open = 0;
 		float high = 0;
 		float low = 0;
 		ArrayList<DataPair> tickData = dataSet.tickData();
 		int size = tickData.size();
-		int last = 0;
 		for (int i = 0; i < size; i++) {
 			float val = tickData.get(i).price();
 			if (i % period == 0) {
@@ -101,52 +100,56 @@ public class Timeframe {
 			boolean complete = (i+1)%period == 0;
 			if (complete || i == tickData.size() - 1) {
 				int firstTickIndex = i-(i%period);
-				this.data.add(new Candlestick(open, high, low, val, tickData.get(firstTickIndex).dateTime(), complete, firstTickIndex));
-			}		
-			if (prog != null) {
-				prog.set((int)(i*100/(size-1.0)));
-				if (last < prog.get()) {
-					last = prog.get();
-					Chart.drawCharts(null);
-				}				
-			}
+				this.data.add(new Candlestick(open, high, low, val, tickData.get(firstTickIndex).dateTime(), firstTickIndex));
+			}	
 		}	
 	}
 	
-	private void calculateCandleComposite(IntegerProperty prog) {
-		this.data = new ArrayList<Candlestick>();
-		float open = 0;
-		float high = 0;
-		float low = 0;
+	private void calculateCandleComposite() {
+		this.data = new ArrayList<Candlestick>();		
 		ArrayList<Candlestick> candles = dataSet.m1Candles();
-		int size = candles.size();
-		int last = 0;
-		for (int i = 0; i < candles.size(); i++) {
-			if (i % period == 0) {
+		if (candles.isEmpty()) {
+			return;
+		}
+		int firstCandleIndex = 0;
+		float open = candles.get(0).open();
+		float high = candles.get(0).high();
+		float low = candles.get(0).low();
+		float close = candles.get(0).close();
+		LocalDateTime last = candles.get(0).dateTime();
+		for (int i = 1; i < candles.size(); i++) {
+			LocalDateTime l = candles.get(i).dateTime();
+			boolean add = checkAdd(last, l);
+			if (add || i == candles.size() - 1) {
+				this.data.add(new Candlestick(open, high, low, close, candles.get(firstCandleIndex).dateTime(), candles.get(firstCandleIndex).firstTickIndex()));
 				open = candles.get(i).open();
 				high = candles.get(i).high();
 				low = candles.get(i).low();
-			}
+				close = candles.get(i).close();
+				firstCandleIndex = i;
+				last = l;
+			}	
 			Candlestick c = candles.get(i);
 			if (c.high() > high) {
 				high = c.high();
 			}
 			if (c.low() < low) {
 				low = c.low();
-			}
-			boolean complete = (i+1)%period == 0;
-			if (complete || i == candles.size() - 1) {
-				int firstCandleIndex = i-(i%period);
-				this.data.add(new Candlestick(open, high, low, c.close(), candles.get(firstCandleIndex).dateTime(), complete, firstCandleIndex));
-			}	
-			if (prog != null) {
-				prog.set((int)(i*100/(size-1.0)));
-				if (last < prog.get()) {
-					last = prog.get();
-					Chart.drawCharts(null);
-				}				
-			}
+			}			
+			close = c.close();
 		}	
+	}
+	
+	private boolean checkAdd(LocalDateTime last, LocalDateTime current) {
+		if (period == 43800) {
+			return Duration.between(last, current).toDays() > 31 || current.getMonth() != last.getMonth();
+		} else if (period == 10080) {
+			return Duration.between(last, current).toDays() > 7 || current.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) != last.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+		} else if (period == 1440) {
+			return Duration.between(last, current).toHours() > 24 || current.getDayOfWeek() != last.getDayOfWeek();
+		} else {
+			return Duration.between(last, current).toMinutes() > period || current.getMinute() % period == 0;
+		}
 	}
 	
 	public ArrayList<Candlestick> data() {
@@ -180,13 +183,28 @@ public class Timeframe {
 			if (dataSet.tickDataSize(replayMode).get() % period != 0) {
 				return size + 1;
 			}	
+			return size;
 		} else {
-			size = (int)(dataSet.m1CandlesDataSize(replayMode).get() / (double)period);
-			if (dataSet.m1CandlesDataSize(replayMode).get() % period != 0) {
-				return size + 1;
+			if (replayMode) {
+				ArrayList<Candlestick> m1Candles = dataSet.m1Candles();
+				LocalDateTime currDate = m1Candles.get(dataSet.m1CandlesDataSize(true).get() - 1).dateTime();
+				int startIndex = (int)(dataSet.m1CandlesDataSize(true).get()/(double)period);
+				size = startIndex + 1;
+				if (data.get(size - 1).dateTime().isEqual(currDate)) {
+					return size;
+				}
+				boolean add = data.get(startIndex).dateTime().isBefore(currDate);				
+				while(true) {					
+					if (size == 1 && !add || size == data.size() && add || data.get(size - 1).dateTime().isEqual(currDate) || data.get(size - 1).dateTime().isBefore(currDate) && !add || data.get(size - 1).dateTime().isAfter(currDate) && add) {
+						return size;
+					} else {
+						size += add?1:-1;
+					}
+				}				
+			} else {
+				return data.size();
 			}			
-		}	
-		return size;
+		}			
 	}
 	
 	public int size(boolean replayMode, boolean tick) {

@@ -76,15 +76,13 @@ public class Dataset {
 		private float close;
 		private int firstTickIndex;
 		private long dateTime;
-		private boolean complete;
 		
-		public Candlestick(float open, float high, float low, float close, LocalDateTime dateTime, boolean complete, int firstTickIndex) {
+		public Candlestick(float open, float high, float low, float close, LocalDateTime dateTime, int firstTickIndex) {
 			this.open = open;
 			this.high = high;
 			this.low = low;
 			this.close = close;
 			this.dateTime = dateTime.toInstant(ZoneOffset.UTC).getEpochSecond()*1000000000 + dateTime.toInstant(ZoneOffset.UTC).getNano();
-			this.complete = complete;
 			this.firstTickIndex = firstTickIndex;
 		}
 		
@@ -126,10 +124,6 @@ public class Dataset {
 	        Instant i = Instant.ofEpochSecond(seconds, nanos);
 	        LocalDateTime ldt = LocalDateTime.ofInstant(i, ZoneOffset.UTC);
 			return ldt;
-		}
-		
-		public boolean complete() {
-			return this.complete;
 		}
 		
 		@Override
@@ -201,24 +195,17 @@ public class Dataset {
 		rfv.high = rfv.val;
 		rfv.low = rfv.val;
 		rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
-		long ldtPrevEpochSec = rfv.ldt.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
 		Candlestick c = null;
 		for (int i = startIndex + 1; i < replayTickDataSize.get(); i++) {			
-			long ldtEpochSec = tickData.get(i).dateTime().atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
-			int diff = (int)((ldtEpochSec - ldtPrevEpochSec) / 60.0);
-			if (diff == 0) {
-				rfv.val = tickData().get(i).price;
-				if (rfv.val > rfv.high) {
-					rfv.high = rfv.val;
-				} else if (rfv.val < rfv.low) {
-					rfv.low = rfv.val;
-				}
-			} else {
-				break;
+			rfv.val = tickData().get(i).price;
+			if (rfv.val > rfv.high) {
+				rfv.high = rfv.val;
+			} else if (rfv.val < rfv.low) {
+				rfv.low = rfv.val;
 			}
 		}
 		rfv.close = rfv.val;
-		c = new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldt, false, rfv.firstTickIndex);
+		c = new Candlestick(rfv.open, rfv.high, rfv.low, rfv.close, rfv.ldt, rfv.firstTickIndex);
 		return c;
 	}
 	
@@ -313,9 +300,9 @@ public class Dataset {
 		}
 	}
 	
-	private void addCandlestick(ReadFileVars rfv, boolean complete) {
+	private void addCandlestick(ReadFileVars rfv) {
 		rfv.close = rfv.prevPrice;	
-		m1Candles.add(new Candlestick((float)Round.round(rfv.open, numDecimalPts), (float)Round.round(rfv.high, numDecimalPts), (float)Round.round(rfv.low, numDecimalPts), (float)Round.round(rfv.close, numDecimalPts), rfv.ldtPrev, complete, rfv.firstTickIndex));
+		m1Candles.add(new Candlestick((float)Round.round(rfv.open, numDecimalPts), (float)Round.round(rfv.high, numDecimalPts), (float)Round.round(rfv.low, numDecimalPts), (float)Round.round(rfv.close, numDecimalPts), rfv.ldtPrev, rfv.firstTickIndex));
 	}
 	
 	private void checkAddCandlestick(ReadFileVars rfv) {
@@ -329,7 +316,7 @@ public class Dataset {
 				rfv.low = rfv.val;
 			}
 		} else {
-			addCandlestick(rfv, true);
+			addCandlestick(rfv);
 			rfv.firstTickIndex = rfv.progress - 1;
 			rfv.open = rfv.val;
 			rfv.high = rfv.val;
@@ -396,7 +383,7 @@ public class Dataset {
 				tickData.add(new DataPair((float)Round.round(rfv.val, numDecimalPts), rfv.ldt, m1Candles.size()));
 				checkLength(rfv.val);
 			}
-			addCandlestick(rfv, false);
+			addCandlestick(rfv);
 			System.out.println("finished loading: " + name);
 			timeframes.add(new Timeframe(this, true));
 		} catch (IOException e) {

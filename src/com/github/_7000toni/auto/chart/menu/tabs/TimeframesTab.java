@@ -115,7 +115,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 			add.defaultDraw(gc.getFont());
 		});
 		add.setOnMouseClicked(e -> {
-			addTimeframe();
+			addTimeframe(false);
 		});
 		
 		added = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "ADDED TIMEFRAMES");
@@ -127,10 +127,10 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		ticks.setOn(true);
 		staticTF.setOn(true);
 		dynamicTF.disable();
-		addBaseTimeframe();
+		addBaseTimeframe(true);
 	}
 	
-	private void addBaseTimeframe() {
+	private void addBaseTimeframe(boolean ctor) {
 		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 285, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
 		tfb.setVanGogh((x2, y2, gc) -> {
 			tfb.calculateOffsets(gc.getFont());
@@ -144,25 +144,25 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 			chart.chartNode().setTimeframe(chart.chartNode().data().getTimeframe(Dataset.BASE_TF_NAME));
 		});
 		tfButtons.add(tfb);
-		checkTimeframes();
+		checkTimeframes(ctor);
 	}
 	
-	private void addTimeframe() {		
+	private void addTimeframe(boolean ctor) {		
 		Dataset dataset = chart.chartNode().data();
 		int period = CanvasNumberChooser.number(tenThousands, thousands, hundreds, tens, units);
 		String name = Timeframe.determineName(addTicks, period);
 		if (dataset.addTimeframe(dataset, addTicks, addStaticTF, period)) {		
-			addTimeframe(name, dataset);
+			addTimeframe(name, dataset, ctor);
 			for (Chart c : Chart.charts(chart.chartNode().name())) {
 				if (!c.equals(chart)) {
-					c.menu().chartFunctionsMenu().timeFramesTab().addTimeframe(name);
+					c.menu().chartFunctionsMenu().timeFramesTab().addTimeframe(name, ctor);
 				}
 			}
 		}
 	}
 	
-	public void addTimeframe(String name) {
-		addTimeframe(name, chart.chartNode().data());
+	public void addTimeframe(String name, boolean ctor) {
+		addTimeframe(name, chart.chartNode().data(), ctor);
 		if (tfButtons.size() == 20) {
 			add.disable();
 		}
@@ -179,15 +179,15 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		chart.chartMenu().setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 	}
 	
-	private void checkTimeframes() {
+	private void checkTimeframes(boolean ctor) {
 		Dataset dataset = chart.chartNode().data();
 		ArrayList<Timeframe> timeframes = dataset.timeframes();
 		for (int i = 1; i < timeframes.size(); i++) {
-			addTimeframe(timeframes.get(i).name(), dataset);
+			addTimeframe(timeframes.get(i).name(), dataset, ctor);
 		}
 	}
 	
-	private void addTimeframe(String name, Dataset dataset) {
+	private void addTimeframe(String name, Dataset dataset, boolean ctor) {
 		int x = tfButtons.size() % 2 == 0?5:153;
 		int y = 285 + (tfButtons.size() / 2) * 25;
 		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, this.x + x, this.y + y, name, name);
@@ -213,9 +213,11 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 			}
 			add.enable();
 		});		
-		TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tfb, chart.menuNode());
-		chart.sceneGraph().addNode(tfNode);
-		chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.removeButton(), tfNode));
+		if (!ctor) {
+			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tfb, chart.menuNode());
+			chart.sceneGraph().addNode(tfNode);
+			chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.removeButton(), tfNode));
+		}
 	}
 	
 	private void resetTFButtonsPos(int index) {

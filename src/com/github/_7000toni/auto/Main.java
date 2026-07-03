@@ -58,9 +58,13 @@ public class Main extends Application {
         }
 	}
 	
-	private static void getChartsOnStart() {
+	private static void getChartsOnStart() {		
+		File f = new File("./onstart.txt");
+		if (!f.exists()) {
+			return;
+		}
 		ArrayList<String> charts = new ArrayList<String>();
-		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(new File("./onstart.txt")));
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
 				BufferedReader br = new BufferedReader(new InputStreamReader(bis))) {
 			String in = br.readLine();			
 			while (in != null) {

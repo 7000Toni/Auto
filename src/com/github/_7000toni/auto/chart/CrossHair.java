@@ -187,12 +187,12 @@ public class CrossHair {
 		}
 		if (index != -1) {
 			if (chart.drawCandlesticks().get()) {
-				chart.graphicsContext().fillText(chart.data().m1Candles().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+				chart.graphicsContext().fillText(chart.timeframe().data().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 			} else {
 				if (chart.focusedChart().get() || !isForCandle.get()) {
-					chart.graphicsContext().fillText(chart.data().tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);									
+					chart.graphicsContext().fillText(chart.timeframe().tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);									
 				} else {					
-					chart.graphicsContext().fillText(chart.data().tickData().get(index).dateTime().minusNanos(chart.data().tickData().get(index).dateTime().getNano()).minusSeconds(chart.data().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+					chart.graphicsContext().fillText(chart.timeframe().tickData().get(index).dateTime().minusNanos(chart.timeframe().tickData().get(index).dateTime().getNano()).minusSeconds(chart.timeframe().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 				}
 			}
 		} else {
