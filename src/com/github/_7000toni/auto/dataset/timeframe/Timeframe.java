@@ -25,6 +25,9 @@ public class Timeframe {
 		this.base = true;
 		this.data = dataSet.m1Candles();
 		this.tickData = dataSet.tickData();
+		this.period = 1;
+		this.staticTF = true;
+		this.tickBased = true;
 	}
 	
 	public Timeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
@@ -174,6 +177,10 @@ public class Timeframe {
 	
 	public boolean staticTF() {
 		return staticTF;
+	}
+	
+	public int period() {
+		return period;
 	}
 	
 	private int size(boolean replayMode) {

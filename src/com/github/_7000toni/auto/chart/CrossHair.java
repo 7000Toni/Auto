@@ -1,8 +1,11 @@
 package com.github._7000toni.auto.chart;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.dataset.Dataset.DataPair;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -24,19 +27,27 @@ public class CrossHair {
 	private static DoubleProperty y = new SimpleDoubleProperty();
 	private static DoubleProperty price = new SimpleDoubleProperty(0);
 	private static IntegerProperty dateIndex = new SimpleIntegerProperty(0);
-	private static BooleanProperty isForCandle = new SimpleBooleanProperty(false);
+	private static IntegerProperty tickIndex = new SimpleIntegerProperty(0);	
+	private static BooleanProperty tickBased = new SimpleBooleanProperty(false);
 	private static StringProperty name = new SimpleStringProperty();
+	private static Timeframe tf;
 	
 	private ChartNode chart;
 	private double dateBarHalfWidth;
 	private double dateBarX;
 	private String ohlc;
+	private IntegerProperty unfocusedDateIndex = new SimpleIntegerProperty(0);
+	private Timeframe unfocusedTf;
 
 	public CrossHair(ChartNode chart) {
 		this.chart = chart;
 		this.dateBarHalfWidth = chart.fontSize() * 5;
 	}
-		
+
+	public ReadOnlyIntegerProperty unfocusedDateIndex() {
+		return IntegerProperty.readOnlyIntegerProperty(unfocusedDateIndex);
+	}
+	
 	public static double price() {
 		return CrossHair.price.get();
 	}
@@ -45,8 +56,8 @@ public class CrossHair {
 		return IntegerProperty.readOnlyIntegerProperty(dateIndex);
 	}
 	
-	public static ReadOnlyBooleanProperty isForCandle() {
-		return BooleanProperty.readOnlyBooleanProperty(isForCandle);
+	public static ReadOnlyBooleanProperty tickBased() {
+		return BooleanProperty.readOnlyBooleanProperty(tickBased);
 	}
 	
 	public static void setX(double x) {
@@ -65,8 +76,8 @@ public class CrossHair {
 		CrossHair.dateIndex.set(dateIndex);
 	}
 	
-	public static void setIsForCandle(boolean isForCandle) {
-		CrossHair.isForCandle.set(isForCandle);
+	public static void setTickBased(boolean tickBased) {
+		CrossHair.tickBased.set(tickBased);
 	}
 	
 	public static void setName(String name) {
@@ -85,24 +96,26 @@ public class CrossHair {
 	public String toString() {
 		String ret = "name: " + name.get() + '\n'; 
 		ret += "price: " + price.get() + '\n';
-		ret += "isForCandle: " + isForCandle.get() + '\n';
+		ret += "tickBased: " + tickBased.get() + '\n';
 		ret += "dateIndex: " + dateIndex.get() + '\n';
 		ret += "x: " + x + '\n';
 		ret += "y: " + y + '\n';
 		return ret;
 	}
 	
-	private void setDateBarX(double xPos, int index) {
-		Text t;
+	private String setDateBarX(double xPos, int index) {
+		Text t = null;
+		Timeframe tf = chart.timeframe();
 		if (index == -1) {
 			t = new Text("DONTBEDUMB");
-		} else if (chart.drawCandlesticks().get()) {
-			t = new Text(chart.data().m1Candles().get(index).dateTime().toString().replace('T', ' '));
+		} else if (chart.drawCandlesticks().get() || !tf.base()) {
+			t = new Text(tf.data().get(index).dateTime().toString().replace('T', ' '));
 		} else {
-			if (chart.focusedChart().get() || !isForCandle.get()) {
-				t = new Text(chart.data().tickData().get(index).dateTime().toString().replace('T', ' '));
+			ArrayList<DataPair> data = chart.data().tickData();
+			if (chart.focusedChart().get() || tickBased.get()) {
+				t = new Text(data.get(index).dateTime().toString().replace('T', ' '));
 			} else {
-				t = new Text(chart.data().tickData().get(index).dateTime().minusNanos(chart.data().tickData().get(index).dateTime().getNano()).minusSeconds(chart.data().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '));
+				t = new Text(data.get(index).dateTime().minusNanos(data.get(index).dateTime().getNano()).minusSeconds(data.get(index).dateTime().getSecond()).toString().replace('T', ' '));
 			}
 		}
 		t.setFont(chart.graphicsContext().getFont());
@@ -114,6 +127,7 @@ public class CrossHair {
 		} else {
 			dateBarX = xPos - dateBarHalfWidth;
 		}
+		return t.textProperty().get();
 	}
 	
 	public void setOHLC(Dataset.Candlestick candle) {
@@ -159,7 +173,7 @@ public class CrossHair {
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
-		if (xPos <= ChartNode.CHT_MARGIN || xPos >= ChartNode.CHT_MARGIN + chart.width()) {
+		if (xPos < ChartNode.CHT_MARGIN || xPos > ChartNode.CHT_MARGIN + chart.width()) {
 			chart.setFocusedChart(false);
 			return;
 		}
@@ -168,12 +182,11 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setStroke(Color.BLACK);
 		}
-		chart.graphicsContext().strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN - 0.5);
-		setDateBarX(xPos, index);
-		drawDateBox(index);
+		chart.graphicsContext().strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN - 0.5);		
+		drawDateBox(index, setDateBarX(xPos, index));
 	}
 	
-	private void drawDateBox(int index) {	
+	private void drawDateBox(int index, String text) {	
 		if (Chart.darkMode().get()) {
 			chart.graphicsContext().setFill(Color.WHITE);
 		} else {
@@ -185,19 +198,7 @@ public class CrossHair {
 		} else {
 			chart.graphicsContext().setFill(Color.WHITE);
 		}
-		if (index != -1) {
-			if (chart.drawCandlesticks().get()) {
-				chart.graphicsContext().fillText(chart.timeframe().data().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
-			} else {
-				if (chart.focusedChart().get() || !isForCandle.get()) {
-					chart.graphicsContext().fillText(chart.timeframe().tickData().get(index).dateTime().toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);									
-				} else {					
-					chart.graphicsContext().fillText(chart.timeframe().tickData().get(index).dateTime().minusNanos(chart.timeframe().tickData().get(index).dateTime().getNano()).minusSeconds(chart.timeframe().tickData().get(index).dateTime().getSecond()).toString().replace('T', ' '), dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
-				}
-			}
-		} else {
-			chart.graphicsContext().fillText("DONTBEDUMB", dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
-		}
+		chart.graphicsContext().fillText(text, dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 	}
 	
 	private double getWidth() {
@@ -212,21 +213,45 @@ public class CrossHair {
 		return width;
 	}
 	
-	private void drawFocusedChartCrossHair() {						
+	private void drawFocusedChartCrossHair() {			
+		tf = chart.timeframe();
 		drawHorizontalLine(true);
+		boolean drawCandlesticks = chart.drawCandlesticks().get();	
 		double width = getWidth();
-		dateIndex.set(chart.startIndex() + (int)(((x.get() - ChartNode.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex())));
+		int var = !tf.base()&&!drawCandlesticks?-1:0;
+		dateIndex.set(chart.startIndex() + (int)(((x.get() - ChartNode.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex() + var)));
 		if (dateIndex.get() >= chart.endIndex()) {
 			if (chart.endMargin()) {
 				dateIndex.set(-1);
 			} else {				
 				dateIndex.set(dateIndex.get() - 1);				
 			}
-		} 
-		
+		} 			
+		if (dateIndex.get() != -1) {
+			if (tf.base()) {
+				if (drawCandlesticks) {
+					tickIndex.set(tf.data().get(dateIndex().get()).firstTickIndex());
+				} else {
+					tickIndex.set(dateIndex.get());
+				}
+			} else {
+				tickIndex.set(tf.data().get(dateIndex.get()).firstTickIndex());
+			}
+		} else {
+			tickIndex.set(-1);
+		}
 		if (chart.drawCandlesticks().get() && dateIndex.get() != -1) {
 			setOHLC(chart.timeframe().data().get(dateIndex.get()));
 		}					
+		if (tf.base()) {
+			if (drawCandlesticks) {
+				tickBased.set(false);
+			} else {
+				tickBased.set(true);
+			}
+		} else {
+			tickBased.set(tf.tickBased());
+		}
 		drawVerticalLine(x.get(), dateIndex.get());
 	}	
 	
@@ -291,24 +316,47 @@ public class CrossHair {
 		}
 	}
 	
-	private void drawUnfocusedChartCrossHair() {
-		if (price.get() >= chart.lowest() - chart.dataMarginTickSize() && price.get() <= chart.highest() + chart.dataMarginTickSize()) {					
-			drawHorizontalLine(false);
+	private void drawTickBasedAndSameTF() {
+		if (dateIndex.get() == -1) {
+			return;
 		}
+		boolean same = tf.equals(unfocusedTf);
+		int diff = same?((int)(tickIndex.get()/(double)unfocusedTf.period()) - chart.startIndex()):dateIndex.get() - chart.startIndex();
+		double xPos = ChartNode.CHT_MARGIN + diff * (chart.drawCandlesticks().get()?chart.candlestickWidth() + chart.candlestickSpacing():chart.xDiff());
+		xPos += (chart.drawCandlesticks().get()?chart.candlestickWidth()/2:0);		
+		int index = same?chart.startIndex() + diff:dateIndex.get();
+		drawVerticalLine(xPos, index);
+	}
+	
+	private void drawBaseToBase() {
 		if (!chart.drawCandlesticks().get()) {
-			if (isForCandle.get()) {
+			if (!tickBased.get()) {
 				drawUnfocusedCandleToTick();
 			} else if (dateIndex.get() >= chart.startIndex() && dateIndex.get() <= chart.endIndex()) {
 				drawUnfocusedTickToTick();
 			}
 		} else {
-			if (isForCandle.get()) {
+			if (!tickBased.get()) {
 				if (dateIndex.get() >= chart.startIndex() && dateIndex.get() <= chart.endIndex()) {
 					drawUnfocusedCandleToCandle();
 				}
 			} else {
 				drawUnfocusedTickToCandle();
 			}
+		}
+	}
+		
+	private void drawUnfocusedChartCrossHair() {
+		if (price.get() >= chart.lowest() - chart.dataMarginTickSize() && price.get() <= chart.highest() + chart.dataMarginTickSize()) {					
+			drawHorizontalLine(false);
+		}
+		unfocusedTf = chart.timeframe();
+		if (unfocusedTf.base() && tf.base()) {
+			drawBaseToBase();
+		} else if (unfocusedTf.equals(tf) || tickBased.get() && (chart.timeframe().tickBased() && !unfocusedTf.base() || unfocusedTf.base() && !chart.drawCandlesticks().get())) {
+			drawTickBasedAndSameTF();
+		} else {
+			
 		}
 	}
 	

@@ -320,6 +320,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void setTimeframe(Timeframe tf) {
 		this.tf = tf;
 		tfChanged = true;
+		if (focusedChart.get()) {
+			CrossHair.setTickBased(tf.tickBased());
+		}
 	}
 	
 	public void enableReplayMode(MarketReplay mr, MarketReplayPane mrp) {
@@ -428,7 +431,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void onMouseEntered(MouseEvent e) {
 		setFocusedChart(true);
-		CrossHair.setIsForCandle(drawCandlesticks.get());
+		CrossHair.setTickBased(drawCandlesticks.get());
 		CrossHair.setDateIndex(0);
 		CrossHair.setName(data.name());
 		CrossHair.setX(e.getX());
@@ -693,17 +696,29 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void calculateRange() {		
-		if (drawCandlesticks.get()) {
+		if (drawCandlesticks.get() || !tf.base()) {
 			ArrayList<Candlestick> data = tf.data();
-			lowest = data.get(startIndex).low();
-			highest = data.get(startIndex).high();
+			if (drawCandlesticks.get()) {
+				lowest = data.get(startIndex).low();
+				highest = data.get(startIndex).high();
+			} else {
+				lowest = data.get(startIndex).price(lineChartDataPoint);
+				highest = data.get(startIndex).price(lineChartDataPoint);
+			}
 			int ei = endIndex;
 			if (replayMode) {
 				ei--;
 			}
 			for (int i = startIndex; i < ei; i++) {			
-				double low = data.get(i).low();
-				double high = data.get(i).high();				
+				double low;
+				double high;	
+				if (drawCandlesticks.get()) {
+					low = data.get(i).low();
+					high = data.get(i).high();	
+				} else {
+					low = data.get(i).price(lineChartDataPoint);
+					high = data.get(i).price(lineChartDataPoint);	
+				}
 				if (high > highest) {
 					highest = high;	
 				} 
@@ -713,26 +728,22 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			}
 			if (replayMode) {
 				Dataset.Candlestick c = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex());
-				if (c.high() > highest) {
-					highest = c.high();	
+				double low;
+				double high;	
+				if (drawCandlesticks.get()) {
+					low = c.low();
+					high = c.high();	
+				} else {
+					low = c.price(lineChartDataPoint);
+					high = c.price(lineChartDataPoint);	
+				}
+				if (high > highest) {
+					highest = high;	
 				} 
-				if (c.low() < lowest) {					
-					lowest = c.low();
+				if (low < lowest) {					
+					lowest = low;
 				}
 			}
-			range = highest - lowest;
-		} else if (!tf.base()) {
-			ArrayList<Candlestick> data = tf.data();
-			lowest = data.get(startIndex).price(lineChartDataPoint);
-			highest = data.get(startIndex).price(lineChartDataPoint);	
-			for (int i = startIndex; i < endIndex; i++) {			
-				double val = data.get(i).price(lineChartDataPoint);
-				if (val > highest) {
-					highest = val;
-				} else if (val < lowest) {
-					lowest = val;
-				}				
-			}								
 			range = highest - lowest;
 		} else {
 			lowest = data.tickData().get(startIndex).price();
@@ -857,7 +868,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			if (tf.base()) {
 				xDiff = width / (double)numDataPoints;
 			} else {
-				xDiff = width / (double)numCandlesticks;
+				xDiff = width / (double)(numCandlesticks - 1);
 			}
 		}
 	}
@@ -891,7 +902,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 		gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
 		int size = tf.size(this.replayMode, false);
-		for (int i = 1; i < numCandlesticks; i++) {
+		for (int i = 1; i < numCandlesticks - 1; i++) {
 			if (startIndex + i > tf.size(this.replayMode, false) - 2) {
 				endMargin = true;
 				break;
@@ -1034,18 +1045,18 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			gc.setFill(Color.BLACK);
 		}
 		String midDot = " " + (char)183 + " ";
-		String name;
+		String tfName;
 		if (tf.base()) {
 			if (drawCandlesticks.get()) {
-				name = tf.name().substring(3, 5);
+				tfName = tf.name().substring(3, 5);
 			} else {
-				name = tf.name().substring(0, 2);
+				tfName = tf.name().substring(0, 2);
 			}
 		} else {
-			name = tf.name();
+			tfName = tf.name();
 		}
 		if (drawCandlesticks.get()) {						
-			String trt1 = data.name() + midDot + name;
+			String trt1 = data.name() + midDot + tfName;
 			gc.fillText(trt1, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 			boolean useLast = false;
 			if (replayMode && (CrossHair.dateIndex().get() == -1 || (!focusedChart.get() && crossHair.ohlc() == null) || CrossHair.dateIndex().get() == data.m1CandlesDataSize(replayMode).get() - 1)) {				
@@ -1057,10 +1068,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				Dataset.Candlestick c;
 				if (useLast) {
 					c = lastCandlestick;
-				} else if (CrossHair.isForCandle().get()) {
-					c = data.m1Candles().get(CrossHair.dateIndex().get());
 				} else {
-					c = data.m1Candles().get(data.tickData().get(CrossHair.dateIndex().get()).candleIndex());
+					c = tf.data().get(crossHair.unfocusedDateIndex().get());
 				}
 				Text t = new Text(trt1);
 				t.setFont(gc.getFont());
@@ -1082,7 +1091,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				gc.fillText(trt2, CHT_MARGIN + INFO_MARGIN + t.getLayoutBounds().getWidth(), CHT_MARGIN + fontSize);
 			}			
 		} else {
-			gc.fillText(data.name() + midDot + name, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
+			gc.fillText(data.name() + midDot + tfName, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 		}
 		crossHair.resetOHLC();
 	}
@@ -1097,7 +1106,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	private void checkTF() {
 		if (tf == null) {
-			tf = data.getTimeframe(Dataset.BASE_TF_NAME);
+			setTimeframe(data.getTimeframe(Dataset.BASE_TF_NAME));
 		}
 	}
 	
@@ -1113,7 +1122,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		setPreDrawVars();			
 		c.priceMargin().draw();		
 		checkDrawLines();		
-		//crossHair.drawCrossHair();
+		crossHair.drawCrossHair();
 		if (drawCandlesticks.get()) {
 			drawCandlestickChart();
 		} else {		
@@ -1226,7 +1235,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		double newHSBPos;
 		if (drawCandlesticks.get()) {
 			drawCandlesticks.set(false);
-			CrossHair.setIsForCandle(false);
 			CrossHair.setDateIndex(0);
 			if (replayMode) {
 				if (endIndex >= tf.size(replayMode, false)) {
@@ -1246,8 +1254,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			if (tf.data().isEmpty()) {
 				return;
 			}
-			drawCandlesticks.set(true);	
-			CrossHair.setIsForCandle(true);	
+			drawCandlesticks.set(true);		
 			CrossHair.setDateIndex(0);
 			if (replayMode) {
 				if (endIndex >= tf.size(replayMode, true)) {
