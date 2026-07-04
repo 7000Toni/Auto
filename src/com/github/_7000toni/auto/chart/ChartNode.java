@@ -1068,6 +1068,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				Dataset.Candlestick c;
 				if (useLast) {
 					c = lastCandlestick;
+				} else if (focusedChart.get()) {
+					c = tf.data().get(CrossHair.dateIndex().get());
 				} else {
 					c = tf.data().get(crossHair.unfocusedDateIndex().get());
 				}
@@ -1075,7 +1077,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				t.setFont(gc.getFont());
 				gc.fillText(midDot, CHT_MARGIN + INFO_MARGIN + t.getLayoutBounds().getWidth(), CHT_MARGIN + fontSize);
 				t.setText(trt1 + midDot);
-				if (c.open() < c.close()) {		
+				if (c.open() < c.close()) {	
 					if (ColourSettings.colour(ColourIndex.UP_CANDLESTICK_FILL).equals(ColourSettings.colour(ColourIndex.DOWN_CANDLESTICK_FILL))) {
 						gc.setFill(ColourSettings.colour(ColourIndex.UP_CANDLESTICK_STROKE));
 					} else {

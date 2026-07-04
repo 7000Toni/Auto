@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.dataset.Dataset.Candlestick;
 import com.github._7000toni.auto.dataset.Dataset.DataPair;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 
@@ -232,7 +233,7 @@ public class CrossHair {
 			tickIndex.set(-1);
 		}
 		if (chart.drawCandlesticks().get() && dateIndex.get() != -1) {
-			setOHLC(chart.timeframe().data().get(dateIndex.get()));
+			setOHLC(tf.data().get(dateIndex.get()));
 		}					
 		if (tf.base()) {
 			if (drawCandlesticks) {
@@ -244,7 +245,7 @@ public class CrossHair {
 			tickBased.set(tf.tickBased());
 		}
 		drawVerticalLine(x.get(), dateIndex.get());
-	}	
+	}
 	
 	private void drawTickToTickAndSameTFAndTimeCandleToTick() {
 		if (dateIndex.get() == -1) {
@@ -253,9 +254,44 @@ public class CrossHair {
 		boolean same = tf.equals(unfocusedTf) && !(tf.base() && unfocusedTf.base());
 		int diff = same?dateIndex.get() - chart.startIndex():((int)(tickIndex.get()/(double)unfocusedTf.period()) - chart.startIndex());
 		double xPos = ChartNode.CHT_MARGIN + diff * (chart.drawCandlesticks().get()?chart.candlestickWidth() + chart.candlestickSpacing():chart.xDiff());
-		xPos += (chart.drawCandlesticks().get()?chart.candlestickWidth()/2:0);		
+		xPos += (chart.drawCandlesticks().get()?chart.candlestickWidth()/2:0);
 		int index = same?dateIndex.get():chart.startIndex() + diff;
 		drawVerticalLine(xPos, index);
+	}
+	
+	private int indexSearch(ArrayList<Candlestick> data, int i1, int i2) {
+		if (i1 > i2) {
+			return -1;
+		}
+		int i = i1 + (i2 - i1) / 2;	
+		int a = i+1;
+		if (data.get(i).firstTickIndex() <= tickIndex.get() && (a == data.size() || data.get(a).firstTickIndex() > tickIndex.get())) {
+			return i;
+		} else if (data.get(i).firstTickIndex() < tickIndex.get()) {
+			return indexSearch(data, i+1, i2);
+		} else {
+			return indexSearch(data, i1, i-1);
+		}
+	}
+	
+	private void drawTickToTimeCandleAndDiffTimeCToTimeC() {
+		if (dateIndex.get() == -1) {
+			return;
+		}
+		ArrayList<Candlestick> data = unfocusedTf.data();
+		int startIndex = chart.startIndex();
+		int endIndex = chart.endIndex();
+		int firstIndex = data.get(startIndex).firstTickIndex();
+		int lastIndex = endIndex==data.size()?chart.data().tickData().size()-1:data.get(endIndex - 1).firstTickIndex();
+		if (!(tickIndex.get() > lastIndex || tickIndex.get() < firstIndex)) {
+			int index = indexSearch(data, startIndex, endIndex - 1);			
+			int diff = index - startIndex;
+			double xPos = ChartNode.CHT_MARGIN + diff * (chart.drawCandlesticks().get()?chart.candlestickWidth() + chart.candlestickSpacing():chart.xDiff());
+			xPos += (chart.drawCandlesticks().get()?chart.candlestickWidth()/2:0);
+			setOHLC(unfocusedTf.data().get(index));
+			unfocusedDateIndex.set(index);
+			drawVerticalLine(xPos, index);
+		}		
 	}
 	
 	private void drawUnfocusedChartCrossHair() {
@@ -267,7 +303,7 @@ public class CrossHair {
 		if (!(tickBased.get() && !unfocusedTFTickBased || !tickBased.get() && !unfocusedTFTickBased && !unfocusedTf.equals(tf))) {
 			drawTickToTickAndSameTFAndTimeCandleToTick();
 		} else {
-			
+			drawTickToTimeCandleAndDiffTimeCToTimeC();
 		}
 	}
 	
