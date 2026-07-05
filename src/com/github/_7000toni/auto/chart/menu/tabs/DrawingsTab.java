@@ -60,9 +60,9 @@ public class DrawingsTab extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {
-		this.y = y;
-		
+	public void setY(double y) {				
 		drawingFunctions.setY(y + 35);
+		
+		this.y = y;
 	}
 }

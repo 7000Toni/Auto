@@ -103,7 +103,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private int numCandlesticks;
 	
 	private ChartButtonVanGoghs cbvg;
-	private boolean mrpSBDragging = false;
+	private boolean mrpDragging = false;
 
 	private CanvasButton chartTypeShortcut;
 	private DateMargin dateMargin;
@@ -113,6 +113,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private ChartMarketReplayButtons cmrb;
 	private BooleanProperty skipDraw = new SimpleBooleanProperty(false);
 	private Dataset.Candlestick lastCandlestick;
+	private static BooleanProperty drawCrosshair = new SimpleBooleanProperty(true);
 	
 	private boolean printSpeed = false;
 	private double t = 0;
@@ -242,6 +243,18 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setSkipDraw(boolean skipDraw) {
 		this.skipDraw.set(skipDraw);
+	}
+	
+	public static ReadOnlyBooleanProperty drawCrosshair() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(drawCrosshair);
+	}
+	
+	public static void toggleDrawCrosshair() {
+		drawCrosshair.set(!drawCrosshair.get());
+	}
+	
+	public static void setDrawCrosshair(boolean drawCrosshair) {
+		ChartNode.drawCrosshair.set(drawCrosshair);
 	}
 	
 	public void toggleChartTypeShortcut() {
@@ -458,7 +471,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		} else {
 			setFocusedChart(true);
 		}
-		if (drawMRP && onMRP(e.getX(), e.getY()) && !mrpSBDragging) {
+		if (drawMRP && onMRP(e.getX(), e.getY()) && !mrpDragging) {
 			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
 		}		
 	}	
@@ -521,8 +534,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}		
 		lineDragging = false;
 		dragDiffAccum = 0;
-		if (mrpSBDragging) {
-			mrpSBDragging = false;
+		if (mrpDragging) {
+			mrpDragging = false;
 			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
 		}
 	}
@@ -552,29 +565,27 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging && !measuring && e.isPrimaryButtonDown()) {
+		if (!lineDragging && !measuring && e.isPrimaryButtonDown() && !(mrpDragging || drawMRP && onMRP(e.getX(), e.getY()))) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
-			//TODO
 			dragDiffAccum += posDiff;			
 			if (drawCandlesticks.get() || !tf.base()) {
 				diff = (int)(dragDiffAccum / (candlestickWidth + candlestickSpacing));
 				if (diff != 0) {
 					startIndex = startIndex - diff;
+					checkStartIndex();
 					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
-			} else {
-				diff = (int)(dragDiffAccum / xDiff);
+			} else {				
+				diff = (int)(dragDiffAccum / xDiff);	
 				if (diff != 0) {
 					startIndex = startIndex - diff;
+					checkStartIndex();
 					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
-			}
-			if (startIndex < 0) {
-				startIndex = 0;
 			}
 			if (dragDiffAccum == 0 && posDiff != 0) {
 				if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
@@ -585,16 +596,31 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				c.hsb().setPosition(newHSBPos, false);
 			}
 		}
-		if (drawMRP && onMRP(e.getX(), e.getY()) || mrpSBDragging) {
+		if (drawMRP && onMRP(e.getX(), e.getY()) || mrpDragging) {
 			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
 					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
 					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
 					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
 			mrp.canvas().fireEvent(me);
-			mrpSBDragging = true;
+			mrpDragging = true;
 		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);
+	}
+	
+	private void checkStartIndex() {
+		if (startIndex < 0) {
+			startIndex = 0;
+		}
+		int size;
+		if (drawCandlesticks.get() || !tf.base()) {
+			size = tf.size(replayMode, false);	
+		} else {
+			size = tf.size(replayMode, true);
+		}
+		if (startIndex >= size) {
+			startIndex = size - 1;
+		}
 	}
 	
 	public void zoomCandlesticks(double delta, boolean scroll) {
@@ -706,7 +732,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				highest = data.get(startIndex).price(lineChartDataPoint);
 			}
 			int ei = endIndex;
-			if (replayMode) {
+			boolean considerLast = replayMode && endIndex == tf.size(replayMode, false);
+			if (considerLast) {
 				ei--;
 			}
 			for (int i = startIndex; i < ei; i++) {			
@@ -726,7 +753,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					lowest = low;	
 				}				
 			}
-			if (replayMode) {
+			if (considerLast) {
 				Dataset.Candlestick c = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex());
 				double low;
 				double high;	
@@ -828,8 +855,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	private void calculateIndices() {		
-		//TODO
+	private void calculateIndices() {	
 		if (drawCandlesticks.get() || !tf.base()) {
 			int size = tf.size(replayMode, false);			
 			if (!keepStartIndex || tfChanged) {
@@ -1117,14 +1143,16 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (printSpeed) {
 			b = System.nanoTime();
 		}	
-		//checkTF();
+		checkTF();
 		calculateIndices();
 		c.hsb().draw();
 		calculateRange();
 		setPreDrawVars();			
 		c.priceMargin().draw();		
-		checkDrawLines();		
-		crossHair.drawCrossHair();
+		checkDrawLines();	
+		if (drawCrosshair.get()) {
+			crossHair.drawCrossHair();
+		}
 		if (drawCandlesticks.get()) {
 			drawCandlestickChart();
 		} else {		

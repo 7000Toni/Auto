@@ -231,9 +231,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {
-		this.y = y;
-		
+	public void setY(double y) {				
 		imageSettings.setY(y + 35);
 		reset.setY(y + 230);
 		save.setY(y + 255);
@@ -246,5 +244,6 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		setImage.setY(y + 180);
 		clearImage.setY(y + 205);
 		noImage.setY(y + 305);
+		this.y = y;
 	}
 }

@@ -123,14 +123,14 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {
-		this.y = y;
-		
+	public void setY(double y) {				
 		previousFunctions.setY(y + 60);
 		nextFunctions.setY(y + 60);				
 		
 		gft.setY(y);
 		dt.setY(y);
 		tft.setY(y);
+		
+		this.y = y;
 	}
 }

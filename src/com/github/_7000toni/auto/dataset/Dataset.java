@@ -213,7 +213,7 @@ public class Dataset {
 		if (replayTickDataSize > size) {
 			this.replayTickDataSize.set(size);
 		} else {
-			this.replayTickDataSize.set(replayTickDataSize);
+			this.replayTickDataSize.set(replayTickDataSize<1?1:replayTickDataSize);
 		}
 	}
 	
@@ -229,7 +229,7 @@ public class Dataset {
 		if (replayM1CandlesDataSize > m1Candles.size()) {
 			this.replayM1CandlesDataSize.set(m1Candles.size());
 		} else {
-			this.replayM1CandlesDataSize.set(replayM1CandlesDataSize);
+			this.replayM1CandlesDataSize.set(replayM1CandlesDataSize<1?1:replayM1CandlesDataSize);
 		}
 	}
 	

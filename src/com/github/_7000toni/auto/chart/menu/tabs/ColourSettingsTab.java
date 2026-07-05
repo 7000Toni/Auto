@@ -207,9 +207,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {
-		this.y = y;
-		
+	public void setY(double y) {				
 		colourSettings.setY(y + 35);
 		reset.setY(y + 480);
 		save.setY(y + 505);
@@ -223,5 +221,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			colourButtons.get(i*2+1).setY(y + 255 + 25*i);
 		}		
 		defaultColours.setY(y + 480);
+		
+		this.y = y;
 	}
 }

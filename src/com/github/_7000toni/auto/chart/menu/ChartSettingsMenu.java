@@ -112,13 +112,12 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {
-		this.y = y;			
-		
+	public void setY(double y) {			
 		previousSettings.setY(y + 60);
 		nextSettings.setY(y + 60);	
 		
 		cst.setY(y);
 		ist.setY(y);
+		this.y = y;	
 	}
 }
