@@ -32,7 +32,7 @@ public class DateMargin extends CanvasNode {
 		});
 		setOnMouseDragged(e -> {
 			setCrossHairVars(e.getX(), e.getY());
-			if (cn.drawCandlesticks().get()) {
+			if (cn.drawCandlesticks().get() || !cn.timeframe().base()) {
 				cn.zoomCandlesticks(e.getX() - chartInitPos, false);
 			} else {
 				cn.zoomTicks(e.getX() - chartInitPos, false);
