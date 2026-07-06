@@ -202,7 +202,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		} else {
 			gc.setFill(Color.BLACK);
 		}
-		gc.fillText("NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 400);
+		gc.fillText("NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 425);
 	}
 	
 	public void setGeneralFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
