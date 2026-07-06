@@ -33,6 +33,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -97,7 +99,8 @@ public class Menu implements ICanvasWindow {
 	};
 	
 	public Menu(double width, double height) {		
-		this.canvas = new Canvas(width, height);		
+		this.canvas = new Canvas(width, height);
+		setCanvasDragDropEvents();;
 		this.gc = canvas.getGraphicsContext2D();
 		gc.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 14));
 		this.width = width;
@@ -267,6 +270,26 @@ public class Menu implements ICanvasWindow {
 				System.out.println(chartsOnStart.get(i) + " does not exist");
 			}
 		}
+	}
+	
+	private void setCanvasDragDropEvents() {
+		canvas.setOnDragOver(e -> {
+			Dragboard db = e.getDragboard();
+			
+			if (db.hasFiles()) {
+				e.acceptTransferModes(TransferMode.COPY);
+			}
+		});
+		canvas.setOnDragDropped(e -> {
+			Dragboard db = e.getDragboard();
+			
+			if (db.hasFiles()) {
+				for (File f : db.getFiles()) {
+					DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+					dsl.load();	
+				}
+			}
+		});		
 	}
 	
 	@Override
