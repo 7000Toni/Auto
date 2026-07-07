@@ -2,6 +2,7 @@ package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.CrossHair;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
@@ -99,17 +100,19 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			speed *= 2;
 		}
 		double newHSBPos;
-		int startIndex = ((ChartNode) sbo).startIndex();
-		if (((ChartNode) sbo).drawCandlesticks().get()) {
-			startIndex -= ChartNode.CNDL_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
-			((ChartNode) sbo).setKeepStartIndex(false);
-		} else {
-			startIndex -= ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
-			((ChartNode) sbo).setKeepStartIndex(false);
+		ChartNode cn = ((ChartNode) sbo);
+		int startIndex = cn.startIndex();
+		Timeframe tf = cn.timeframe();
+		if (cn.drawCandlesticks().get() || !tf.base()) {			
+			startIndex -= ChartNode.CNDL_INDX_MOVE_COEF * speed;
+			newHSBPos = (cn.width() - sbWidth + ChartNode.CHT_MARGIN) * ((double)startIndex / (tf.size(cn.replayMode(), false) - cn.numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			cn.setKeepStartIndex(false);
+		} else {			
+			startIndex -= ChartNode.TICK_INDX_MOVE_COEF * speed;
+			newHSBPos = (cn.width() - sbWidth + ChartNode.CHT_MARGIN) * ((double)startIndex / (tf.size(cn.replayMode(), true) - cn.numDataPoints() * ChartNode.END_MARGIN_COEF));
+			cn.setKeepStartIndex(false);
 		}			
-		((ChartNode) sbo).setKeepStartIndex(false);
+		cn.setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -120,17 +123,19 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 			speed *= 2;
 		}
 		double newHSBPos;
-		int startIndex = ((ChartNode) sbo).startIndex();
-		if (((ChartNode) sbo).drawCandlesticks().get()) {
+		ChartNode cn = ((ChartNode) sbo);
+		int startIndex = cn.startIndex();
+		Timeframe tf = cn.timeframe();
+		if (cn.drawCandlesticks().get() || !tf.base()) {
 			startIndex += ChartNode.CNDL_INDX_MOVE_COEF * speed;
-			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().m1CandlesDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numCandlesticks() * ChartNode.END_MARGIN_COEF));
-			((ChartNode) sbo).setKeepStartIndex(false);
+			newHSBPos = (cn.width() - sbWidth + ChartNode.CHT_MARGIN) * ((double)startIndex / (tf.size(cn.replayMode(), false) - cn.numCandlesticks() * ChartNode.END_MARGIN_COEF));
+			cn.setKeepStartIndex(false);
 		} else {
 			startIndex += ChartNode.TICK_INDX_MOVE_COEF * speed;	
-			newHSBPos = (((ChartNode) sbo).chart().width() - sbWidth - ((ChartNode) sbo).chart().priceMargin().width()) * ((double)startIndex /(((ChartNode) sbo).data().tickDataSize(((ChartNode) sbo).replayMode()).get() - ((ChartNode) sbo).numDataPoints() * ChartNode.END_MARGIN_COEF));
-			((ChartNode) sbo).setKeepStartIndex(false);
+			newHSBPos = (cn.width() - sbWidth + ChartNode.CHT_MARGIN) * ((double)startIndex / (tf.size(cn.replayMode(), true) - cn.numDataPoints() * ChartNode.END_MARGIN_COEF));
+			cn.setKeepStartIndex(false);
 		}			
-		((ChartNode) sbo).setKeepStartIndex(false);
+		cn.setKeepStartIndex(false);
 		setPosition(newHSBPos, false);
 	}
 	

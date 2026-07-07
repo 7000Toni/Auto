@@ -183,12 +183,43 @@ public class Timeframe {
 		return period;
 	}
 	
+	public int getIndexContaining(int tickIndex) {
+		if (base) {
+			return tickData.get(tickIndex).candleIndex();
+		} else {
+			if (tickBased) {
+				return (int)(tickIndex/(double)period);
+			} else {
+				return indexSearch(tickIndex, 0, data.size() - 1);
+			}
+		}
+	}
+	
+	private int indexSearch(int tickIndex, int i1, int i2) {
+		if (i1 > i2) {
+			return -1;
+		}
+		int i = i1 + (i2 - i1) / 2;	
+		int a = i+1;
+		if (data.get(i).firstTickIndex() <= tickIndex && (a == data.size() || data.get(a).firstTickIndex() > tickIndex)) {
+			return i;
+		} else if (data.get(i).firstTickIndex() < tickIndex) {
+			return indexSearch(tickIndex, i+1, i2);
+		} else {
+			return indexSearch(tickIndex, i1, i-1);
+		}
+	}
+	
 	private int size(boolean replayMode) {
 		int size;
 		if (tickBased) {
-			size = (int)((dataSet.tickDataSize(replayMode).get()-1)/(double)period);
-			if (dataSet.tickDataSize(replayMode).get() % period != 0) {
-				size += 1;
+			if (replayMode) {
+				size = (int)((dataSet.tickDataSize(replayMode).get()-1)/(double)period);
+				if (dataSet.tickDataSize(replayMode).get() % period != 0) {
+					size += 1;
+				}
+			} else {
+				size = data.size();
 			}
 		} else {
 			if (replayMode) {

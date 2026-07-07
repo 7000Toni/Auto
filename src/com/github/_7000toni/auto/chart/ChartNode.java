@@ -331,10 +331,37 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void setTimeframe(Timeframe tf) {
+		int tickIndex;
+		if (this.tf.base() && !drawCandlesticks.get()) {
+			tickIndex = startIndex;
+		} else {
+			tickIndex = this.tf.data().get(startIndex).firstTickIndex();
+		}	
+		if (tf.base() && !drawCandlesticks.get()) {
+			startIndex = tickIndex;
+		} else {
+			startIndex = tf.getIndexContaining(tickIndex);
+		}		
 		this.tf = tf;
-		tfChanged = true;
+		setHSBPos();
+		tfChanged = true;		
 		if (focusedChart.get()) {
 			CrossHair.setTickBased(tf.tickBased());
+		}
+	}
+	
+	private void setHSBPos() {
+		double newHSBPos;
+		if (drawCandlesticks.get() || !tf.base()) {
+			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));			
+		} else {
+			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
+		}
+		c.hsb().setPosition(newHSBPos, false);	
+		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
+			keepStartIndex = true;
+		} else {
+			keepStartIndex = false;
 		}
 	}
 	
@@ -1298,7 +1325,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				startIndex = tf.tickData().get(startIndex).candleIndex();
 			}
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
 			c.hsb().setPosition(newHSBPos, false);				
 		}
 		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
