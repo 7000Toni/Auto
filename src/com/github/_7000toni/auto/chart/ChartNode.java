@@ -91,7 +91,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
 	private boolean measuring = false;
-	private double startPrice = 0;
 	private double startX = 0;
 	private double startY = 0;
 	private double endX = 0;
@@ -511,8 +510,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else if (onChart(e.getX(), e.getY())) {
 				data.lines().add(new Line(roundToNearestTick(CrossHair.price())));
 			}
-		} else if (e.getButton() == MouseButton.SECONDARY) {
-			startPrice = roundToNearestTick(CrossHair.price());
+		} else if (e.getButton() == MouseButton.SECONDARY) {			
 			startX = e.getX();
 			startY = e.getY();
 		} else if (e.isPrimaryButtonDown()) {
@@ -1033,6 +1031,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	private void checkMeasuring() {		
 		if (measuring) {
+			double startPrice = roundToNearestTick(yCoordToPrice(startY));
 			double endPrice = ((((height - (chtDataMargin*2)) - (endY - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
@@ -1054,9 +1053,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					double ex = endX + 50;
 					if (ex >= CHT_MARGIN + width) {
 						ex -= 100;
-						gc.strokeLine(ex, n100 + 0.5, endX, n100 + 0.5);
+						gc.strokeLine(ex + 0.5, n100 + 0.5, endX, n100 + 0.5);
 					} else {
-						gc.strokeLine(endX, n100 + 0.5, ex, n100 + 0.5);
+						gc.strokeLine(endX + 0.5, n100 + 0.5, ex, n100 + 0.5);
 					}				
 				}
 			}
