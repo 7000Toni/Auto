@@ -66,6 +66,7 @@ public class Chart implements ICanvasWindow {
 	private boolean menuHidden = true;
 	private CanvasButton btnMenu;
 	private ChartMenu menu;
+	private CanvasEventFilter cef;
 	
 	public Chart(double width, double height, Stage stage, Dataset data) throws Exception {
 		constructorStuff(width, height, stage, data);
@@ -102,8 +103,9 @@ public class Chart implements ICanvasWindow {
 		menuNode = new TNode<ICanvasNode>(menu, sceneGraph.root());
 		sceneGraph.addNode(menuNode);
 		
+		cef = new CanvasEventFilter(this);
 		canvas.addEventFilter(Event.ANY, e -> {
-			(new CanvasEventFilter(this)).canvasEventFilter(e);
+			cef.canvasEventFilter(e);
 		});
 				
 		btnMenu.setVanGogh(cn.chartButtonVanGoghs().menuButtonVG(btnMenu)); 
@@ -162,6 +164,10 @@ public class Chart implements ICanvasWindow {
 	
 	public Stage stage() {
 		return stage;
+	}
+	
+	public CanvasEventFilter canvasEventFilter() {
+		return cef;
 	}
 	
 	public static ArrayList<Chart> charts(String name) {

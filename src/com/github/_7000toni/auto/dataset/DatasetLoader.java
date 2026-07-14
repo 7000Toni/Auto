@@ -230,7 +230,8 @@ public class DatasetLoader {
 			s.setTitle(datasets.get(dsb.datasetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.datasetIndex()), false, null, null);
 			Scene scene = new Scene(c);
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+			//scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
 			s.show();			
 		});
@@ -290,7 +291,8 @@ public class DatasetLoader {
 			s.setTitle(datasets.get(dsb.datasetIndex()).name());
 			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
 			Scene scene = new Scene(c);	
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+			//scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
+			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
 			s.show();
 			Stage s2 = new Stage();	

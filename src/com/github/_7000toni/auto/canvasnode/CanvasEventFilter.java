@@ -2,11 +2,13 @@ package com.github._7000toni.auto.canvasnode;
 import com.github._7000toni.auto.tree.TNode;
 
 import javafx.event.Event;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 public class CanvasEventFilter {
 	private ICanvasWindow cw;
+	private ICanvasNode lastFocused = null;
 	
 	public CanvasEventFilter(ICanvasWindow cw) {
 		this.cw = cw;
@@ -16,6 +18,7 @@ public class CanvasEventFilter {
 		TNode<ICanvasNode> currentNode = null;
 		MouseEvent me = null;
 		ScrollEvent se = null;
+		KeyEvent ke = null;
 		cw.varLock().lock();
 		try {
 			for (TNode<ICanvasNode> t : cw.sceneGraph().postOrderArray()) {	
@@ -45,10 +48,11 @@ public class CanvasEventFilter {
 						cn.onMouseReleased(me);
 						cw.setDragging(false);
 					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
-						if (cw.lastNode() != null) {
-							cw.lastNode().element().setFocused(false);
+						if (lastFocused != null) {
+							lastFocused.setFocused(false);
 						}
 						cn.setFocused(true);
+						lastFocused = cn;
 						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
 						cn.onMouseMoved(me);
@@ -64,6 +68,20 @@ public class CanvasEventFilter {
 					currentNode = t;
 					if (e.getEventType() == ScrollEvent.SCROLL) {
 						cn.onScroll(se);
+					}
+					break;
+				} else if (e instanceof KeyEvent) {
+					ke = (KeyEvent)e;
+					if (!cn.focused() || !cn.enabled()) {
+						continue;
+					}
+					currentNode = t;
+					if (e.getEventType() == KeyEvent.KEY_PRESSED) {
+						cn.onKeyPressed(ke);
+					} else if (e.getEventType() == KeyEvent.KEY_RELEASED) {
+						cn.onKeyReleased(ke);
+					} else if (e.getEventType() == KeyEvent.KEY_TYPED) {
+						cn.onKeyTyped(ke);
 					}
 					break;
 				}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
@@ -126,7 +127,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public ChartNode(double width, double height, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {
 		constructorStuff(width, height, stage, data, c, sceneGraph);
 	}
-	
+	TextBox tb;
 	private void constructorStuff(double widthParam, double heightParam, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {		
 		this.width = widthParam;
 		this.height = heightParam;
@@ -162,6 +163,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		chtDataMargin = CHT_MARGIN + fontSize;
 		setEventHandlers();		
 		thp = new TradeHistoryPlotter(this);
+		tb = new TextBox(gc, 100, 50, 50, 50, null, TextBox.InputType.ANY, true);
+		sceneGraph.addNode(new TNode<ICanvasNode>(tb, chartNode));
+		setOnKeyPressed(e -> {
+			c.hsb().onKeyPressed(e);
+		});
 	}	
 	
 	public void initHst() {
@@ -1210,6 +1216,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			c2++;
 			System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c2, endIndex - startIndex);
 		}
+		tb.draw();
 	}
 	
 	public void drawChart() {		

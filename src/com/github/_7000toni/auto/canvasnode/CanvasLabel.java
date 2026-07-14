@@ -4,6 +4,7 @@ import com.github._7000toni.auto.chart.Chart;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class CanvasLabel extends CanvasNode {
@@ -68,8 +69,8 @@ public class CanvasLabel extends CanvasNode {
 	}
 	
 	public void defaultDraw() {
-		double oldFontSize = gc.getFont().getSize();
-		gc.setFont(new Font(height - 5));
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(new Font(height - 5));
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
@@ -81,12 +82,12 @@ public class CanvasLabel extends CanvasNode {
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
-		gc.setFont(new Font(oldFontSize));
+		gc.setFont(oldFont);
 	}
 	
 	public void alternateDraw() {
-		double oldFontSize = gc.getFont().getSize();
-		gc.setFont(new Font(height - 5));
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(new Font(height - 5));
 		if (Chart.darkMode().get()) {
 			gc.setStroke(Color.WHITE);
@@ -98,7 +99,7 @@ public class CanvasLabel extends CanvasNode {
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
-		gc.setFont(new Font(oldFontSize));
+		gc.setFont(oldFont);
 	}
 	
 	public void defaultDraw(Font font) {

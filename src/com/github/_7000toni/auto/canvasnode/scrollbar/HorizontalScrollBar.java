@@ -34,11 +34,12 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 		this.y = y;
 		this.gc = sbo.graphicsContext();
 		
-		onMouseDragged = (e) -> {defaultOnMouseDragged(e);};
-		onMouseExited = (e) -> {defaultOnMouseExited(e);};
-		onMouseMoved = (e) -> {defaultOnMouseMoved(e);};
-		onMousePressed = (e) -> {defaultOnMousePressed(e);};
-		onMouseReleased = (e) -> {defaultOnMouseReleased(e);};
+		onMouseDragged = e -> {defaultOnMouseDragged(e);};
+		onMouseExited = e -> {defaultOnMouseExited(e);};
+		onMouseMoved = e -> {defaultOnMouseMoved(e);};
+		onMousePressed = e -> {defaultOnMousePressed(e);};
+		onMouseReleased = e -> {defaultOnMouseReleased(e);};
+		onKeyPressed = e -> {keyPressed(e);};
 	}
 	
 	public double sbWidth() {

@@ -71,6 +71,7 @@ public class Menu implements ICanvasWindow {
 	private Tree<ICanvasNode> sceneGraph;
 	private CanvasWrapper cw;
 	private TNode<ICanvasNode> lastNode = null;
+	private CanvasEventFilter cef;
 	
 	private IVanGogh optimizeVG = (x, y, gc) -> {
 		Font oldFont = gc.getFont();
@@ -228,8 +229,9 @@ public class Menu implements ICanvasWindow {
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));
 		
+		cef = new CanvasEventFilter(this);
 		canvas.addEventFilter(Event.ANY, e -> {
-			(new CanvasEventFilter(this)).canvasEventFilter(e);
+			cef.canvasEventFilter(e);
 		});
 		
 		menu = this;
@@ -240,6 +242,10 @@ public class Menu implements ICanvasWindow {
 		
 		draw();
 	}	
+	
+	public CanvasEventFilter canvasEventFilter() {
+		return cef;
+	}
 	
 	public Tree<ICanvasNode> sceneGraph() {
 		return sceneGraph;

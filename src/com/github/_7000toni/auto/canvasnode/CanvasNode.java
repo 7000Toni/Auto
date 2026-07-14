@@ -2,6 +2,8 @@ package com.github._7000toni.auto.canvasnode;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
@@ -13,6 +15,8 @@ public abstract class CanvasNode implements ICanvasNode {
 	protected double y;
 	protected boolean enabled = true;
 	protected boolean pressed = false;
+	protected boolean keyPressed = false;
+	protected KeyCode keyCode;
 	protected boolean hover = false;
 	protected boolean focused = false;
 	
@@ -24,6 +28,9 @@ public abstract class CanvasNode implements ICanvasNode {
 	protected EventHandler<? super MouseEvent> onMouseReleased;
 	protected EventHandler<? super MouseEvent> onMouseMoved;
 	protected EventHandler<? super ScrollEvent> onScroll;
+	protected EventHandler<? super KeyEvent> onKeyPressed;
+	protected EventHandler<? super KeyEvent> onKeyReleased;
+	protected EventHandler<? super KeyEvent> onKeyTyped;
 	
 	@Override
 	public void setHover(boolean hover) {
@@ -33,11 +40,24 @@ public abstract class CanvasNode implements ICanvasNode {
 		}
 	}
 	
-	@Override
-	public void setPressed(boolean pressed) {		
+	protected void setPressed(boolean pressed) {		
 		this.pressed = pressed;
 		if (!enabled) {
 			this.pressed = false;
+		}
+	}
+	
+	protected void setKeyPressed(boolean keyPressed) {		
+		this.keyPressed = keyPressed;
+		if (!enabled) {
+			this.keyPressed = false;
+		}
+	}
+	
+	protected void setKeyCode(KeyCode keyCode) {		
+		this.keyCode = keyCode;
+		if (!enabled) {
+			this.keyCode = KeyCode.UNDEFINED;
 		}
 	}
 	
@@ -49,6 +69,16 @@ public abstract class CanvasNode implements ICanvasNode {
 	@Override
 	public boolean pressed() {
 		return pressed;
+	}
+	
+	@Override
+	public boolean keyPressed() {
+		return keyPressed;
+	}
+	
+	@Override
+	public KeyCode keyCode() {
+		return keyCode;
 	}
 	
 	@Override
@@ -172,6 +202,35 @@ public abstract class CanvasNode implements ICanvasNode {
 	}
 
 	@Override
+	public void onKeyPressed(KeyEvent e) {
+		setKeyPressed(true);
+		setKeyCode(e.getCode());
+		if (onKeyPressed == null || !enabled) {
+			return;
+		}
+		onKeyPressed.handle(e);
+	}
+	
+	@Override
+	public void onKeyReleased(KeyEvent e) {
+		if (onKeyReleased == null || !enabled) {
+			return;
+		}
+		onKeyReleased.handle(e);
+	}
+
+	@Override
+	public void onKeyTyped(KeyEvent e) {
+		if (onKeyTyped == null || !enabled || !pressed) {
+			setKeyPressed(false);
+			setKeyCode(e.getCode());
+			return;
+		}
+		setKeyPressed(false);
+		onKeyTyped.handle(e);
+	}
+	
+	@Override
 	public void setOnMouseDragged(EventHandler<? super MouseEvent> e) {
 		onMouseDragged = e;
 	}
@@ -209,6 +268,21 @@ public abstract class CanvasNode implements ICanvasNode {
 	@Override
 	public void setOnScroll(EventHandler<? super ScrollEvent> e) {
 		onScroll = e;
+	}
+	
+	@Override
+	public void setOnKeyPressed(EventHandler<? super KeyEvent> e) {
+		onKeyPressed = e;
+	}
+	
+	@Override
+	public void setOnKeyReleased(EventHandler<? super KeyEvent> e) {
+		onKeyReleased = e;
+	}
+
+	@Override
+	public void setOnKeyTyped(EventHandler<? super KeyEvent> e) {
+		onKeyTyped = e;
 	}
 
 	@Override
