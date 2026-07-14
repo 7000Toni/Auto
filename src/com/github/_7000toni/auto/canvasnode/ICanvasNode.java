@@ -1,7 +1,6 @@
 package com.github._7000toni.auto.canvasnode;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -34,8 +33,6 @@ public interface ICanvasNode {
 	public void setHover(boolean hover);
 	public boolean hover();
 	public boolean pressed();
-	public boolean keyPressed();
-	public KeyCode keyCode();
 	public boolean onNode(double x, double y);	
 	public void draw();
 	public GraphicsContext graphicsContext();

@@ -126,8 +126,7 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 			s.setTitle(mr.data().name());
 			ChartPane c = new ChartPane(s, 1280, 720, mr.data(), true, mr, this);
 			Scene scene = new Scene(c);	
-			//scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().hsb().keyPressed(ev));
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
+			scene.addEventFilter(KeyEvent.ANY, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
 			s.show();
 		});

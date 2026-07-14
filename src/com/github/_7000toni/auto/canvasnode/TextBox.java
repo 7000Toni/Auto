@@ -1,8 +1,11 @@
 package com.github._7000toni.auto.canvasnode;
+import java.util.ArrayList;
+
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.Chart;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,6 +19,8 @@ public class TextBox extends CanvasNode {
 	protected IVanGogh vg = null;
 	protected InputType type;
 	protected boolean dynamicSize;
+	protected ArrayList<Double> widths = new ArrayList<Double>();
+	protected double mgn = 2;
 	
 	public enum InputType {
 		ANY(0),		
@@ -56,14 +61,17 @@ public class TextBox extends CanvasNode {
 		this.textYOffset = textYOffset;
 		this.type = type;
 		this.dynamicSize = dynamicSize;
+		setOnKeyTyped(e -> defaultOnKeyTyped(e));
 		setOnKeyPressed(e -> defaultOnKeyPressed(e));
 	}
 	
 	public void calculateOffsets(Font font) {
 		Text t = new Text(text);
 		t.setFont(font);
+		width = t.getLayoutBounds().getWidth() + mgn*2;
+		width = width<20?20:width;
 		textXOffset = (width - t.getLayoutBounds().getWidth()) / 2;
-		textYOffset = font.getSize() + (height - t.getLayoutBounds().getHeight()) / 2; 
+		textYOffset = font.getSize() + (height - t.getLayoutBounds().getHeight()) / 2; 		
 	}
 	
 	public double textXOffset() {
@@ -152,22 +160,22 @@ public class TextBox extends CanvasNode {
 	
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - mgn));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn);
 		gc.setFont(oldFont);
 	}
 	
 	public void alternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - mgn));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn);
 		gc.setFont(oldFont);
 	}
 	
@@ -176,14 +184,14 @@ public class TextBox extends CanvasNode {
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn);
 	}
 	
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn);
 	}
 	
 	@Override
@@ -196,10 +204,21 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void defaultOnKeyPressed(KeyEvent e) {
-		keyCode = e.getCode();
-		if (keyCode.isLetterKey() || keyCode.isDigitKey() || keyCode.isKeypadKey() || keyCode.isWhitespaceKey()) {
-			text += keyCode.getChar();
-			System.out.println(text);
+		KeyCode keyCode = e.getCode();
+		if (keyCode == KeyCode.BACK_SPACE && !text.isEmpty()) {			
+			text = text.substring(0, text.length() - 1);
+			widths.removeLast();
+		}
+	}
+	
+	public void defaultOnKeyTyped(KeyEvent e) {
+		String s = e.getCharacter();
+		Text t = new Text(s);
+		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, height - mgn));
+		char c = s.charAt(0);
+		if (type == InputType.ANY && c > 31 && c < 127|| (type == InputType.DOUBLE && (c == 46 && !text.contains(".") || c > 47 && c < 58)) || type == InputType.INT && c > 47 && c < 58) {
+			widths.add(t.getLayoutBounds().getWidth());
+			text += c;
 		}
 	}
 }

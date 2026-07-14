@@ -163,7 +163,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		chtDataMargin = CHT_MARGIN + fontSize;
 		setEventHandlers();		
 		thp = new TradeHistoryPlotter(this);
-		tb = new TextBox(gc, 100, 50, 50, 50, null, TextBox.InputType.ANY, true);
+		tb = new TextBox(gc, 100, 20, 50, 50, null, TextBox.InputType.DOUBLE, true);
 		sceneGraph.addNode(new TNode<ICanvasNode>(tb, chartNode));
 		setOnKeyPressed(e -> {
 			c.hsb().onKeyPressed(e);
