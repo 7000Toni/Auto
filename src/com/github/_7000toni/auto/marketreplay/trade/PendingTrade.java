@@ -4,9 +4,9 @@ public class PendingTrade implements ITrade {
 	private boolean limit;
 	private boolean buy;
 	private double price;
-	private double volume;
+	private int volume;
 	
-	public PendingTrade(boolean limit, boolean buy,	double price, double volume) {
+	public PendingTrade(boolean limit, boolean buy,	double price, int volume) {
 		this.limit = limit;
 		this.buy = buy;
 		this.price = price;
@@ -26,7 +26,7 @@ public class PendingTrade implements ITrade {
 		return price;
 	}
 	
-	public double volume() {
+	public int volume() {
 		return volume;
 	}
 	
@@ -42,7 +42,7 @@ public class PendingTrade implements ITrade {
 		this.price = price;
 	}
 	
-	public void setVolume(double volume) {
+	public void setVolume(int volume) {
 		this.volume = volume;
 	}
 }

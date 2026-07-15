@@ -2,8 +2,8 @@ package com.github._7000toni.auto.chart;
 
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
@@ -18,8 +18,7 @@ public class ChartMarketReplayButtons {
 	private ChartNode chart;
 	private CanvasButton buy;
 	private CanvasButton sell;
-	private CanvasNumberChooser volUnits;
-	private CanvasNumberChooser volTens;
+	private TextBox txtVolume;
 	
 	private TradeButtons tradeButs;
 	private CanvasButton limitOrder;
@@ -40,22 +39,19 @@ public class ChartMarketReplayButtons {
 		double chartWidth = chart.width();
 		
 		double bw = 40;
-		double ncw = 20;
-		double bh = 30;
+		double bh = 25;
 		double mgn = 5;
 		double initx = ChartNode.CHT_MARGIN + ChartNode.INFO_MARGIN;
 		double inity = 30;		
 		
 		sell = new CanvasButton(gc, bw, bh, initx, inity, "SELL", 9, fontSize + 7);
-		sell.setVanGogh(cbvg.sellVG(sell));
-		buy = new CanvasButton(gc, bw, bh, initx + bw + mgn + ncw + mgn + ncw + mgn, inity, "BUY", 9, fontSize + 7);
-		buy.setVanGogh(cbvg.buyVG(buy));
+		sell.setVanGogh(cbvg.sellVG(sell));	
 		
-		double h = CanvasNumberChooser.getHeightForDesiredNumberHight(bh);
-		double y = bh - CanvasNumberChooser.buttonHeight(h);
-		volTens = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn, y);
-		volUnits = new CanvasNumberChooser(gc, ncw, h, initx + bw + mgn + ncw + mgn, y);
-		volUnits.setValue(1);
+		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.INT, true);
+		txtVolume.setOnKeyPressed(e -> {txtVolKeyPressedEvent();});
+		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});
+		buy = new CanvasButton(gc, bw, bh, txtVolume.width() + ChartNode.CHT_MARGIN, inity, "BUY", 9, fontSize + 7);
+		buy.setVanGogh(cbvg.buyVG(buy));
 		
 		tradeButs = new TradeButtons();
 		
@@ -90,6 +86,21 @@ public class ChartMarketReplayButtons {
 		pbn = new PendingButtonsNode();
 	}
 	
+	private void txtVolKeyPressedEvent() {
+		if (txtVolume.text().equals("") || tradeVolume() == 0) {
+			txtVolume.setText("1");
+			txtVolume.setCursorPos(1);
+		}
+	}
+	
+	private void txtVolKeyTypedEvent() {
+		int val = Integer.parseInt(txtVolume.text());
+		if (val > 10000000) {
+			txtVolume.setText("10000000");
+			txtVolume.setCursorPos(8);
+		}
+	}
+	
 	public void disablePendingOrderButtons() {		
 		limitOrder.disable(); 
 		stopOrder.disable();
@@ -102,23 +113,6 @@ public class ChartMarketReplayButtons {
 	
 	private void setMouseEvents() {
 		MarketReplay mr = chart.marketReplay();		
-		
-		volUnits.setOnMouseClicked(e -> {
-			if (tradeVolume() == 0) {
-				volUnits.incrementValue();
-			}
-		});
-		volTens.setOnMouseClicked(e -> {
-			if (tradeVolume() == 0) {
-				volUnits.incrementValue();
-			}
-		});
-		volUnits.setOnMouseMoved(e -> {
-			chart.setFocusedChart(false);
-		});
-		volTens.setOnMouseMoved(e -> {
-			chart.setFocusedChart(false);
-		});
 		
 		sell.setOnMouseClicked(e -> {
 			if (mr.trade().closed()) {
@@ -294,9 +288,8 @@ public class ChartMarketReplayButtons {
 		});
 	}
 	
-	private double tradeVolume() {
-		CanvasNumberChooser[] c = {volTens, volUnits};
-		return CanvasNumberChooser.number(c);
+	private int tradeVolume() {
+		return Integer.parseInt(txtVolume.text());
 	}
 	
 	private void addToSceneGraph() {
@@ -304,10 +297,9 @@ public class ChartMarketReplayButtons {
 		chart.chart().varLock().lock();
 		try {
 			sceneGraph.addNode(new TNode<ICanvasNode>(pbn, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volTens, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(volUnits, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(txtVolume, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chartNode()));
 			for (CanvasLabel b : tradeButs.buttons()) {
@@ -396,11 +388,13 @@ public class ChartMarketReplayButtons {
 		}
 	}
 	
-	public void draw() {		
-		buy.draw();
+	public void draw() {				
 		sell.draw();
-		volTens.draw();
-		volUnits.draw();	
+		txtVolume.draw();
+		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
+		buy.draw();
+		/*volTens.draw();
+		volUnits.draw();*/	
 		pbn.draw();		
 		tradeButs.sl().draw();
 		tradeButs.cancelSL().draw();		

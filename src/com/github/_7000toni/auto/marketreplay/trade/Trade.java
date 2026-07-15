@@ -27,7 +27,7 @@ public class Trade implements ITrade {
 	protected boolean buy;
 	protected boolean closed = false;
 	protected boolean closedByRewind = false;
-	protected double volume;
+	protected int volume;
 	protected double profit;
 	protected boolean composite = false;
 	protected boolean partial = false;
@@ -82,11 +82,11 @@ public class Trade implements ITrade {
 		closed = true;
 	}
 	
-	public Trade(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+	public Trade(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, int volume) {
 		constructorStuff(data, currentPriceIndex, sl, tp, buy, volume);
 	}
 	
-	public Trade(Dataset data, int currentPriceIndex, boolean buy, double volume) {
+	public Trade(Dataset data, int currentPriceIndex, boolean buy, int volume) {
 		constructorStuff(data, currentPriceIndex, -1, -1, buy, volume);
 	}
 	
@@ -110,7 +110,7 @@ public class Trade implements ITrade {
 		this.partialVol = t.partialVol;	
 	}
 	
-	private void constructorStuff(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, double volume) {
+	private void constructorStuff(Dataset data, int currentPriceIndex, double sl, double tp, boolean buy, int volume) {
 		this.data = data;
 		this.entryPrice = data.tickData().get(currentPriceIndex).price();
 		this.entryIndices.add(new EntryPair(volume, currentPriceIndex));		
@@ -346,7 +346,7 @@ public class Trade implements ITrade {
 		return buy;
 	}
 	
-	public double volume() {
+	public int volume() {
 		return volume;
 	}
 	

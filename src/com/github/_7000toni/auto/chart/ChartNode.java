@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
-import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
@@ -127,7 +126,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public ChartNode(double width, double height, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {
 		constructorStuff(width, height, stage, data, c, sceneGraph);
 	}
-	TextBox tb;
+	
 	private void constructorStuff(double widthParam, double heightParam, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {		
 		this.width = widthParam;
 		this.height = heightParam;
@@ -163,8 +162,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		chtDataMargin = CHT_MARGIN + fontSize;
 		setEventHandlers();		
 		thp = new TradeHistoryPlotter(this);
-		tb = new TextBox(c.stage(), gc, 100, 20, 50, 50, null, TextBox.InputType.DOUBLE, true);
-		sceneGraph.addNode(new TNode<ICanvasNode>(tb, chartNode));
 		setOnKeyPressed(e -> {
 			c.hsb().onKeyPressed(e);
 		});
@@ -998,7 +995,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawCandleStick(lastCandlestick, xPos, yPos);			
 		}		
 	}
-	
+	//TODO
 	private void drawCurrentPriceBox() {
 		int size = data.tickDataSize(replayMode).get();
 		if (size < 2) {
@@ -1012,7 +1009,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		gc.setFill(Color.SLATEBLUE);		
 		gc.fillRoundRect(width + CHT_MARGIN, yPos - fontSize/2, c.priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.setFill(Color.WHITE);
-		gc.fillText(((Double)(price)).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
+		gc.fillText(((Double)(Round.round(price, data.numDecimalPts()))).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
 	
 	private void drawCurrentPriceLine() {	
@@ -1216,7 +1213,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			c2++;
 			System.out.printf("REDRAW\ttime: %f\tave: %f\trange: %d\n", tm, t/c2, endIndex - startIndex);
 		}
-		tb.draw();
 	}
 	
 	public void drawChart() {		

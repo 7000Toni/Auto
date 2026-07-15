@@ -655,7 +655,7 @@ public class ChartButtonVanGoghs {
 			order.setY(entryY - c.fontSize());
 			order.setText(null);
 			order.calculateOffsets(gc.getFont());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, ((Double)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, ((Integer)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
 		};
 	}
 	

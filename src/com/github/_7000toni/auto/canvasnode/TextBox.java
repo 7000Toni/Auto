@@ -61,7 +61,7 @@ public class TextBox extends CanvasNode {
 		this.height = height;
 		this.x = x;
 		this.y = y;
-		if (text != null) {
+		if (text != null && (type == InputType.DOUBLE && validateDouble(text)) || (type == InputType.INT && validateInt(text)) || type == InputType.ANY) {
 			this.text = text;
 		} else {
 			this.text = "";
@@ -71,19 +71,35 @@ public class TextBox extends CanvasNode {
 		this.type = type;
 		this.dynamicSize = dynamicSize;
 		this.roughCharWidth = getTextWidth("5");
-		setOnKeyTyped(e -> defaultOnKeyTyped(e));
-		setOnKeyPressed(e -> defaultOnKeyPressed(e));
-		setOnMousePressed(e -> defaultOnMousePressed(e));
-		setOnMouseMoved(e -> defaultOnMouseMoved(e));
-		setOnMouseExited(e -> defaultOnMouseExited(e));
+	}
+	
+	private boolean validateInt(String text) {
+		try {
+			Integer.parseInt(text);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	private boolean validateDouble(String text) {		
+		try {
+			Double.parseDouble(text);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	public void calculateOffsets(Font font) {
 		Text t = new Text(text);
 		t.setFont(font);
-		width = t.getLayoutBounds().getWidth() + mgn*2;
+		if (dynamicSize) {
+			width = t.getLayoutBounds().getWidth() + mgn*2;
+		}
 		width = width<20?20:width;
 		textXOffset = (width - t.getLayoutBounds().getWidth()) / 2;
+		textXOffset = textXOffset<mgn?mgn:textXOffset;
 		textYOffset = font.getSize() + (height - t.getLayoutBounds().getHeight()) / 2; 		
 	}
 	
@@ -96,7 +112,22 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void setText(String text) {
-		this.text = text;
+		switch (type) {
+			case ANY:
+				this.text = text;
+				break;
+			case DOUBLE:
+				if (validateDouble(text)) {
+					this.text = text;
+				}
+				break;
+			case INT:
+				if (validateInt(text)) {
+					this.text = text;
+				}
+				break;
+			default:
+		}
 	}
 	
 	public void setTextXOffset(double textXOffset) {
@@ -153,7 +184,7 @@ public class TextBox extends CanvasNode {
 	
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - mgn*2));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.MEDIUM, height - mgn*2));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
@@ -164,7 +195,7 @@ public class TextBox extends CanvasNode {
 	
 	public void alternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - mgn*2));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.MEDIUM, height - mgn*2));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
@@ -191,8 +222,19 @@ public class TextBox extends CanvasNode {
 		double midx = x + textXOffset;
 		midx += getTextWidth(text.substring(0, cursorPos));	
 		midx = (int)(midx)+0.5;
-		gc.setStroke(Color.WHITE);
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.BLACK);
+		} else {
+			gc.setStroke(Color.WHITE);
+		}
 		gc.strokeLine(midx, y+mgn, midx, y+height-mgn);
+	}
+	
+	public void setCursorPos(int cursorPos) {
+		int l = text.length();
+		cursorPos = cursorPos<0?0:cursorPos;
+		cursorPos = cursorPos>l?l:cursorPos;
+		this.cursorPos = cursorPos;
 	}
 	
 	@Override
@@ -207,7 +249,7 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
-	public void defaultOnKeyPressed(KeyEvent e) {
+	private void defaultOnKeyPressed(KeyEvent e) {
 		KeyCode keyCode = e.getCode();
 		switch(keyCode) {
 			case KeyCode.BACK_SPACE: 
@@ -240,7 +282,7 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
-	public void defaultOnKeyTyped(KeyEvent e) {
+	private void defaultOnKeyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
 		if (type == InputType.ANY && c > 31 && c < 127|| (type == InputType.DOUBLE && (c == 46 && !text.contains(".") || c > 47 && c < 58)) || type == InputType.INT && c > 47 && c < 58) {
 			int l = text.length();
@@ -251,15 +293,15 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
-	public void defaultOnMousePressed(MouseEvent e) {
-		cursorPos = calculateCursorPos(e.getX());
+	private void defaultOnMousePressed(MouseEvent e) {
+		setCursorPos(calculateCursorPos(e.getX()));
 	}
 	
-	public void defaultOnMouseMoved(MouseEvent e) {
+	private void defaultOnMouseMoved(MouseEvent e) {
 		stage.getScene().setCursor(Cursor.TEXT);
 	}
 	
-	public void defaultOnMouseExited(MouseEvent e) {
+	private void defaultOnMouseExited(MouseEvent e) {
 		stage.getScene().setCursor(Cursor.DEFAULT);
 	}
 	
@@ -274,7 +316,7 @@ public class TextBox extends CanvasNode {
 	
 	private double getTextWidth(String text) {
 		Text t = new Text(text);
-		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, height - mgn*2));
+		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.MEDIUM, height - mgn*2));
 		return t.getLayoutBounds().getWidth();
 	}
 	
@@ -297,6 +339,55 @@ public class TextBox extends CanvasNode {
 			}
 		};
 		cursorAnim.start();
+	}	
+
+	@Override
+	public void onMouseMoved(MouseEvent e) {
+		NodeChecks.mouseNodeHoverCheck(this, e.getX(), e.getY());
+		defaultOnMouseMoved(e);
+		if (onMouseMoved == null || !enabled) {
+			return;
+		}		
+		onMouseMoved.handle(e);
+	}
+	
+	@Override
+	public void onMouseExited(MouseEvent e) {
+		setPressed(false);
+		setHover(false);
+		defaultOnMouseExited(e);
+		if (onMouseExited == null || !enabled) {
+			return;
+		}		
+		onMouseExited.handle(e);
+	}
+	
+	@Override
+	public void onMousePressed(MouseEvent e) {
+		setPressed(true);
+		defaultOnMousePressed(e);
+		if (onMousePressed == null || !enabled) {
+			return;
+		}		
+		onMousePressed.handle(e);
+	}
+	
+	@Override
+	public void onKeyPressed(KeyEvent e) {
+		defaultOnKeyPressed(e);
+		if (onKeyPressed == null || !enabled) {
+			return;
+		}		
+		onKeyPressed.handle(e);
+	}
+
+	@Override
+	public void onKeyTyped(KeyEvent e) {
+		defaultOnKeyTyped(e);
+		if (onKeyTyped == null || !enabled) {
+			return;
+		}		
+		onKeyTyped.handle(e);
 	}
 	
 	@Override

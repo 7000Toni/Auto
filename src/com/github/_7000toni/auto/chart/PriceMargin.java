@@ -96,7 +96,7 @@ public class PriceMargin extends CanvasNode{
 			gc.setFill(Color.BLACK);
 		}
 		while (index > ChartNode.CHT_MARGIN + gc.getFont().getSize() / 3) {
-			gc.fillText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts() + 1))).toString(), pricePos, index + pricePosYMargin, width - EXTRA_SPACE);
+			gc.fillText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts()))).toString(), pricePos, index + pricePosYMargin, width - EXTRA_SPACE);
 			index -= spacing;
 			i++;
 		}			
