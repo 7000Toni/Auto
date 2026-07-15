@@ -48,11 +48,14 @@ public class CanvasEventFilter {
 						cn.onMouseReleased(me);
 						cw.setDragging(false);
 					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
-						if (lastFocused != null) {
+						if (lastFocused == null) {
+							cn.setFocused(true);
+							lastFocused = cn;
+						} else if (lastFocused != null && !lastFocused.equals(cn)) {
 							lastFocused.setFocused(false);
-						}
-						cn.setFocused(true);
-						lastFocused = cn;
+							cn.setFocused(true);
+							lastFocused = cn;
+						}						
 						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {
 						cn.onMouseMoved(me);
