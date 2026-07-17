@@ -3,6 +3,8 @@ package com.github._7000toni.auto.canvasnode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Cursor;
@@ -29,6 +31,8 @@ public class TextBox extends CanvasNode {
 	protected int cursorPos;
 	protected boolean drawCursor = false;
 	protected double roughCharWidth;
+	protected boolean border;
+	protected boolean fillBorder;
 	
 	public enum InputType {
 		ANY(0),		
@@ -42,19 +46,19 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
-	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, InputType type, boolean dynamicSize) {
-		constructorStuff(stage, gc, width, height, x, y, text, textXOffset, textYOffset, type, dynamicSize);
+	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, InputType type, boolean dynamicSize, boolean border, boolean fillBorder) {
+		constructorStuff(stage, gc, width, height, x, y, text, textXOffset, textYOffset, type, dynamicSize, border, fillBorder);
 	}
 	
-	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, InputType type, boolean dynamicSize) {
-		constructorStuff(stage, gc, width, height, x, y, text, 0, 0, type, dynamicSize);
+	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, InputType type, boolean dynamicSize, boolean border, boolean fillBorder) {
+		constructorStuff(stage, gc, width, height, x, y, text, 0, 0, type, dynamicSize, border, fillBorder);
 	}
 	
-	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, InputType type, boolean dynamicSize) {
-		constructorStuff(stage, gc, width, height, x, y, null, 0, 0, type, dynamicSize);
+	public TextBox(Stage stage, GraphicsContext gc, double width, double height, double x, double y, InputType type, boolean dynamicSize, boolean border, boolean fillBorder) {
+		constructorStuff(stage, gc, width, height, x, y, null, 0, 0, type, dynamicSize, border, fillBorder);
 	}
 	
-	private void constructorStuff(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, InputType type, boolean dynamicSize) {
+	private void constructorStuff(Stage stage, GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset, InputType type, boolean dynamicSize, boolean border, boolean fillBorder) {
 		this.stage = stage;
 		this.gc = gc;
 		this.width = width;
@@ -70,7 +74,9 @@ public class TextBox extends CanvasNode {
 		this.textYOffset = textYOffset;
 		this.type = type;
 		this.dynamicSize = dynamicSize;
-		this.roughCharWidth = getTextWidth("5");
+		this.border = border;
+		this.fillBorder = border?fillBorder:false;
+		this.roughCharWidth = getTextWidth("5");		
 	}
 	
 	private boolean validateInt(String text) {
@@ -147,7 +153,16 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void setColoursRect() {
-		if (Chart.darkMode().get()) {
+		if (!fillBorder) {
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}
+		}
+		if (!border) {
+			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));			
+		} else if (Chart.darkMode().get()) {
 			gc.setFill(Color.WHITE);
 		} else {
 			gc.setFill(Color.BLACK);
@@ -158,7 +173,8 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void setColoursText() {
-		if (Chart.darkMode().get()) {
+		boolean dm = Chart.darkMode().get(); 
+		if (!dm && !border || !dm && !fillBorder || dm && border && fillBorder) {
 			gc.setFill(Color.BLACK);
 		} else {
 			gc.setFill(Color.WHITE);
@@ -169,7 +185,14 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void setColoursAlt() {
-		if (Chart.darkMode().get()) {
+		if (!border) {
+			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));
+			if (Chart.darkMode().get()) {
+				gc.setStroke(Color.WHITE);
+			} else {
+				gc.setStroke(Color.BLACK);
+			}
+		} else if (Chart.darkMode().get()) {
 			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.WHITE);
 		} else {
@@ -182,12 +205,22 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
+	private void drawBorder() {
+		if (border && !fillBorder) {
+			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));
+		}
+		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		if (border && !fillBorder) {
+			gc.strokeRoundRect(x+0.5, y+0.5, width-1, height-1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		}
+	}
+	
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.MEDIUM, height - mgn*2));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		drawBorder();
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 		gc.setFont(oldFont);
@@ -198,7 +231,7 @@ public class TextBox extends CanvasNode {
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.MEDIUM, height - mgn*2));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		drawBorder();
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 		gc.setFont(oldFont);
 	}
@@ -206,7 +239,7 @@ public class TextBox extends CanvasNode {
 	public void defaultDraw(Font font) {
 		calculateOffsets(font);
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		drawBorder();
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 	}
@@ -214,7 +247,7 @@ public class TextBox extends CanvasNode {
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		drawBorder();
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 	}
 	
@@ -222,7 +255,8 @@ public class TextBox extends CanvasNode {
 		double midx = x + textXOffset;
 		midx += getTextWidth(text.substring(0, cursorPos));	
 		midx = (int)(midx)+0.5;
-		if (Chart.darkMode().get()) {
+		boolean dm = Chart.darkMode().get(); 
+		if (!dm && !border || !dm && !fillBorder || dm && border && fillBorder) {
 			gc.setStroke(Color.BLACK);
 		} else {
 			gc.setStroke(Color.WHITE);
@@ -251,10 +285,11 @@ public class TextBox extends CanvasNode {
 	
 	private void defaultOnKeyPressed(KeyEvent e) {
 		KeyCode keyCode = e.getCode();
+		int l;
 		switch(keyCode) {
 			case KeyCode.BACK_SPACE: 
 				if (!text.isEmpty()) {	
-					int l = text.length();
+					l = text.length();
 					String newText = text.substring(0, cursorPos-1<0?0:cursorPos-1);
 					newText += text.substring(cursorPos, l);
 					text = newText;
@@ -266,7 +301,7 @@ public class TextBox extends CanvasNode {
 				drawCursor = true;
 				break;
 			case KeyCode.RIGHT:
-				int l = text.length();
+				l = text.length();
 				cursorPos = cursorPos+1>l?l:cursorPos+1;
 				drawCursor = true;
 				break;
@@ -277,6 +312,14 @@ public class TextBox extends CanvasNode {
 			case KeyCode.END:
 				cursorPos = text.length();
 				drawCursor = true;
+				break;
+			case KeyCode.DELETE:
+				if (!text.isEmpty()) {	
+					l = text.length();
+					String newText = text.substring(0, cursorPos);
+					newText += text.substring(cursorPos+1>l?cursorPos:cursorPos+1, l);
+					text = newText;
+				}
 				break;
 			default:
 		}
@@ -332,7 +375,6 @@ public class TextBox extends CanvasNode {
 				long diff = (now - lastDraw) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= 500) {
 					drawCursor = !drawCursor;
-					gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
 					draw();
 					lastDraw = now;
 				}

@@ -57,6 +57,9 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 	private CanvasButton back;
 	private CanvasButton forward;
 	private CanvasButton live;
+	/*
+	private TextBox txtMoveTicks;
+	private TextBox txtSpeed;*/
 	
 	private CanvasNumberChooser bf1;
 	private CanvasNumberChooser bf2;
@@ -109,6 +112,9 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		numbers.add(s1);
 		numbers.add(s2);
 		numbers.add(s3);
+		/*
+		txtMoveTicks = new TextBox(stage, gc, 106, 40, 102, 40, "10000", TextBox.InputType.INT, false);
+		txtSpeed = new TextBox(stage, gc, 79, 40, 260, 40, "1", TextBox.InputType.INT, false);*/
 		
 		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
@@ -187,7 +193,9 @@ public class MarketReplayPane extends GridPane implements IScrollBarOwner, ICanv
 		sceneGraph.addNode(new TNode<ICanvasNode>(bf4, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(s1, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(s2, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(s3, sceneGraph.root()));			
+		sceneGraph.addNode(new TNode<ICanvasNode>(s3, sceneGraph.root()));	
+		/*sceneGraph.addNode(new TNode<ICanvasNode>(txtMoveTicks, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(txtSpeed, sceneGraph.root()));*/
 		
 		canvas.addEventFilter(Event.ANY, e -> {
 			(new CanvasEventFilter(this)).canvasEventFilter(e);
