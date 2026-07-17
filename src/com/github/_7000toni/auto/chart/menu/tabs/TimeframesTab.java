@@ -72,7 +72,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		enterPeriod = new CanvasLabel(gc, 290, 20, x + 5, y + 110, "ENTER PERIOD");
 		enterPeriod.setVanGogh(cmbvg.toggleVG(enterPeriod, addTicks, "ENTER THE NUMBER OF TICKS", "ENTER THE NUMBER OF MINUTES"));	
 		
-		txtPeriod = new TextBox(chart.stage(), gc, 143, 20, x + 5, y + 135, "2", TextBox.InputType.INT, false, true, false);
+		txtPeriod = new TextBox(chart.stage(), gc, 143, 20, x + 5, y + 135, "2", TextBox.InputType.ABS_INT, false, true, false);
 		setTextEvents();
 		
 		add = new CanvasButton(gc, 142, 20, x + 5, y + 135, "ADD");
@@ -227,7 +227,11 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	private void checkNumber() {
 		int p;
 		if (txtPeriod.text().equals("") || (p = Integer.parseInt(txtPeriod.text())) < 2) {
-			add.disable();
+			add.disable();			
+			return;
+		}
+		if (p > 43800) {
+			txtPeriod.setText("43800");
 			return;
 		}
 		for (Timeframe tf : chart.chartNode().data().timeframes()) {

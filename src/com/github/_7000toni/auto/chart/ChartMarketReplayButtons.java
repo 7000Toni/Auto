@@ -47,7 +47,7 @@ public class ChartMarketReplayButtons {
 		sell = new CanvasButton(gc, bw, bh, initx, inity, "SELL", 9, fontSize + 7);
 		sell.setVanGogh(cbvg.sellVG(sell));	
 		
-		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.INT, true, false, false);
+		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.ABS_INT, true, false, false);
 		txtVolume.setOnKeyPressed(e -> {txtVolKeyPressedEvent();});
 		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});
 		buy = new CanvasButton(gc, bw, bh, txtVolume.width() + ChartNode.CHT_MARGIN, inity, "BUY", 9, fontSize + 7);
@@ -89,7 +89,6 @@ public class ChartMarketReplayButtons {
 	private void txtVolKeyPressedEvent() {
 		if (txtVolume.text().equals("") || tradeVolume() == 0) {
 			txtVolume.setText("1");
-			txtVolume.setCursorPos(1);
 		}
 	}
 	
@@ -97,7 +96,6 @@ public class ChartMarketReplayButtons {
 		int val = Integer.parseInt(txtVolume.text());
 		if (val > 10000000) {
 			txtVolume.setText("10000000");
-			txtVolume.setCursorPos(8);
 		}
 	}
 	

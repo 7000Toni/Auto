@@ -37,7 +37,9 @@ public class TextBox extends CanvasNode {
 	public enum InputType {
 		ANY(0),		
 		INT(1),
-		DOUBLE(2);
+		ABS_INT(2),
+		DOUBLE(3),
+		ABS_DOUBLE(4);
 		
 		public final int index;
 		
@@ -65,7 +67,8 @@ public class TextBox extends CanvasNode {
 		this.height = height;
 		this.x = x;
 		this.y = y;
-		if (text != null && (type == InputType.DOUBLE && validateDouble(text)) || (type == InputType.INT && validateInt(text)) || type == InputType.ANY) {
+		if (text != null && ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && validateDouble(text)) ||
+				((type == InputType.INT || type == InputType.ABS_INT) && validateInt(text)) || type == InputType.ANY) {
 			this.text = text;
 		} else {
 			this.text = "";
@@ -80,7 +83,10 @@ public class TextBox extends CanvasNode {
 	}
 	
 	private boolean validateInt(String text) {
-		try {
+		if (text.contains("-") && type == InputType.ABS_INT) {
+			return false;
+		}
+		try {			
 			Integer.parseInt(text);
 			return true;
 		} catch (Exception e) {
@@ -88,7 +94,10 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
-	private boolean validateDouble(String text) {		
+	private boolean validateDouble(String text) {	
+		if (text.contains("-") && type == InputType.ABS_DOUBLE) {
+			return false;
+		}
 		try {
 			Double.parseDouble(text);
 			return true;
@@ -123,17 +132,20 @@ public class TextBox extends CanvasNode {
 				this.text = text;
 				break;
 			case DOUBLE:
+			case ABS_DOUBLE:
 				if (validateDouble(text)) {
 					this.text = text;
 				}
 				break;
 			case INT:
+			case ABS_INT:
 				if (validateInt(text)) {
 					this.text = text;
 				}
 				break;
 			default:
 		}
+		setCursorPos(this.text.length());
 	}
 	
 	public void setTextXOffset(double textXOffset) {
@@ -327,7 +339,9 @@ public class TextBox extends CanvasNode {
 	
 	private void defaultOnKeyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
-		if (type == InputType.ANY && c > 31 && c < 127|| (type == InputType.DOUBLE && (c == 46 && !text.contains(".") || c > 47 && c < 58)) || type == InputType.INT && c > 47 && c < 58) {
+		if (type == InputType.ANY && c > 31 && c < 127 || ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && c == 46 && !text.contains(".") 
+				|| c > 47 && c < 58) || (type == InputType.INT || type == InputType.ABS_INT) && c > 47 && c < 58 || 
+				(type == InputType.DOUBLE || type == InputType.INT) && c == 45 && text.length() == 0) {
 			int l = text.length();
 			String newText = text.substring(0, cursorPos) + c;
 			newText += text.substring(cursorPos, l);

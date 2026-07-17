@@ -111,6 +111,10 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
+	public boolean functions() {
+		return functions;
+	}
+	
 	public Chart chart() {
 		return chart;
 	}

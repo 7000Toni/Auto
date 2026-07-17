@@ -47,6 +47,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton saveMRHst;
 	
 	private BooleanProperty mrRecentlySaved = new SimpleBooleanProperty(false);
+	private boolean replayMode = false;
+	private boolean resetSceneGraph = false;
 	
 	public GeneralFunctionsTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
@@ -185,11 +187,13 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		toggleHst.draw();
 		toggleSkipDraw.draw();
 		toggleCrosshair.draw();
-		marketReplay.draw();
-		replayShortcut.draw();
-		saveHst.draw();
-		toggleShortReport.draw();
-		saveMRHst.draw();
+		if (replayMode) {
+			marketReplay.draw();
+			replayShortcut.draw();
+			saveHst.draw();
+			toggleShortReport.draw();
+			saveMRHst.draw();
+		}
 		drawNetProfit();
 	}
 	
@@ -215,11 +219,13 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleCrosshair, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(marketReplay, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
-		sceneGraph.addNode(new TNode<ICanvasNode>(toggleShortReport, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(saveMRHst, menuNode));
+		if (replayMode) {
+			sceneGraph.addNode(new TNode<ICanvasNode>(marketReplay, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleShortReport, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(saveMRHst, menuNode));
+		}
 	}
 	
 	private void disableReplayButtons() {
@@ -237,6 +243,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void setReplayMode(boolean replayMode) {
+		this.replayMode = replayMode;
+		this.resetSceneGraph = true;
 		if (replayMode) {
 			enableReplayButtons();			
 		} else {
@@ -269,7 +277,11 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void draw() {		
+	public void draw() {	
+		if (chart.chartMenu().functions() && resetSceneGraph) {
+			chart.chartMenu().setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			resetSceneGraph = false;
+		}
 		drawGeneralFunctionsMenu();
 	}
 
