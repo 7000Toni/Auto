@@ -1,4 +1,5 @@
 package com.github._7000toni.auto.chart.menu;
+import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.chart.Chart;
@@ -77,14 +78,14 @@ public class ChartMenuButtonVanGoghs {
 		};
 	}
 	
-	public IVanGogh toggleVG(CanvasButton cb, ReadOnlyBooleanProperty condition, String text1, String text2) {
+	public IVanGogh toggleVG(CanvasLabel cl, ReadOnlyBooleanProperty condition, String text1, String text2) {
 		return (x, y, gc) -> {
 			if (condition.get()) {
-				cb.setText(text1);	
+				cl.setText(text1);	
 			} else {
-				cb.setText(text2);
+				cl.setText(text2);
 			}
-			cb.defaultDraw(gc.getFont());
+			cl.defaultDraw(gc.getFont());
 		};
 	}	
 	

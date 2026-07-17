@@ -254,14 +254,14 @@ public class TextBox extends CanvasNode {
 	public void drawCursor() {
 		double midx = x + textXOffset;
 		midx += getTextWidth(text.substring(0, cursorPos));	
-		midx = (int)(midx)+0.5;
+		midx = (int)(midx>x+width?x+width-3:midx)+0.5;
 		boolean dm = Chart.darkMode().get(); 
 		if (!dm && !border || !dm && !fillBorder || dm && border && fillBorder) {
 			gc.setStroke(Color.BLACK);
 		} else {
 			gc.setStroke(Color.WHITE);
 		}
-		gc.strokeLine(midx, y+mgn, midx, y+height-mgn);
+		gc.strokeLine(midx, y+mgn*2, midx, y+height-mgn*2);
 	}
 	
 	public void setCursorPos(int cursorPos) {

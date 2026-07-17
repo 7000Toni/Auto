@@ -16,7 +16,6 @@ public class Timeframe {
 	private ArrayList<DataPair> tickData = null;
 	private boolean base = false;
 	private boolean tickBased;
-	private boolean staticTF;
 	private int period = -1;
 	
 	public Timeframe(Dataset dataSet, boolean base) {
@@ -26,15 +25,14 @@ public class Timeframe {
 		this.data = dataSet.m1Candles();
 		this.tickData = dataSet.tickData();
 		this.period = 1;
-		this.staticTF = true;
 		this.tickBased = true;
 	}
 	
-	public Timeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
-		constructorStuff(dataSet, tickBased, staticTF, period);
+	public Timeframe(Dataset dataSet, boolean tickBased, int period) {
+		constructorStuff(dataSet, tickBased, period);
 	}
 	
-	private void constructorStuff(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
+	private void constructorStuff(Dataset dataSet, boolean tickBased, int period) {
 		this.dataSet = dataSet;
 		this.tickBased = tickBased;
 		this.period = period;
@@ -173,10 +171,6 @@ public class Timeframe {
 	
 	public boolean tickBased() {
 		return tickBased;
-	}
-	
-	public boolean staticTF() {
-		return staticTF;
 	}
 	
 	public int period() {

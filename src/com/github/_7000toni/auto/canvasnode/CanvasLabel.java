@@ -38,6 +38,8 @@ public class CanvasLabel extends CanvasNode {
 		t.setFont(font);
 		textXOffset = (width - t.getLayoutBounds().getWidth()) / 2;
 		textYOffset = font.getSize() + (height - t.getLayoutBounds().getHeight()) / 2; 
+		textXOffset = textXOffset<0?0:textXOffset;
+		textYOffset = textYOffset<0?0:textYOffset;
 	}
 	
 	public double textXOffset() {

@@ -840,7 +840,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		for (Line l : data.lines()) {
 			if (l.price() >= trueLowest && l.price() <= trueHighest) {
 				double trueRange = trueHighest - trueLowest;
-				double y = height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height);
+				double y = (int)(height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height))+0.5;
 				if (l.highlighted()) {
 					gc.setFill(Color.RED);
 					gc.setStroke(Color.RED);

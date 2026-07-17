@@ -391,14 +391,14 @@ public class Dataset {
 		}
 	}
 	
-	public boolean addTimeframe(Dataset dataSet, boolean tickBased, boolean staticTF, int period) {
+	public boolean addTimeframe(Dataset dataSet, boolean tickBased, int period) {
 		String name = Timeframe.determineName(tickBased, period);
 		for (Timeframe tf : timeframes) {
 			if (tf.name().equals(name)) {
 				return false;
 			}
 		}
-		timeframes.add(new Timeframe(dataSet, tickBased, staticTF, period));
+		timeframes.add(new Timeframe(dataSet, tickBased, period));
 		return true;
 	}
 	

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.button.CanvasNumberChooser;
 import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
@@ -16,6 +16,8 @@ import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 
 public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
@@ -25,18 +27,12 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasLabel timeFramesFunctions;
 	private CanvasButton ticks;
 	private CanvasButton minutes;
-	private CanvasButton staticTF;
-	private CanvasButton dynamicTF;
-	private CanvasNumberChooser tenThousands;
-	private CanvasNumberChooser thousands;
-	private CanvasNumberChooser hundreds;
-	private CanvasNumberChooser tens;
-	private CanvasNumberChooser units;
+	private CanvasLabel enterPeriod;
+	private TextBox txtPeriod;
 	private CanvasButton add;
 	private CanvasLabel added;
 	
-	private boolean addTicks = true;
-	private boolean addStaticTF = true;
+	private BooleanProperty addTicks = new SimpleBooleanProperty(true);
 	private ArrayList<TimeframeButton> tfButtons = new ArrayList<TimeframeButton>();
 	
 	public TimeframesTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
@@ -62,7 +58,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		ticks.setOnMouseClicked(e -> {
 			ticks.setOn(true);
 			minutes.setOn(false);
-			addTicks = true;
+			addTicks.set(true);
 		});		
 		
 		minutes = new CanvasButton(gc, 142, 20, x + 153, y + 85, "MINUTES");
@@ -70,68 +66,45 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		minutes.setOnMouseClicked(e -> {
 			minutes.setOn(true);
 			ticks.setOn(false);
-			addTicks = false;
+			addTicks.set(false);
 		});		
 		
-		staticTF = new CanvasButton(gc, 142, 20, x + 5, y + 110, "STATIC");
-		staticTF.setVanGogh(cmbvg.menuButtonVG(staticTF, gc.getFont().getSize()));
-		staticTF.setOnMouseClicked(e -> {
-			staticTF.setOn(true);
-			dynamicTF.setOn(false);
-			addStaticTF = true;
-		});		
+		enterPeriod = new CanvasLabel(gc, 290, 20, x + 5, y + 110, "ENTER PERIOD");
+		enterPeriod.setVanGogh(cmbvg.toggleVG(enterPeriod, addTicks, "ENTER THE NUMBER OF TICKS", "ENTER THE NUMBER OF MINUTES"));	
 		
-		dynamicTF = new CanvasButton(gc, 142, 20, x + 153, y + 110, "DYNAMIC");
-		dynamicTF.setVanGogh(cmbvg.menuButtonVG(dynamicTF, gc.getFont().getSize()));
-		dynamicTF.setOnMouseClicked(e -> {
-			dynamicTF.setOn(true);
-			staticTF.setOn(false);
-			addStaticTF = false;
-		});		
+		txtPeriod = new TextBox(chart.stage(), gc, 143, 20, x + 5, y + 135, "2", TextBox.InputType.INT, false, true, false);
+		setTextEvents();
 		
-		tenThousands = new CanvasNumberChooser(gc, 54, 90, x + 5, y + 135);
-		tenThousands.setOnMouseClicked(e -> {
-			checkNumber();
-		});
-		thousands = new CanvasNumberChooser(gc, 54, 90, x + 64, y + 135);
-		thousands.setOnMouseClicked(e -> {
-			checkNumber();
-		});
-		hundreds = new CanvasNumberChooser(gc, 54, 90, x + 123, y + 135);
-		hundreds.setOnMouseClicked(e -> {
-			checkNumber();
-		});
-		tens = new CanvasNumberChooser(gc, 54, 90, x + 182, y + 135);
-		tens.setOnMouseClicked(e -> {
-			checkNumber();
-		});
-		units = new CanvasNumberChooser(gc, 54, 90, x + 241, y + 135);
-		units.setOnMouseClicked(e -> {
-			checkNumber();
-		});
-		
-		add = new CanvasButton(gc, 290, 20, x + 5, y + 235, "ADD");
+		add = new CanvasButton(gc, 142, 20, x + 5, y + 135, "ADD");
 		add.setVanGogh((x2, y2, gc2) -> {
 			add.defaultDraw(gc.getFont());
 		});
 		add.setOnMouseClicked(e -> {
 			addTimeframe(false);
+			add.disable();
 		});
 		
-		added = new CanvasLabel(gc, 290, 20, x + 5, y + 260, "ADDED TIMEFRAMES");
+		added = new CanvasLabel(gc, 290, 20, x + 5, y + 160, "ADDED TIMEFRAMES");
 		added.setVanGogh((x2, y2, gc2) -> {
 			added.defaultDraw(gc.getFont());
 		});	
 		
-		units.setValue(2);
 		ticks.setOn(true);
-		staticTF.setOn(true);
-		dynamicTF.disable();
 		addBaseTimeframe(true);
 	}
 	
+	private void setTextEvents() {
+		txtPeriod.setOnKeyPressed(e -> {
+			checkNumber();
+		});
+			
+		txtPeriod.setOnKeyTyped(e -> {
+			checkNumber();
+		});
+	}
+	
 	private void addBaseTimeframe(boolean ctor) {
-		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 285, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
+		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 185, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
 		tfb.setVanGogh((x2, y2, gc) -> {
 			tfb.calculateOffsets(gc.getFont());
 			tfb.setColoursRect();
@@ -149,9 +122,9 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	
 	private void addTimeframe(boolean ctor) {		
 		Dataset dataset = chart.chartNode().data();
-		int period = CanvasNumberChooser.number(tenThousands, thousands, hundreds, tens, units);
-		String name = Timeframe.determineName(addTicks, period);
-		if (dataset.addTimeframe(dataset, addTicks, addStaticTF, period)) {		
+		int period = Integer.parseInt(txtPeriod.text());
+		String name = Timeframe.determineName(addTicks.get(), period);
+		if (dataset.addTimeframe(dataset, addTicks.get(), period)) {		
 			addTimeframe(name, dataset, ctor);
 			for (Chart c : Chart.charts(chart.chartNode().name())) {
 				if (!c.equals(chart)) {
@@ -163,7 +136,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	
 	public void addTimeframe(String name, boolean ctor) {
 		addTimeframe(name, chart.chartNode().data(), ctor);
-		if (tfButtons.size() == 20) {
+		if (tfButtons.size() == 28) {
 			add.disable();
 		}
 	}
@@ -189,10 +162,10 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	
 	private void addTimeframe(String name, Dataset dataset, boolean ctor) {
 		int x = tfButtons.size() % 2 == 0?5:153;
-		int y = 285 + (tfButtons.size() / 2) * 25;
+		int y = 185 + (tfButtons.size() / 2) * 25;
 		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, this.x + x, this.y + y, name, name);
 		tfButtons.add(tfb);
-		if (tfButtons.size() == 20) {
+		if (tfButtons.size() == 28) {
 			add.disable();
 		}
 		tfb.setOnMouseClicked(e -> {
@@ -211,7 +184,7 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 				}
 				c.menu().chartFunctionsMenu().timeFramesTab().removeTimeframe(name);
 			}
-			add.enable();
+			checkNumber();
 		});		
 		if (!ctor) {
 			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tfb, chart.menuNode());
@@ -252,22 +225,26 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void checkNumber() {
-		if (CanvasNumberChooser.number(tenThousands, thousands, hundreds, tens, units) < 2) {
-			units.setValue(2);
+		int p;
+		if (txtPeriod.text().equals("") || (p = Integer.parseInt(txtPeriod.text())) < 2) {
+			add.disable();
+			return;
 		}
+		for (Timeframe tf : chart.chartNode().data().timeframes()) {
+			if (tf.tickBased() == addTicks.get() && tf.period() == p) {
+				add.disable();
+				return;
+			}
+		}
+		add.enable();
 	}	
 	
 	private void drawTimeframeFunctionsMenu() {
 		timeFramesFunctions.draw();
 		ticks.draw();
 		minutes.draw();
-		staticTF.draw();
-		dynamicTF.draw();
-		tenThousands.draw();
-		thousands.draw();
-		hundreds.draw();
-		tens.draw();
-		units.draw();
+		enterPeriod.draw();
+		txtPeriod.draw();
 		add.draw();
 		added.draw();
 		for (TimeframeButton tfb : tfButtons) {
@@ -279,13 +256,8 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(timeFramesFunctions, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(ticks, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(minutes, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(staticTF, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(dynamicTF, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(tenThousands, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(thousands, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(hundreds, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(tens, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(units, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(enterPeriod, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(txtPeriod, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(add, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(added, menuNode));
 		for (TimeframeButton tf : tfButtons) {
@@ -309,14 +281,9 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		timeFramesFunctions.setX(x + 5);
 		ticks.setX(x + 5);
 		minutes.setX(x + 153);
-		staticTF.setX(x + 5);
-		dynamicTF.setX(x + 153);
-		tenThousands.setX(x + 5);
-		thousands.setX(x + 64);
-		hundreds.setX(x + 123);
-		tens.setX(x + 182);
-		units.setX(x + 241);
-		add.setX(x + 5);
+		enterPeriod.setX(x + 5);
+		txtPeriod.setX(x + 5);
+		add.setX(x + 153);
 		added.setX(x + 5);
 		setTFButtonsXPos(x);
 		
@@ -328,15 +295,10 @@ public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
 		timeFramesFunctions.setY(y + 35);
 		ticks.setY(y + 85);
 		minutes.setY(y + 85);
-		staticTF.setY(y + 110);
-		dynamicTF.setY(y + 110);
-		tenThousands.setY(y + 135);
-		thousands.setY(y + 135);
-		hundreds.setY(y + 135);
-		tens.setY(y + 135);
-		units.setY(y + 135);
-		add.setY(y + 235);
-		added.setY(y + 260);
+		enterPeriod.setY(y + 110);
+		txtPeriod.setY(y + 135);
+		add.setY(y + 135);
+		added.setY(y + 160);
 		setTFButtonsYPos(y);
 		
 		this.y = y;
