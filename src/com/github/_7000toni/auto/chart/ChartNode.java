@@ -85,6 +85,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private boolean drawMRN = false;
 	private double dragDiffAccum = 0;	
 	private BooleanProperty mrnDraggable = new SimpleBooleanProperty();
+	private boolean mrnDragged = false;
 	
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
@@ -1195,6 +1196,20 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public MarketReplayNode mrn() {
 		return mrn;
 	}
+
+	public boolean mrnDragged() {
+		return mrnDragged;
+	}
+	
+	public void setMRNDragged(boolean mrnDragged) {
+		this.mrnDragged = mrnDragged;
+	}
+	
+	public void resetMRNPos() {
+		mrn.setX(CHT_MARGIN*2);
+		mrn.setY(height - 100 - fontSize);
+		mrnDragged = false;
+	}
 	
 	public void updateMRNXVars() {
 		if (drawMRN) {
@@ -1205,7 +1220,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void updateMRNYVars() {
 		if (drawMRN) {
 			mrn.setMaxY(-CHT_MARGIN + height - 97);
-		}
+			if (!mrnDragged) {
+				mrn.setY(height - 100 - fontSize);
+			}
+		}	
 	}
 	
 	public ReadOnlyBooleanProperty mrnDraggable() {

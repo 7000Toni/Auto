@@ -11,7 +11,6 @@ import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
-import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.tree.TNode;
@@ -120,32 +119,28 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		});
 		pausePlay.setOnMouseClicked(e -> {
 			this.mr.togglePause();
-			ChartNode cn = this.mr.charts().getFirst();
-			if (cn != null) {
-				cn.draw();
+			if (!this.mr.charts().isEmpty()) {
+				this.mr.charts().getFirst().draw();
 			}
 		});
 		back.setOnMouseClicked(e -> {
 			this.mr.setIndex(-Integer.parseInt(txtMoveTicks.text()), true);
 			updateHSBPos();
-			ChartNode cn = this.mr.charts().getFirst();
-			if (cn != null) {
-				cn.draw();
+			if (!this.mr.charts().isEmpty()) {
+				this.mr.charts().getFirst().draw();
 			}
 		});
 		forward.setOnMouseClicked(e -> {
 			this.mr.setIndex(Integer.parseInt(txtMoveTicks.text()), true);
 			updateHSBPos();
-			ChartNode cn = this.mr.charts().getFirst();
-			if (cn != null) {
-				cn.draw();
+			if (!this.mr.charts().isEmpty()) {
+				this.mr.charts().getFirst().draw();
 			}	
 		});
 		live.setOnMouseClicked(e -> {
 			this.mr.toggleLive();
-			ChartNode cn = this.mr.charts().getFirst();
-			if (cn != null) {
-				cn.draw();
+			if (!this.mr.charts().isEmpty()) {
+				this.mr.charts().getFirst().draw();
 			}
 		});
 		mrn = new TNode<ICanvasNode>(this, parent);
@@ -169,6 +164,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 				setY(this.y + e.getY() - dragYOrigin);
 				dragXOrigin = e.getX();
 				dragYOrigin = e.getY();
+				chart.chartNode().setMRNDragged(true);
 			}
 		});
 		
@@ -181,16 +177,16 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	private void setTextBoxEvents() {
 		txtMoveTicks.setOnKeyPressed(e -> {
-			if (txtMoveTicks.text().equals("") || txtSpeed.text().equals("0")) {
-				txtMoveTicks.setText("1");
+			if (txtMoveTicks.text().equals("")) {
+				txtMoveTicks.setText("0");
 			}
 			updateMoveTicksText(txtMoveTicks.text());
 		});
 		
 		txtMoveTicks.setOnKeyTyped(e -> {
 			int val = Integer.parseInt(txtMoveTicks.text());
-			if (val > 1000000) {
-				txtMoveTicks.setText("1000000");
+			if (val > 10000) {
+				txtMoveTicks.setText("10000");
 			}
 			updateMoveTicksText(txtMoveTicks.text());
 		});
