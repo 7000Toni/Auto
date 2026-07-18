@@ -94,7 +94,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		live = new CanvasButton(gc, 40, 40, x+349, y+40, null, 0, 0);
 		live.setVanGogh(mrpvg.liveVG(live, this.mr.live()));
 	
-		txtMoveTicks = new TextBox(stage, gc, 106, 40, x+102, y+40, "10000", TextBox.InputType.ABS_INT, false, true, true);
+		txtMoveTicks = new TextBox(stage, gc, 106, 40, x+102, y+40, "1000", TextBox.InputType.ABS_INT, false, true, true);
 		txtMoveTicks.setFont((Font.font("Verdana", FontWeight.BOLD, txtMoveTicks.height() - txtMoveTicks.margin()*2)));
 		txtSpeed = new TextBox(stage, gc, 79, 40, x+260, y+40, "1", TextBox.InputType.ABS_INT, false, true, true);
 		txtSpeed.setFont((Font.font("Verdana", FontWeight.BOLD, txtMoveTicks.height() - txtMoveTicks.margin()*2)));
@@ -185,8 +185,8 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		
 		txtMoveTicks.setOnKeyTyped(e -> {
 			int val = Integer.parseInt(txtMoveTicks.text());
-			if (val > 10000) {
-				txtMoveTicks.setText("10000");
+			if (val > 1000) {
+				txtMoveTicks.setText("1000");
 			}
 			updateMoveTicksText(txtMoveTicks.text());
 		});

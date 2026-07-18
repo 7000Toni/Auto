@@ -68,9 +68,14 @@ public class TextBox extends CanvasNode {
 		this.height = height;
 		this.x = x;
 		this.y = y;
-		if (text != null && ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && validateDouble(text)) ||
-				((type == InputType.INT || type == InputType.ABS_INT) && validateInt(text)) || type == InputType.ANY) {
-			this.text = text;
+		if (text != null) {
+			if (type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) {
+				validateDouble(text);
+			} else if (type == InputType.INT || type == InputType.ABS_INT) {
+				validateInt(text);
+			} else {			
+				this.text = text;
+			}
 		} else {
 			this.text = "";
 		}
@@ -88,7 +93,7 @@ public class TextBox extends CanvasNode {
 			return false;
 		}
 		try {			
-			Integer.parseInt(text);
+			this.text = ((Integer)(Integer.parseInt(text))).toString();
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -100,7 +105,7 @@ public class TextBox extends CanvasNode {
 			return false;
 		}
 		try {
-			Double.parseDouble(text);
+			this.text = ((Double)(Double.parseDouble(text))).toString();
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -325,8 +330,10 @@ public class TextBox extends CanvasNode {
 	}
 	
 	private void checkZeroes() {
-		if (type != InputType.ANY && text.length() > 1 && Double.parseDouble(text) == 0) {
-			text = "0";
+		double val;
+		if (type != InputType.ANY && text.length() > 0) {
+			val = Double.parseDouble(text);			
+			text = type==InputType.INT||type==InputType.ABS_INT?((Integer)(int)val).toString():((Double)val).toString();
 			setCursorPos(cursorPos);
 		}
 	}
@@ -337,6 +344,9 @@ public class TextBox extends CanvasNode {
 		switch(keyCode) {
 			case KeyCode.BACK_SPACE: 
 				if (!text.isEmpty()) {	
+					if (text.charAt(cursorPos-1<0?0:cursorPos-1) == '.') {
+						setCursorPos(cursorPos-1);
+					}
 					l = text.length();
 					String newText = text.substring(0, cursorPos-1<0?0:cursorPos-1);
 					newText += text.substring(cursorPos, l);
@@ -364,6 +374,9 @@ public class TextBox extends CanvasNode {
 				break;
 			case KeyCode.DELETE:
 				if (!text.isEmpty()) {	
+					if (text.charAt(cursorPos) == '.') {
+						setCursorPos(cursorPos+1);
+					}
 					l = text.length();
 					String newText = text.substring(0, cursorPos);
 					newText += text.substring(cursorPos+1>l?cursorPos:cursorPos+1, l);
@@ -377,18 +390,32 @@ public class TextBox extends CanvasNode {
 	
 	private void defaultOnKeyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
-		if ((type == InputType.ANY && c > 31 && c < 127 || ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && c == 46 && !text.contains(".") 
-				|| c > 47 && c < 58) || (type == InputType.INT || type == InputType.ABS_INT) && c > 47 && c < 58 || 
-				(type == InputType.DOUBLE || type == InputType.INT) && c == 45 && text.length() == 0) && 
-				!(cursorPos == 0 && c == 48 && text.length() > 0)) {
-			if (type != InputType.ANY && text.equals("0")) {
-				text = "";
-				setCursorPos(cursorPos);
+		if ((type == InputType.ANY && c > 31 && c < 127) || ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && c == 46 
+				|| (c > 47 && c < 58)) || ((type == InputType.INT || type == InputType.ABS_INT) && c > 47 && c < 58) || 
+				((type == InputType.DOUBLE || type == InputType.INT) && c == 45 && (text.length() == 0 || cursorPos == 0 && !text.contains("-")))) {
+			if (type != InputType.ANY) {
+				if (text.length() > 0 && Double.parseDouble(text) == 0) {
+					if (type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) {
+						text = ".0";
+						setCursorPos(0);
+					} else {
+						text = "";
+					}
+				}
+				if (c == '.' && text.contains(".")) {
+					if (text.charAt(cursorPos) == '.') {
+						setCursorPos(cursorPos + 1);
+					}
+					return;
+				}
 			}
 			int l = text.length();
 			String newText = text.substring(0, cursorPos) + c;
 			newText += text.substring(cursorPos, l);
 			text = newText;
+			if (type != InputType.ANY) {
+				checkZeroes();
+			}
 			setCursorPos(cursorPos + 1);
 		}
 	}
@@ -406,7 +433,7 @@ public class TextBox extends CanvasNode {
 	}
 	
 	private int calculateCursorPos(double x) {
-		double est = (x-this.x)/roughCharWidth;
+		double est = (x-this.x-textXOffset)/roughCharWidth;
 		if ((est - (int)est) * 10 >= 5) {
 			return (int)est + 1;
 		} else {
