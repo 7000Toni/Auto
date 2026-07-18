@@ -295,6 +295,13 @@ public class TextBox extends CanvasNode {
 		}
 	}
 	
+	private void checkZeroes() {
+		if (type != InputType.ANY && text.length() > 1 && Double.parseDouble(text) == 0) {
+			text = "0";
+			setCursorPos(cursorPos);
+		}
+	}
+	
 	private void defaultOnKeyPressed(KeyEvent e) {
 		KeyCode keyCode = e.getCode();
 		int l;
@@ -306,6 +313,7 @@ public class TextBox extends CanvasNode {
 					newText += text.substring(cursorPos, l);
 					text = newText;
 					cursorPos = cursorPos-1<0?0:cursorPos-1;
+					checkZeroes();
 				}
 				break;
 			case KeyCode.LEFT:
@@ -331,6 +339,7 @@ public class TextBox extends CanvasNode {
 					String newText = text.substring(0, cursorPos);
 					newText += text.substring(cursorPos+1>l?cursorPos:cursorPos+1, l);
 					text = newText;
+					checkZeroes();
 				}
 				break;
 			default:
@@ -339,14 +348,19 @@ public class TextBox extends CanvasNode {
 	
 	private void defaultOnKeyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
-		if (type == InputType.ANY && c > 31 && c < 127 || ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && c == 46 && !text.contains(".") 
+		if ((type == InputType.ANY && c > 31 && c < 127 || ((type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) && c == 46 && !text.contains(".") 
 				|| c > 47 && c < 58) || (type == InputType.INT || type == InputType.ABS_INT) && c > 47 && c < 58 || 
-				(type == InputType.DOUBLE || type == InputType.INT) && c == 45 && text.length() == 0) {
+				(type == InputType.DOUBLE || type == InputType.INT) && c == 45 && text.length() == 0) && 
+				!(cursorPos == 0 && c == 48 && text.length() > 0)) {
+			if (type != InputType.ANY && text.equals("0")) {
+				text = "";
+				setCursorPos(cursorPos);
+			}
 			int l = text.length();
 			String newText = text.substring(0, cursorPos) + c;
 			newText += text.substring(cursorPos, l);
 			text = newText;
-			cursorPos += 1;
+			setCursorPos(cursorPos + 1);
 		}
 	}
 	
