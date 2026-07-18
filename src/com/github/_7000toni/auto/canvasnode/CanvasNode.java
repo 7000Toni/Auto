@@ -1,4 +1,5 @@
 package com.github._7000toni.auto.canvasnode;
+
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;

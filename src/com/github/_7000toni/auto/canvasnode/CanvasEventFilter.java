@@ -13,7 +13,7 @@ public class CanvasEventFilter {
 	public CanvasEventFilter(ICanvasWindow cw) {
 		this.cw = cw;
 	}
-	
+	static int i = 0;
 	public void canvasEventFilter(Event e) {
 		TNode<ICanvasNode> currentNode = null;
 		MouseEvent me = null;
@@ -24,22 +24,21 @@ public class CanvasEventFilter {
 			for (TNode<ICanvasNode> t : cw.sceneGraph().postOrderArray()) {	
 				ICanvasNode cn = t.element();	
 				if (e instanceof MouseEvent) {
-					me = (MouseEvent)e;			
+					me = (MouseEvent)e;					
 					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging() || !cn.enabled()) {
 						continue;
-					}
+					}					
 					if (!cw.dragging()) {
 						currentNode = t;
 					} else {
 						currentNode = cw.lastNode();
 						cn = currentNode.element();
 					}
-					if (!currentNode.equals(cw.lastNode())) {
-						if (cw.lastNode() != null) {
-							cw.lastNode().element().onMouseExited(me);
-						}
+					if (cw.lastNode() != null && !currentNode.element().equals(cw.lastNode().element())) {	
+						cw.lastNode().element().onMouseExited(me);
 						cn.onMouseEntered(me);						
-					} else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {	
+					}
+					if (e.getEventType() == MouseEvent.MOUSE_DRAGGED) {	
 						cn.onMouseDragged(me);						
 						cw.setDragging(true);
 					} else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {

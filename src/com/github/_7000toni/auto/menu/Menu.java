@@ -72,6 +72,7 @@ public class Menu implements ICanvasWindow {
 	private CanvasWrapper cw;
 	private TNode<ICanvasNode> lastNode = null;
 	private CanvasEventFilter cef;
+	private int draggedFilesSize = 0;
 	
 	private IVanGogh optimizeVG = (x, y, gc) -> {
 		Font oldFont = gc.getFont();
@@ -280,13 +281,20 @@ public class Menu implements ICanvasWindow {
 	
 	private void setCanvasDragDropEvents() {
 		canvas.setOnDragOver(e -> {
+			if (datasets.size() == 6) {
+				return;
+			}
 			Dragboard db = e.getDragboard();
 			
-			if (db.hasFiles()) {
-				e.acceptTransferModes(TransferMode.COPY);
-			}
+			if (db.hasFiles()) {				
+				draggedFilesSize = db.getFiles().size();				
+				e.acceptTransferModes(TransferMode.COPY);				
+			}			
 		});
 		canvas.setOnDragDropped(e -> {
+			if (datasets.size() == 6) {
+				return;
+			}
 			Dragboard db = e.getDragboard();
 			
 			if (db.hasFiles()) {
@@ -295,7 +303,14 @@ public class Menu implements ICanvasWindow {
 					dsl.load();	
 				}
 			}
-		});		
+		});	
+		canvas.setOnDragExited(e -> {
+			draggedFilesSize = 0;
+			draw();
+		});
+		canvas.setOnMouseMoved(e -> {
+			draggedFilesSize = 0;
+		});
 	}
 	
 	@Override
@@ -345,6 +360,17 @@ public class Menu implements ICanvasWindow {
 		return menu;
 	}
 	
+	private void drawDraggedFiles() {		
+		for (int i = 0; i < draggedFilesSize; i++) {
+			int j = dsButtons.size() + i;
+			if (j > 5) {
+				break;
+			}
+			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+			gc.strokeRoundRect(120 + 0.5, 10 + 58*j + 0.5, 509, 47, CanvasButton.ARC_W, CanvasButton.ARC_H);					
+		}
+	}
+	
 	private void drawUI() {		
 		varLock.lock();
 		try {					
@@ -364,6 +390,7 @@ public class Menu implements ICanvasWindow {
 			darkMode.draw();
 			auto.draw();
 			drawLoadingSets();
+			drawDraggedFiles();
 			for (DatasetButton dsb : dsButtons) {
 				if (dsb == null) {
 					continue;

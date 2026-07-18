@@ -268,7 +268,12 @@ public class DatasetLoader {
 				if (mrp != null) {
 					replays.remove(mrp);
 				}
-				datasets.remove(((DatasetButton)dsbNode.element()).datasetIndex());
+				int index = ((DatasetButton)dsbNode.element()).datasetIndex();
+				datasets.remove(index);
+				DatasetButton dsb;
+				if (dsButtons.size() >= index + 1 && (dsb = dsButtons.get(index)) != null) {
+					dsb.closeButton().setHover(true);
+				}
 			} finally {
 				Menu.menu().varLock().unlock();
 			}
