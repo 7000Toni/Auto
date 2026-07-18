@@ -1,5 +1,10 @@
 package com.github._7000toni.auto.menu;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -17,6 +22,7 @@ import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatasetLoader;
 import com.github._7000toni.auto.dataset.LoadingDataset;
 import com.github._7000toni.auto.dataset.OptimizeTask;
+import com.github._7000toni.auto.dataset.Signature;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
 import com.github._7000toni.auto.dataset.reader.MarketTickFileReader;
@@ -286,9 +292,27 @@ public class Menu implements ICanvasWindow {
 			}
 			Dragboard db = e.getDragboard();
 			
-			if (db.hasFiles()) {				
-				draggedFilesSize = db.getFiles().size();				
-				e.acceptTransferModes(TransferMode.COPY);				
+			if (db.hasFiles()) {			
+				int s = 0;
+				for (File f : db.getFiles()) {
+					if (!f.isFile()) {
+						continue;
+					}
+					try	(FileInputStream fis = new FileInputStream(f);
+							BufferedInputStream bis = new BufferedInputStream(fis);
+							BufferedReader br = new BufferedReader(new InputStreamReader(bis))) {
+						String signature = br.readLine();
+						if (Signature.validFull(signature)) {
+							s++;
+						}
+					} catch(IOException ex) {
+						ex.printStackTrace();
+					}
+				}
+				if (s > 0) {
+					draggedFilesSize = s;				
+					e.acceptTransferModes(TransferMode.COPY);
+				}
 			}			
 		});
 		canvas.setOnDragDropped(e -> {
@@ -299,6 +323,9 @@ public class Menu implements ICanvasWindow {
 			
 			if (db.hasFiles()) {
 				for (File f : db.getFiles()) {
+					if (!f.isFile()) {
+						continue;
+					}
 					DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
 					dsl.load();	
 				}
