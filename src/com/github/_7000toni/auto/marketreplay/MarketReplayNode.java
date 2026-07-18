@@ -164,7 +164,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			dragYOrigin = e.getY();
 		});
 		setOnMouseDragged(e -> {
-			if (draggable) {
+			if (this.draggable) {
 				setX(this.x + e.getX() - dragXOrigin);
 				setY(this.y + e.getY() - dragYOrigin);
 				dragXOrigin = e.getX();

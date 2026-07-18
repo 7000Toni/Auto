@@ -84,6 +84,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private MarketReplayNode mrn;
 	private boolean drawMRN = false;
 	private double dragDiffAccum = 0;	
+	private BooleanProperty mrnDraggable = new SimpleBooleanProperty();
 	
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
@@ -359,17 +360,24 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
+			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, false, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
+			mrnDraggable.set(false);
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
 			
 			for (PendingTrade pt : mr.pendingTrades()) {
 				cmrb.addPenTradePair(new PendingTradePair(pt, this));
 			}
-			//TODO
 			drawMRN = true;
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
+		}
+	}
+	
+	public void toggleMRNDraggable() {
+		if (replayMode) {
+			mrnDraggable.set(!mrnDraggable.get());
+			mrn.setDraggable(mrnDraggable.get());
 		}
 	}
 	
@@ -809,27 +817,27 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void drawCandleStick(Dataset.Candlestick candle, double xPos, double yPos) {
 		if (candle.open() < candle.close()) {
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
-			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.close()) / conversionVar);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.close() - candle.open()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.close() - candle.low()) / conversionVar);
+			gc.strokeRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.close()) / conversionVar);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.open()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.low()) / conversionVar);
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_FILL));
-			gc.fillRect(xPos, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
+			gc.fillRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
 		} else if (candle.open() > candle.close()) {
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_STROKE));
-			gc.strokeRect(xPos, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.open()) / conversionVar);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open() - candle.close()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open() - candle.low()) / conversionVar);
+			gc.strokeRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_FILL));
-			gc.fillRect(xPos, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
+			gc.fillRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
 		} else {
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
 			} else {
 				gc.setStroke(Color.BLACK);
 			}
-			gc.strokeLine(xPos, yPos, xPos + candlestickWidth, yPos);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos, xPos + candlestickWidth / 2, yPos - (candle.high() - candle.open()) / conversionVar);
-			gc.strokeLine(xPos + candlestickWidth / 2, yPos + (candle.open() - candle.close()) / conversionVar, xPos + candlestickWidth / 2, yPos + (candle.open() - candle.low()) / conversionVar);
+			gc.strokeLine((int)(xPos) + 0.5, yPos, xPos + candlestickWidth, yPos);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
+			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
 		}
 	}
 	
@@ -971,7 +979,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (price > highest || price < lowest) {
 			return;
 		}		
-		double yPos = ((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+		double yPos = (int)(((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + 0.5;
 		gc.setStroke(Color.SLATEBLUE);
 		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + width, yPos);	
 	}
@@ -1200,7 +1208,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	public void toggleMRPShortcut() {
+	public ReadOnlyBooleanProperty mrnDraggable() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(mrnDraggable);
+	}
+	
+	public void toggleMRNShortcut() {
 		drawMRN = !drawMRN;
 		if (drawMRN) {
 			c.sceneGraph().addNode(mrn.node());
