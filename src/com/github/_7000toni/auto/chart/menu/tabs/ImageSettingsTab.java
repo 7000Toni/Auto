@@ -16,7 +16,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageFunctions;
@@ -70,7 +70,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			bsb.setX(bsb.minPos() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 255, "SAVE");
@@ -114,7 +114,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		drawImg.setOnMouseClicked(e -> {
 			ImageSettings.setDraw(!ImageSettings.draw().get());
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});		
 		
 		stretch = new CanvasButton(gc, 290, 20, x + 5, y + 155, "STRETCH IMAGE");
@@ -122,7 +122,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		stretch.setOnMouseClicked(e -> {
 			ImageSettings.setStretch(!ImageSettings.stretch().get());
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		clearImage = new CanvasButton(gc, 290, 20, x + 5, y + 180, "CLEAR IMAGE");
@@ -132,7 +132,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		clearImage.setOnMouseClicked(e -> {
 			ImageSettings.clearImage();
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		setImage = new CanvasButton(gc, 290, 20, x + 5, y + 205, "SET IMAGE");
@@ -155,7 +155,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 				ImageSettings.setImage(file);
 			}
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 305, "NO IMAGE SELECTED");

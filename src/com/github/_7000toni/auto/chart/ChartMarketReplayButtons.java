@@ -87,7 +87,7 @@ public class ChartMarketReplayButtons {
 	}
 	
 	private void txtVolKeyPressedEvent() {
-		if (txtVolume.text().equals("") || tradeVolume() == 0) {
+		if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
 			txtVolume.setText("1");
 		}
 	}

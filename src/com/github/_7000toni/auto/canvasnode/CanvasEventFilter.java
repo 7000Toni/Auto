@@ -8,12 +8,11 @@ import javafx.scene.input.ScrollEvent;
 
 public class CanvasEventFilter {
 	private ICanvasWindow cw;
-	private ICanvasNode lastFocused = null;
 	
 	public CanvasEventFilter(ICanvasWindow cw) {
 		this.cw = cw;
 	}
-	static int i = 0;
+	
 	public void canvasEventFilter(Event e) {
 		TNode<ICanvasNode> currentNode = null;
 		MouseEvent me = null;
@@ -22,7 +21,7 @@ public class CanvasEventFilter {
 		cw.varLock().lock();
 		try {
 			for (TNode<ICanvasNode> t : cw.sceneGraph().postOrderArray()) {	
-				ICanvasNode cn = t.element();	
+				ICanvasNode cn = t.element();
 				if (e instanceof MouseEvent) {
 					me = (MouseEvent)e;					
 					if (!cn.onNode(me.getX(), me.getY()) && !cw.dragging() || !cn.enabled()) {
@@ -46,14 +45,14 @@ public class CanvasEventFilter {
 					} else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
 						cn.onMouseReleased(me);
 						cw.setDragging(false);
-					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
-						if (lastFocused == null) {
+					} else if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {						
+						if (cw.lastFocused() == null) {
 							cn.setFocused(true);
-							lastFocused = cn;
-						} else if (lastFocused != null && !lastFocused.equals(cn)) {
-							lastFocused.setFocused(false);
+							cw.setLastFocused(cn);
+						} else if (cw.lastFocused() != null && !cw.lastFocused().equals(cn)) {
+							cw.lastFocused().setFocused(false);
 							cn.setFocused(true);
-							lastFocused = cn;
+							cw.setLastFocused(cn);
 						}						
 						cn.onMouseClicked(me);
 					} else if (e.getEventType() == MouseEvent.MOUSE_MOVED) {

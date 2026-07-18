@@ -12,7 +12,7 @@ import com.github._7000toni.auto.chart.listener.ChartHeightListener;
 import com.github._7000toni.auto.chart.listener.ChartWidthListener;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
 import com.github._7000toni.auto.dataset.Dataset;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageFunctions;
@@ -58,6 +58,7 @@ public class Chart implements ICanvasWindow {
 	
 	private Tree<ICanvasNode> sceneGraph;
 	private TNode<ICanvasNode> lastNode = null;
+	private ICanvasNode lastFocused = null;
 	private CanvasWrapper cw;
 	private boolean dragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
@@ -130,6 +131,9 @@ public class Chart implements ICanvasWindow {
 					cn.chartTypeShortcut().setX(ChartNode.CHT_MARGIN + cn.width() - 15);
 					
 					menu.setX(ChartNode.CHT_MARGIN + cn.width() + priceMargin.width());
+					if (cn.replayMode()) {
+						cn.updateMRNXVars();
+					}
 					
 					hsb.setMaxPos(width - pm); 					
 					
@@ -166,6 +170,7 @@ public class Chart implements ICanvasWindow {
 		return stage;
 	}
 	
+	@Override
 	public CanvasEventFilter canvasEventFilter() {
 		return cef;
 	}
@@ -271,7 +276,7 @@ public class Chart implements ICanvasWindow {
 		if (m != null) {
 			m.draw();
 		}
-		MarketReplayPane.drawReplayPanes();
+		MarketReplayNode.drawReplayNodes();
 	}
 	
 	private void drawFrame() {
@@ -339,6 +344,16 @@ public class Chart implements ICanvasWindow {
 		this.lastNode = lastNode;
 	}
 
+	@Override
+	public ICanvasNode lastFocused() {
+		return lastFocused;
+	}
+	
+	@Override
+	public void setLastFocused(ICanvasNode lastFocused) {
+		this.lastFocused = lastFocused;
+	}
+	
 	@Override
 	public ReentrantLock varLock() {
 		return varLock;

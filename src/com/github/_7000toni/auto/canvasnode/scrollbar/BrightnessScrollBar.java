@@ -1,7 +1,7 @@
 package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.canvasnode.ColourCalculator;
 import com.github._7000toni.auto.chart.Chart;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.settings.ImageSettings;
 
 import javafx.animation.AnimationTimer;
@@ -93,13 +93,13 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
-							MarketReplayPane.drawReplayPanes();
+							MarketReplayNode.drawReplayNodes();
 						} else {
 							setPosition(-(sbWidth / 2), true);
 							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
-							MarketReplayPane.drawReplayPanes();
+							MarketReplayNode.drawReplayNodes();
 						}
 					} 
 				}
@@ -130,7 +130,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 		double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 		ImageSettings.setBrightness(b);
 		Chart.drawCharts(null);
-		MarketReplayPane.drawReplayPanes();
+		MarketReplayNode.drawReplayNodes();
 		if (onMouseDragged == null || !enabled) {
 			return;
 		}

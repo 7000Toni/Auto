@@ -26,7 +26,7 @@ public class MarketReplay {
 	private ArrayList<ChartNode> charts;
 	private String name;
 	private Dataset data;
-	private MarketReplayPane mrp;
+	private MarketReplayNode mrNode;
 	private IntegerProperty index = new SimpleIntegerProperty();	
 	private BooleanProperty paused = new SimpleBooleanProperty(false);
 	private BooleanProperty live = new SimpleBooleanProperty(true);
@@ -45,11 +45,11 @@ public class MarketReplay {
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
 	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
-	public MarketReplay(Chart chart, MarketReplayPane mrp, int index) {		
+	public MarketReplay(Chart chart, MarketReplayNode mrNode, int index) {		
 		this.charts = new ArrayList<ChartNode>();
 		this.name = chart.chartNode().name();
 		this.data = chart.chartNode().data();
-		this.mrp = mrp;
+		this.mrNode = mrNode;
 		this.tickDataSize.set(data.tickDataSize(false).get());
 		if (index < 0) {
 			index = 0;
@@ -61,7 +61,7 @@ public class MarketReplay {
 		}
 		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
 		this.index.set(index);
-		chart.chartNode().enableReplayMode(this, mrp);
+		chart.chartNode().enableReplayMode(this);
 	}
 	
 	public static ReadOnlyBooleanProperty writeToFile() {
@@ -262,7 +262,7 @@ public class MarketReplay {
 	}
 	
 	public ReadOnlyBooleanProperty live() {
-		return BooleanProperty.readOnlyBooleanProperty(live);
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(live);
 	}
 	
 	public void setIndex(int index, boolean increment) {
@@ -298,7 +298,8 @@ public class MarketReplay {
 		if (!charts.isEmpty()) {
 			charts.get(0).draw();
 		}
-		mrp.draw();
+		mrNode.updateHSBPos();
+		mrNode.draw();
 	}
 	
 	private int timeToNextTick(int index) {
@@ -308,8 +309,8 @@ public class MarketReplay {
 		return (int)(data.tickData().get(index + 1).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli() - data.tickData().get(index).dateTime().atZone(ZoneOffset.UTC).toInstant().toEpochMilli())/speed.get();
 	}
 	
-	public boolean paused() {
-		return this.paused.get();
+	public ReadOnlyBooleanProperty paused() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(paused);
 	}
 	
 	public void stop() {
@@ -438,8 +439,9 @@ public class MarketReplay {
 						}
 						data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
 						if (live.get()) {
-							double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
-							mrp.hsb().setPosition(newHSBPos, false);		
+							double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
+							mrNode.hsb().setPosition(newHSBPos, false);		
+							mrNode.updateHSBPos();
 							for (ChartNode c : charts) {
 								c.setKeepStartIndex(false);
 								c.chart().hsb().setPosition(Integer.MAX_VALUE, false);
@@ -455,8 +457,9 @@ public class MarketReplay {
 								c.setKeepStartIndex(true);
 								c.chart().hsb().setPosition(newHSBPos, false);
 							}
-							newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrp.hsb().maxPos() - mrp.hsb().sbWidth() - mrp.hsb().minPos());
-							mrp.hsb().setPosition(newHSBPos, false);											
+							newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
+							mrNode.hsb().setPosition(newHSBPos, false);
+							mrNode.updateHSBPos();
 						}												
 						lastTick.set(index.get() - 1);
 						tick();
@@ -468,7 +471,7 @@ public class MarketReplay {
 					if (!charts.isEmpty()) {
 						charts.get(0).draw();
 					}
-					mrp.draw();
+					mrNode.draw();
 					lastTickTime = now;
 				}				
 			}

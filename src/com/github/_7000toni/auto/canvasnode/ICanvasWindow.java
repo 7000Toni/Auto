@@ -12,5 +12,8 @@ public interface ICanvasWindow {
 	public boolean dragging();
 	public TNode<ICanvasNode> lastNode();
 	public void setLastNode(TNode<ICanvasNode> lastNode);
+	public ICanvasNode lastFocused();
+	public void setLastFocused(ICanvasNode lastFocused);
 	public void setDragging(boolean dragging);
+	public CanvasEventFilter canvasEventFilter();
 }

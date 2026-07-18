@@ -17,6 +17,7 @@ import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
 import com.github._7000toni.auto.dataset.reader.MarketTickFileReader;
 import com.github._7000toni.auto.dataset.reader.OptimizedMarketTickFileReader;
 import com.github._7000toni.auto.dataset.reader.OriginalTickFileReader;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.tree.TNode;
@@ -33,13 +34,13 @@ import javafx.stage.Stage;
 public class DatasetLoader {
 	private ArrayList<Dataset> datasets;
 	private ArrayList<DatasetButton> dsButtons;
-	private ArrayList<MarketReplayPane> replays;
+	private ArrayList<MarketReplayNode> replays;
 	private ITickDataFileReader reader;	
 	private ArrayList<LoadingDataset> loadingSets;
 	private Tree<ICanvasNode> sceneGraph;
 	private File file;
 	
-	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
@@ -48,7 +49,7 @@ public class DatasetLoader {
 		this.sceneGraph = sceneGraph;
 	}
 	
-	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayPane> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
 		this.file = file;
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
@@ -228,7 +229,7 @@ public class DatasetLoader {
 				s.getIcons().add(Main.icon());
 			}
 			s.setTitle(datasets.get(dsb.datasetIndex()).name());
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.datasetIndex()), false, null, null);
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.datasetIndex()), false, null);
 			Scene scene = new Scene(c);
 			scene.addEventFilter(KeyEvent.ANY, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
@@ -258,15 +259,15 @@ public class DatasetLoader {
 				}
 				String name = datasets.get(((DatasetButton)dsbNode.element()).datasetIndex()).name();
 				Chart.closeAll(name, false);
-				MarketReplayPane mrp = null;
-				for (MarketReplayPane m : replays) {
-					if (m.name().equals(name)) {
-						m.endReplay();
-						mrp = m;
+				MarketReplayNode mrn = null;
+				for (MarketReplayNode n : replays) {
+					if (n.name().equals(name)) {
+						n.endReplay();
+						mrn = n;
 					}
 				}
-				if (mrp != null) {
-					replays.remove(mrp);
+				if (mrn != null) {
+					replays.remove(mrn);
 				}
 				int index = ((DatasetButton)dsbNode.element()).datasetIndex();
 				datasets.remove(index);
@@ -282,8 +283,8 @@ public class DatasetLoader {
 	
 	private void setDSBMREventHandler(CanvasButton mr, DatasetButton dsb) {
 		mr.setOnMouseClicked(e -> {
-			for (MarketReplayPane mrp : replays) {
-				if (mrp.name().equals(datasets.get(dsb.datasetIndex()).name())) {
+			for (MarketReplayNode mrn : replays) {
+				if (mrn.name().equals(datasets.get(dsb.datasetIndex()).name())) {
 					return;
 				}
 			}
@@ -293,7 +294,7 @@ public class DatasetLoader {
 			}			
 			Stage s = new Stage();
 			s.setTitle(datasets.get(dsb.datasetIndex()).name());
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null, null);
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
 			Scene scene = new Scene(c);	
 			scene.addEventFilter(KeyEvent.ANY, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
@@ -307,20 +308,21 @@ public class DatasetLoader {
 			s2.setOnCloseRequest(ev -> {
 				Menu.menu().varLock().lock();
 				try {
-					replays.remove(mrp);
+					replays.remove(mrp.mrNode());
 				} finally {
 					Menu.menu().varLock().unlock();
 				}
-				mrp.endReplay();
+				mrp.mrNode().endReplay();
 			});
 			Menu.menu().varLock().lock();
 			try {
-				replays.add(mrp);
+				replays.add(mrp.mrNode());
 			} finally {
 				Menu.menu().varLock().unlock();
 			}
 			s2.setResizable(false);		
 			Scene scene2 = new Scene(mrp);
+			scene2.addEventFilter(KeyEvent.ANY, ev -> mrp.canvasEventFilter().canvasEventFilter(ev));
 			s2.setScene(scene2);
 			s2.show();	
 		});

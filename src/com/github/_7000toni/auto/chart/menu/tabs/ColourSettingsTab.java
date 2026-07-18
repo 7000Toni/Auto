@@ -14,7 +14,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.ChartMenu;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageSettings;
@@ -72,7 +72,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			bsb.setX(bsb.minPos() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		defaultColours = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 480, "DEFAULT");
@@ -83,7 +83,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			ColourSettings.setDefaultColours();
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 505, "SAVE");
@@ -153,7 +153,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			}			
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayPane.drawReplayPanes();
+			MarketReplayNode.drawReplayNodes();
 		});
 		cbPrev.setOnMouseClicked(e -> {
 			colourPicker.setFinalColour(ColourSettings.colour(index));

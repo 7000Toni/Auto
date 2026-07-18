@@ -19,20 +19,21 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TextBox extends CanvasNode {
-	protected Stage stage;
-	protected String text;
-	protected double textXOffset;
-	protected double textYOffset;
-	protected IVanGogh vg = null;
-	protected InputType type;
-	protected boolean dynamicSize;
-	protected double mgn = 2;
-	protected AnimationTimer cursorAnim;
-	protected int cursorPos;
-	protected boolean drawCursor = false;
-	protected double roughCharWidth;
-	protected boolean border;
-	protected boolean fillBorder;
+	private Stage stage;
+	private String text;
+	private double textXOffset;
+	private double textYOffset;
+	private IVanGogh vg = null;
+	private InputType type;
+	private boolean dynamicSize;
+	private double mgn = 2;
+	private AnimationTimer cursorAnim;
+	private int cursorPos;
+	private boolean drawCursor = false;
+	private double roughCharWidth;
+	private boolean border;
+	private boolean fillBorder;
+	private Font font = null;
 	
 	public enum InputType {
 		ANY(0),		
@@ -81,7 +82,7 @@ public class TextBox extends CanvasNode {
 		this.fillBorder = border?fillBorder:false;
 		this.roughCharWidth = getTextWidth("5");		
 	}
-	
+		
 	private boolean validateInt(String text) {
 		if (text.contains("-") && type == InputType.ABS_INT) {
 			return false;
@@ -104,6 +105,11 @@ public class TextBox extends CanvasNode {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+	
+	public void setFont(Font font) {
+		this.font = font;
+		this.roughCharWidth = getTextWidth("5");
 	}
 	
 	public void calculateOffsets(Font font) {
@@ -236,6 +242,9 @@ public class TextBox extends CanvasNode {
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 		gc.setFont(oldFont);
+		if (drawCursor) {
+			drawCursor();
+		}
 	}
 	
 	public void alternateDraw() {
@@ -246,21 +255,36 @@ public class TextBox extends CanvasNode {
 		drawBorder();
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn*2);
 		gc.setFont(oldFont);
+		if (drawCursor) {
+			drawCursor();
+		}
 	}
 	
 	public void defaultDraw(Font font) {
+		Font oldFont = gc.getFont(); 
+		gc.setFont(font);
 		calculateOffsets(font);
 		setColoursRect();
 		drawBorder();
-		setColoursText();
+		setColoursText();		
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - mgn*2);
+		if (drawCursor) {
+			drawCursor();
+		}
+		gc.setFont(oldFont);
 	}
 	
 	public void alternateDraw(Font font) {
+		Font oldFont = gc.getFont(); 
+		gc.setFont(font);
 		calculateOffsets(font);
 		setColoursAlt();
 		drawBorder();
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - mgn*2);
+		if (drawCursor) {
+			drawCursor();
+		}
+		gc.setFont(oldFont);
 	}
 	
 	public void drawCursor() {
@@ -283,12 +307,17 @@ public class TextBox extends CanvasNode {
 		this.cursorPos = cursorPos;
 	}
 	
+	public double margin() {
+		return mgn;
+	}
+	
 	@Override
 	public void draw() {
 		if (vg == null) {
-			defaultDraw();
-			if (drawCursor) {
-				drawCursor();
+			if (font == null) {
+				defaultDraw();
+			} else {
+				defaultDraw(font);
 			}
 		} else {
 			vg.draw(x, y, gc);
@@ -387,7 +416,11 @@ public class TextBox extends CanvasNode {
 	
 	private double getTextWidth(String text) {
 		Text t = new Text(text);
-		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.MEDIUM, height - mgn*2));
+		if (font == null) {
+			t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.MEDIUM, height - mgn*2));
+		} else {
+			t.setFont(font);
+		}
 		return t.getLayoutBounds().getWidth();
 	}
 	
@@ -461,7 +494,7 @@ public class TextBox extends CanvasNode {
 	}
 	
 	@Override
-	public void setFocused(boolean focused) {		
+	public void setFocused(boolean focused) {	
 		if (focused && !this.focused) {
 			drawCursor = true;
 			cursorPos = text.length();

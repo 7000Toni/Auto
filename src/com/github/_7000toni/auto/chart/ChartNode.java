@@ -13,7 +13,7 @@ import com.github._7000toni.auto.dataset.Dataset.Candlestick;
 import com.github._7000toni.auto.dataset.Dataset.DataPair;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
@@ -30,7 +30,6 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.EventType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -82,11 +81,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private boolean replayMode = false;
 	private boolean keepStartIndex = false;
 	private MarketReplay mr;
-	private MarketReplayPane mrp;
-	private boolean drawMRP = false;
+	private MarketReplayNode mrn;
+	private boolean drawMRN = false;
 	private double dragDiffAccum = 0;	
-	private double mrpx;
-	private double mrpy;	
 	
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
@@ -102,7 +99,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private int numCandlesticks;
 	
 	private ChartButtonVanGoghs cbvg;
-	private boolean mrpDragging = false;
 
 	private CanvasButton chartTypeShortcut;
 	private DateMargin dateMargin;
@@ -210,14 +206,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public ChartButtonVanGoghs chartButtonVanGoghs() {
 		return cbvg;
-	}
-	
-	public void setMRPY(double y) {
-		mrpy = y;
-	}
-	
-	public void setMRPX(double x) {
-		mrpx = x;
 	}
 	
 	public void setChtDataMargin(double chtDataMargin) {
@@ -367,19 +355,19 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	public void enableReplayMode(MarketReplay mr, MarketReplayPane mrp) {
+	public void enableReplayMode(MarketReplay mr) {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			this.mrp = mrp;
+			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
 			
 			for (PendingTrade pt : mr.pendingTrades()) {
 				cmrb.addPenTradePair(new PendingTradePair(pt, this));
 			}
-			
-			drawMRP = true;
+			//TODO
+			drawMRN = true;
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
 		}
@@ -399,7 +387,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			mr.removeChart(this);
 			cmrb = null;
 			mr = null;
-			mrp = null;
+			mrn = null;
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(false);
 		}
 	}
@@ -480,10 +468,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		CrossHair.setY(e.getY());
 	}
 	
-	private boolean onMRP(double x, double y) {
-		return x >= mrpx && x <= mrpx + 399 && y >= mrpy && y <= mrpy + 100;
-	}
-	
 	public void onMouseMoved(MouseEvent e) {
 		if (CrossHair.dateIndex().get() >= tf.size(replayMode, false) && drawCandlesticks.get()) {
 			CrossHair.setDateIndex(0);
@@ -499,10 +483,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			setFocusedChart(false);
 		} else {
 			setFocusedChart(true);
-		}
-		if (drawMRP && onMRP(e.getX(), e.getY()) && !mrpDragging) {
-			fireMRPEvent(MouseEvent.MOUSE_MOVED, e);
-		}		
+		}	
 	}	
 	
 	public void onMousePressed(MouseEvent e) {		
@@ -518,10 +499,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			startY = e.getY();
 		} else if (e.isPrimaryButtonDown()) {
 			if (onChart(e.getX(), e.getY())) {
-				chartInitPos = e.getX();
-				if (drawMRP && onMRP(e.getX(), e.getY())) {
-					fireMRPEvent(MouseEvent.MOUSE_PRESSED, e);
-				}								
+				chartInitPos = e.getX();							
 				double price = ((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
 				double upperPrice = ((((height - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
 				double lowerPrice = ((((height - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
@@ -557,29 +535,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (measuring) {
 			measuring = false;		
 			c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
-		} else if (drawMRP && onMRP(e.getX(), e.getY())) {
-			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
-		}		
+		} 		
 		lineDragging = false;
 		dragDiffAccum = 0;
-		if (mrpDragging) {
-			mrpDragging = false;
-			fireMRPEvent(MouseEvent.MOUSE_RELEASED, e);
-		}
-	}
-	
-	public void onMouseClicked(MouseEvent e) {
-		if (drawMRP && onMRP(e.getX(), e.getY()) && !measuring) {
-			fireMRPEvent(MouseEvent.MOUSE_CLICKED, e);
-		}
-	}
-	
-	private void fireMRPEvent(EventType<MouseEvent> type, MouseEvent e) {
-		MouseEvent me = new MouseEvent(type, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-				e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-				e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-				e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-		mrp.canvas().fireEvent(me);
 	}
 	
 	public void onMouseDragged(MouseEvent e) {			
@@ -593,7 +551,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			endX = e.getX();
 			endY = e.getY();
 		}		
-		if (!lineDragging && !measuring && e.isPrimaryButtonDown() && !(mrpDragging || drawMRP && onMRP(e.getX(), e.getY()))) {
+		if (!lineDragging && !measuring && e.isPrimaryButtonDown()) {
 			double posDiff = e.getX() - chartInitPos;
 			double newHSBPos = c.hsb().x();					
 			int diff;
@@ -623,14 +581,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				}
 				c.hsb().setPosition(newHSBPos, false);
 			}
-		}
-		if (drawMRP && onMRP(e.getX(), e.getY()) || mrpDragging) {
-			MouseEvent me = new MouseEvent(MouseEvent.MOUSE_DRAGGED, e.getX() - mrpx, e.getY() - mrpy, e.getScreenX(), e.getScreenY(), 
-					e.getButton(), e.getClickCount(), e.isShiftDown(), e.isControlDown(), e.isAltDown(), e.isMetaDown(), 
-					e.isPrimaryButtonDown(), e.isMiddleButtonDown(), e.isSecondaryButtonDown(), e.isBackButtonDown(), 
-					e.isForwardButtonDown(), e.isSynthesized(), e.isPopupTrigger(), e.isStillSincePress(), null);
-			mrp.canvas().fireEvent(me);
-			mrpDragging = true;
 		}
 		chartInitPos = e.getX();
 		onMouseMoved(e);
@@ -675,7 +625,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 		double newHSBPos;
 		if (replayMode) {
-			if (mr.live().get() && !mr.paused() || endIndex >= size - 1) {
+			if (mr.live().get() && !mr.paused().get() || endIndex >= size - 1) {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numCandlesticks;
@@ -716,7 +666,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}
 		double newHSBPos;
 		if (replayMode) {
-			if (mr.live().get() && !mr.paused() || endIndex >= size - 1) {
+			if (mr.live().get() && !mr.paused().get() || endIndex >= size - 1) {
 				newHSBPos = Double.MAX_VALUE;
 			} else {
 				startIndex = endIndex - numDataPoints;
@@ -995,7 +945,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawCandleStick(lastCandlestick, xPos, yPos);			
 		}		
 	}
-	//TODO
+	
 	private void drawCurrentPriceBox() {
 		int size = data.tickDataSize(replayMode).get();
 		if (size < 2) {
@@ -1203,8 +1153,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawCurrentPriceLine();
 			drawCurrentPriceBox();
 			cmrb.draw();
-			if (drawMRP) {
-				mrp.drawPane(gc, mrpx, mrpy);
+			if (drawMRN) {
+				mrn.draw();
 			}
 		}
 		if (printSpeed) {
@@ -1234,12 +1184,29 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return mr;
 	}
 	
-	public MarketReplayPane mrp() {
-		return mrp;
+	public MarketReplayNode mrn() {
+		return mrn;
+	}
+	
+	public void updateMRNXVars() {
+		if (drawMRN) {
+			mrn.setMaxX(-CHT_MARGIN + width - 396);
+		}
+	}
+	
+	public void updateMRNYVars() {
+		if (drawMRN) {
+			mrn.setMaxY(-CHT_MARGIN + height - 97);
+		}
 	}
 	
 	public void toggleMRPShortcut() {
-		drawMRP = !drawMRP;
+		drawMRN = !drawMRN;
+		if (drawMRN) {
+			c.sceneGraph().addNode(mrn.node());
+		} else {
+			c.sceneGraph().removeNode(mrn.node());
+		}
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {	

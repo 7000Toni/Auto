@@ -3,10 +3,10 @@ import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.settings.ColourSettings;
 
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.paint.Color;
 
-public class MarketReplayPaneVanGoghs {
+public class MarketReplayNodeVanGoghs {
 	public IVanGogh newChartVG(CanvasButton btn) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
@@ -14,11 +14,11 @@ public class MarketReplayPaneVanGoghs {
 		};
 	}
 	
-	public IVanGogh pausePlayVG(CanvasButton btn, BooleanProperty bPlay) {
+	public IVanGogh pausePlayVG(CanvasButton btn, ReadOnlyBooleanProperty paused) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
 			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);
-			if (bPlay.get()) {
+			if (!paused.get()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRect(x + 10, y + 10, 8, 20);
 				gc.fillRect(x + 22, y + 10, 8, 20);
@@ -53,7 +53,7 @@ public class MarketReplayPaneVanGoghs {
 		};
 	}
 	
-	public IVanGogh liveVG(CanvasButton btn, BooleanProperty bLive) {
+	public IVanGogh liveVG(CanvasButton btn, ReadOnlyBooleanProperty bLive) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
 			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);	

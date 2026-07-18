@@ -28,7 +28,7 @@ import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
 import com.github._7000toni.auto.dataset.reader.MarketTickFileReader;
 import com.github._7000toni.auto.dataset.reader.OptimizedMarketTickFileReader;
 import com.github._7000toni.auto.dataset.reader.OriginalTickFileReader;
-import com.github._7000toni.auto.marketreplay.MarketReplayPane;
+import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -63,7 +63,7 @@ public class Menu implements ICanvasWindow {
 	private double height;
 	private ArrayList<Dataset> datasets = new ArrayList<Dataset>();
 	private ArrayList<DatasetButton> dsButtons = new ArrayList<DatasetButton>();
-	private ArrayList<MarketReplayPane> replays = new ArrayList<MarketReplayPane>();
+	private ArrayList<MarketReplayNode> replays = new ArrayList<MarketReplayNode>();
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;
 		
@@ -77,6 +77,7 @@ public class Menu implements ICanvasWindow {
 	private Tree<ICanvasNode> sceneGraph;
 	private CanvasWrapper cw;
 	private TNode<ICanvasNode> lastNode = null;
+	private ICanvasNode lastFocused = null;
 	private CanvasEventFilter cef;
 	private int draggedFilesSize = 0;
 	
@@ -250,20 +251,34 @@ public class Menu implements ICanvasWindow {
 		draw();
 	}	
 	
+	@Override
 	public CanvasEventFilter canvasEventFilter() {
 		return cef;
 	}
 	
+	@Override
 	public Tree<ICanvasNode> sceneGraph() {
 		return sceneGraph;
 	}
 	
+	@Override
 	public TNode<ICanvasNode> lastNode() {
 		return lastNode;
 	}
 	
+	@Override
 	public void setLastNode(TNode<ICanvasNode> lastNode) {
 		this.lastNode = lastNode;
+	}
+	
+	@Override
+	public ICanvasNode lastFocused() {
+		return lastFocused;
+	}
+	
+	@Override
+	public void setLastFocused(ICanvasNode lastFocused) {
+		this.lastFocused = lastFocused;
 	}
 	
 	public static void setChartsOnStart(ArrayList<String> chartsOnStart) {
