@@ -192,14 +192,17 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		txtSpeed.setOnKeyPressed(e -> {
-			if (txtSpeed.text().equals("") || txtSpeed.text().equals("0")) {
-				txtSpeed.setText("1");
-			}		
-			updateSpeedText(txtSpeed.text());
-			mr.setSpeed(Integer.parseInt(txtSpeed.text()));
+			if (!txtSpeed.text().equals("") && !txtSpeed.text().equals("0")) {
+				mr.setSpeed(Integer.parseInt(txtSpeed.text()));
+			}
+			updateSpeedText(txtSpeed.text());			
 		});
 		
 		txtSpeed.setOnKeyTyped(e -> {
+			if (txtSpeed.text().equals("") || txtSpeed.text().equals("0")) {
+				updateSpeedText(txtSpeed.text());
+				return;
+			}
 			int val = Integer.parseInt(txtSpeed.text());
 			if (val > 999) {
 				txtSpeed.setText("999");
