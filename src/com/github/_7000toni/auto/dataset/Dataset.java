@@ -156,10 +156,11 @@ public class Dataset {
 		public LocalDateTime ldtPrev;
 		public float prevPrice;
 		public int progress;
-		public int trueProgress;
+		public IntegerProperty trueProgress = new SimpleIntegerProperty();
 		public boolean changed = true;
 		public int last = 0;
 		public IntegerProperty percent = new SimpleIntegerProperty();
+		public boolean validFull;
 	}
 	
 	public Dataset(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
@@ -260,9 +261,13 @@ public class Dataset {
 	private void readSignature(ReadFileVars rfv) {
 		try {
 			rfv.in = rfv.br.readLine();
-			signature = rfv.in;			
-			size = Integer.parseInt(rfv.in.substring(0, rfv.in.indexOf(' ')));
-			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
+			signature = rfv.in;		
+			if (rfv.validFull = Signature.validFull(signature)) {
+				size = Integer.parseInt(rfv.in.substring(0, rfv.in.indexOf(' ')));
+				rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
+			} else {
+				size = -1;
+			}			
 			name = rfv.in.substring(0, rfv.in.indexOf(' '));
 			rfv.in = rfv.in.substring(rfv.in.indexOf(' ') + 1);
 			tickSize = Double.parseDouble(rfv.in.substring(0, rfv.in.indexOf(' ')));
@@ -285,18 +290,25 @@ public class Dataset {
 	}
 	
 	private void showPercentage(ReadFileVars rfv) {
-		rfv.percent.set((int)((double)rfv.trueProgress/size*100));
+		if (size == -1) {
+			return;
+		}
+		rfv.percent.set((int)((double)rfv.trueProgress.get()/size*100));
 		if (rfv.last < rfv.percent.get()) {
 			rfv.changed = true;
 		}
 		rfv.last = (int)rfv.percent.get();
 		if (rfv.changed) {
 			//System.out.println(name + ": " + rfv.percent.get() + "%");
-			Menu m = Menu.menu();
-			if (m != null) {				
-				m.draw();
-			}
+			drawMenu();
 			rfv.changed = false;
+		}
+	}
+	
+	private void drawMenu() {
+		Menu m = Menu.menu();
+		if (m != null) {				
+			m.draw();
 		}
 	}
 	
@@ -336,13 +348,17 @@ public class Dataset {
 	
 	private void readData(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
 		try (FileInputStream fis = new FileInputStream(file);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {			
-			ReadFileVars rfv = new ReadFileVars();
-			if (prog != null) {
-				prog.bind(rfv.percent);
-			}
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {				
+			ReadFileVars rfv = new ReadFileVars();			
 			rfv.br = br;			
 			readSignature(rfv);
+			if (prog != null) {
+				if (rfv.validFull) {					
+					prog.bind(rfv.percent);
+				} else {
+					prog.bind(rfv.trueProgress);
+				}
+			}
 			System.out.println("began loading: " + name);
 			try {
 				tdfr.readFirstTick(rfv);
@@ -358,12 +374,12 @@ public class Dataset {
 			checkLength(rfv.val);
 			setInitCandlestickVars(rfv);
 			rfv.progress = 1;
-			rfv.trueProgress = 1;
+			rfv.trueProgress.set(1);
 			rfv.changed = true;
 			rfv.last = 0;
-			for (int i = 1; i < size; i++) {
-				rfv.progress++;
-				rfv.trueProgress++;				
+			while(true) {				
+				rfv.progress++;	
+				rfv.trueProgress.set(rfv.trueProgress.get() + 1);	
 				showPercentage(rfv);
 				try {
 					tdfr.readNextTick(rfv);
@@ -383,6 +399,7 @@ public class Dataset {
 				tickData.add(new DataPair((float)Round.round(rfv.val, numDecimalPts), rfv.ldt, m1Candles.size()));
 				checkLength(rfv.val);
 			}
+			size = rfv.progress;
 			addCandlestick(rfv);
 			System.out.println("finished loading: " + name);
 			timeframes.add(new Timeframe(this, true));

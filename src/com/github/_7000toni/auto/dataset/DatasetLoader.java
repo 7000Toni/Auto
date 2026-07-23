@@ -114,22 +114,38 @@ public class DatasetLoader {
 	}
 	
 	private int preLoadChecks(String signature) {
-		if (!Signature.validFull(signature)) {
-			System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
+		if (!Signature.validFull(signature) && !Signature.validPartial(signature)) {
+			System.err.println("file has invalid signature (regex: [0-9]+\s[A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+ or [A-Za-z0-9]+\s[0-9]*\\.[0-9]+\s[0-9]+)");
 			return 1;
-		}				
+		}
 		Menu.menu().varLock().lock();
 		try {
 			for (Dataset d : datasets) {
 				if (d == null) {
 					continue;
 				}
-				if (signature.equals(d.signature())) {
+				String s = signature;
+				if (Signature.validFull(s)) {
+					s = s.substring(s.indexOf(' ') + 1);
+				}
+				String ds = d.signature();
+				if (Signature.validFull(ds)) {
+					ds = ds.substring(ds.indexOf(' ') + 1);
+				}
+				if (s.equals(ds)) {
 					return 1;
 				}
 			}		
 			for (LoadingDataset l : loadingSets) {
-				if (signature.equals(l.signature())) {
+				String s = signature;
+				if (Signature.validFull(s)) {
+					s = s.substring(s.indexOf(' ') + 1);
+				}
+				String ls = l.signature();
+				if (Signature.validFull(ls)) {
+					ls = ls.substring(ls.indexOf(' ') + 1);
+				}
+				if (s.equals(ls)) {
 					return 1;
 				}
 			}
@@ -150,6 +166,7 @@ public class DatasetLoader {
 				Dataset ds = l.load(file, thisReader);
 				Menu.menu().varLock().lock();
 				try {
+					l.stopAnim();
 					loadingSets.remove(l);				
 					if (ds == null) {
 						abort(l);						
