@@ -84,12 +84,9 @@ public class LoadingDataset {
 	}
 	
 	public void draw() {
-		startAnim();
+		initAnm();
 		GraphicsContext gc = Menu.menu().graphicsContext();
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRoundRect(120, y, 510, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2).deriveColor(0, 1, 1, opacity));
-		//gc.setFill(Chart.darkMode().get()?Color.rgb(255, 255, 255, opacity):Color.rgb(0, 0, 0, opacity));
 		gc.fillRoundRect(120, y, 510, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
@@ -105,7 +102,7 @@ public class LoadingDataset {
 		}
 	}
 	
-	private static void startAnim() {
+	private static void initAnm() {
 		if (anim != null) {
 			return;
 		}
@@ -117,8 +114,9 @@ public class LoadingDataset {
 					lastDraw = now;	
 					return;
 				}
-				if (loadingSets == 0) {
+				if (loadingSets < 1) {
 					stop();
+					anim = null;
 				}
 				long diff = (now - lastDraw) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= 20) {
@@ -129,7 +127,7 @@ public class LoadingDataset {
 					} else if (opacity < 0) {
 						opacity = 0;
 						add = true;
-					}
+					}					
 					drawMenu();
 					lastDraw = now;
 				}
@@ -143,7 +141,7 @@ public class LoadingDataset {
 	}
 	
 	public static void setLoadingSets(int loadingSets) {
-		LoadingDataset.loadingSets = loadingSets;
+		LoadingDataset.loadingSets = loadingSets<0?0:loadingSets;
 	}
 	
 	public static void incrementLoadingSets() {
@@ -151,6 +149,6 @@ public class LoadingDataset {
 	}
 	
 	public static void decrementLoadingSets() {
-		loadingSets--;
+		loadingSets = loadingSets-1<0?0:loadingSets-1;
 	}
 }

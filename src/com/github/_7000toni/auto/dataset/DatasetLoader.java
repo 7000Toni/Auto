@@ -99,9 +99,11 @@ public class DatasetLoader {
 				}
 				LoadingDataset l = new LoadingDataset(Menu.MARGIN + datasets.size() * 58, datasets.size(), signature);
 				Menu.menu().varLock().lock();
-				try {
-					LoadingDataset.incrementLoadingSets();
+				try {					
 					loadingSets.add(l);
+					if (!l.validFullSignature()) {
+						LoadingDataset.incrementLoadingSets();
+					}
 					datasets.add(null);
 					dsButtons.add(null);
 				} finally {
@@ -164,11 +166,13 @@ public class DatasetLoader {
 			@Override
 			public Void call() {	
 				ITickDataFileReader thisReader = setReader(datum);				
-				Dataset ds = l.load(file, thisReader);
+				Dataset ds = l.load(file, thisReader);				
 				Menu.menu().varLock().lock();
 				try {
-					LoadingDataset.decrementLoadingSets();
-					loadingSets.remove(l);					
+					if (!l.validFullSignature()) {
+						LoadingDataset.decrementLoadingSets();						
+					}		
+					loadingSets.remove(l);						
 					if (ds == null) {
 						abort(l);						
 						return null;
