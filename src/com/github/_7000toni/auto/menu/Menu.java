@@ -470,7 +470,6 @@ public class Menu implements ICanvasWindow {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
 			} else {
-				l.drawAnim();
 				l.draw();
 			}
 		}

@@ -24,8 +24,10 @@ public class LoadingDataset {
 	private IntegerProperty addIndex = new SimpleIntegerProperty(0);
 	private boolean validFullSignature;
 	private String name;
-	private double opacity = 1;
-	private AnimationTimer anim = null;
+	private static double opacity = 1;
+	private static boolean add = false;
+	private static AnimationTimer anim = null;
+	private static int loadingSets = 0;
 	
 	public LoadingDataset(double y, int addIndex, String signature) {
 		this.y = y;
@@ -82,6 +84,7 @@ public class LoadingDataset {
 	}
 	
 	public void draw() {
+		startAnim();
 		GraphicsContext gc = Menu.menu().graphicsContext();
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect(120, y, 510, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
@@ -95,19 +98,27 @@ public class LoadingDataset {
 		gc.setFont(oldFont);
 	}
 	
-	public void drawAnim() {
+	private static void drawMenu() {
+		Menu m = Menu.menu();
+		if (m != null) {				
+			m.draw();
+		}
+	}
+	
+	private static void startAnim() {
 		if (anim != null) {
 			return;
 		}
 		anim = new AnimationTimer() {			
 			long lastDraw = -1;		
-			boolean add = false;
 			@Override
 			public void handle(long now) {
 				if (lastDraw == -1) {
-					lastDraw = now;				
-					opacity = 1;
+					lastDraw = now;	
 					return;
+				}
+				if (loadingSets == 0) {
+					stop();
 				}
 				long diff = (now - lastDraw) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= 20) {
@@ -119,7 +130,7 @@ public class LoadingDataset {
 						opacity = 0;
 						add = true;
 					}
-					draw();
+					drawMenu();
 					lastDraw = now;
 				}
 			}
@@ -127,9 +138,19 @@ public class LoadingDataset {
 		anim.start();
 	}
 	
-	public void stopAnim() {
-		if (anim != null) {
-			anim.stop();
-		}
+	public static int loadingSets() {
+		return loadingSets;
+	}
+	
+	public static void setLoadingSets(int loadingSets) {
+		LoadingDataset.loadingSets = loadingSets;
+	}
+	
+	public static void incrementLoadingSets() {
+		loadingSets++;
+	}
+	
+	public static void decrementLoadingSets() {
+		loadingSets--;
 	}
 }

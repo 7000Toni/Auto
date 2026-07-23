@@ -100,6 +100,7 @@ public class DatasetLoader {
 				LoadingDataset l = new LoadingDataset(Menu.MARGIN + datasets.size() * 58, datasets.size(), signature);
 				Menu.menu().varLock().lock();
 				try {
+					LoadingDataset.incrementLoadingSets();
 					loadingSets.add(l);
 					datasets.add(null);
 					dsButtons.add(null);
@@ -166,8 +167,8 @@ public class DatasetLoader {
 				Dataset ds = l.load(file, thisReader);
 				Menu.menu().varLock().lock();
 				try {
-					l.stopAnim();
-					loadingSets.remove(l);				
+					LoadingDataset.decrementLoadingSets();
+					loadingSets.remove(l);					
 					if (ds == null) {
 						abort(l);						
 						return null;
