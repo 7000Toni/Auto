@@ -400,6 +400,7 @@ public class TextBox extends CanvasNode {
 						setCursorPos(0);
 					} else {
 						text = "";
+						setCursorPos(0);
 					}
 				}
 				if (c == '.' && text.contains(".")) {
