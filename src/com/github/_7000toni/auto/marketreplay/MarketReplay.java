@@ -432,7 +432,7 @@ public class MarketReplay {
 						index.set(index.get() + 1);
 						diff -= timeToNextTick.get();
 						timeToNextTick.set(timeToNextTick(index.get()));
-						data.setReplayTickDataSize(index.get() + 1);
+						data.setReplayTickDataSize(index.get());
 						int ci = index.get();
 						if (ci >= tickDataSize.get()) {
 							ci = tickDataSize.get() - 1;
