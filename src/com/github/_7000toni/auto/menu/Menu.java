@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.github._7000toni.auto.canvasnode.CanvasEventFilter;
@@ -448,19 +447,9 @@ public class Menu implements ICanvasWindow {
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {
-			final CountDownLatch latch = new CountDownLatch(1);
 			Platform.runLater(() -> {
-				try {
-					drawUI();
-				} finally {
-					latch.countDown();
-				}
+				drawUI();
 			});
-			try {
-				latch.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 	

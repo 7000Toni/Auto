@@ -1178,7 +1178,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (Platform.isFxApplicationThread()) {
 			drawUI();
 		} else {
-			Platform.runLater(() -> {
+			Platform.runLater(() -> {				
 				drawUI();
 			});
 		}

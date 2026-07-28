@@ -9,6 +9,7 @@ import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.ImageSettings;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -109,6 +110,36 @@ public class ChartMenuButtonVanGoghs {
 			if (lh != null && lh.started().get() && !lh.complete().get()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRect(x+1, y+1, (cb.width()-2)*(lh.progress().get()/100.0), cb.height()-2);
+			}
+			cb.defaultDraw(gc.getFont());
+		};
+	}	
+	
+	public IVanGogh mergeFilesVG(CanvasButton cb, IntegerProperty prog) {
+		return (x, y, gc) -> {
+			if (prog.get() == -1) {
+				cb.disable();
+				cb.setText("READING FILES");
+			} else if (prog.get() > -1) {
+				cb.disable();
+				cb.setText("WRITING FILE");
+			} else {
+				cb.enable();
+				cb.setText("MERGE FILES");
+			}
+			cb.defaultDraw(gc.getFont());
+		};
+	}	
+	
+	public IVanGogh databendoOptimizerVG(CanvasButton cb, IntegerProperty prog) {
+		return (x, y, gc) -> {
+			if (prog.get() > 0) {
+				cb.disable();
+				boolean one = prog.get()==1;
+				cb.setText("WORKING (" + prog.get() + (one?" FILE":" FILES") + " REMAINING)");
+			} else {
+				cb.enable();
+				cb.setText("DATABENDO OPTIMIZER");
 			}
 			cb.defaultDraw(gc.getFont());
 		};

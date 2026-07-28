@@ -6,6 +6,7 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.tabs.DrawingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.GeneralFunctionsTab;
+import com.github._7000toni.auto.chart.menu.tabs.MiscellaneousTab;
 import com.github._7000toni.auto.chart.menu.tabs.TimeframesTab;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -19,6 +20,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	private GeneralFunctionsTab gft;
 	private DrawingsTab dt;
 	private TimeframesTab tft;
+	private MiscellaneousTab mt;
 	
 	private CanvasButton previousFunctions;
 	private CanvasButton nextFunctions;
@@ -36,6 +38,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		gft = new GeneralFunctionsTab(x, y, width, height, gc, chart, cmbvg);
 		dt = new DrawingsTab(x, y, width, height, gc, chart, cmbvg);
 		tft = new TimeframesTab(x, y, width, height, gc, chart, cmbvg);
+		mt = new MiscellaneousTab(x, y, width, height, gc, chart, cmbvg);
 		
 		initFunctionsMenu();
 	}
@@ -46,7 +49,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			previousFunctions.defaultDraw(gc.getFont());
 		});
 		previousFunctions.setOnMouseClicked(e -> {
-			functionsMenuIndex = functionsMenuIndex==0?2:Math.abs((functionsMenuIndex - 1) % 3);
+			functionsMenuIndex = functionsMenuIndex==0?3:Math.abs((functionsMenuIndex - 1) % 3);
 			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
@@ -55,7 +58,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			nextFunctions.defaultDraw(gc.getFont());
 		});
 		nextFunctions.setOnMouseClicked(e -> {
-			functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 3); 
+			functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 4); 
 			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});				
 	}
@@ -69,6 +72,8 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			dt.draw();
 		} else if (functionsMenuIndex == 2) {			
 			tft.draw();
+		} else if (functionsMenuIndex == 3) {
+			mt.draw();
 		}
 	}
 	
@@ -83,6 +88,8 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 				dt.setDrawingFunctionsSceneGraph(sceneGraph, menuNode);
 			} else if (functionsMenuIndex == 2) {
 				tft.setTimeframeFunctionsSceneGraph(sceneGraph, menuNode);
+			} else if (functionsMenuIndex == 3) {
+				mt.setMiscellaneousFunctionsSceneGraph(sceneGraph, menuNode);
 			}
 		} finally {
 			chart.varLock().unlock();
@@ -105,6 +112,10 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		return tft;
 	}
 
+	public MiscellaneousTab miscellaneousTab() {
+		return mt;
+	}
+	
 	@Override
 	public void draw() {		
 		drawFunctionsMenu();
@@ -118,6 +129,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		gft.setX(x);
 		dt.setX(x);
 		tft.setX(x);
+		mt.setX(x);
 		
 		this.x = x;
 	}
@@ -130,6 +142,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 		gft.setY(y);
 		dt.setY(y);
 		tft.setY(y);
+		mt.setY(y);
 		
 		this.y = y;
 	}

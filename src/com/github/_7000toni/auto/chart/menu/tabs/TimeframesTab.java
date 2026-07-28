@@ -7,7 +7,6 @@ import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
-import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
@@ -20,7 +19,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 
-public class TimeframesTab extends CanvasNode implements IScrollBarOwner {
+public class TimeframesTab extends CanvasNode {
 	private Chart chart;
 	private ChartMenuButtonVanGoghs cmbvg;
 	
