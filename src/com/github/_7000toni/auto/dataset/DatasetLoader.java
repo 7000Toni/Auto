@@ -66,7 +66,8 @@ public class DatasetLoader {
 			loadTask(files);
 			return;
 		}
-		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
+		//File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
+		File init = new File("D:\\Data");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
 			fc.setInitialDirectory(init);

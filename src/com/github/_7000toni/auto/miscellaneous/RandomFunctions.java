@@ -21,13 +21,8 @@ public class RandomFunctions {
 	private static final ReentrantLock varLock = new ReentrantLock();
 	
 	public static void mergeFiles(IntegerProperty prog, ChartNode cn) {
-		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 		FileChooser fc = new FileChooser();
-		if (init.exists()) {
-			fc.setInitialDirectory(init);
-		} else {
-			fc.setInitialDirectory(new File("./"));
-		}	
+		fc.setInitialDirectory(new File("./"));
 		fc.setTitle("Select Files");
 		List<File> files = fc.showOpenMultipleDialog(null);		
 		if (files == null || files.size() == 1) {
@@ -82,13 +77,8 @@ public class RandomFunctions {
 	}
 	
 	public static void databendoOptimizer(String contract, IntegerProperty prog, ChartNode cn) {
-		File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 		FileChooser fc = new FileChooser();
-		if (init.exists()) {
-			fc.setInitialDirectory(init);
-		} else {
-			fc.setInitialDirectory(new File("./"));
-		}	
+		fc.setInitialDirectory(new File("./"));
 		fc.setTitle("Select Databendo Files");
 		List<File> files = fc.showOpenMultipleDialog(null);		
 		if (files == null) {
