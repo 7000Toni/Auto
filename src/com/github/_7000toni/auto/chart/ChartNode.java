@@ -1153,10 +1153,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else if (hst != null) {
 				thp.plotHistory(hst);
 			}
-		}
-		if (drawChartTypeShortcut) {
-			chartTypeShortcut.draw();
-		}									
+		}										
 		checkMeasuring();			
 		if (replayMode) {					
 			drawCurrentPriceLine();
@@ -1165,6 +1162,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			if (drawMRN) {
 				mrn.draw();
 			}
+		}
+		if (drawChartTypeShortcut) {
+			chartTypeShortcut.draw();
 		}
 		if (printSpeed) {
 			double tm = (System.nanoTime() - b) / 1000000000.0;
