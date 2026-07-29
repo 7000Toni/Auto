@@ -35,7 +35,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton newChart;
 	private CanvasButton chartType;
 	private CanvasButton darkMode;
-	private CanvasButton chartTypeShortcut;	
+	private CanvasButton chartShortcut;	
 	private CanvasButton initHst;
 	private CanvasButton toggleHst;
 	private CanvasButton toggleSkipDraw;
@@ -100,11 +100,9 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			Chart.toggleDarkMode();
 		});
 		
-		chartTypeShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "CHART TYPE SHORTCUT");
-		chartTypeShortcut.setVanGogh((x2, y2, gc2) -> {
-			chartTypeShortcut.defaultDraw(gc.getFont());
-		});
-		chartTypeShortcut.setOnMouseClicked(e -> {
+		chartShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "CHART SHORTCUT");
+		chartShortcut.setVanGogh(cmbvg.toggleVG(chartShortcut, chart.chartNode().drawChartShortcut(), "HIDE CHART SHORTCUT", "SHOW CHART SHORTCUT"));
+		chartShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleChartTypeShortcut();
 		});
 		
@@ -121,13 +119,13 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		});;
 		
 		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "SKIP DRAW");
-		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "DON'T SKIP DRAW", "SKIP DRAW"));
+		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "DRAW CHART", "SKIP DRAW"));
 		toggleSkipDraw.setOnMouseClicked(e -> {
 			chart.chartNode().toggleSkipDraw();
 		});;
 		
 		toggleCrosshair = new CanvasButton(gc, 290, 20, x + 5, y + 260, "DON'T DRAW CROSSHAIR");
-		toggleCrosshair.setVanGogh(cmbvg.toggleVG(toggleCrosshair, ChartNode.drawCrosshair(), "DON'T DRAW CROSSHAIR", "DRAW CROSSHAIR"));
+		toggleCrosshair.setVanGogh(cmbvg.toggleVG(toggleCrosshair, ChartNode.drawCrosshair(), "HIDE CROSSHAIR", "DRAW CROSSHAIR"));
 		toggleCrosshair.setOnMouseClicked(e -> {
 			ChartNode.toggleDrawCrosshair();
 		});;
@@ -198,7 +196,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		newChart.draw();
 		chartType.draw();
 		darkMode.draw();
-		chartTypeShortcut.draw();		
+		chartShortcut.draw();		
 		initHst.draw();
 		toggleHst.draw();
 		toggleSkipDraw.draw();
@@ -232,7 +230,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(newChart, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(chartType, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(chartTypeShortcut, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(chartShortcut, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
@@ -292,8 +290,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		return darkMode;
 	}
 	
-	public CanvasButton chartTypeShortcut() {
-		return chartTypeShortcut;
+	public CanvasButton chartShortcut() {
+		return chartShortcut;
 	}
 	
 	public CanvasButton replayShortcut() {
@@ -316,7 +314,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		newChart.setX(x + 5);
 		chartType.setX(x + 5);
 		darkMode.setX(x + 5);
-		chartTypeShortcut.setX(x + 5);
+		chartShortcut.setX(x + 5);
 		initHst.setX(x + 5);
 		toggleHst.setX(x + 5);
 		toggleSkipDraw.setX(x + 5);
@@ -339,7 +337,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		newChart.setY(y + 85);
 		chartType.setY(y + 110);
 		darkMode.setY(y + 135);
-		chartTypeShortcut.setY(y + 160);		
+		chartShortcut.setY(y + 160);		
 		initHst.setY(y + 185);
 		toggleHst.setY(y + 210);
 		toggleSkipDraw.setY(y + 235);

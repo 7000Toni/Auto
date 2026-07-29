@@ -732,7 +732,7 @@ public class ChartButtonVanGoghs {
 	
 	public IVanGogh pendingVG(CanvasButton btn) {		
 		return (x, y, gc) -> {
-			if (!c.focusedChart().get() || y < ChartNode.CHT_MARGIN*5 && c.drawChartTypeShortcut() || y + c.fontSize() > c.height() + ChartNode.CHT_MARGIN - c.fontSize() && c.drawChartTypeShortcut() || !btn.enabled()) {
+			if (!c.focusedChart().get() || y < ChartNode.CHT_MARGIN*5 && c.drawChartShortcut().get() || y + c.fontSize() > c.height() + ChartNode.CHT_MARGIN - c.fontSize() && c.drawChartShortcut().get() || !btn.enabled()) {
 				btn.disable(); 
 				return;
 			}

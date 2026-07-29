@@ -3,6 +3,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
@@ -30,6 +31,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -38,6 +40,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 
 public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public final static double CNDL_MOVE_COEF = 0.001;
@@ -84,7 +87,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private MarketReplayNode mrn;
 	private boolean drawMRN = false;
 	private double dragDiffAccum = 0;	
-	private BooleanProperty mrnDraggable = new SimpleBooleanProperty();
+	private BooleanProperty mrnDraggable = new SimpleBooleanProperty(true);
 	private boolean mrnDragged = false;
 	
 	private int lineHighlighted = -1;
@@ -102,9 +105,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	private ChartButtonVanGoghs cbvg;
 
-	private CanvasButton chartTypeShortcut;
+	private CanvasButton chartShortcut;
 	private DateMargin dateMargin;
-	private boolean drawChartTypeShortcut = true;
+	private BooleanProperty drawChartShortcut = new SimpleBooleanProperty(true);
 	private TNode<ICanvasNode> ctsNode;	
 	private TNode<ICanvasNode> chartNode;	
 	private ChartMarketReplayButtons cmrb;
@@ -133,18 +136,32 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		this.c = c;
 		gc = c.graphicsContext();		
 		cbvg = new ChartButtonVanGoghs(this);	
-		chartTypeShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
-		chartTypeShortcut.setOnMouseMoved(e -> {
+		chartShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
+		chartShortcut.setOnMouseMoved(e -> {
 			setFocusedChart(false);
 		});
-		chartTypeShortcut.setOnMouseClicked(e -> {
+		chartShortcut.setOnMouseClicked(e -> {
 			toggleChartType();			
+		});
+		chartShortcut.setOnMouseReleased(e -> {
+			if (e.getButton() == MouseButton.SECONDARY) {
+				Stage s = new Stage();
+				if (Main.icon() != null) {
+					s.getIcons().add(Main.icon());
+				}
+				s.setTitle(data.name());
+				ChartPane cpane = new ChartPane(s, c.width(), c.height(), data, replayMode, mr);			
+				Scene scene = new Scene(cpane);
+				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> cpane.getChart().hsb().keyPressed(ev));
+				s.setScene(scene);
+				s.show();
+			}
 		});
 		dateMargin = new DateMargin(this);
 		
 		chartNode = new TNode<ICanvasNode>(this, sceneGraph.root());
 		sceneGraph.addNode(chartNode);
-		ctsNode = new TNode<ICanvasNode>(chartTypeShortcut, chartNode);
+		ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
 		sceneGraph.addNode(ctsNode);
 		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));
 		
@@ -202,8 +219,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		plotHst.set(!plotHst.get());;
 	}
 	
-	public CanvasButton chartTypeShortcut() {
-		return chartTypeShortcut;
+	public CanvasButton chartShortcut() {
+		return chartShortcut;
 	}
 	
 	public ChartButtonVanGoghs chartButtonVanGoghs() {
@@ -250,8 +267,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void toggleChartTypeShortcut() {
-		drawChartTypeShortcut = !drawChartTypeShortcut;
-		if (drawChartTypeShortcut) {
+		drawChartShortcut.set(!drawChartShortcut.get());
+		if (drawChartShortcut.get()) {
 			c.sceneGraph().addNode(ctsNode);
 		} else {
 			c.sceneGraph().removeNode(ctsNode);
@@ -259,43 +276,43 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public Dataset data() {
-		return this.data;
+		return data;
 	}
 	
 	public double range() {
-		return this.range;
+		return range;
 	}
 	
 	public double lowest() {
-		return this.lowest;
+		return lowest;
 	}
 	
 	public double highest() {
-		return this.highest;
+		return highest;
 	}
 	
 	public int startIndex() {
-		return this.startIndex;
+		return startIndex;
 	}
 	
 	public int endIndex() {
-		return this.endIndex;
+		return endIndex;
 	}
 	
 	public double chtDataMargin() {
-		return this.chtDataMargin;
+		return chtDataMargin;
 	}
 
 	public double dataMarginTickSize() {
-		return this.dataMarginTickSize;
+		return dataMarginTickSize;
 	}
 	
 	public double candlestickWidth() {
-		return this.candlestickWidth;
+		return candlestickWidth;
 	}
 	
 	public double candlestickSpacing() {
-		return this.candlestickSpacing;
+		return candlestickSpacing;
 	}
 	
 	public Dataset.Candlestick lastCandlestick() {
@@ -303,19 +320,19 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public String name() {
-		return this.data.name();
+		return data.name();
 	}
 	
 	public int numDataPoints() {
-		return this.numDataPoints;
+		return numDataPoints;
 	}
 	
 	public int numCandlesticks() {
-		return this.numCandlesticks;
+		return numCandlesticks;
 	}
 	
-	public boolean drawChartTypeShortcut() {
-		return drawChartTypeShortcut;
+	public ReadOnlyBooleanProperty drawChartShortcut() {
+		return  ReadOnlyBooleanProperty.readOnlyBooleanProperty(drawChartShortcut);
 	}
 	
 	public Timeframe timeframe() {
@@ -361,8 +378,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, false, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
-			mrnDraggable.set(false);
+			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
+			mrnDraggable.set(true);
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
 			
@@ -1163,8 +1180,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				mrn.draw();
 			}
 		}
-		if (drawChartTypeShortcut) {
-			chartTypeShortcut.draw();
+		if (drawChartShortcut.get()) {
+			chartShortcut.draw();
 		}
 		if (printSpeed) {
 			double tm = (System.nanoTime() - b) / 1000000000.0;

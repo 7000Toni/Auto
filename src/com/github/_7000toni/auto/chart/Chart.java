@@ -128,7 +128,7 @@ public class Chart implements ICanvasWindow {
 					btnMenu.setWidth(priceMargin.width() - 2);
 					btnMenu.setHeight(HSB_HEIGHT + ChartNode.CHT_MARGIN - 2);
 					btnMenu.setX(ChartNode.CHT_MARGIN + cn.width() + 1);
-					cn.chartTypeShortcut().setX(ChartNode.CHT_MARGIN + cn.width() - 15);
+					cn.chartShortcut().setX(ChartNode.CHT_MARGIN + cn.width() - 15);
 					
 					menu.setX(ChartNode.CHT_MARGIN + cn.width() + priceMargin.width());
 					if (cn.replayMode()) {
