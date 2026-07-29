@@ -83,7 +83,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			s.setTitle(chart.chartNode().name());
 			ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), chart.chartNode().data(), chart.chartNode().replayMode(), chart.chartNode().mr());			
 			Scene scene = new Scene(cpane);
-			scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> cpane.getChart().hsb().keyPressed(ev));
+			scene.addEventFilter(KeyEvent.ANY, ev -> cpane.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
 			s.show();
 		});

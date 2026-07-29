@@ -93,6 +93,7 @@ public class TimeframesTab extends CanvasNode {
 		
 		ticks.setOn(true);
 		addBaseTimeframe(true);
+		checkNumber();
 	}
 	
 	private void setTextEvents() {

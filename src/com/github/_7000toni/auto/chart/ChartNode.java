@@ -152,7 +152,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				s.setTitle(data.name());
 				ChartPane cpane = new ChartPane(s, c.width(), c.height(), data, replayMode, mr);			
 				Scene scene = new Scene(cpane);
-				scene.addEventFilter(KeyEvent.KEY_PRESSED, ev -> cpane.getChart().hsb().keyPressed(ev));
+				scene.addEventFilter(KeyEvent.ANY, ev -> cpane.getChart().canvasEventFilter().canvasEventFilter(ev));
 				s.setScene(scene);
 				s.show();
 			}
