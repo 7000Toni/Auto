@@ -14,6 +14,7 @@ import com.github._7000toni.auto.tree.Tree;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 
 public class MiscellaneousTab extends CanvasNode {
 	private Chart chart;
@@ -23,6 +24,9 @@ public class MiscellaneousTab extends CanvasNode {
 	private CanvasButton databendoOptimizer;
 	private CanvasButton mergeFiles;
 	private String oldText = "";
+	
+	private IntegerProperty doProg = new SimpleIntegerProperty(0);
+	private IntegerProperty mfProg = new SimpleIntegerProperty(-2);
 	
 	public MiscellaneousTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
@@ -43,8 +47,7 @@ public class MiscellaneousTab extends CanvasNode {
 		
 		txtContract = new TextBox(chart.stage(), gc, 100, 20, x + 5, y + 85, "", TextBox.InputType.ANY, false, true, false);
 		setTextEvents();
-		
-		IntegerProperty doProg = new SimpleIntegerProperty(0);
+				
 		databendoOptimizer = new CanvasButton(gc, 185, 20, x + 110, y + 85, "DATABENDO OPTIMIZER");
 		databendoOptimizer.setVanGogh(cmbvg.databendoOptimizerVG(databendoOptimizer, doProg));
 		databendoOptimizer.setOnMouseClicked(e -> {
@@ -54,8 +57,7 @@ public class MiscellaneousTab extends CanvasNode {
 			}
 			RandomFunctions.databendoOptimizer(contract, doProg, chart.chartNode());
 		});
-		
-		IntegerProperty mfProg = new SimpleIntegerProperty(-2);
+				
 		mergeFiles = new CanvasButton(gc, 290, 20, x + 5, y + 110, "MERGE FILES");
 		mergeFiles.setVanGogh(cmbvg.mergeFilesVG(mergeFiles, mfProg));
 		mergeFiles.setOnMouseClicked(e -> {
@@ -64,6 +66,16 @@ public class MiscellaneousTab extends CanvasNode {
 	}
 	
 	private void setTextEvents() {
+		txtContract.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ENTER) {
+				String contract = null;
+				if (!txtContract.text().equals("")) {
+					contract = txtContract.text();
+				}
+				RandomFunctions.databendoOptimizer(contract, doProg, chart.chartNode());
+			}
+		});
+		
 		txtContract.setOnKeyTyped(e -> {
 			if (txtContract.text().length() > 7) {
 				txtContract.setText(oldText);

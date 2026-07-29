@@ -18,6 +18,7 @@ import com.github._7000toni.auto.tree.Tree;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 
 public class TimeframesTab extends CanvasNode {
 	private Chart chart;
@@ -58,6 +59,7 @@ public class TimeframesTab extends CanvasNode {
 			ticks.setOn(true);
 			minutes.setOn(false);
 			addTicks.set(true);
+			checkNumber();
 		});		
 		
 		minutes = new CanvasButton(gc, 142, 20, x + 153, y + 85, "MINUTES");
@@ -66,6 +68,7 @@ public class TimeframesTab extends CanvasNode {
 			minutes.setOn(true);
 			ticks.setOn(false);
 			addTicks.set(false);
+			checkNumber();
 		});		
 		
 		enterPeriod = new CanvasLabel(gc, 290, 20, x + 5, y + 110, "ENTER PERIOD");
@@ -95,6 +98,10 @@ public class TimeframesTab extends CanvasNode {
 	private void setTextEvents() {
 		txtPeriod.setOnKeyPressed(e -> {
 			checkNumber();
+			if (e.getCode() == KeyCode.ENTER && add.enabled()) {
+				addTimeframe(false);
+				add.disable();
+			}
 		});
 			
 		txtPeriod.setOnKeyTyped(e -> {
