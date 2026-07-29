@@ -156,6 +156,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				s.setScene(scene);
 				s.show();
 			}
+			if (e.getButton() == MouseButton.MIDDLE) {
+				Chart.toggleDarkMode();
+			}
 		});
 		dateMargin = new DateMargin(this);
 		
