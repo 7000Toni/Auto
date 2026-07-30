@@ -118,8 +118,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chart.chartNode().toggleHst();
 		});;
 		
-		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "SKIP DRAW");
-		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "DRAW CHART", "SKIP DRAW"));
+		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "DISABLE CHART UPDATES");
+		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "ENABLE CHART UPDATES", "DISABLE CHART UPDATES"));
 		toggleSkipDraw.setOnMouseClicked(e -> {
 			chart.chartNode().toggleSkipDraw();
 		});;
@@ -136,9 +136,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 310, "REPLAY SHORTCUT");
-		replayShortcut.setVanGogh((x2, y2, gc2) -> {
-			replayShortcut.defaultDraw(gc.getFont());
-		});
+		replayShortcut.setVanGogh(cmbvg.toggleVG(replayShortcut, chart.chartNode().drawMRN(), "HIDE REPLAY SHORTCUT", "SHOW REPLAY SHORTCUT"));
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleMRNShortcut();
 		});;	

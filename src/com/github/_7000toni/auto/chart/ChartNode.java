@@ -85,7 +85,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private boolean keepStartIndex = false;
 	private MarketReplay mr;
 	private MarketReplayNode mrn;
-	private boolean drawMRN = false;
+	private BooleanProperty drawMRN = new SimpleBooleanProperty(false);
 	private double dragDiffAccum = 0;	
 	private BooleanProperty mrnDraggable = new SimpleBooleanProperty(true);
 	private boolean mrnDragged = false;
@@ -389,7 +389,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			for (PendingTrade pt : mr.pendingTrades()) {
 				cmrb.addPenTradePair(new PendingTradePair(pt, this));
 			}
-			drawMRN = true;
+			drawMRN.set(true);
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
 		}
@@ -1179,7 +1179,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawCurrentPriceLine();
 			drawCurrentPriceBox();
 			cmrb.draw();
-			if (drawMRN) {
+			if (drawMRN.get()) {
 				mrn.draw();
 			}
 		}
@@ -1217,6 +1217,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return mrn;
 	}
 
+	public ReadOnlyBooleanProperty drawMRN() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(drawMRN);
+	}
+	
 	public boolean mrnDragged() {
 		return mrnDragged;
 	}
@@ -1232,13 +1236,13 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void updateMRNXVars() {
-		if (drawMRN) {
+		if (drawMRN.get()) {
 			mrn.setMaxX(-CHT_MARGIN + width - 396);
 		}
 	}
 	
 	public void updateMRNYVars() {
-		if (drawMRN) {
+		if (drawMRN.get()) {
 			mrn.setMaxY(-CHT_MARGIN + height - 97);
 			if (!mrnDragged) {
 				mrn.setY(height - 100 - fontSize);
@@ -1251,8 +1255,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void toggleMRNShortcut() {
-		drawMRN = !drawMRN;
-		if (drawMRN) {
+		drawMRN.set(!drawMRN.get());
+		if (drawMRN.get()) {
 			c.sceneGraph().addNode(mrn.node());
 		} else {
 			c.sceneGraph().removeNode(mrn.node());
