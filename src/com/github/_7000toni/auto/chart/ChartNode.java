@@ -144,6 +144,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			toggleChartType();			
 		});
 		chartShortcut.setOnMouseReleased(e -> {
+			if (!chartShortcut.pressed()) {
+				return;
+			}
 			if (e.getButton() == MouseButton.SECONDARY) {
 				Stage s = new Stage();
 				if (Main.icon() != null) {
@@ -158,6 +161,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			}
 			if (e.getButton() == MouseButton.MIDDLE) {
 				Chart.toggleDarkMode();
+			}
+		});
+		chartShortcut.setOnMouseDragged(e -> {		
+			if (!chartShortcut.onNode(e.getX(), e.getY())) {
+				chartShortcut.setPressed(false);
+				chartShortcut.setHover(false);
 			}
 		});
 		dateMargin = new DateMargin(this);
@@ -240,7 +249,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		setOnMouseExited(e -> onMouseExited(e));
 		setOnMousePressed(e -> onMousePressed(e));
 		setOnMouseReleased(e -> onMouseReleased(e));
-		setOnMouseClicked(e -> onMouseClicked(e));
 		setOnMouseMoved(e -> onMouseMoved(e));
 		setOnScroll(e -> onScroll(e));
 	}

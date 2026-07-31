@@ -38,7 +38,8 @@ public abstract class CanvasNode implements ICanvasNode {
 		}
 	}
 	
-	protected void setPressed(boolean pressed) {		
+	@Override
+	public void setPressed(boolean pressed) {		
 		this.pressed = pressed;
 		if (!enabled) {
 			this.pressed = false;
@@ -107,11 +108,7 @@ public abstract class CanvasNode implements ICanvasNode {
 
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		if (!onNode(e.getX(), e.getY())) {
-			setPressed(false);
-			setHover(false);
-		}
-		if (onMouseDragged == null || !enabled || e.getButton() != MouseButton.PRIMARY) {
+		if (onMouseDragged == null || !enabled) {
 			return;
 		}
 		onMouseDragged.handle(e);
@@ -156,7 +153,7 @@ public abstract class CanvasNode implements ICanvasNode {
 	
 	@Override
 	public void onMouseReleased(MouseEvent e) {		
-		if (onMouseReleased == null || !enabled || !pressed) {
+		if (onMouseReleased == null || !enabled) {
 			return;
 		}
 		onMouseReleased.handle(e);		

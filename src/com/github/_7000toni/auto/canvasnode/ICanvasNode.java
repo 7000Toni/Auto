@@ -31,6 +31,7 @@ public interface ICanvasNode {
 	public void setOnKeyTyped(EventHandler<? super KeyEvent> e);
 	
 	public void setHover(boolean hover);
+	public void setPressed(boolean pressed);
 	public boolean hover();
 	public boolean pressed();
 	public boolean onNode(double x, double y);	
