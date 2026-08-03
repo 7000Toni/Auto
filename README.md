@@ -38,7 +38,6 @@ Customization
 ![App Screenshot](./screenshots/chart2.png)
 ![App Screenshot](./screenshots/chart3.png)
 ![App Screenshot](./screenshots/chart4.png)
-![App Screenshot](./screenshots/chart5.png)
 ![App Screenshot](./screenshots/menu1.png)
 ![App Screenshot](./screenshots/menu2.png)
 ![App Screenshot](./screenshots/menu3.png)
