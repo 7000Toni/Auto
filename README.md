@@ -6,7 +6,6 @@ It has evolved from a prototype into a tool that I use every day. The custom UI 
 
 This initial step led to me adding all sorts of new features, some for fun and some because they were needed. As the project grew, it became an opportunity to explore custom UI development, modular architecture, and long-term software maintenance.
 
-
 ## Technologies Used
 
 Java,
@@ -18,7 +17,6 @@ Data visualizing as tick chart or candlestick chart
 - Multiple charts from any data source can be opened simultaneously
 - Synchronized crosshair across different charts of the same data source
 - Custom timeframes
-
 
 Market simulation
 - Trading functionality similar to tradingview
@@ -78,11 +76,13 @@ Customization
 - It's useful to consider future additions that will be made to the project so that you can create a design thats easy to extend and maintain in the future
 
 - Things NEVER take as long as you think. Take your estimate for how long something will take, double it, and you'll be lucky to finish within 3x your original estimate
+
 ## Future Improvements
 
 - Add drawings
 - Save all program settings not just visual settings
 - Improve resource usage
 - Refactor some code
-## Project Architecture
+
+<!--## Project Architecture-->
 
