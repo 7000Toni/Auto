@@ -1,5 +1,7 @@
 package com.github._7000toni.auto.chart.menu.tabs;
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.FileChooser;
 
@@ -32,8 +34,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasLabel imageSettings;
 	private CanvasButton reset;
 	private CanvasButton save;
-	private CanvasLabel saved;
-	private boolean recentlySaved = false;
+	private BooleanProperty recentlySaved = new SimpleBooleanProperty(false);
 	
 	private CanvasLabel brightness;
 	private BrightnessScrollBar bsb;
@@ -74,12 +75,10 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 255, "SAVE");
-		save.setVanGogh((x2, y2, gc2) -> {
-			save.defaultDraw(gc.getFont());
-		});
+		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
-			recentlySaved = true;
+			recentlySaved.set(true);
 			new AnimationTimer() {
 				private long init = 0;
 				
@@ -89,17 +88,12 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 						init = now;
 					}
 					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
-						recentlySaved = false;
+						recentlySaved.set(false);
 						chart.draw();
 						this.stop();
 					}
 				}
 			}.start();
-		});
-		
-		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 280, "SAVED"); 
-		saved.setVanGogh((x2, y2, gc2) -> {
-			saved.defaultDraw(gc.getFont());
 		});
 		
 		brightness = new CanvasLabel(gc, 290, 20, x + 5, y + 85, "BRIGHTNESS");
@@ -158,7 +152,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 305, "NO IMAGE SELECTED");
+		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 280, "NO IMAGE SELECTED");
 		noImage.setVanGogh((x2, y2, gc2) -> {
 			noImage.defaultDraw(gc.getFont());
 		});
@@ -179,10 +173,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		} else {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 			gc.fillRect(x + 5, y + 305, 290, 165);
-			ImageFunctions.drawImage(gc, ImageSettings.image(), x + 5, y + 305, 290, 165);
-		}
-		if (recentlySaved) {
-			saved.draw();
+			ImageFunctions.drawImage(gc, ImageSettings.image(), x + 5, y + 280, 290, 165);
 		}
 	}
 	
@@ -211,7 +202,6 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	public void setX(double x) {
 		reset.setX(x + 5);
 		save.setX(x + 5);
-		saved.setX(x + 5);
 		
 		imageSettings.setX(x + 5);
 		brightness.setX(x + 5);
@@ -235,7 +225,6 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		imageSettings.setY(y + 35);
 		reset.setY(y + 230);
 		save.setY(y + 255);
-		saved.setY(y + 280);
 		
 		brightness.setY(y + 85);
 		bsb.setY(y + 105);

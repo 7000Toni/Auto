@@ -1,5 +1,7 @@
 package com.github._7000toni.auto.chart.menu.tabs;
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
 
@@ -34,10 +36,9 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton defaultColours;
 	
 	private CanvasButton save;
-	private CanvasLabel saved;
 	
 	private ArrayList<CanvasButton> colourButtons;
-	private boolean recentlySaved = false;
+	private BooleanProperty recentlySaved = new SimpleBooleanProperty(false);
 	
 	public ColourSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg, BrightnessScrollBar bsb) {
 		this.x = x;
@@ -87,12 +88,10 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x + 5, y + 505, "SAVE");
-		save.setVanGogh((x2, y2, gc2) -> {
-			save.defaultDraw(gc.getFont());
-		});
+		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
-			recentlySaved = true;
+			recentlySaved.set(true);
 			new AnimationTimer() {
 				private long init = 0;
 				
@@ -102,17 +101,12 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 						init = now;
 					}
 					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
-						recentlySaved = false;
+						recentlySaved.set(false);
 						chart.draw();
 						this.stop();
 					}
 				}
 			}.start();
-		});
-		
-		saved = new CanvasLabel(gc, 290, 20, x + 5, y + 530, "SAVED"); 
-		saved.setVanGogh((x2, y2, gc2) -> {
-			saved.defaultDraw(gc.getFont());
 		});
 	}
 	
@@ -125,9 +119,6 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		reset.draw();
 		defaultColours.draw();
 		save.draw();
-		if (recentlySaved) {
-			saved.draw();
-		}
 	}
 	
 	private void initColourButtons() {
@@ -191,7 +182,6 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	public void setX(double x) {
 		reset.setX(x + 5);
 		save.setX(x + 5);
-		saved.setX(x + 5);
 		
 		colourSettings.setX(x + 5);	
 		colourPicker.setX(x + 5);
@@ -211,7 +201,6 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		colourSettings.setY(y + 35);
 		reset.setY(y + 480);
 		save.setY(y + 505);
-		saved.setY(y + 530);
 		
 		colourSettings.setY(y + 35);	
 		
