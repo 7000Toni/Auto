@@ -409,9 +409,11 @@ public class Trade implements ITrade {
 		if (lastTradeShort) {
 			buyOrSell += '\n';
 		}
-		buyOrSell += "Bought";
+		
 		if (!buy) {
 			buyOrSell += "Sold";
+		} else {
+			buyOrSell += "Bought";
 		}
 		
 		String sls; 
