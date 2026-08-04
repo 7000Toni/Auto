@@ -252,7 +252,7 @@ public class CrossHair {
 		if (dateIndex.get() == -1) {
 			return;
 		}
-		boolean same = tf.equals(unfocusedTf) && !(tf.base() && unfocusedTf.base());
+		boolean same = tf.equals(unfocusedTf);
 		int diff = same?dateIndex.get() - chart.startIndex():((int)(tickIndex.get()/(double)unfocusedTf.period()) - chart.startIndex());
 		double xPos = ChartNode.CHT_MARGIN + diff * (chart.drawCandlesticks().get()?chart.candlestickWidth() + chart.candlestickSpacing():chart.xDiff());
 		xPos += (chart.drawCandlesticks().get()?chart.candlestickWidth()/2:0);
