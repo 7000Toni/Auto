@@ -322,6 +322,12 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		} else {			
 			gc.setStroke(Color.BLACK);
 		}
+		if (hover) {
+			gc.setStroke(Color.GRAY);
+		}
+		if (pressed) {
+			gc.setStroke(Color.DIMGRAY);
+		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
