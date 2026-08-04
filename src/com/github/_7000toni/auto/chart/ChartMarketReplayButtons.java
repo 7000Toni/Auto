@@ -73,10 +73,10 @@ public class ChartMarketReplayButtons {
 		tradeButs.setTP(new CanvasButton(gc, 100, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 100, 0, "", 5, fontSize/3));
 		tradeButs.tp().setVanGogh(cbvg.tpVG(tradeButs.tp()));
 		
-		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 10, 0, "SL", 6, fontSize/3));
+		tradeButs.setSetSL(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 60, 0, "SL", 6, fontSize/3));
 		tradeButs.setSL().setVanGogh(cbvg.setSlVG(tradeButs.setSL()));
 		
-		tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2, 0, "TP", 6, fontSize/3));
+		tradeButs.setSetTP(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 + 70 + fontSize*2, 0, "TP", 6, fontSize/3));
 		tradeButs.setTP().setVanGogh(cbvg.setTpVG(tradeButs.setTP()));
 		
 		limitOrder = new CanvasButton(gc, fontSize*2+2, fontSize, ChartNode.CHT_MARGIN + chartWidth - fontSize*2-2, 0, "LMT");
@@ -317,8 +317,8 @@ public class ChartMarketReplayButtons {
 		tradeButs.cancelSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
 		tradeButs.sl().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
 		tradeButs.tp().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
-		tradeButs.setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
-		tradeButs.setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+		tradeButs.setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 60);
+		tradeButs.setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 70 + fontSize*2);
 		for (PendingTradePair p : pbn.tradePairs()) {
 			p.pendingTradeButtons().order().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
 			p.pendingTradeButtons().close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);

@@ -137,11 +137,17 @@ public class MarketReplay {
 	public void cancelSl() {
 		slPrice.set(-1);
 		unvalidatedSlPrice.set(-1);
+		if (!trade.closed()) {
+			trade.setSL(-1);
+		}
 	}
 	
 	public void cancelTp() {
 		tpPrice.set(-1);
 		unvalidatedTpPrice.set(-1);
+		if (!trade.closed()) {
+			trade.setTP(-1);
+		}
 	}
 	
 	public void setSlPrice(double slPrice) {

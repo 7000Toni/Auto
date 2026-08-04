@@ -11,6 +11,7 @@ import com.github._7000toni.auto.settings.ColourSettings;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class ChartButtonVanGoghs {
 	private ChartNode c;
@@ -134,7 +135,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			close.calculateOffsets(gc.getFont());
-			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
+			drawTradeButtonBox(close.x(), close.y(), close.width(), close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
 		};
 	}
 	
@@ -179,7 +180,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			close.calculateOffsets(gc.getFont());
-			drawTradeBox(close.x(), close.y(), close.width(), c.fontSize() * 2, close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
+			drawTradeButtonBox(close.x(), close.y(), close.width(), close.textXOffset(), close.textYOffset(), close.text(), textColour, boxColour);
 		};
 	}
 	
@@ -234,7 +235,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			cancelTP.calculateOffsets(gc.getFont());
-			drawTradeBox(cancelTP.x(), cancelTP.y(), cancelTP.width(), c.fontSize() * 2, cancelTP.textXOffset(), cancelTP.textYOffset(), cancelTP.text(), textColour, boxColour);
+			drawTradeButtonBox(cancelTP.x(), cancelTP.y(), cancelTP.width(), cancelTP.textXOffset(), cancelTP.textYOffset(), cancelTP.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -289,7 +290,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			cancelSL.calculateOffsets(gc.getFont());
-			drawTradeBox(cancelSL.x(), cancelSL.y(), cancelSL.width(), c.fontSize() * 2, cancelSL.textXOffset(), cancelSL.textYOffset(), cancelSL.text(), textColour, boxColour);
+			drawTradeButtonBox(cancelSL.x(), cancelSL.y(), cancelSL.width(), cancelSL.textXOffset(), cancelSL.textYOffset(), cancelSL.text(), textColour, boxColour);
 		};
 	}
 	
@@ -358,15 +359,19 @@ public class ChartButtonVanGoghs {
 			if (c.marketReplay().trade().closed()) {
 				if (c.marketReplay().pendingTrades().size() == 1) {
 					PendingTrade p = c.marketReplay().pendingTrades().get(0);
-					c.tradeButtons().buttons().sl().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedSlPrice().get(), p.buy(), p.volume()));
+					double hp = Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedSlPrice().get(), p.buy(), p.volume());
+					String neg = hp<0?"-":"";
+					c.tradeButtons().buttons().sl().setText(neg + "$" + Math.abs(hp));
 				} else {
 					c.tradeButtons().buttons().sl().setText("SL");
 				}
 			} else {
-				c.tradeButtons().buttons().sl().setText(c.marketReplay().trade().volume() + "  $" + c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedSlPrice().get()));
+				double hp = c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedSlPrice().get());
+				String neg = hp<0?"-":"";
+				c.tradeButtons().buttons().sl().setText(neg + "$" + Math.abs(hp));
 			}	
 			sl.calculateOffsets(gc.getFont());
-			drawTradeBox(sl.x(), sl.y(), sl.width(), 90, 5, sl.textYOffset(), sl.text(), textColour, boxColour);
+			drawTradeButtonBox(sl.x(), sl.y(), sl.width(), 5, sl.textYOffset(), sl.text(), textColour, boxColour);
 		};
 	}
 	
@@ -435,15 +440,19 @@ public class ChartButtonVanGoghs {
 			if (c.marketReplay().trade().closed()) {
 				if (c.marketReplay().pendingTrades().size() == 1) {
 					PendingTrade p = c.marketReplay().pendingTrades().get(0);
-					c.tradeButtons().buttons().tp().setText(p.volume() + "  $" + Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedTpPrice().get(), p.buy(), p.volume()));
+					double hp = Trade.hypotheticalProfit2(p.price(), c.marketReplay().unvalidatedTpPrice().get(), p.buy(), p.volume());
+					String neg = hp<0?"-":"";
+					c.tradeButtons().buttons().tp().setText(neg + "$" + Math.abs(hp));
 				} else {
 					c.tradeButtons().buttons().tp().setText("TP");
 				}
 			} else {
-				c.tradeButtons().buttons().tp().setText(c.marketReplay().trade().volume() + "  $" + c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedTpPrice().get()));
+				double hp = c.marketReplay().trade().hypotheticalProfit(c.marketReplay().unvalidatedTpPrice().get());
+				String neg = hp<0?"-":"";
+				c.tradeButtons().buttons().tp().setText(neg + "$" + Math.abs(hp));
 			}				
 			tp.calculateOffsets(gc.getFont());
-			drawTradeBox(tp.x(), tp.y(), tp.width(), 90, 5, tp.textYOffset(), tp.text(), textColour, boxColour);
+			drawTradeButtonBox(tp.x(), tp.y(), tp.width(), 5, tp.textYOffset(), tp.text(), textColour, boxColour);
 		};
 	}
 	
@@ -482,7 +491,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			setSL.calculateOffsets(gc.getFont());
-			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
+			drawTradeButtonBox(setSL.x(), setSL.y(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -521,7 +530,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			setTP.calculateOffsets(gc.getFont());
-			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
+			drawTradeButtonBox(setTP.x(), setTP.y(), c.fontSize() * 2, setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
 		};
 	}
 	
@@ -559,7 +568,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			setSL.calculateOffsets(gc.getFont());
-			drawTradeBox(setSL.x(), setSL.y(), setSL.width(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
+			drawTradeButtonBox(setSL.x(), setSL.y(), c.fontSize() * 2, setSL.textXOffset(), setSL.textYOffset(), setSL.text(), textColour, boxColour);
 		};
 	}	
 	
@@ -597,7 +606,7 @@ public class ChartButtonVanGoghs {
 				boxColour = Color.LIGHTGRAY;
 			}
 			setTP.calculateOffsets(gc.getFont());
-			drawTradeBox(setTP.x(), setTP.y(), setTP.width(), c.fontSize() * 2, setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
+			drawTradeButtonBox(setTP.x(), setTP.y(), setTP.width(), setTP.textXOffset(), setTP.textYOffset(), setTP.text(), textColour, boxColour);
 		};
 	}
 	
@@ -655,7 +664,9 @@ public class ChartButtonVanGoghs {
 			order.setY(entryY - c.fontSize());
 			order.setText(null);
 			order.calculateOffsets(gc.getFont());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, ((Integer)(c.marketReplay().trade().volume())).toString() + "  $" + ((Double)(c.marketReplay().trade().profit())).toString(), textColour, boxColour);
+			double hp = c.marketReplay().trade().profit();
+			String neg = hp<0?"-":"";
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 5, 4*c.fontSize()/3, ((Integer)(c.marketReplay().trade().volume())).toString(), neg + "$" + Math.abs(hp), textColour, boxColour, false);
 		};
 	}
 	
@@ -718,15 +729,16 @@ public class ChartButtonVanGoghs {
 			
 			double x1 = ChartNode.CHT_MARGIN + c.width() / 2;
 			double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
-			String text = trade.volume() + "  ";
+			String volume = ((Integer)trade.volume()).toString();
+			String text;
 			if (trade.limit()) {
-				text += "LIMIT";
+				text = "LIMIT";
 			} else {
-				text += "STOP";
+				text = "STOP";
 			}
 			order.setX(x1 - 100);
 			order.setY(entryY - c.fontSize());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 100, 90, 5, 4*c.fontSize()/3, text, textColour, boxColour);
+			drawTradeBox(x1 - 100, entryY - c.fontSize(), 5, 4*c.fontSize()/3, volume, text, textColour, boxColour, true);
 		};
 	}
 	
@@ -786,14 +798,35 @@ public class ChartButtonVanGoghs {
 		gc.fillText(((Double)(c.roundToNearestTick(price))).toString(), c.width() + ChartNode.CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.chart().priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
 	
-	public void drawTradeBox(double xPos, double yPos, double width, double textMaxWidth, double textXMargin, double textYMargin, String text, Color textColour, Color boxColour) {
+	public void drawTradeBox(double xPos, double yPos, double textXMargin, double textYMargin, String volume, String text, Color textColour, Color boxColour, boolean pending) {
 		double fontSize = c.fontSize();
 		GraphicsContext gc = c.graphicsContext();
+				
+		Text vol = new Text(volume);
+		vol.setFont(gc.getFont());
+		double volWidth = vol.getLayoutBounds().getWidth();
+		if (volWidth > 50 - textXMargin*2) {
+			volWidth = 50 - textXMargin*2;
+		}
+		double volPartWidth = textXMargin*2 + volWidth;
 		
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.setFill(boxColour);
-		gc.fillRoundRect(xPos, yPos, width, fontSize * 2, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(xPos, yPos, pending?100:150, fontSize*2, CanvasButton.ARC_W, CanvasButton.ARC_H);
 		gc.setFill(textColour);	
-		gc.fillText(text, xPos + textXMargin, yPos + textYMargin, textMaxWidth);
+		gc.fillText(volume, xPos + textXMargin, yPos + textYMargin, volWidth);
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
+		gc.fillRoundRect(xPos + volPartWidth, yPos + 2, (pending?98:148) - volPartWidth, fontSize*2 - 4, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.setFill(Chart.darkMode().get()?Color.WHITE:Color.BLACK);	
+		gc.fillText(text, xPos + volPartWidth + textXMargin, yPos + textYMargin, (pending?98:148) - volPartWidth - textXMargin*2);
+	}
+	
+	public void drawTradeButtonBox(double xPos, double yPos, double width, double textXMargin, double textYMargin, String text, Color textColour, Color boxColour) {
+		double fontSize = c.fontSize();
+		GraphicsContext gc = c.graphicsContext();
+				
+		gc.setFill(boxColour);
+		gc.fillRoundRect(xPos, yPos, width, fontSize*2, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.setFill(textColour);	
+		gc.fillText(text, xPos + textXMargin, yPos + textYMargin, width - textXMargin*2);
 	}
 }
