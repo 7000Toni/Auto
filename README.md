@@ -29,8 +29,10 @@ Customization
 - Chart background colours, line chart colours and candlestick colours are customizable
 - Can use an image as a background on a chart
 
-## Demo Video
-<video src="https://www.youtube.com/watch?v=eoOoQPT_oDE" controls width="100%"></video>
+## Demo Videos
+<video src="https://github.com/user-attachments/assets/b3edd69a-b36f-49db-9bc1-712eaa06a0b7" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/16912283-ff37-4a7f-a426-0a461c8e4431" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/cf21ef4e-eea1-40ca-813c-ef7eb118d36e" controls width="100%"></video>
 
 ## Screenshots
 ![App Screenshot](./assets/load1.png)
