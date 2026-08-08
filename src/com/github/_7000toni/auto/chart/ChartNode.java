@@ -86,8 +86,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private MarketReplay mr;
 	private MarketReplayNode mrn;
 	private BooleanProperty drawMRN = new SimpleBooleanProperty(false);
-	private double dragDiffAccum = 0;	
-	private BooleanProperty mrnDraggable = new SimpleBooleanProperty(true);
+	private double dragDiffAccum = 0;		
 	private boolean mrnDragged = false;
 	
 	private int lineHighlighted = -1;
@@ -390,7 +389,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			this.replayMode = true;
 			this.mr = mr;
 			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
-			mrnDraggable.set(true);
+			mrn.setDraggable(true);
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
 			
@@ -405,8 +404,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void toggleMRNDraggable() {
 		if (replayMode) {
-			mrnDraggable.set(!mrnDraggable.get());
-			mrn.setDraggable(mrnDraggable.get());
+			mrn.setDraggable(!mrn.draggable().get());
 		}
 	}
 	
@@ -769,7 +767,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				}				
 			}
 			if (considerLast) {
-				Dataset.Candlestick c = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex());
+				Dataset.Candlestick c = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex(), tf.tickBased() || tf.base());
 				double low;
 				double high;	
 				if (drawCandlesticks.get()) {
@@ -949,7 +947,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				break;
 			}
 			if (replayMode && startIndex + i > tf.size(true, false) - 3) {
-				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex());
+				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex(), tf.tickBased() || tf.base());
 			} else {
 				lastCandlestick = data.get(startIndex + i + 1);
 			}
@@ -968,7 +966,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				break;
 			}
 			if (replayMode && startIndex + i == size - 1) {
-				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex());
+				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex(), tf.tickBased() || tf.base());
 			} else {
 				lastCandlestick = data.get(startIndex + i);
 			}		
@@ -1259,7 +1257,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public ReadOnlyBooleanProperty mrnDraggable() {
-		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(mrnDraggable);
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(mrn.draggable());
 	}
 	
 	public void toggleMRNShortcut() {

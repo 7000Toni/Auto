@@ -48,7 +48,6 @@ public class ChartMarketReplayButtons {
 		sell.setVanGogh(cbvg.sellVG(sell));	
 		
 		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.ABS_INT, true, false, false);
-		txtVolume.setOnKeyPressed(e -> {txtVolKeyPressedEvent();});
 		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});
 		buy = new CanvasButton(gc, bw, bh, txtVolume.width() + ChartNode.CHT_MARGIN, inity, "BUY", 9, fontSize + 7);
 		buy.setVanGogh(cbvg.buyVG(buy));
@@ -86,13 +85,10 @@ public class ChartMarketReplayButtons {
 		pbn = new PendingButtonsNode();
 	}
 	
-	private void txtVolKeyPressedEvent() {
-		if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
-			txtVolume.setText("1");
-		}
-	}
-	
 	private void txtVolKeyTypedEvent() {
+		if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
+			return;
+		}
 		int val = Integer.parseInt(txtVolume.text());
 		if (val > 10000000) {
 			txtVolume.setText("10000000");
@@ -113,6 +109,10 @@ public class ChartMarketReplayButtons {
 		MarketReplay mr = chart.marketReplay();		
 		
 		sell.setOnMouseClicked(e -> {
+			if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
+				txtVolume.setText("1");
+				return;
+			}
 			if (mr.trade().closed()) {
 				mr.setTrade(new Trade(chart.data(), chart.data().tickDataSize(true).get() - 1, false, tradeVolume()));
 			} else {
@@ -128,6 +128,10 @@ public class ChartMarketReplayButtons {
 		});
 		
 		buy.setOnMouseClicked(e -> {
+			if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
+				txtVolume.setText("1");
+				return;
+			}
 			if (mr.trade().closed()) {
 				mr.setTrade(new Trade(chart.data(), chart.data().tickDataSize(true).get() - 1, true, tradeVolume()));
 			} else {
@@ -143,6 +147,10 @@ public class ChartMarketReplayButtons {
 		});
 		
 		limitOrder.setOnMouseClicked(e -> {
+			if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
+				txtVolume.setText("1");
+				return;
+			}
 			double currentPrice = chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = true;			
@@ -154,7 +162,11 @@ public class ChartMarketReplayButtons {
 			}	
 		});
 		
-		stopOrder.setOnMouseClicked(e -> {			
+		stopOrder.setOnMouseClicked(e -> {	
+			if (txtVolume.text().equals("") || txtVolume.text().equals("0")) {
+				txtVolume.setText("1");
+				return;
+			}
 			double currentPrice = chart.data().tickData().get(chart.data().tickDataSize(true).get() - 1).price();
 			double crossHairPrice = chart.roundToNearestTick(chart.yCoordToPrice(e.getY()));
 			boolean buy = false;			

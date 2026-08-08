@@ -208,7 +208,7 @@ public class Timeframe {
 		int size;
 		if (tickBased) {
 			if (replayMode) {
-				size = (int)((dataSet.tickDataSize(replayMode).get()-1)/(double)period);
+				size = (int)((dataSet.tickDataSize(replayMode).get())/(double)period);				
 				if (dataSet.tickDataSize(replayMode).get() % period != 0) {
 					size += 1;
 				}
@@ -219,7 +219,7 @@ public class Timeframe {
 			if (replayMode) {
 				ArrayList<Candlestick> m1Candles = dataSet.m1Candles();
 				LocalDateTime currDate = m1Candles.get(dataSet.m1CandlesDataSize(true).get()-1).dateTime();
-				int startIndex = (int)((dataSet.m1CandlesDataSize(true).get()-1)/(double)period);
+				int startIndex = (int)((dataSet.m1CandlesDataSize(true).get())/(double)period);
 				size = startIndex + 1;
 				if (data.get(size - 1).dateTime().isEqual(currDate)) {					
 					return size;

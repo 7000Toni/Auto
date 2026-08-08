@@ -17,16 +17,20 @@ import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
-	private boolean draggable;
+	private BooleanProperty draggable = new SimpleBooleanProperty(true);
 	private double minX;
 	private double maxX;
 	private double minY;
@@ -65,7 +69,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.draggable = draggable;
+		this.draggable.set(draggable);
 		this.minX = minX;
 		this.maxX = maxX;
 		this.minY = minY;
@@ -157,9 +161,12 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		setOnMousePressed(e -> {
 			dragXOrigin = e.getX();
 			dragYOrigin = e.getY();
+			if (e.getButton() == MouseButton.SECONDARY) {
+				this.draggable.set(!this.draggable.get());
+			}
 		});
 		setOnMouseDragged(e -> {
-			if (this.draggable) {
+			if (this.draggable.get()) {
 				setX(this.x + e.getX() - dragXOrigin);
 				setY(this.y + e.getY() - dragYOrigin);
 				dragXOrigin = e.getX();
@@ -255,12 +262,12 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
-	public boolean draggable() {
-		return draggable;
+	public ReadOnlyBooleanProperty draggable() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(draggable);
 	}
 	
 	public void setDraggable(boolean draggable) {
-		this.draggable = draggable;
+		this.draggable.set(draggable);
 	}
 	
 	public double minX() {
@@ -326,7 +333,11 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			gc.setStroke(Color.GRAY);
 		}
 		if (pressed) {
-			gc.setStroke(Color.DIMGRAY);
+			if (draggable.get()) {
+				gc.setStroke(Color.DIMGRAY);
+			} else {
+				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+			}
 		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);

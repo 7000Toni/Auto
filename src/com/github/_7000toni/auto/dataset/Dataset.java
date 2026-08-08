@@ -187,7 +187,7 @@ public class Dataset {
 		}
 	}
 	
-	public Candlestick makeLastReplayCandlestick(int startIndex) {
+	public Candlestick makeLastReplayCandlestick(int startIndex, boolean tickBased) {
 		ReadFileVars rfv = new ReadFileVars();
 		rfv.val = tickData().get(startIndex).price;
 		rfv.ldt = tickData().get(startIndex).dateTime();
@@ -195,7 +195,9 @@ public class Dataset {
 		rfv.open = rfv.val;
 		rfv.high = rfv.val;
 		rfv.low = rfv.val;
-		rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		if (!tickBased ) {
+			rfv.ldt = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		}
 		Candlestick c = null;
 		for (int i = startIndex + 1; i < replayTickDataSize.get(); i++) {			
 			rfv.val = tickData().get(i).price;
