@@ -17,15 +17,10 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	
 	@Override
 	public void onMousePressed(MouseEvent e) {
-		if (((ChartNode) sbo).replayMode()) {
-			if (onScrollBar(e.getX(), e.getY())) {
-				dragging = true;
-				initPos = e.getX();
-			}
-		} else if (onScrollBar(e.getX(), e.getY())) {					
+		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
 			initPos = e.getX();
-		} else if (inScrollBarArea(e.getX(), e.getY())) {
+		} else if (!((ChartNode) sbo).replayMode() && inScrollBarArea(e.getX(), e.getY())) {
 			clickedInScrollBarArea = true;
 			initPos = e.getX();
 			new AnimationTimer() {
@@ -73,13 +68,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	public void onMouseDragged(MouseEvent e) {
 		if (dragging) {
 			double posDiff = e.getX() - initPos;
-			if (x + posDiff > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
-			} else if (x + posDiff < minPos) {
-				x = minPos;
-			} else {
-				x += posDiff;
-			}
+			setPosition(x + posDiff, false);
 			initPos = (int)e.getX();
 			((ChartNode) sbo).setKeepStartIndex(false);
 			if (!((ChartNode) sbo).onChart(e.getX(), e.getY())) {

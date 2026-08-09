@@ -66,7 +66,6 @@ public class DatasetLoader {
 			loadTask(files);
 			return;
 		}
-		//File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
 		File init = new File("D:\\Data");
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
@@ -107,6 +106,7 @@ public class DatasetLoader {
 					}
 					datasets.add(null);
 					dsButtons.add(null);
+					Menu.menu().recalculateVSBPos();
 				} finally {
 					Menu.menu().varLock().unlock();
 				}
@@ -153,9 +153,6 @@ public class DatasetLoader {
 					return 1;
 				}
 			}
-			if (datasets.size() >= 6) {
-				return -1;
-			}
 		} finally {
 			Menu.menu().varLock().unlock();
 		}
@@ -196,7 +193,7 @@ public class DatasetLoader {
 					setDSBMREventHandler(dsb.mrButton(), dsb);
 					sceneGraph.addNode(dsbNode);
 					sceneGraph.addNode(mrNode);
-					sceneGraph.addNode(closeNode);
+					sceneGraph.addNode(closeNode);					
 				} finally {
 					Menu.menu().varLock().unlock();
 					Menu.menu().draw();
@@ -243,10 +240,15 @@ public class DatasetLoader {
 			}						
 		}
 		datasets.remove(l.addIndex().get());		
+		Menu.menu().adjustDatasetPositions();
+		Menu.menu().recalculateVSBPos();
 	}
 	
 	private void setDSBEventHandler(DatasetButton dsb) {
-		dsb.setOnMouseClicked(e -> {
+		dsb.setOnScroll(e -> {	
+			Menu.menu().onScroll(e);
+		});
+		dsb.setOnMouseClicked(e -> {			
 			Stage s = new Stage();
 			if (Main.icon() != null) {
 				s.getIcons().add(Main.icon());
@@ -261,6 +263,9 @@ public class DatasetLoader {
 	}
 	
 	private void setDSBCloseEventHandler(CanvasButton close, TNode<ICanvasNode> dsbNode) {
+		close.setOnScroll(e -> {	
+			Menu.menu().onScroll(e);
+		});
 		close.setOnMouseClicked(e -> {
 			Menu.menu().varLock().lock();
 			try {
@@ -279,7 +284,7 @@ public class DatasetLoader {
 						l.setAddIndex(l.addIndex().get() - 1);
 						l.setY(l.y() - 58);	
 					}								
-				}
+				}				
 				String name = datasets.get(((DatasetButton)dsbNode.element()).datasetIndex()).name();
 				Chart.closeAll(name, false);
 				MarketReplayNode mrn = null;
@@ -294,10 +299,7 @@ public class DatasetLoader {
 				}
 				int index = ((DatasetButton)dsbNode.element()).datasetIndex();
 				datasets.remove(index);
-				DatasetButton dsb;
-				if (dsButtons.size() >= index + 1 && (dsb = dsButtons.get(index)) != null) {
-					dsb.closeButton().setHover(true);
-				}
+				Menu.menu().recalculateVSBPos();			
 			} finally {
 				Menu.menu().varLock().unlock();
 			}
@@ -305,6 +307,9 @@ public class DatasetLoader {
 	}
 	
 	private void setDSBMREventHandler(CanvasButton mr, DatasetButton dsb) {
+		mr.setOnScroll(e -> {	
+			Menu.menu().onScroll(e);
+		});
 		mr.setOnMouseClicked(e -> {
 			for (MarketReplayNode mrn : replays) {
 				if (mrn.name().equals(datasets.get(dsb.datasetIndex()).name())) {
@@ -336,7 +341,7 @@ public class DatasetLoader {
 					Menu.menu().varLock().unlock();
 				}
 				mrp.mrNode().endReplay();
-			});
+			});			
 			Menu.menu().varLock().lock();
 			try {
 				replays.add(mrp.mrNode());

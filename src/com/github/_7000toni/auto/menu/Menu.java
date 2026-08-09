@@ -16,6 +16,8 @@ import com.github._7000toni.auto.canvasnode.ICanvasWindow;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.DatasetButton;
+import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
+import com.github._7000toni.auto.canvasnode.scrollbar.VerticalMenuScrollBar;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatasetLoader;
@@ -39,13 +41,15 @@ import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-public class Menu implements ICanvasWindow {
+public class Menu implements ICanvasWindow, IScrollBarOwner {
 	public static final double MARGIN = 10;
 	
 	private Canvas canvas;
@@ -60,11 +64,16 @@ public class Menu implements ICanvasWindow {
 	private CanvasButton auto;
 	private double width;
 	private double height;
+	private Stage stage;
+	private boolean excess = false;
 	private ArrayList<Dataset> datasets = new ArrayList<Dataset>();
 	private ArrayList<DatasetButton> dsButtons = new ArrayList<DatasetButton>();
 	private ArrayList<MarketReplayNode> replays = new ArrayList<MarketReplayNode>();
+	private VerticalMenuScrollBar vsb;
+	private TNode<ICanvasNode> vsbNode;
+	private double offset;
 	private ITickDataFileReader reader = null;	
-	private static Menu menu = null;
+	private static Menu menu = null;	
 		
 	private static ArrayList<String> chartsOnStart = new ArrayList<String>();
 	
@@ -106,13 +115,18 @@ public class Menu implements ICanvasWindow {
 		gc.setFont(oldFont);
 	};
 	
-	public Menu(double width, double height) {		
+	public Menu(double width, double height, Stage stage) {		
 		this.canvas = new Canvas(width, height);
+		this.stage = stage;
 		setCanvasDragDropEvents();;
 		this.gc = canvas.getGraphicsContext2D();
 		gc.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 14));
 		this.width = width;
-		this.height = height;				
+		this.height = height;			
+		vsb = new VerticalMenuScrollBar(this, 0, height, 10, 100, width);
+		vsb.setOnScroll(e -> {
+			onScroll(e);
+		});
 		
 		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
@@ -235,6 +249,11 @@ public class Menu implements ICanvasWindow {
 		sceneGraph.addNode(new TNode<ICanvasNode>(dukasNodeReader, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));
+		vsbNode = new TNode<ICanvasNode>(vsb, sceneGraph.root());
+		
+		cw.setOnScroll(e -> {	
+			onScroll(e);
+		});
 		
 		cef = new CanvasEventFilter(this);
 		canvas.addEventFilter(Event.ANY, e -> {
@@ -249,6 +268,15 @@ public class Menu implements ICanvasWindow {
 		
 		draw();
 	}	
+	
+	public void onScroll(ScrollEvent e) {
+		if (!excess) {
+			return;
+		}
+		double delta = e.getDeltaY() * -0.4;
+		vsb.setPosition(delta, true);
+		adjustDatasetPositions();
+	}
 	
 	@Override
 	public CanvasEventFilter canvasEventFilter() {
@@ -286,9 +314,6 @@ public class Menu implements ICanvasWindow {
 	
 	private void openChartsOnStart() {	
 		for (int i = 0; i < chartsOnStart.size(); i++) {
-			if (i >= 6) {
-				break;
-			}
 			File f = new File(chartsOnStart.get(i));
 			if (f.exists()) {				
 				DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
@@ -301,9 +326,6 @@ public class Menu implements ICanvasWindow {
 	
 	private void setCanvasDragDropEvents() {
 		canvas.setOnDragOver(e -> {
-			if (datasets.size() == 6) {
-				return;
-			}
 			Dragboard db = e.getDragboard();
 			
 			if (db.hasFiles()) {			
@@ -330,9 +352,6 @@ public class Menu implements ICanvasWindow {
 			}			
 		});
 		canvas.setOnDragDropped(e -> {
-			if (datasets.size() == 6) {
-				return;
-			}
 			Dragboard db = e.getDragboard();
 			
 			if (db.hasFiles()) {
@@ -389,6 +408,7 @@ public class Menu implements ICanvasWindow {
 		};
 	}
 	
+	@Override
 	public GraphicsContext graphicsContext() {
 		return gc;
 	}
@@ -412,16 +432,41 @@ public class Menu implements ICanvasWindow {
 		}
 	}
 	
+	private void addVSB() {
+		if (!excess) {
+			stage.setWidth(stage.getWidth() + 10);
+			width += 10;
+			canvas.setWidth(width);
+			excess = true;
+			sceneGraph.addNode(vsbNode);
+		}
+	}
+	
+	private void removeVSB() {
+		if (excess) {
+			stage.setWidth(stage.getWidth() - 10);
+			width -= 10;
+			canvas.setWidth(width);
+			excess = false;
+			sceneGraph.removeNode(vsbNode);
+		}		
+	}
+	
 	private void drawUI() {		
 		varLock.lock();
 		try {					
-			if (datasets.size() < 6) {
-				loadData.enable();
+			if (datasets.size() < 7) {
+				removeVSB();
 			} else {
-				loadData.disable();
-			}
+				addVSB();
+			}			
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MENU_BACKGROUND));
 			gc.fillRect(0, 0, width, height);
+			
+			if (excess) {
+				vsb.draw();
+			}			
+			
 			loadData.draw();
 			optimize.draw();
 			marketTickReader.draw();
@@ -463,6 +508,35 @@ public class Menu implements ICanvasWindow {
 			}
 		}
 	}	
+	
+	public void recalculateVSBPos() {
+		double extra = (datasets.size() - 6) * 58;
+		vsb.setY((offset / extra) * (height - 100));
+	}
+	
+	public void adjustDatasetPositions() {		
+		varLock.lock();
+		try {			
+			if (excess) {
+				double extra = (datasets.size() - 6) * 58;
+				offset = extra * (vsb.y() / (height - 100));
+			} else {
+				offset = 0;
+			}
+			for (int i = 0; i < dsButtons.size(); i++) {
+				DatasetButton d = dsButtons.get(i);
+				if (d == null) {
+					continue;
+				}
+				d.setY(i * 58 + 10 - offset);
+			}
+			for (LoadingDataset l : loadingSets) {
+				l.setY(l.addIndex().get() * 58 + 10 - offset);
+			}
+		} finally {
+			varLock.unlock();
+		}
+	}
 	
 	@Override
 	public boolean dragging() {

@@ -87,7 +87,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage stage) {
 		Settings.loadSettings();
-		MenuPane mp = new MenuPane(640, 360);
+		MenuPane mp = new MenuPane(640, 360, stage);
 		Scene scene = new Scene(mp, 640, 360);
 		if (icon != null) {
 			stage.getIcons().add(icon);

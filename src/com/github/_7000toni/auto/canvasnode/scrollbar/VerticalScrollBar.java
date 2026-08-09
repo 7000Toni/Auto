@@ -9,7 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public abstract class HorizontalScrollBar extends CanvasNode {
+public abstract class VerticalScrollBar extends CanvasNode {
 	protected IScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
@@ -24,14 +24,14 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 	protected double sbHeight;
 	protected IVanGogh vg;
 	
-	public HorizontalScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double y) {
+	public VerticalScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double x) {
 		this.sbo = sbo;
 		this.minPos = minPos;
 		this.maxPos = maxPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		this.x = minPos;
-		this.y = y;
+		this.x = x;
+		this.y = minPos;
 		this.gc = sbo.graphicsContext();
 		
 		onMouseDragged = e -> {defaultOnMouseDragged(e);};
@@ -62,10 +62,10 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 	public void defaultOnMousePressed(MouseEvent e) {
 		if (onScrollBar(e.getX(), e.getY())) {					
 			dragging = true;
-			initPos = e.getX();
+			initPos = e.getY();
 		} else if (inScrollBarArea(e.getX(), e.getY())) {
 			clickedInScrollBarArea = true;
-			initPos = e.getX();
+			initPos = e.getY();
 			new AnimationTimer() {
 				long lastTick = 0;
 				boolean add;
@@ -73,7 +73,7 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > x) {
+						if (initPos > y) {
 							add = true;
 						} else {
 							add = false;
@@ -86,17 +86,17 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 						this.stop();
 					}
 					
-					if (onScrollBar(initPos, y)) {
+					if (onScrollBar(x, initPos)) {
 						this.stop();
 					}
 					
 					if (now - lastTick >= NANO_TO_MILLI*16) {						
 						lastTick = now;		
 						if (add) {
-							setPosition(sbWidth / 2, true);
+							setPosition(sbHeight / 2, true);
 							sbo.draw();
 						} else {
-							setPosition(-(sbWidth / 2), true);
+							setPosition(-(sbHeight / 2), true);
 							sbo.draw();
 						}
 					} 
@@ -121,9 +121,9 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 	
 	public void defaultOnMouseDragged(MouseEvent e) {
 		if (dragging) {
-			double posDiff = e.getX() - initPos;
-			setPosition(x + posDiff, false);
-			initPos = (int)e.getX();
+			double posDiff = e.getY() - initPos;
+			setPosition(y + posDiff, false);
+			initPos = (int)e.getY();
 		}
 	}
 	
@@ -137,41 +137,41 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 	
 	public void setMaxPos(double maxPos) {
 		this.maxPos = maxPos;
-		setPosition(x, false);
+		setPosition(y, false);
 	}
 	
 	public void setMinPos(double minPos) {
 		this.minPos = minPos;
-		setPosition(x, false);
+		setPosition(y, false);
 	}
 	
-	protected abstract void moveOwnerLeft(boolean fast);
+	protected abstract void moveOwnerUp(boolean fast);
 	
-	protected abstract void moveOwnerRight(boolean fast);
+	protected abstract void moveOwnerDown(boolean fast);
 	
 	protected void reduceSBPos(KeyEvent e) {
 		if (e.isControlDown()) {
-			moveOwnerLeft(true);
+			moveOwnerUp(true);
 		} else {
-			moveOwnerLeft(false);
+			moveOwnerUp(false);
 		}
 	}
 	
 	protected void increaseSBPos(KeyEvent e) {
 		if (e.isControlDown()) {
-			moveOwnerRight(true);
+			moveOwnerDown(true);
 		} else {
-			moveOwnerRight(false);
+			moveOwnerDown(false);
 		}
 	}
 	
 	public void keyPressed(KeyEvent e) {
 		switch (e.getCode()) {
-			case KeyCode.LEFT:				
+			case KeyCode.UP:				
 				reduceSBPos(e);
 				sbo.draw();
 				break;
-			case KeyCode.RIGHT:				
+			case KeyCode.DOWN:				
 				increaseSBPos(e);
 				sbo.draw();
 				break;
@@ -190,20 +190,19 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 	}
 	
 	protected boolean inScrollBarArea(double x, double y) {	
-		if (y <= this.y + sbHeight && y >= this.y) {
-			if (x <= maxPos && x >= minPos) {				
+		if (y <= maxPos && y >= minPos) {
+			if (x <= this.x + sbWidth && x >= this.x) {	
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	
-	protected void checkXPos() {
-		if (x > maxPos) {
-			x = maxPos - sbWidth;
-		} else if (x < minPos) {
-			x = minPos - sbWidth;
+	protected void checkYPos() {
+		if (y > maxPos) {
+			y = maxPos - sbHeight;
+		} else if (y < minPos) {
+			y = minPos - sbHeight;
 		}
 	}
 	
@@ -212,27 +211,27 @@ public abstract class HorizontalScrollBar extends CanvasNode {
 			return;
 		}
 		if (increment) {
-			if (pos + x > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
-			} else if (pos + x < minPos) {	
-				x = minPos;
+			if (pos + y > maxPos - sbHeight) {
+				y = maxPos - sbHeight;
+			} else if (pos + y < minPos) {	
+				y = minPos;
 			} else {
-				x += pos;
+				y += pos;
 			}
 		} else {
-			if (pos > maxPos - sbWidth) {
-				x = maxPos - sbWidth;
+			if (pos > maxPos - sbHeight) {
+				y = maxPos - sbHeight;
 			} else if (pos < minPos) {	
-				x = minPos;
+				y = minPos;
 			} else {
-				x = pos;
+				y = pos;
 			}
 		}
 	}		
 	
 	@Override
-	public void setX(double x) {
-		setPosition(x, false);
+	public void setY(double y) {
+		setPosition(y, false);
 	}	
 	
 	public void defaultDraw() {
