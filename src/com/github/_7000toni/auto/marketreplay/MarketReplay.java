@@ -261,6 +261,10 @@ public class MarketReplay {
 		}
 	}
 	
+	public int speed() {
+		return speed.get();
+	}
+	
 	public void setSpeed(int speed) {
 		this.speed.set(speed);
 		lastTickTime = System.nanoTime();

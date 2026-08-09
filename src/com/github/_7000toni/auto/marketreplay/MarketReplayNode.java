@@ -100,7 +100,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 		txtMoveTicks = new TextBox(stage, gc, 106, 40, x+102, y+40, "1000", TextBox.InputType.ABS_INT, false, true, true);
 		txtMoveTicks.setFont((Font.font("Verdana", FontWeight.BOLD, txtMoveTicks.height() - txtMoveTicks.margin()*2)));
-		txtSpeed = new TextBox(stage, gc, 79, 40, x+260, y+40, "1", TextBox.InputType.ABS_INT, false, true, true);
+		txtSpeed = new TextBox(stage, gc, 79, 40, x+260, y+40, ((Integer)this.mr.speed()).toString(), TextBox.InputType.ABS_INT, false, true, true);
 		txtSpeed.setFont((Font.font("Verdana", FontWeight.BOLD, txtMoveTicks.height() - txtMoveTicks.margin()*2)));
 		setTextBoxEvents();
 		
