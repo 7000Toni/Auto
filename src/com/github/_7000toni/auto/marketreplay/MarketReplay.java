@@ -138,7 +138,7 @@ public class MarketReplay {
 		slPrice.set(-1);
 		unvalidatedSlPrice.set(-1);
 		if (!trade.closed()) {
-			trade.setSL(-1);
+			trade.cancelSL();
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class MarketReplay {
 		tpPrice.set(-1);
 		unvalidatedTpPrice.set(-1);
 		if (!trade.closed()) {
-			trade.setTP(-1);
+			trade.cancelTP();
 		}
 	}
 	
