@@ -273,7 +273,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		if (!excess) {
 			return;
 		}
-		double delta = e.getDeltaY() * -0.4;
+		double delta = e.getDeltaY() * -0.5;
 		vsb.setPosition(delta, true);
 		adjustDatasetPositions();
 	}
@@ -477,12 +477,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			auto.draw();
 			drawLoadingSets();
 			drawDraggedFiles();
-			for (DatasetButton dsb : dsButtons) {
-				if (dsb == null) {
-					continue;
-				}
-				dsb.draw();
-			}
+			drawDSButtons();			
 		} finally {
 			varLock.unlock();
 		}
@@ -498,8 +493,18 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		}
 	}
 	
+	private boolean visible(double y) {
+		if (y > -48 && y < height) {
+			return true;
+		}
+		return false;
+	}
+	
 	private void drawLoadingSets() {
 		for (LoadingDataset l : loadingSets) {
+			if (!visible(l.y())) {
+				continue;
+			}
 			if (l.validFullSignature()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
@@ -508,6 +513,15 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			}
 		}
 	}	
+	
+	private void drawDSButtons() {
+		for (DatasetButton dsb : dsButtons) {
+			if (dsb == null || !visible(dsb.y())) {
+				continue;
+			}
+			dsb.draw();
+		}
+	}
 	
 	public void recalculateVSBPos() {
 		double extra = (datasets.size() - 6) * 58;
