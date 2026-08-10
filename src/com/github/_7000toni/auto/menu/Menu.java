@@ -143,7 +143,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
 		this.optimize.setVanGogh(optimizeVG);
 		this.optimize.setOnMouseClicked(e -> {
-			File init = new File("C:\\Users\\Toni C\\Desktop\\TC'S\\The Projects\\Java\\Auto\\res");
+			File init = new File("D:\\Data");
 			FileChooser fc = new FileChooser();
 			if (init.exists()) {
 				fc.setInitialDirectory(init);
