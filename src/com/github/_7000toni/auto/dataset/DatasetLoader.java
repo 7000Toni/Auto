@@ -128,15 +128,7 @@ public class DatasetLoader {
 				if (d == null) {
 					continue;
 				}
-				String s = signature;
-				if (Signature.validFull(s)) {
-					s = s.substring(s.indexOf(' ') + 1);
-				}
-				String ds = d.signature();
-				if (Signature.validFull(ds)) {
-					ds = ds.substring(ds.indexOf(' ') + 1);
-				}
-				if (s.equals(ds)) {
+				if (signature.equals(d.signature())) {
 					return 1;
 				}
 			}		
