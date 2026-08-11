@@ -14,13 +14,13 @@ public class ChartWidthListener implements ChangeListener<Number> {
 	
 	@Override
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {	
-		double oldCW = c.chartNode().width();
+		double oldCNW = c.chartNode().width();
 		c.setWidth(newValue.doubleValue() - Chart.WIDTH_EXTRA);
 		c.canvas().setWidth(c.width());
 		c.chartNode().setWidth(c.width() - c.priceMargin().width() - ChartNode.CHT_MARGIN - (c.menuHidden()?0:300));
-		c.chartNode().setCandleStickVars(c.chartNode().numCandlesticks());
+		c.chartNode().setCandleStickVars(c.chartNode().numCandlesticks());		
+		double newHSBPos = (c.hsb().x() / (ChartNode.CHT_MARGIN + oldCNW - c.hsb().sbWidth())) * (ChartNode.CHT_MARGIN + c.chartNode().width() - c.hsb().sbWidth());
 		c.hsb().setMaxPos(ChartNode.CHT_MARGIN +  c.chartNode().width());
-		double newHSBPos = (c.hsb().x() / (ChartNode.CHT_MARGIN + oldCW - c.hsb().sbWidth())) * (ChartNode.CHT_MARGIN + c.chartNode().width() - c.hsb().sbWidth());
 		c.hsb().setPosition(newHSBPos, false);
 		c.chartNode().updateMRNXVars();			
 		c.chartMenu().setX(ChartNode.CHT_MARGIN + c.chartNode().width() + c.priceMargin().width());
