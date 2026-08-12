@@ -1,6 +1,7 @@
 package com.github._7000toni.auto.chart.menu.tabs;
 import java.util.ArrayList;
 
+import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
@@ -9,6 +10,7 @@ import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
+import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
@@ -17,8 +19,12 @@ import com.github._7000toni.auto.tree.Tree;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.stage.Stage;
 
 public class TimeframesTab extends CanvasNode {
 	private Chart chart;
@@ -110,6 +116,21 @@ public class TimeframesTab extends CanvasNode {
 		});
 	}
 	
+	private void newChart(TimeframeButton tfb) {
+		Stage s = new Stage();
+		if (Main.icon() != null) {
+			s.getIcons().add(Main.icon());
+		}
+		ChartNode cn = chart.chartNode();
+		s.setTitle(cn.name());
+		ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), cn.data(), cn.replayMode(), cn.mr());		
+		cpane.getChart().chartNode().setTimeframe(cn.data().getTimeframe(tfb.timeframeName()));
+		Scene scene = new Scene(cpane);
+		scene.addEventFilter(KeyEvent.ANY, ev -> cpane.getChart().canvasEventFilter().canvasEventFilter(ev));
+		s.setScene(scene);
+		s.show();
+	}
+	
 	private void addBaseTimeframe(boolean ctor) {
 		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 185, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
 		tfb.setVanGogh((x2, y2, gc) -> {
@@ -123,9 +144,14 @@ public class TimeframesTab extends CanvasNode {
 		tfb.setOnMouseClicked(e -> {
 			chart.chartNode().setTimeframe(chart.chartNode().data().getTimeframe(Dataset.BASE_TF_NAME));
 		});
+		tfb.setOnMouseReleased(e -> {
+			if (e.getButton() == MouseButton.SECONDARY) {
+				newChart(tfb);
+			}
+		});
 		tfButtons.add(tfb);
 		checkTimeframes(ctor);
-	}
+	}	
 	
 	private void addTimeframe(boolean ctor) {		
 		Dataset dataset = chart.chartNode().data();
@@ -177,6 +203,11 @@ public class TimeframesTab extends CanvasNode {
 		}
 		tfb.setOnMouseClicked(e -> {
 			chart.chartNode().setTimeframe(dataset.getTimeframe(name));
+		});
+		tfb.setOnMouseReleased(e -> {
+			if (e.getButton() == MouseButton.SECONDARY) {
+				newChart(tfb);
+			}
 		});
 		tfb.removeButton().setOnMouseClicked(e -> {
 			int index = tfButtons.indexOf(tfb);
