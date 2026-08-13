@@ -148,8 +148,10 @@ public class Timeframe {
 			return Duration.between(last, current).toDays() > 7 || current.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) != last.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
 		} else if (period == 1440) {
 			return Duration.between(last, current).toHours() > 24 || current.getDayOfWeek() != last.getDayOfWeek();
-		} else {
+		} else if (period < 1440) {
 			return Duration.between(last, current).toMinutes() > period || current.getMinute() % period == 0;
+		} else {
+			return Duration.between(last, current).toMinutes() > period;
 		}
 	}
 	
