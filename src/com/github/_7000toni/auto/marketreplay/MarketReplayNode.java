@@ -64,9 +64,13 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, sceneGraph, parent, draggable, minX, maxX, minY, maxY);
 	}
 	
-	private void constructorStuff(Chart chart, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY) {
+	private void constructorStuff(Chart chart, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY) {		
 		this.x = x;
+		this.x = Math.max(minX, this.x);
+		this.x = Math.min(this.x, maxX);
 		this.y = y;
+		this.y = Math.max(minY, this.y);
+		this.y = Math.min(this.y, maxY);
 		this.width = width;
 		this.height = height;
 		this.draggable.set(draggable);
@@ -316,7 +320,11 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		} else {
 			Platform.runLater(() -> {
-				drawNode();
+				for (MarketReplayNode n : nodes) {
+					if (n.name().equals(name)) {
+						drawNode();
+					}
+				}
 			});
 		}		
 	}
