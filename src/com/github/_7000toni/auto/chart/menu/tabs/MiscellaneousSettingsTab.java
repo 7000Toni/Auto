@@ -83,9 +83,9 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			arcW.defaultDraw(gc.getFont());
 		});
 		arcWSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 135);
-		arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 290);
+		arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
 		arcWSB.percentage().addListener((observable, oldValue, newValue) -> {
-			MiscellaneousSettings.setArcW(20 * arcWSB.percentage().get());
+			MiscellaneousSettings.setArcW(20 * newValue.doubleValue());
 		});
 		
 		arcH = new CanvasLabel(gc, 290, 20, x + 5, y + 155, "ARC HEIGHT");
@@ -93,9 +93,9 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			arcH.defaultDraw(gc.getFont());
 		});
 		arcHSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 180);
-		arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 290);
+		arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
 		arcHSB.percentage().addListener((observable, oldValue, newValue) -> {
-			MiscellaneousSettings.setArcH(20 * arcHSB.percentage().get());
+			MiscellaneousSettings.setArcH(20 * newValue.doubleValue());
 		});
 		
 		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 200, "RESET");
@@ -104,9 +104,9 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
-			chartMenu.chartSettingsMenu().imageSettingsTab().bsb().setX(x + ((ImageSettings.brightness() + 1) / 2) * 290);
-			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 290);
-			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 290);
+			chartMenu.chartSettingsMenu().imageSettingsTab().bsb().setX(x + ((ImageSettings.brightness() + 1) / 2) * 270);
+			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
@@ -118,8 +118,8 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		});
 		defaultMiscellaneousSettings.setOnMouseClicked(e -> {
 			MiscellaneousSettings.setDefaultSettings();
-			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 290);
-			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 290);
+			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
