@@ -13,6 +13,8 @@ import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
 import com.github._7000toni.auto.miscellaneous.Round;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -22,7 +24,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
@@ -220,11 +221,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		if (!chart.chartNode().replayMode()) {
 			return;
 		}
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);			
-		} else {
-			gc.setFill(Color.BLACK);
-		}
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText("NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 475);
 	}
 	

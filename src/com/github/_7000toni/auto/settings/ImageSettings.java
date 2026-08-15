@@ -207,14 +207,14 @@ public class ImageSettings {
 	}
 	
 	public static String string() {
-		String s = dmImgDir + '\n';
+		String s = dmImgDir + "\n";
 		s += dmBrightness + "\n";
-		s += ((Boolean) dmDraw.get()).toString() + '\n';
-		s += ((Boolean) dmStretch.get()).toString() + '\n';
-		s += lmImgDir + '\n';		
+		s += ((Boolean) dmDraw.get()).toString() + "\n";
+		s += ((Boolean) dmStretch.get()).toString() + "\n";
+		s += lmImgDir + "\n";		
 		s += lmBrightness + "\n";		
-		s += ((Boolean) lmDraw.get()).toString() + '\n';		
-		s += ((Boolean) lmStretch.get()).toString() + '\n';
+		s += ((Boolean) lmDraw.get()).toString() + "\n";		
+		s += ((Boolean) lmStretch.get()).toString();
 		return s;
 	}
 }

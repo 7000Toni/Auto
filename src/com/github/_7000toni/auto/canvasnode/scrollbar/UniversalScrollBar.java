@@ -2,12 +2,14 @@ package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public abstract class UniversalScrollBar extends CanvasNode {
+public class UniversalScrollBar extends CanvasNode {
 	protected IScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
@@ -23,6 +25,8 @@ public abstract class UniversalScrollBar extends CanvasNode {
 	protected double minYPos;
 	protected double sbWidth;
 	protected double sbHeight;
+	protected DoubleProperty xPercentage = new SimpleDoubleProperty(0);
+	protected DoubleProperty yPercentage = new SimpleDoubleProperty(0);
 	protected IVanGogh vg;
 	
 	public UniversalScrollBar(IScrollBarOwner sbo, double minXPos, double maxXPos, double minYPos, double maxYPos, double sbWidth, double sbHeight, double x, double y) {
@@ -146,13 +150,21 @@ public abstract class UniversalScrollBar extends CanvasNode {
 		setYPosition(y, false);
 	}
 	
-	protected abstract void moveOwnerLeft(boolean fast);
+	public DoubleProperty xPercentage() {
+		return xPercentage;
+	}
 	
-	protected abstract void moveOwnerRight(boolean fast);
+	public DoubleProperty yPercentage() {
+		return yPercentage;
+	}
 	
-	protected abstract void moveOwnerUp(boolean fast);
+	protected void moveOwnerLeft(boolean fast) {}
 	
-	protected abstract void moveOwnerDown(boolean fast);
+	protected void moveOwnerRight(boolean fast) {}
+	
+	protected void moveOwnerUp(boolean fast) {}
+	
+	protected void moveOwnerDown(boolean fast) {}
 	
 	protected void reduceSBXPos(KeyEvent e) {
 		if (e.isControlDown()) {
@@ -265,6 +277,7 @@ public abstract class UniversalScrollBar extends CanvasNode {
 				x = pos;
 			}
 		}
+		xPercentage.set((x - minXPos) / (maxXPos - minXPos - sbWidth));
 	}	
 	
 	public void setYPosition(double pos, boolean increment) {
@@ -288,6 +301,7 @@ public abstract class UniversalScrollBar extends CanvasNode {
 				y = pos;
 			}
 		}
+		yPercentage.set((y - minYPos) / (maxYPos - minYPos - sbHeight));
 	}	
 	
 	@Override

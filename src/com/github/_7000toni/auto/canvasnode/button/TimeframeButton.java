@@ -1,6 +1,7 @@
 package com.github._7000toni.auto.canvasnode.button;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -24,7 +25,7 @@ public class TimeframeButton extends CanvasButton {
 			if (remove.pressed()) {
 				gc2.setFill(Color.RED);
 			}			
-			gc2.fillRoundRect(x2, y2, remove.width(), remove.width(), ARC_W, ARC_H);	
+			gc2.fillRoundRect(x2, y2, remove.width(), remove.width(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());	
 			setColoursShape(remove, gc2);
 			double mgn = remove.textXOffset();
 			double v = (remove.width() - mgn*2) / 3;
@@ -74,7 +75,7 @@ public class TimeframeButton extends CanvasButton {
 	public void defaultDraw() {		
 		calculateOffsets(gc.getFont());
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
 		gc.fillText(text, x + 2, y + textYOffset, width - 20);
 		remove.draw();

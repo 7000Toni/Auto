@@ -423,6 +423,48 @@ public class MarketReplay {
 		checkPendingOrders();			
 	}
 	
+	private void nextTick(double diff) {
+		while (!paused.get() && index.get() < tickDataSize.get()) {
+			index.set(index.get() + 1);
+			diff -= timeToNextTick.get();
+			timeToNextTick.set(timeToNextTick(index.get()));
+			data.setReplayTickDataSize(index.get());
+			int ci = index.get();
+			if (ci >= tickDataSize.get()) {
+				ci = tickDataSize.get() - 1;
+			}
+			data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
+			if (live.get()) {
+				double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
+				mrNode.hsb().setPosition(newHSBPos, false);		
+				mrNode.updateHSBPos();
+				for (ChartNode c : charts) {
+					c.setKeepStartIndex(false);
+					c.chart().hsb().setPosition(Integer.MAX_VALUE, false);
+				}
+			} else {
+				double newHSBPos;
+				for (ChartNode c : charts) {
+					if (c.drawCandlesticks().get()) {
+						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * ChartNode.END_MARGIN_COEF));
+					} else {
+						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * ChartNode.END_MARGIN_COEF));
+					}								
+					c.setKeepStartIndex(true);
+					c.chart().hsb().setPosition(newHSBPos, false);
+				}
+				newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
+				mrNode.hsb().setPosition(newHSBPos, false);
+				mrNode.updateHSBPos();
+			}												
+			lastTick.set(index.get() - 1);
+			tick();
+			if (diff < timeToNextTick.get()) {
+				break;
+			}
+		}	
+	}
+	
 	public void run() {
 		run.set(true);
 		new AnimationTimer() {			
@@ -438,46 +480,7 @@ public class MarketReplay {
 				}
 				long diff = (now - lastTickTime) / HorizontalScrollBar.NANO_TO_MILLI;
 				if (diff >= timeToNextTick.get()) {	
-					while (!paused.get() && index.get() < tickDataSize.get()) {
-						index.set(index.get() + 1);
-						diff -= timeToNextTick.get();
-						timeToNextTick.set(timeToNextTick(index.get()));
-						data.setReplayTickDataSize(index.get());
-						int ci = index.get();
-						if (ci >= tickDataSize.get()) {
-							ci = tickDataSize.get() - 1;
-						}
-						data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
-						if (live.get()) {
-							double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
-							mrNode.hsb().setPosition(newHSBPos, false);		
-							mrNode.updateHSBPos();
-							for (ChartNode c : charts) {
-								c.setKeepStartIndex(false);
-								c.chart().hsb().setPosition(Integer.MAX_VALUE, false);
-							}
-						} else {
-							double newHSBPos;
-							for (ChartNode c : charts) {
-								if (c.drawCandlesticks().get()) {
-									newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * ChartNode.END_MARGIN_COEF));
-								} else {
-									newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * ChartNode.END_MARGIN_COEF));
-								}								
-								c.setKeepStartIndex(true);
-								c.chart().hsb().setPosition(newHSBPos, false);
-							}
-							newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
-							mrNode.hsb().setPosition(newHSBPos, false);
-							mrNode.updateHSBPos();
-						}												
-						lastTick.set(index.get() - 1);
-						tick();
-						if (diff < timeToNextTick.get()) {
-							break;
-						}
-					}											
-					
+					nextTick(diff);															
 					if (!charts.isEmpty()) {
 						charts.get(0).draw();
 					}

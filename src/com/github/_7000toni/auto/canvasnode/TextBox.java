@@ -1,10 +1,10 @@
 package com.github._7000toni.auto.canvasnode;
 
-import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Cursor;
@@ -177,18 +177,12 @@ public class TextBox extends CanvasNode {
 	
 	public void setColoursRect() {
 		if (!fillBorder) {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}
+			gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		}
 		if (!border) {
 			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));			
-		} else if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
 		} else {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		}
 		if (!enabled) {
 			gc.setFill(Color.LIGHTGRAY);
@@ -196,8 +190,9 @@ public class TextBox extends CanvasNode {
 	}
 	
 	public void setColoursText() {
-		boolean dm = Chart.darkMode().get(); 
-		if (!dm && !border || !dm && !fillBorder || dm && border && fillBorder) {
+		if (!border || !fillBorder) {
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		} else if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 		} else {
 			gc.setFill(Color.WHITE);
@@ -210,17 +205,16 @@ public class TextBox extends CanvasNode {
 	public void setColoursAlt() {
 		if (!border) {
 			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}
-		} else if (Chart.darkMode().get()) {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.WHITE);
+			gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		} else {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+			if (!border || !fillBorder) {
+				gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+			} else if (Chart.darkMode().get()) {
+				gc.setStroke(Color.BLACK);
+			} else {
+				gc.setStroke(Color.WHITE);
+			}
 		}
 		if (!enabled) {
 			gc.setStroke(Color.DIMGRAY);
@@ -232,9 +226,9 @@ public class TextBox extends CanvasNode {
 		if (border && !fillBorder) {
 			gc.setFill(ColourSettings.colour(ColourIndex.CHART_BACKGROUND));
 		}
-		gc.fillRoundRect(x, y, width, height, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (border && !fillBorder) {
-			gc.strokeRoundRect(x+0.5, y+0.5, width-1, height-1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.strokeRoundRect(x+0.5, y+0.5, width-1, height-1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		}
 	}
 	
@@ -296,8 +290,9 @@ public class TextBox extends CanvasNode {
 		double midx = x + textXOffset;
 		midx += getTextWidth(text.substring(0, cursorPos));	
 		midx = (int)(midx>x+width?x+width-3:midx)+0.5;
-		boolean dm = Chart.darkMode().get(); 
-		if (!dm && !border || !dm && !fillBorder || dm && border && fillBorder) {
+		if (!border || !fillBorder) {
+			gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		} else if (Chart.darkMode().get()){
 			gc.setStroke(Color.BLACK);
 		} else {
 			gc.setStroke(Color.WHITE);
@@ -398,7 +393,7 @@ public class TextBox extends CanvasNode {
 					if (type == InputType.DOUBLE || type == InputType.ABS_DOUBLE) {
 						text = ".0";
 						setCursorPos(0);
-					} else {
+					} else if (cursorPos == 1) {
 						text = "";
 						setCursorPos(0);
 					}

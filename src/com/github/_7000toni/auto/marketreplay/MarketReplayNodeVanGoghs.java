@@ -2,6 +2,7 @@ package com.github._7000toni.auto.marketreplay;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.paint.Color;
@@ -10,14 +11,14 @@ public class MarketReplayNodeVanGoghs {
 	public IVanGogh newChartVG(CanvasButton btn) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
-			gc.fillRoundRect(x, y, 40, 20, CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, 40, 20, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		};
 	}
 	
 	public IVanGogh pausePlayVG(CanvasButton btn, ReadOnlyBooleanProperty paused) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
-			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, 40, 40, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			if (!paused.get()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				gc.fillRect(x + 10, y + 10, 8, 20);
@@ -34,7 +35,7 @@ public class MarketReplayNodeVanGoghs {
 	public IVanGogh backVG(CanvasButton btn) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
-			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);	
+			gc.fillRoundRect(x, y, 40, 40, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());	
 			btn.setColoursText();
 			double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 35, x + 20, x + 20, x + 5};
 			double[] ya = {y + 20, y + 8, y + 15, y + 15, y + 25, y + 25, y + 32, y + 20};
@@ -45,7 +46,7 @@ public class MarketReplayNodeVanGoghs {
 	public IVanGogh forwardVG(CanvasButton btn) {
 		return (x, y, gc) -> {		
 			btn.setColoursRect();
-			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);	
+			gc.fillRoundRect(x, y, 40, 40, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());	
 			btn.setColoursText();
 			double[] xa = {x + 5, x + 20, x + 20, x + 35, x + 20, x + 20, x + 5, x + 5};
 			double[] ya = {y + 15, y + 15, y + 8, y + 20, y + 32, y + 25, y + 25, y + 15};
@@ -56,7 +57,7 @@ public class MarketReplayNodeVanGoghs {
 	public IVanGogh liveVG(CanvasButton btn, ReadOnlyBooleanProperty bLive) {
 		return (x, y, gc) -> {
 			btn.setColoursRect();
-			gc.fillRoundRect(x, y, 40, 40, CanvasButton.ARC_W, CanvasButton.ARC_H);	
+			gc.fillRoundRect(x, y, 40, 40, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());	
 			if (bLive.get()) {
 				gc.setFill(Color.RED);	
 				gc.fillOval(x + 15, y + 15, 10, 10);

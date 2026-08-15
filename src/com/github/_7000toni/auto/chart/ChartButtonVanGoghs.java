@@ -8,6 +8,8 @@ import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
 import com.github._7000toni.auto.marketreplay.trade.TradeButtons;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -24,21 +26,17 @@ public class ChartButtonVanGoghs {
 		return (x, y, gc) -> {			
 			if (menuBtn.hover()) {
 				gc.setFill(Color.GRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			if (menuBtn.pressed()) {
 				gc.setFill(Color.DIMGRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			if (!menuBtn.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
-			if (Chart.darkMode().get()) {
-				gc.setFill(Color.WHITE);
-			} else {
-				gc.setFill(Color.BLACK);
-			}			
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));		
 			if (menuBtn.hover()) {
 				gc.setFill(Color.WHITE);
 			}
@@ -65,7 +63,7 @@ public class ChartButtonVanGoghs {
 			if (!buy.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
 			}
-			gc.fillRoundRect(x, y, buy.width(), buy.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, buy.width(), buy.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			gc.setFill(Color.WHITE);
 			buy.calculateOffsets(gc.getFont());
 			gc.fillText(buy.text(), x + buy.textXOffset(), y + buy.textYOffset());
@@ -84,7 +82,7 @@ public class ChartButtonVanGoghs {
 			if (!sell.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
 			}
-			gc.fillRoundRect(x, y, sell.width(), sell.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, sell.width(), sell.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			gc.setFill(Color.WHITE);
 			sell.calculateOffsets(gc.getFont());
 			gc.fillText(sell.text(), x + sell.textXOffset(), y + sell.textYOffset());
@@ -749,12 +747,8 @@ public class ChartButtonVanGoghs {
 				return;
 			}
 			btn.calculateOffsets(gc.getFont());
-			if (Chart.darkMode().get()) {
-				gc.setFill(Color.WHITE);
-			} else {
-				gc.setFill(Color.BLACK);
-			}
-			gc.fillRoundRect(x, y, btn.width() + 2, btn.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+			gc.fillRoundRect(x, y, btn.width() + 2, btn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			if (btn.text().contains("LMT")) {
 				gc.fillRect(x - 4, y, btn.width() + 8, btn.height());
 			}
@@ -793,7 +787,7 @@ public class ChartButtonVanGoghs {
 		GraphicsContext gc = c.graphicsContext();
 				
 		gc.setFill(boxColour);
-		gc.fillRoundRect(c.width() + ChartNode.CHT_MARGIN, yPos - fontSize/2, c.chart().priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(c.width() + ChartNode.CHT_MARGIN, yPos - fontSize/2, c.chart().priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(textColour);
 		gc.fillText(((Double)(c.roundToNearestTick(price))).toString(), c.width() + ChartNode.CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.chart().priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
@@ -811,11 +805,11 @@ public class ChartButtonVanGoghs {
 		double volPartWidth = textXMargin*2 + volWidth;
 		
 		gc.setFill(boxColour);
-		gc.fillRoundRect(xPos, yPos, pending?100:150, fontSize*2, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(xPos, yPos, pending?100:150, fontSize*2, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(textColour);	
 		gc.fillText(volume, xPos + textXMargin, yPos + textYMargin, volWidth);
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRoundRect(xPos + volPartWidth, yPos + 2, (pending?98:148) - volPartWidth, fontSize*2 - 4, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(xPos + volPartWidth, yPos + 2, (pending?98:148) - volPartWidth, fontSize*2 - 4, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(Chart.darkMode().get()?Color.WHITE:Color.BLACK);	
 		gc.fillText(text, xPos + volPartWidth + textXMargin, yPos + textYMargin, (pending?98:148) - volPartWidth - textXMargin*2);
 	}
@@ -825,7 +819,7 @@ public class ChartButtonVanGoghs {
 		GraphicsContext gc = c.graphicsContext();
 				
 		gc.setFill(boxColour);
-		gc.fillRoundRect(xPos, yPos, width, fontSize*2, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(xPos, yPos, width, fontSize*2, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(textColour);	
 		gc.fillText(text, xPos + textXMargin, yPos + textYMargin, width - textXMargin*2);
 	}

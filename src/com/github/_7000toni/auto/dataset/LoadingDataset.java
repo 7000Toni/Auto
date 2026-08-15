@@ -1,12 +1,12 @@
 package com.github._7000toni.auto.dataset;
 import java.io.File;
 
-import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.IntegerProperty;
@@ -87,7 +87,7 @@ public class LoadingDataset {
 		initAnm();
 		GraphicsContext gc = Menu.menu().graphicsContext();
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2).deriveColor(0, 1, 1, opacity));
-		gc.fillRoundRect(120, y, 510, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(120, y, 510, 48, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
 		gc.setFill(Chart.darkMode().get()?Color.rgb(0, 0, 0, opacity):Color.rgb(255, 255, 255, opacity));

@@ -1,8 +1,8 @@
 package com.github._7000toni.auto.canvasnode;
-import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -74,13 +74,8 @@ public class CanvasLabel extends CanvasNode {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(new Font(height - 5));
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
@@ -91,13 +86,8 @@ public class CanvasLabel extends CanvasNode {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(new Font(height - 5));
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
@@ -106,13 +96,8 @@ public class CanvasLabel extends CanvasNode {
 	
 	public void defaultDraw(Font font) {
 		calculateOffsets(font);
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);
@@ -120,13 +105,8 @@ public class CanvasLabel extends CanvasNode {
 	
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.BLACK);
-		}	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.strokeLine(x, y+height/2+0.5, x+textXOffset-5, y+height/2+0.5);
 		gc.strokeLine(x+width-textXOffset+5, y+height/2+0.5, x+width, y+height/2+0.5);

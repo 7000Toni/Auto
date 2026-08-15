@@ -31,6 +31,7 @@ import com.github._7000toni.auto.dataset.reader.OptimizedMarketTickFileReader;
 import com.github._7000toni.auto.dataset.reader.OriginalTickFileReader;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -94,10 +95,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 22));
 		if (numJobs.get() > 0) {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-		} else if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
 		} else {
-			gc.setFill(Color.BLACK);
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
 		}		
 		if (optimize.hover()) {
 			gc.setFill(Color.GRAY);
@@ -108,7 +107,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		if (!optimize.enabled()) {
 			gc.setFill(Color.LIGHTGRAY);
 		}
-		gc.fillRoundRect(x, y, optimize.width(), optimize.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(x, y, optimize.width(), optimize.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		optimize.setColoursText();
 		optimize.calculateOffsets(gc.getFont());
 		gc.fillText(optimize.text(), x + optimize.textXOffset(), y + optimize.textYOffset());		
@@ -143,7 +142,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
 		this.optimize.setVanGogh(optimizeVG);
 		this.optimize.setOnMouseClicked(e -> {
-			File init = new File("D:\\Data");
+			File init = new File(MiscellaneousSettings.initFileDir());
 			FileChooser fc = new FileChooser();
 			if (init.exists()) {
 				fc.setInitialDirectory(init);
@@ -389,10 +388,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, fontSize));		
 			if (cb.on()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			} else if (Chart.darkMode().get()) {
-				gc.setFill(Color.WHITE);
 			} else {
-				gc.setFill(Color.BLACK);
+				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
 			}
 			if (cb.hover()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
@@ -400,7 +397,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			if (cb.pressed()) {				
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 			}	
-			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			cb.setColoursText();
 			cb.calculateOffsets(gc.getFont());
 			gc.fillText(cb.text(), x + cb.textXOffset(), y + cb.textYOffset());
@@ -428,7 +425,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 				break;
 			}
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			gc.strokeRoundRect(120 + 0.5, 10 + 58*j + 0.5, 509, 47, CanvasButton.ARC_W, CanvasButton.ARC_H);					
+			gc.strokeRoundRect(120 + 0.5, 10 + 58*j + 0.5, 509, 47, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());					
 		}
 	}
 	
@@ -507,7 +504,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			}
 			if (l.validFullSignature()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			} else {
 				l.draw();
 			}

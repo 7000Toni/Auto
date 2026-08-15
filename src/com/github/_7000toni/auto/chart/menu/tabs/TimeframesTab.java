@@ -14,6 +14,7 @@ import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -136,7 +137,7 @@ public class TimeframesTab extends CanvasNode {
 		tfb.setVanGogh((x2, y2, gc) -> {
 			tfb.calculateOffsets(gc.getFont());
 			tfb.setColoursRect();
-			gc.fillRoundRect(tfb.x(), tfb.y(), tfb.width(), tfb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(tfb.x(), tfb.y(), tfb.width(), tfb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			tfb.setColoursText();
 			gc.fillText(tfb.text(), tfb.x() + 2, tfb.y() + tfb.textYOffset(), tfb.width() - 20);
 		});

@@ -13,6 +13,8 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -132,6 +134,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		});
 		back.setOnMouseClicked(e -> {
+			if (txtMoveTicks.text().equals("")) {
+				return;
+			}
 			this.mr.setIndex(-Integer.parseInt(txtMoveTicks.text()), true);
 			updateHSBPos();
 			if (!this.mr.charts().isEmpty()) {
@@ -139,6 +144,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		});
 		forward.setOnMouseClicked(e -> {
+			if (txtMoveTicks.text().equals("")) {
+				return;
+			}
 			this.mr.setIndex(Integer.parseInt(txtMoveTicks.text()), true);
 			updateHSBPos();
 			if (!this.mr.charts().isEmpty()) {
@@ -186,20 +194,15 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		draw();
 	}
 	
-	private void setTextBoxEvents() {
-		txtMoveTicks.setOnKeyPressed(e -> {
-			if (txtMoveTicks.text().equals("")) {
-				txtMoveTicks.setText("0");
-			}
-			updateMoveTicksText(txtMoveTicks.text());
-		});
-		
+	private void setTextBoxEvents() {		
 		txtMoveTicks.setOnKeyTyped(e -> {
+			if (txtMoveTicks.text().equals("")) {
+				return;
+			}
 			int val = Integer.parseInt(txtMoveTicks.text());
 			if (val > 1000) {
 				txtMoveTicks.setText("1000");
 			}
-			updateMoveTicksText(txtMoveTicks.text());
 		});
 		
 		txtSpeed.setOnKeyPressed(e -> {
@@ -240,14 +243,6 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		for (MarketReplayNode n : nodes) {
 			if (n != this && n.name.equals(name)) {				
 				n.txtSpeed.setText(txtSpeed.text());
-			}
-		}
-	}
-	
-	private void updateMoveTicksText(String text) {
-		for (MarketReplayNode n : nodes) {
-			if (n != this && n.name.equals(name)) {				
-				n.txtMoveTicks.setText(txtMoveTicks.text());
 			}
 		}
 	}
@@ -332,11 +327,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private void drawNode() {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.WHITE);
-		} else {			
-			gc.setStroke(Color.BLACK);
-		}
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		if (hover) {
 			gc.setStroke(Color.GRAY);
 		}
@@ -348,8 +339,8 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		int percent = (int)(mr.index().get() * 100 / (double)(mr.maxSize().get() - 1));
 		if (percent > 100) {
 			percent = 100;
@@ -363,11 +354,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			tick = mr.data().tickData().get(index).dateTime();
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-		}
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(percent + "%  " + time, x + 10, y + 25, 240);
 		gc.fillText("SPEED", x + 260, y + 25);			
 		hsb.draw();

@@ -24,6 +24,7 @@ import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -31,6 +32,8 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -39,8 +42,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.Cursor;
-import javafx.scene.Scene;
 
 public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public final static double CNDL_MOVE_COEF = 0.001;
@@ -834,7 +835,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					gc.setStroke(Color.GRAY);
 				}
 				gc.strokeLine(CHT_MARGIN, y, width + CHT_MARGIN, y);				
-				gc.fillRoundRect(width + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.fillRoundRect(width + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 				gc.setFill(Color.WHITE);
 				gc.fillText(((Double)(roundToNearestTick(l.price()))).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, y + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
 			}
@@ -992,7 +993,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}	
 		double yPos = ((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 		gc.setFill(Color.SLATEBLUE);		
-		gc.fillRoundRect(width + CHT_MARGIN, yPos - fontSize/2, c.priceMargin().width(), fontSize, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(width + CHT_MARGIN, yPos - fontSize/2, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(Color.WHITE);
 		gc.fillText(((Double)(Round.round(price, data.numDecimalPts()))).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
@@ -1079,11 +1080,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void drawTopRightText() {		
-		if (Chart.darkMode().get()) {			
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-		}
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		String midDot = " " + (char)183 + " ";
 		String tfName;
 		if (tf.base()) {

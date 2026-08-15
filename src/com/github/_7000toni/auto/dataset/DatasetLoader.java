@@ -20,6 +20,7 @@ import com.github._7000toni.auto.dataset.reader.OriginalTickFileReader;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.menu.Menu;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -66,7 +67,7 @@ public class DatasetLoader {
 			loadTask(files);
 			return;
 		}
-		File init = new File("D:\\Data");
+		File init = new File(MiscellaneousSettings.initFileDir());
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
 			fc.setInitialDirectory(init);

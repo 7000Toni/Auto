@@ -2,12 +2,11 @@ package com.github._7000toni.auto.chart.menu;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.scrollbar.BrightnessScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.tabs.ColourSettingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.ImageSettingsTab;
-import com.github._7000toni.auto.settings.ImageSettings;
+import com.github._7000toni.auto.chart.menu.tabs.MiscellaneousSettingsTab;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -22,8 +21,8 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private ColourSettingsTab cst;
 	private ImageSettingsTab ist;
+	private MiscellaneousSettingsTab mst;
 	
-	private BrightnessScrollBar bsb;
 	private int settingsMenuIndex = 0;
 	
 	public ChartSettingsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
@@ -33,10 +32,10 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		this.height = height;
 		this.gc = gc;
 		this.chart = chart;
-		this.chartMenu = chartMenu;
-		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 289, x + 299, 15, 15, y + 105);
-		this.cst = new ColourSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg, bsb);
-		this.ist = new ImageSettingsTab(x, y, width, height, gc, chart, cmbvg);		
+		this.chartMenu = chartMenu;		
+		this.cst = new ColourSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);
+		this.ist = new ImageSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);	
+		this.mst = new MiscellaneousSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);	
 		initSettingsMenu();
 	}
 	
@@ -46,7 +45,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			previousSettings.defaultDraw(gc.getFont());
 		});
 		previousSettings.setOnMouseClicked(e -> {
-			settingsMenuIndex = Math.abs((settingsMenuIndex - 1) % 2); 
+			settingsMenuIndex = settingsMenuIndex==0?2:Math.abs((settingsMenuIndex - 1) % 2);
 			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
@@ -55,7 +54,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			nextSettings.defaultDraw(gc.getFont());
 		});
 		nextSettings.setOnMouseClicked(e -> {
-			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 2); 
+			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 3); 
 			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});				
 	}
@@ -67,6 +66,8 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			cst.draw();
 		} else if (settingsMenuIndex == 1) {
 			ist.draw();
+		} else {
+			mst.draw();
 		}
 	}
 	
@@ -79,6 +80,8 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 				cst.setColourSettingsSceneGraph(sceneGraph, menuNode);
 			} else if (settingsMenuIndex == 1) {
 				ist.setImageSettingsSceneGraph(sceneGraph, menuNode);
+			} else {
+				mst.setMiscellaneousSettingsSceneGraph(sceneGraph, menuNode);
 			}
 		} finally {
 			chart.varLock().unlock();
@@ -87,16 +90,20 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	public Chart chart() {
 		return chart;
+	}	
+	
+	public ColourSettingsTab colourSettingsTab() {
+		return cst;
 	}
 	
 	public ImageSettingsTab imageSettingsTab() {
 		return ist;
 	}
-	
-	public ColourSettingsTab colourSettingsTab() {
-		return cst;
-	}
 
+	public MiscellaneousSettingsTab miscellaneousSettingsTab() {
+		return mst;
+	}
+	
 	@Override
 	public void draw() {
 		drawSettingsMenu();	
@@ -108,6 +115,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		
 		cst.setX(x);
 		ist.setX(x);
+		mst.setX(x);
 		this.x = x;
 	}
 
@@ -118,6 +126,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		
 		cst.setY(y);
 		ist.setY(y);
+		mst.setY(y);
 		this.y = y;	
 	}
 }

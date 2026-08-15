@@ -7,6 +7,7 @@ import com.github._7000toni.auto.marketreplay.trade.history.LoadingHistory;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.ImageSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -21,11 +22,7 @@ public class ChartMenuButtonVanGoghs {
 		return (x, y, gc) -> {
 			Font oldFont = gc.getFont();
 			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, fontSize));
-			if (Chart.darkMode().get()) {
-				gc.setFill(Color.WHITE);
-			} else {
-				gc.setFill(Color.BLACK);
-			}
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
 			if (cb.on()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 			} 
@@ -38,7 +35,7 @@ public class ChartMenuButtonVanGoghs {
 			if (!cb.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
 			}
-			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			if (Chart.darkMode().get()) {
 				gc.setFill(Color.BLACK);
 			} else {
@@ -93,13 +90,13 @@ public class ChartMenuButtonVanGoghs {
 	public IVanGogh colourPreviewVG(CanvasButton cb, int index) {
 		return (x, y, gc) -> {			
 			gc.setFill(ColourSettings.colour(index));
-			gc.fillRoundRect(x, y, cb.width(), cb.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
+			gc.fillRoundRect(x, y, cb.width(), cb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			if (Chart.darkMode().get() && ColourSettings.colour(index).equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
 				gc.setStroke(Color.WHITE);
-				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			} else if (!Chart.darkMode().get() && ColourSettings.colour(index).equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
 				gc.setStroke(Color.BLACK);
-				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, CanvasButton.ARC_W, CanvasButton.ARC_H);
+				gc.strokeRoundRect(x + 0.5, y + 0.5, cb.width() - 1, cb.height() - 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 		};
 	}	

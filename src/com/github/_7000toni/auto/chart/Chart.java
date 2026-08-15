@@ -15,8 +15,10 @@ import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.ImageFunctions;
 import com.github._7000toni.auto.settings.ImageSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.settings.Settings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -28,7 +30,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -38,7 +39,7 @@ public class Chart implements ICanvasWindow {
 	public final static double HEIGHT_EXTRA = 39;
 	
 	public final static double MIN_WIDTH = 950; 
-	public final static double MIN_HEIGHT = 590; 
+	public final static double MIN_HEIGHT = 595; 
 
 	public final static double HSB_WIDTH = 100;
 	public final static double HSB_HEIGHT = 10;	
@@ -286,13 +287,9 @@ public class Chart implements ICanvasWindow {
 		if (ImageSettings.draw().get()) {
 			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height());
 		}
-		if (Chart.darkMode().get()) {	
-			gc.setStroke(Color.WHITE);
-		} else {
-			gc.setStroke(Color.BLACK);
-		}
-		gc.strokeRoundRect(ChartNode.CHT_MARGIN - 0.5, ChartNode.CHT_MARGIN - 0.5, cn.width() + 1, cn.height(), CanvasButton.ARC_W, CanvasButton.ARC_H);
-		gc.strokeRoundRect(ChartNode.CHT_MARGIN + cn.width() + 0.5, ChartNode.CHT_MARGIN + cn.height() - 0.5, priceMargin.width() - 1, Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.strokeRoundRect(ChartNode.CHT_MARGIN - 0.5, ChartNode.CHT_MARGIN - 0.5, cn.width() + 1, cn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(ChartNode.CHT_MARGIN + cn.width() + 0.5, ChartNode.CHT_MARGIN + cn.height() - 0.5, priceMargin.width() - 1, Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawChart() {

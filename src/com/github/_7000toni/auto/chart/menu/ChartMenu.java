@@ -37,9 +37,11 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		CHART_BACKGROUND(6, "CHART BACKGROUND"),
 		CB_PREVIEW(6, null),
 		MISCELLANEOUS_1(7, "MISCELLANEOUS 1"),
-		MISC1_PREIVEW(7, null),
+		MISC1_PREVIEW(7, null),
 		MISCELLANEOUS_2(8, "MISCELLANEOUS 2"),
-		MISC2_PREIVEW(8, null);
+		MISC2_PREIVEW(8, null),
+		TEXT_AND_STUFF(9, "TEXT AND STUFF"),
+		TAS_PREVIEW(9, null);
 		
 		public final int index;
 		public final String text;

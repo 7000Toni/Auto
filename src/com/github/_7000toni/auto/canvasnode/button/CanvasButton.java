@@ -1,6 +1,9 @@
 package com.github._7000toni.auto.canvasnode.button;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -9,8 +12,6 @@ import javafx.scene.text.FontWeight;
 
 public class CanvasButton extends CanvasLabel {
 	protected boolean on = false;
-	public final static double ARC_W = 8;
-	public final static double ARC_H = 8;
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		super(gc, width, height, x, y, text, textXOffset, textYOffset);
@@ -48,11 +49,7 @@ public class CanvasButton extends CanvasLabel {
 	}
 	
 	public void setColoursRect() {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-		}		
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));	
 		if (hover) {
 			gc.setFill(Color.GRAY);
 		}
@@ -82,13 +79,8 @@ public class CanvasButton extends CanvasLabel {
 	}
 	
 	public void setColoursAlt() {
-		if (Chart.darkMode().get()) {
-			gc.setStroke(Color.BLACK);
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setStroke(Color.WHITE);
-			gc.setFill(Color.BLACK);
-		}		
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		if (hover) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.GRAY);
@@ -109,7 +101,7 @@ public class CanvasButton extends CanvasLabel {
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.setFont(oldFont);
@@ -121,7 +113,7 @@ public class CanvasButton extends CanvasLabel {
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 		gc.setFont(oldFont);
 	}
@@ -130,7 +122,7 @@ public class CanvasButton extends CanvasLabel {
 	public void defaultDraw(Font font) {
 		calculateOffsets(font);
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
@@ -139,7 +131,7 @@ public class CanvasButton extends CanvasLabel {
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
 	}
 	

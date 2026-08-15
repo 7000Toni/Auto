@@ -1,6 +1,8 @@
 package com.github._7000toni.auto.canvasnode.button;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -24,7 +26,7 @@ public class DatasetButton extends CanvasButton {
 			if (close.pressed()) {
 				gc2.setFill(Color.RED);
 			}			
-			gc2.fillRoundRect(x2, y2, 42, 42, ARC_W, ARC_H);	
+			gc2.fillRoundRect(x2, y2, 42, 42, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());	
 			setColoursShape(close, gc2);
 			double mgn = close.textXOffset();
 			double v = (close.width() - mgn*2) / 3;
@@ -56,7 +58,7 @@ public class DatasetButton extends CanvasButton {
 			if (!mr.enabled()) {
 				gc2.setFill(Color.LIGHTGRAY);
 			}
-			gc2.fillRoundRect(x2, y2, 42, 42, ARC_W, ARC_H);
+			gc2.fillRoundRect(x2, y2, 42, 42, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			
 			setColoursShape(mr, gc2);
 			double[] xa = {x2 + 7, x2 + 21, x2 + 21, x2 + 35, x2 + 35, x2 + 7};
@@ -74,11 +76,7 @@ public class DatasetButton extends CanvasButton {
 	}
 	
 	private void setColoursShape(CanvasButton cb, GraphicsContext gc) {
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-		}		
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));	
 		if (cb.hover()) {
 			gc.setFill(Color.WHITE);
 		}
@@ -101,7 +99,7 @@ public class DatasetButton extends CanvasButton {
 	@Override
 	public void defaultDraw() {
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, ARC_W, ARC_H);
+		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
 		gc.fillText(text, x + textXOffset, y + textYOffset, width - 93);
 		close.draw();

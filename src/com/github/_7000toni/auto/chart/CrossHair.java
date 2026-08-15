@@ -1,11 +1,13 @@
 package com.github._7000toni.auto.chart;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.Dataset.Candlestick;
 import com.github._7000toni.auto.dataset.Dataset.DataPair;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -17,6 +19,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
@@ -33,6 +36,7 @@ public class CrossHair {
 	private static Timeframe tf;
 	
 	private ChartNode chart;
+	private GraphicsContext gc;
 	private double dateBarHalfWidth;
 	private double dateBarX;
 	private String ohlc;
@@ -41,6 +45,7 @@ public class CrossHair {
 
 	public CrossHair(ChartNode chart) {
 		this.chart = chart;
+		this.gc = chart.graphicsContext();
 		this.dateBarHalfWidth = chart.fontSize() * 5;
 	}
 
@@ -114,7 +119,7 @@ public class CrossHair {
 			ArrayList<DataPair> data = chart.data().tickData();
 			t = new Text(data.get(index).dateTime().toString().replace('T', ' '));
 		}
-		t.setFont(chart.graphicsContext().getFont());
+		t.setFont(gc.getFont());
 		dateBarHalfWidth = (t.getLayoutBounds().getWidth() / 2) + DATE_BAR_MARGIN;
 		if (xPos < ChartNode.CHT_MARGIN + dateBarHalfWidth) {
 			dateBarX = ChartNode.CHT_MARGIN;
@@ -144,28 +149,20 @@ public class CrossHair {
 		} else {
 			yPos = (int)(((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN);			
 		}
-		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setStroke(Color.WHITE);
-		} else {
-			chart.graphicsContext().setStroke(Color.BLACK);
-		}
-		chart.graphicsContext().strokeLine(ChartNode.CHT_MARGIN, yPos+0.5, ChartNode.CHT_MARGIN + chart.width(), yPos+0.5);
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.strokeLine(ChartNode.CHT_MARGIN, yPos+0.5, ChartNode.CHT_MARGIN + chart.width(), yPos+0.5);
 		drawPriceBox(yPos);
 	}
 	
 	private void drawPriceBox(double yPos) {
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.fillRoundRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setFill(Color.WHITE);
+			gc.setFill(Color.BLACK);
 		} else {
-			chart.graphicsContext().setFill(Color.BLACK);
+			gc.setFill(Color.WHITE);
 		}
-		chart.graphicsContext().fillRoundRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize(), CanvasButton.ARC_W, CanvasButton.ARC_H);
-		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setFill(Color.BLACK);
-		} else {
-			chart.graphicsContext().setFill(Color.WHITE);
-		}
-		chart.graphicsContext().fillText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.width() + ChartNode.CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + chart.fontSize()/3, chart.chart().priceMargin().width() - PriceMargin.EXTRA_SPACE);
+		gc.fillText(((Double)(chart.roundToNearestTick(price.get()))).toString(), chart.width() + ChartNode.CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + chart.fontSize()/3, chart.chart().priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
@@ -174,28 +171,20 @@ public class CrossHair {
 			chart.setFocusedChart(false);
 			return;
 		}
-		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setStroke(Color.WHITE);
-		} else {
-			chart.graphicsContext().setStroke(Color.BLACK);
-		}
-		chart.graphicsContext().strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN - 0.5);		
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN - 0.5);		
 		drawDateBox(index, setDateBarX(xPos, index));
 	}
 	
 	private void drawDateBox(int index, String text) {	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setFill(Color.WHITE);
+			gc.setFill(Color.BLACK);
 		} else {
-			chart.graphicsContext().setFill(Color.BLACK);
+			gc.setFill(Color.WHITE);
 		}
-		chart.graphicsContext().fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize(), CanvasButton.ARC_W, CanvasButton.ARC_H);
-		if (Chart.darkMode().get()) {
-			chart.graphicsContext().setFill(Color.BLACK);
-		} else {
-			chart.graphicsContext().setFill(Color.WHITE);
-		}
-		chart.graphicsContext().fillText(text, dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+		gc.fillText(text, dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - 1, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 	}
 	
 	private double getWidth() {

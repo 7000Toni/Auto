@@ -7,9 +7,9 @@ import com.github._7000toni.auto.chart.Chart;
 import javafx.scene.paint.Color;
 
 public class ColourSettings {
-	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
-																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
-	public static final int SIZE = 9;
+	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
+																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
+	public static final int SIZE = 10;
 	
 	public enum ColourIndex {
 		UP_CANDLESTICK_FILL(0),		
@@ -20,7 +20,8 @@ public class ColourSettings {
 		MENU_BACKGROUND(5),
 		CHART_BACKGROUND(6),
 		MISCELLANEOUS_1(7),
-		MISCELLANEOUS_2(8);
+		MISCELLANEOUS_2(8),
+		TEXT_AND_STUFF(9);
 		
 		public final int index;
 		
@@ -31,14 +32,14 @@ public class ColourSettings {
 	
 	public static int index(ColourIndex colour) {
 		if (Chart.darkMode().get()) {
-			return colour.index + 9;
+			return colour.index + 10;
 		} else {
 			return colour.index;
 		}
 	}
 	
 	public static void setColour(ColourIndex cindex, Color colour) {
-		int index = Chart.darkMode().get()?cindex.index:cindex.index+9;
+		int index = Chart.darkMode().get()?cindex.index:cindex.index+10;
 		colours.set(index, colour);
 	}
 	
@@ -47,18 +48,18 @@ public class ColourSettings {
 	}
 	
 	public static void setDefaultColours() {
-		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
-													Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
+													Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
 	}
 	
 	public static ArrayList<Color> defaultColours() {
-		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE,
-												Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE));
+		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
+												Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
 	}
 	
 	public static Color colour(ColourIndex cindex) {
 		if (Chart.darkMode().get()) {
-			return colours.get(cindex.index + 9);
+			return colours.get(cindex.index + 10);
 		} else {
 			return colours.get(cindex.index);
 		}
@@ -66,7 +67,7 @@ public class ColourSettings {
 	
 	public static Color colour(int index) {
 		if (Chart.darkMode().get()) {
-			return colours.get(index + 9);
+			return colours.get(index + 10);
 		} else {
 			return colours.get(index);
 		}
@@ -74,8 +75,12 @@ public class ColourSettings {
 	
 	public static String string() {
 		String s = "";
-		for (Color c : colours) {
-			s += c.toString() + '\n';
+		for (int i = 0; i < colours.size(); i++) {
+			Color c = colours.get(i);
+			s += c.toString();
+			if (i != colours.size() - 1) {
+				s += "\n";
+			}
 		}
 		return s;
 	}

@@ -72,7 +72,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			dt.draw();
 		} else if (functionsMenuIndex == 2) {			
 			tft.draw();
-		} else if (functionsMenuIndex == 3) {
+		} else {
 			mt.draw();
 		}
 	}

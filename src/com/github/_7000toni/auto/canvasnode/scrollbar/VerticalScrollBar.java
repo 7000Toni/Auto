@@ -1,15 +1,17 @@
 package com.github._7000toni.auto.canvasnode.scrollbar;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
-import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public abstract class VerticalScrollBar extends CanvasNode {
+public class VerticalScrollBar extends CanvasNode {
 	protected IScrollBarOwner sbo;
 	
 	public static final long NANO_TO_MILLI = 1000000; 
@@ -22,6 +24,7 @@ public abstract class VerticalScrollBar extends CanvasNode {
 	protected double minPos;
 	protected double sbWidth;
 	protected double sbHeight;
+	protected DoubleProperty percentage = new SimpleDoubleProperty(0);
 	protected IVanGogh vg;
 	
 	public VerticalScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double x) {
@@ -145,9 +148,13 @@ public abstract class VerticalScrollBar extends CanvasNode {
 		setPosition(y, false);
 	}
 	
-	protected abstract void moveOwnerUp(boolean fast);
+	public DoubleProperty percentage() {
+		return percentage;
+	}
 	
-	protected abstract void moveOwnerDown(boolean fast);
+	protected void moveOwnerUp(boolean fast) {}
+	
+	protected void moveOwnerDown(boolean fast) {}
 	
 	protected void reduceSBPos(KeyEvent e) {
 		if (e.isControlDown()) {
@@ -227,6 +234,7 @@ public abstract class VerticalScrollBar extends CanvasNode {
 				y = pos;
 			}
 		}
+		percentage.set((y - minPos) / (maxPos - minPos - sbHeight));
 	}		
 	
 	@Override
@@ -243,7 +251,7 @@ public abstract class VerticalScrollBar extends CanvasNode {
 		if (dragging) {
 			gc.setFill(Color.DIMGRAY);
 		} 
-		gc.fillRoundRect(x, y, sbWidth, sbHeight, CanvasButton.ARC_W, CanvasButton.ARC_H);
+		gc.fillRoundRect(x, y, sbWidth, sbHeight, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	@Override

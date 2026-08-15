@@ -17,12 +17,14 @@ import com.github._7000toni.auto.canvasnode.scrollbar.BrightnessScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.menu.ChartMenu;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageFunctions;
 import com.github._7000toni.auto.settings.ImageSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.settings.Settings;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -30,9 +32,11 @@ import com.github._7000toni.auto.tree.Tree;
 public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
 	private ChartMenuButtonVanGoghs cmbvg;
+	private ChartMenu chartMenu;
 	
 	private CanvasLabel imageSettings;
 	private CanvasButton reset;
+	private CanvasButton defaultImageSettings;
 	private CanvasButton save;
 	private BooleanProperty recentlySaved = new SimpleBooleanProperty(false);
 	
@@ -44,11 +48,12 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton setImage;
 	private CanvasLabel noImage;	
 	
-	public ImageSettingsTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+	public ImageSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
 		this.cmbvg = cmbvg;
@@ -62,13 +67,27 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			imageSettings.defaultDraw(gc.getFont());
 		});
 		
-		reset = new CanvasButton(gc, 290, 20, x + 5, y + 230, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 230, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
-			bsb.setX(bsb.minPos() + ((ImageSettings.brightness() + 1) / 2) * 289);
+			bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcWSB().setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 290);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcHSB().setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 290);
+			Menu.menu().draw();
+			Chart.drawCharts(null);
+			MarketReplayNode.drawReplayNodes();
+		});
+		
+		defaultImageSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 230, "DEFAULT");
+		defaultImageSettings.setVanGogh((x2, y2, gc2) -> {
+			defaultImageSettings.defaultDraw(gc.getFont());
+		});
+		defaultImageSettings.setOnMouseClicked(e -> {
+			ImageSettings.setDefaultSettings();
+			bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
@@ -101,7 +120,8 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			brightness.defaultDraw(gc.getFont());
 		});
 		
-		bsb = new BrightnessScrollBar(this, x + ((ImageSettings.brightness() + 1) / 2) * 289, x + 299, 15, 15, y + 105);
+		bsb = new BrightnessScrollBar(this, x, x + 299, 15, 15, y + 105);
+		bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
 		
 		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
 		drawImg.setVanGogh(cmbvg.imgSettingsToggleVG(drawImg, "DON'T DRAW", "DRAW IMAGE"));
@@ -167,14 +187,18 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		clearImage.draw();
 		setImage.draw();
 		reset.draw();
+		defaultImageSettings.draw();
 		save.draw();
 		if (ImageSettings.image() == null) {
 			noImage.draw();
 		} else {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-			gc.fillRect(x + 5, y + 305, 290, 165);
 			ImageFunctions.drawImage(gc, ImageSettings.image(), x + 5, y + 280, 290, 165);
 		}
+	}
+	
+	public BrightnessScrollBar bsb() {
+		return bsb;
 	}
 	
 	public void setImageSettingsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
@@ -185,6 +209,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(clearImage, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(setImage, menuNode));		
 		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(defaultImageSettings, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(noImage, menuNode));
 	}
@@ -201,6 +226,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void setX(double x) {
 		reset.setX(x + 5);
+		defaultImageSettings.setX(x + 152.5);
 		save.setX(x + 5);
 		
 		imageSettings.setX(x + 5);
@@ -224,6 +250,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	public void setY(double y) {				
 		imageSettings.setY(y + 35);
 		reset.setY(y + 230);
+		defaultImageSettings.setY(y + 230);
 		save.setY(y + 255);
 		
 		brightness.setY(y + 85);

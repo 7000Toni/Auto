@@ -2,9 +2,10 @@ package com.github._7000toni.auto.chart;
 
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.miscellaneous.Round;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 
 import javafx.scene.Cursor;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class PriceMargin extends CanvasNode{
@@ -89,12 +90,8 @@ public class PriceMargin extends CanvasNode{
 		double priceDashPos = c.chartNode().width() + ChartNode.CHT_MARGIN;
 		double pricePos = priceDashPos + EXTRA_SPACE/2;
 		int pricePosYMargin = (int)(gc.getFont().getSize() / 3);
-		double diff = (spacing / c.chartNode().tickSizeOnChart()) * c.chartNode().data().tickSize();		
-		if (Chart.darkMode().get()) {
-			gc.setFill(Color.WHITE);
-		} else {
-			gc.setFill(Color.BLACK);
-		}
+		double diff = (spacing / c.chartNode().tickSizeOnChart()) * c.chartNode().data().tickSize();	
+		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		while (index > ChartNode.CHT_MARGIN + gc.getFont().getSize() / 3) {
 			gc.fillText(((Double)(Round.round(c.chartNode().lowest() + (diff * i), c.chartNode().data().numDecimalPts()))).toString(), pricePos, index + pricePosYMargin, width - EXTRA_SPACE);
 			index -= spacing;
