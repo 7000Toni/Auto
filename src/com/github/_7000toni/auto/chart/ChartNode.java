@@ -1022,11 +1022,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (measuring) {
 			double startPrice = roundToNearestTick(yCoordToPrice(startY));
 			double endPrice = ((((height - (chtDataMargin*2)) - (endY - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}
+			gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 			gc.strokeLine(startX, startY, endX, endY);
 			double n100 = Math.abs(endY - startY);
 			if (startY < endY) {
