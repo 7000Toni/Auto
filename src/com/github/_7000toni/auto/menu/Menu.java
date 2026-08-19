@@ -273,25 +273,25 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	}
 	
 	private void initOnStartButtons() {
-		setOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "SET ONSTART", 2, 22);
+		setOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "SET ONSTART");
 		setOnStart.setVanGogh(readerVG(setOnStart, 15, true));
 		setOnStart.setOnMouseClicked(e -> {	
 			setOnStart(false);
 		});
 		
-		loadOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "LD ONSTART", 2, 23);
+		loadOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "LD ONSTART");
 		loadOnStart.setVanGogh(readerVG(loadOnStart, 16, true));
 		loadOnStart.setOnMouseClicked(e -> {
 			openChartsOnStart();
 		});
 		
-		addOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "ADD ONSTART", 2, 22);
+		addOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "ADD ONSTART");
 		addOnStart.setVanGogh(readerVG(addOnStart, 14, true));
 		addOnStart.setOnMouseClicked(e -> {
 			setOnStart(true);
 		});
 		
-		toggleOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "ONSTART OFF", 2, 22);
+		toggleOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "ONSTART OFF");
 		toggleOnStart.setVanGogh((x, y, gc) -> {
 			if (onStartEnabled.get()) {
 				toggleOnStart.setText("ONSTART OFF");
@@ -305,7 +305,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			toggleOnStart();
 		});
 		
-		toggleReaders_OnStart = new CanvasButton(gc, 100, 27.8, MARGIN, MARGIN + 58*3 + 137.2, "ONSTART", 2, 24);
+		toggleReaders_OnStart = new CanvasButton(gc, 100, 27.8, MARGIN, MARGIN + 58*3 + 137.2, "ONSTART");
 		toggleReaders_OnStart.setVanGogh((x, y, gc) -> {
 			if (showReaders.get()) {
 				toggleReaders_OnStart.setText("ONSTART");
