@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasEventFilter;
 import com.github._7000toni.auto.canvasnode.CanvasWrapper;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
@@ -36,7 +38,9 @@ import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.Event;
 import javafx.scene.canvas.Canvas;
@@ -63,6 +67,11 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private CanvasButton dukasNodeReader;
 	private CanvasButton darkMode;
 	private CanvasButton auto;
+	private CanvasButton setOnStart;
+	private CanvasButton loadOnStart;
+	private CanvasButton addOnStart;
+	private CanvasButton toggleOnStart;
+	private CanvasButton toggleReaders_OnStart;
 	private double width;
 	private double height;
 	private Stage stage;
@@ -75,8 +84,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private double offset;
 	private ITickDataFileReader reader = null;	
 	private static Menu menu = null;	
-		
-	private static ArrayList<String> chartsOnStart = new ArrayList<String>();
+	private BooleanProperty showReaders = new SimpleBooleanProperty(true);
+	private BooleanProperty onStartEnabled = new SimpleBooleanProperty(true);
 	
 	private ArrayList<LoadingDataset> loadingSets = new ArrayList<LoadingDataset>();
 	private IntegerProperty numJobs = new SimpleIntegerProperty();
@@ -127,6 +136,26 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			onScroll(e);
 		});
 		
+		initDefaultButtons();
+		initOnStartButtons();
+		
+		cw.setOnScroll(e -> {	
+			onScroll(e);
+		});
+		
+		cef = new CanvasEventFilter(this);
+		canvas.addEventFilter(Event.ANY, e -> {
+			cef.canvasEventFilter(e);
+		});
+		
+		menu = this;
+		
+		openChartsOnStart();
+		
+		draw();
+	}	
+	
+	private void initDefaultButtons() {
 		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
 		this.loadData.setVanGogh((x, y, gc) -> {
 			Font oldFont = gc.getFont();
@@ -135,7 +164,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			gc.setFont(oldFont);
 		});
 		this.loadData.setOnMouseClicked(e -> {
-			DatasetLoader dsl = new DatasetLoader(datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+			DatasetLoader dsl = new DatasetLoader(datasets, dsButtons, replays, reader, loadingSets);
 			dsl.load();
 		});
 		
@@ -159,8 +188,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			}
 		});
 		
-		this.marketTickReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
-		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18));
+		this.marketTickReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
+		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18, false));
 		this.marketTickReader.setOnMouseClicked(e -> {			
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
@@ -170,8 +199,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new MarketTickFileReader();
 		});
 		
-		this.marketTickOReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 42, "MTO READER", 2, 23);
-		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16));
+		this.marketTickOReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "MTO READER", 2, 23);
+		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16, false));
 		this.marketTickOReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			originalReader.setOn(false);
@@ -181,8 +210,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new OptimizedMarketTickFileReader();
 		});
 		
-		this.originalReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 86, "OG READER", 2, 24);
-		this.originalReader.setVanGogh(readerVG(originalReader, 18));
+		this.originalReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "OG READER", 2, 24);
+		this.originalReader.setVanGogh(readerVG(originalReader, 18, false));
 		this.originalReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
@@ -192,8 +221,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new OriginalTickFileReader();
 		});
 		
-		this.dukasNodeReader = new CanvasButton(gc, 100, 35, MARGIN, MARGIN + 58*3 + 129, "DN READER", 2, 24);
-		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18));
+		this.dukasNodeReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "DN READER", 2, 24);
+		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18, false));
 		this.dukasNodeReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
@@ -225,7 +254,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		});
 		
 		this.auto = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2 + 26, "AUTO READER", 2, 17);
-		this.auto.setVanGogh(readerVG(auto, 15));
+		this.auto.setVanGogh(readerVG(auto, 15, false));
 		this.auto.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
@@ -239,34 +268,96 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);
 		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
+
+		resetSceneGraph();
+	}
+	
+	private void initOnStartButtons() {
+		setOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "SET ONSTART", 2, 22);
+		setOnStart.setVanGogh(readerVG(setOnStart, 15, true));
+		setOnStart.setOnMouseClicked(e -> {	
+			setOnStart(false);
+		});
+		
+		loadOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "LD ONSTART", 2, 23);
+		loadOnStart.setVanGogh(readerVG(loadOnStart, 16, true));
+		loadOnStart.setOnMouseClicked(e -> {
+			openChartsOnStart();
+		});
+		
+		addOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "ADD ONSTART", 2, 22);
+		addOnStart.setVanGogh(readerVG(addOnStart, 14, true));
+		addOnStart.setOnMouseClicked(e -> {
+			setOnStart(true);
+		});
+		
+		toggleOnStart = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "ONSTART OFF", 2, 22);
+		toggleOnStart.setVanGogh((x, y, gc) -> {
+			if (onStartEnabled.get()) {
+				toggleOnStart.setText("ONSTART OFF");
+			} else {
+				toggleOnStart.setText("ONSTART ON");
+			}
+			readerVG(toggleOnStart, 15, true).draw(x, y, gc);
+		});
+		toggleOnStart.setOnMouseClicked(e -> {
+			onStartEnabled.set(!onStartEnabled.get());
+			toggleOnStart();
+		});
+		
+		toggleReaders_OnStart = new CanvasButton(gc, 100, 27.8, MARGIN, MARGIN + 58*3 + 137.2, "ONSTART", 2, 24);
+		toggleReaders_OnStart.setVanGogh((x, y, gc) -> {
+			if (showReaders.get()) {
+				toggleReaders_OnStart.setText("ONSTART");
+			} else {
+				toggleReaders_OnStart.setText("READERS");
+			}
+			readerVG(toggleReaders_OnStart, 22, true).draw(x, y, gc);
+		});
+		toggleReaders_OnStart.setOnMouseClicked(e -> {
+			showReaders.set(!showReaders.get());
+			resetSceneGraph();
+		});
+		
+		sceneGraph = new Tree<ICanvasNode>();
+		cw = new CanvasWrapper(canvas, sceneGraph);
+		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
+		
+		resetSceneGraph();
+	}
+	
+	public void resetSceneGraph() {
+		sceneGraph.root().removeAllChildren();
 		
 		sceneGraph.addNode(new TNode<ICanvasNode>(loadData, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(optimize, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(marketTickReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(marketTickOReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(originalReader, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(dukasNodeReader, sceneGraph.root()));
+		if (showReaders.get()) {
+			sceneGraph.addNode(new TNode<ICanvasNode>(marketTickReader, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(marketTickOReader, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(originalReader, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(dukasNodeReader, sceneGraph.root()));
+		} else {
+			sceneGraph.addNode(new TNode<ICanvasNode>(setOnStart, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(loadOnStart, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(addOnStart, sceneGraph.root()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleOnStart, sceneGraph.root()));
+		}
+		for (DatasetButton dsb : dsButtons) {
+			if (dsb == null) {
+				continue;
+			}
+			TNode<ICanvasNode> dsbNode = new TNode<ICanvasNode>(dsb, sceneGraph.root());
+			TNode<ICanvasNode> mrNode = new TNode<ICanvasNode>(dsb.mrButton(), dsbNode);
+			TNode<ICanvasNode> closeNode = new TNode<ICanvasNode>(dsb.closeButton(), dsbNode);
+			sceneGraph.addNode(dsbNode);
+			sceneGraph.addNode(mrNode);
+			sceneGraph.addNode(closeNode);	
+		}
+		sceneGraph.addNode(new TNode<ICanvasNode>(toggleReaders_OnStart, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));
 		vsbNode = new TNode<ICanvasNode>(vsb, sceneGraph.root());
-		
-		cw.setOnScroll(e -> {	
-			onScroll(e);
-		});
-		
-		cef = new CanvasEventFilter(this);
-		canvas.addEventFilter(Event.ANY, e -> {
-			cef.canvasEventFilter(e);
-		});
-		
-		menu = this;
-		
-		if (!chartsOnStart.isEmpty()) {
-			openChartsOnStart();
-		}
-		
-		draw();
-	}	
+	}
 	
 	public void onScroll(ScrollEvent e) {
 		if (!excess) {
@@ -307,20 +398,64 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		this.lastFocused = lastFocused;
 	}
 	
-	public static void setChartsOnStart(ArrayList<String> chartsOnStart) {
-		Menu.chartsOnStart = chartsOnStart;
-	}
-	
 	private void openChartsOnStart() {	
+		ArrayList<String> chartsOnStart = Main.getChartsOnStart(false);
 		for (int i = 0; i < chartsOnStart.size(); i++) {
 			File f = new File(chartsOnStart.get(i));
 			if (f.exists()) {				
-				DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+				DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets);
 				dsl.load();	
 			} else {
 				System.out.println(chartsOnStart.get(i) + " does not exist");
 			}
 		}
+	}
+	
+	private void toggleOnStart() {
+		ArrayList<String> chartsOnStart = Main.getChartsOnStart(true);
+		for (int i = 0; i < chartsOnStart.size(); i++) {
+			String s = chartsOnStart.get(i);
+			if (s.charAt(0) == '-') {
+				chartsOnStart.set(i, s.substring(1));
+			}
+		}
+		writeChartsOnStart(chartsOnStart);
+	}
+	
+	private void setOnStart(boolean add) {
+		ArrayList<String> chartsOnStart;
+		if (add) {
+			chartsOnStart = Main.getChartsOnStart(false);
+		} else {
+			chartsOnStart = new ArrayList<String>();
+		}
+		for (Dataset d : datasets) {
+			boolean cont = false;
+			for (String s : chartsOnStart) {
+				if (s.equals(d.dir())) {
+					cont = true;
+					break;
+				}
+			}
+			if (cont) {
+				continue;
+			}
+			chartsOnStart.add(d.dir());
+		}
+		writeChartsOnStart(chartsOnStart);
+	}
+	
+	private void writeChartsOnStart(ArrayList<String> chartsOnStart) {
+		try (PrintWriter pw = new PrintWriter(new File("./onstart.txt"))) {
+			for (String s : chartsOnStart) {
+				if (!onStartEnabled.get() && s.charAt(0) != '-') {
+					s = "-" + s;
+				}
+				pw.println(s);
+			}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	private void setCanvasDragDropEvents() {
@@ -358,7 +493,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 					if (!f.isFile()) {
 						continue;
 					}
-					DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets, sceneGraph);
+					DatasetLoader dsl = new DatasetLoader(f, datasets, dsButtons, replays, reader, loadingSets);
 					dsl.load();	
 				}
 			}
@@ -382,21 +517,25 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		return x <= width && x >= 0 && y <= height && y >= 0; 
 	}
 	
-	private IVanGogh readerVG(CanvasButton cb, int fontSize) {
+	private IVanGogh readerVG(CanvasButton cb, int fontSize, boolean defaultColours) {
 		return (x, y, gc) -> {
 			Font oldFont = gc.getFont();
-			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, fontSize));		
-			if (cb.on()) {
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			} else {
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
+			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, fontSize));	
+			if (defaultColours) {
+				cb.setColoursRect();
+			} else {			
+				if (cb.on()) {
+					gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				} else {
+					gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
+				}
+				if (cb.hover()) {
+					gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+				} 
+				if (cb.pressed()) {				
+					gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
+				}	
 			}
-			if (cb.hover()) {
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-			} 
-			if (cb.pressed()) {				
-				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-			}	
 			gc.fillRoundRect(x, y, cb.width(), cb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			cb.setColoursText();
 			cb.calculateOffsets(gc.getFont());
@@ -466,10 +605,18 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			
 			loadData.draw();
 			optimize.draw();
-			marketTickReader.draw();
-			marketTickOReader.draw();
-			originalReader.draw();
-			dukasNodeReader.draw();
+			if (showReaders.get()) {
+				marketTickReader.draw();
+				marketTickOReader.draw();
+				originalReader.draw();
+				dukasNodeReader.draw();
+			} else {
+				setOnStart.draw();
+				loadOnStart.draw();
+				addOnStart.draw();
+				toggleOnStart.draw();
+			}
+			toggleReaders_OnStart.draw();
 			darkMode.draw();
 			auto.draw();
 			drawLoadingSets();

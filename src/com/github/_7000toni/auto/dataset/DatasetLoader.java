@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github._7000toni.auto.Main;
-import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.DatasetButton;
 import com.github._7000toni.auto.chart.Chart;
@@ -21,8 +20,6 @@ import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.marketreplay.MarketReplayPane;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
-import com.github._7000toni.auto.tree.TNode;
-import com.github._7000toni.auto.tree.Tree;
 
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -38,26 +35,23 @@ public class DatasetLoader {
 	private ArrayList<MarketReplayNode> replays;
 	private ITickDataFileReader reader;	
 	private ArrayList<LoadingDataset> loadingSets;
-	private Tree<ICanvasNode> sceneGraph;
 	private File file;
 	
-	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets) {
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
 		this.reader = reader;
 		this.loadingSets = loadingSets;
-		this.sceneGraph = sceneGraph;
 	}
 	
-	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets, Tree<ICanvasNode> sceneGraph) {
+	public DatasetLoader(File file, ArrayList<Dataset> datasets, ArrayList<DatasetButton> dsButtons, ArrayList<MarketReplayNode> replays, ITickDataFileReader reader, ArrayList<LoadingDataset> loadingSets) {
 		this.file = file;
 		this.datasets = datasets;
 		this.dsButtons = dsButtons;
 		this.replays = replays;
 		this.reader = reader;
 		this.loadingSets = loadingSets;
-		this.sceneGraph = sceneGraph;
 	}
 	
 	public void load() {
@@ -178,15 +172,10 @@ public class DatasetLoader {
 					});
 					dsButtons.set(l.addIndex().get(), dsb);	
 					dsb.setDatasetIndex(l.addIndex().get());
-					TNode<ICanvasNode> dsbNode = new TNode<ICanvasNode>(dsb, sceneGraph.root());
-					TNode<ICanvasNode> mrNode = new TNode<ICanvasNode>(dsb.mrButton(), dsbNode);
-					TNode<ICanvasNode> closeNode = new TNode<ICanvasNode>(dsb.closeButton(), dsbNode);
 					setDSBEventHandler(dsb);
-					setDSBCloseEventHandler(dsb.closeButton(), dsbNode);
+					setDSBCloseEventHandler(dsb.closeButton(), dsb);
 					setDSBMREventHandler(dsb.mrButton(), dsb);
-					sceneGraph.addNode(dsbNode);
-					sceneGraph.addNode(mrNode);
-					sceneGraph.addNode(closeNode);					
+					Menu.menu().resetSceneGraph();				
 				} finally {
 					Menu.menu().varLock().unlock();
 					Menu.menu().draw();
@@ -255,16 +244,16 @@ public class DatasetLoader {
 		});
 	}
 	
-	private void setDSBCloseEventHandler(CanvasButton close, TNode<ICanvasNode> dsbNode) {
+	private void setDSBCloseEventHandler(CanvasButton close, DatasetButton dsb) {
 		close.setOnScroll(e -> {	
 			Menu.menu().onScroll(e);
 		});
 		close.setOnMouseClicked(e -> {
 			Menu.menu().varLock().lock();
 			try {
-				sceneGraph.removeNode(dsbNode);
-				dsButtons.remove(((DatasetButton)dsbNode.element()).datasetIndex());			
-				for (int j = ((DatasetButton)dsbNode.element()).datasetIndex(); j < dsButtons.size(); j++) {					
+				Menu.menu().resetSceneGraph();
+				dsButtons.remove(dsb.datasetIndex());			
+				for (int j = dsb.datasetIndex(); j < dsButtons.size(); j++) {					
 					DatasetButton d = dsButtons.get(j);
 					if (d == null) {
 						continue;
@@ -273,12 +262,12 @@ public class DatasetLoader {
 					d.setDatasetIndex(d.datasetIndex() - 1);
 				}
 				for (LoadingDataset l : loadingSets) {	
-					if (l.addIndex().get() > ((DatasetButton)dsbNode.element()).datasetIndex()) {
+					if (l.addIndex().get() > dsb.datasetIndex()) {
 						l.setAddIndex(l.addIndex().get() - 1);
 						l.setY(l.y() - 58);	
 					}								
 				}				
-				String name = datasets.get(((DatasetButton)dsbNode.element()).datasetIndex()).name();
+				String name = datasets.get(dsb.datasetIndex()).name();
 				Chart.closeAll(name, false);
 				MarketReplayNode mrn = null;
 				for (MarketReplayNode n : replays) {
@@ -290,7 +279,7 @@ public class DatasetLoader {
 				if (mrn != null) {
 					replays.remove(mrn);
 				}
-				int index = ((DatasetButton)dsbNode.element()).datasetIndex();
+				int index = dsb.datasetIndex();
 				datasets.remove(index);
 				Menu.menu().recalculateVSBPos();			
 			} finally {

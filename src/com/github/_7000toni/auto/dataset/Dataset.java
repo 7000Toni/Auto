@@ -40,6 +40,7 @@ public class Dataset {
 	private boolean failed = false;
 	private int maxLength = 0;
 	private final ReentrantLock varLock = new ReentrantLock();
+	private String dir;
 	
 	public static class DataPair {
 		private float price;
@@ -348,7 +349,12 @@ public class Dataset {
 		}
 	}
 	
+	public String dir() {
+		return dir;
+	}
+	
 	private void readData(File file, ITickDataFileReader tdfr, IntegerProperty prog) {
+		dir = file.getAbsolutePath();
 		try (FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {				
 			ReadFileVars rfv = new ReadFileVars();			

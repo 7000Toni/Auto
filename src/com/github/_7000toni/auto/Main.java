@@ -10,7 +10,6 @@ import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.menu.MenuPane;
 import com.github._7000toni.auto.miscellaneous.DualPrintStream;
 import com.github._7000toni.auto.settings.Settings;
@@ -25,7 +24,6 @@ public class Main extends Application {
 	
 	public static void main(String[] args) {
 		setOutputFile();
-		getChartsOnStart();
 		launch(args);
 		System.exit(0);
 	}
@@ -58,30 +56,27 @@ public class Main extends Application {
         }
 	}
 	
-	private static void getChartsOnStart() {		
+	public static ArrayList<String> getChartsOnStart(boolean all) {		
 		File f = new File("./onstart.txt");
 		if (!f.exists()) {
-			return;
+			return null;
 		}
 		ArrayList<String> charts = new ArrayList<String>();
 		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
 				BufferedReader br = new BufferedReader(new InputStreamReader(bis))) {
 			String in = br.readLine();			
 			while (in != null) {
-				if (charts.size() >= 6) {
-					break;
-				}
-				if (in.charAt(0) == '-') {
+				if (in.charAt(0) == '-' && !all) {
 					in = br.readLine();
 					continue;
 				}
 				charts.add(in);
 				in = br.readLine();
 			}
-			Menu.setChartsOnStart(charts);
         } catch (IOException e) {
             e.printStackTrace();
         }
+		return charts;
 	}
 	
 	@Override
