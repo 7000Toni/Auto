@@ -308,14 +308,10 @@ public class DatasetLoader {
 				if (mrn.name().equals(datasets.get(dsb.datasetIndex()).name())) {
 					return;
 				}
-			}
-			int index = (int)((e.getY() - Menu.MARGIN) / 58);
-			if (index < 0) {
-				index = 0;
-			}			
+			}		
 			Stage s = new Stage();
 			s.setTitle(datasets.get(dsb.datasetIndex()).name());
-			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(index), false, null);
+			ChartPane c = new ChartPane(s, 1280, 720, datasets.get(dsb.datasetIndex()), false, null);
 			Scene scene = new Scene(c);	
 			scene.addEventFilter(KeyEvent.ANY, ev -> c.getChart().canvasEventFilter().canvasEventFilter(ev));
 			s.setScene(scene);
