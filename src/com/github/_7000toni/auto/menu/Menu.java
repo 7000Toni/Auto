@@ -135,9 +135,14 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		vsb.setOnScroll(e -> {
 			onScroll(e);
 		});
+		sceneGraph = new Tree<ICanvasNode>();
+		cw = new CanvasWrapper(canvas, sceneGraph);
+		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
+		vsbNode = new TNode<ICanvasNode>(vsb, sceneGraph.root());
 		
 		initDefaultButtons();
-		initOnStartButtons();
+		initOnStartButtons();		
+		resetSceneGraph();
 		
 		cw.setOnScroll(e -> {	
 			onScroll(e);
@@ -151,7 +156,6 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		menu = this;
 		
 		openChartsOnStart();
-		
 		draw();
 	}	
 	
@@ -263,13 +267,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			auto.setOn(true);
 			reader = null;
 		});
-		this.auto.toggleOn();
-		
-		sceneGraph = new Tree<ICanvasNode>();
-		cw = new CanvasWrapper(canvas, sceneGraph);
-		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
-
-		resetSceneGraph();
+		this.auto.toggleOn();		
 	}
 	
 	private void initOnStartButtons() {
@@ -318,16 +316,14 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			showReaders.set(!showReaders.get());
 			resetSceneGraph();
 		});
-		
-		sceneGraph = new Tree<ICanvasNode>();
-		cw = new CanvasWrapper(canvas, sceneGraph);
-		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));
-		
-		resetSceneGraph();
 	}
 	
 	public void resetSceneGraph() {
-		sceneGraph.root().removeAllChildren();
+		sceneGraph.root().removeAllChildren();		
+		
+		if (excess) {
+			sceneGraph.addNode(vsbNode);
+		}
 		
 		sceneGraph.addNode(new TNode<ICanvasNode>(loadData, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(optimize, sceneGraph.root()));
@@ -355,8 +351,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		}
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleReaders_OnStart, sceneGraph.root()));
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));
-		vsbNode = new TNode<ICanvasNode>(vsb, sceneGraph.root());
+		sceneGraph.addNode(new TNode<ICanvasNode>(auto, sceneGraph.root()));	
 	}
 	
 	public void onScroll(ScrollEvent e) {
@@ -588,14 +583,18 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		}		
 	}
 	
+	private void vsbCheck() {		
+		if (datasets.size() < 7) {
+			removeVSB();
+		} else {
+			addVSB();
+		}	
+	}
+	
 	private void drawUI() {		
 		varLock.lock();
 		try {					
-			if (datasets.size() < 7) {
-				removeVSB();
-			} else {
-				addVSB();
-			}			
+			vsbCheck();
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MENU_BACKGROUND));
 			gc.fillRect(0, 0, width, height);
 			
