@@ -250,9 +250,9 @@ public class DatasetLoader {
 		});
 		close.setOnMouseClicked(e -> {
 			Menu.menu().varLock().lock();
-			try {
+			try {				
+				dsButtons.remove(dsb.datasetIndex());
 				Menu.menu().resetSceneGraph();
-				dsButtons.remove(dsb.datasetIndex());			
 				for (int j = dsb.datasetIndex(); j < dsButtons.size(); j++) {					
 					DatasetButton d = dsButtons.get(j);
 					if (d == null) {

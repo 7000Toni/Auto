@@ -425,6 +425,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			chartsOnStart = new ArrayList<String>();
 		}
 		for (Dataset d : datasets) {
+			if (d == null) {
+				continue;
+			}
 			boolean cont = false;
 			for (String s : chartsOnStart) {
 				if (s.equals(d.dir())) {
@@ -436,6 +439,19 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 				continue;
 			}
 			chartsOnStart.add(d.dir());
+		}
+		for (LoadingDataset l : loadingSets) {
+			boolean cont = false;
+			for (String s : chartsOnStart) {
+				if (s.equals(l.dir())) {
+					cont = true;
+					break;
+				}
+			}
+			if (cont) {
+				continue;
+			}
+			chartsOnStart.add(l.dir());
 		}
 		writeChartsOnStart(chartsOnStart);
 	}

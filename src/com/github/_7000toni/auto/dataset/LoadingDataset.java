@@ -24,15 +24,17 @@ public class LoadingDataset {
 	private IntegerProperty addIndex = new SimpleIntegerProperty(0);
 	private boolean validFullSignature;
 	private String name;
+	private String dir;
 	private static double opacity = 1;
 	private static boolean add = false;
 	private static AnimationTimer anim = null;
-	private static int loadingSets = 0;
+	private static int loadingSets = 0;	
 	
 	public LoadingDataset(double y, int addIndex, String signature) {
 		this.y = y;
 		this.addIndex.set(addIndex);
 		this.signature = signature;
+		dir = null;
 		validFullSignature = Signature.validFull(signature);	
 		if (validFullSignature) {
 			name = signature.substring(signature.indexOf(' ') + 1);
@@ -42,13 +44,18 @@ public class LoadingDataset {
 		}			
 	}
 	
-	public Dataset load(File file, ITickDataFileReader reader) {		
+	public Dataset load(File file, ITickDataFileReader reader) {	
+		dir = file.getAbsolutePath();
 		Dataset data = new Dataset(file, reader, progress);
 		if (data.failed()) {
 			return null;
 		} else {
 			return data;
 		}
+	}
+	
+	public String dir() {
+		return dir;
 	}
 	
 	public void setY(double y) {
