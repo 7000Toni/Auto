@@ -403,8 +403,6 @@ public class ChartMarketReplayButtons {
 		txtVolume.draw();
 		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
 		buy.draw();
-		/*volTens.draw();
-		volUnits.draw();*/	
 		pbn.draw();		
 		tradeButs.sl().draw();
 		tradeButs.cancelSL().draw();		
@@ -414,7 +412,12 @@ public class ChartMarketReplayButtons {
 		tradeButs.close().draw();
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
-		limitOrder.draw();
-		stopOrder.draw();
+		if (ChartNode.drawCrosshair().get()) {
+			limitOrder.draw();
+			stopOrder.draw();
+		} else {
+			limitOrder.disable();
+			stopOrder.disable();
+		}
 	}
 }

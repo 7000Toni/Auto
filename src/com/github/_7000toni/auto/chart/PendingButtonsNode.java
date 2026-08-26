@@ -18,7 +18,7 @@ public class PendingButtonsNode extends CanvasNode {
 	private PendingTradePair onNodePair;
 	
 	public void addPair(PendingTradePair ptp) {
-		tradePairs.addLast(ptp);
+		tradePairs.addFirst(ptp);
 	}
 	
 	public void removePair(PendingTradePair ptp) {
