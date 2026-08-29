@@ -14,7 +14,7 @@ import com.github._7000toni.auto.tree.Tree;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class ChartMarketReplayButtons {
+public class ChartMarketReplayButtons {	
 	private ChartNode chart;
 	private CanvasButton buy;
 	private CanvasButton sell;
@@ -25,12 +25,12 @@ public class ChartMarketReplayButtons {
 	private CanvasButton stopOrder;
 	private PendingButtonsNode pbn;
 	
-	
 	public ChartMarketReplayButtons(ChartNode chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
 		this.chart = chart;		
 		init(mr, cbvg);
 		addToSceneGraph();
 		setMouseEvents();
+		resetButtons();
 	}
 	
 	private void init(MarketReplay mr, ChartButtonVanGoghs cbvg) {
@@ -305,11 +305,11 @@ public class ChartMarketReplayButtons {
 	private void addToSceneGraph() {
 		Tree<ICanvasNode> sceneGraph = chart.chart().sceneGraph();
 		chart.chart().varLock().lock();
-		try {
-			sceneGraph.addNode(new TNode<ICanvasNode>(pbn, chart.chartNode()));
+		try {			
 			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(txtVolume, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
+			sceneGraph.addNode(new TNode<ICanvasNode>(pbn, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chartNode()));
 			for (CanvasLabel b : tradeButs.buttons()) {
@@ -323,19 +323,21 @@ public class ChartMarketReplayButtons {
 	public void resetButtons() {
 		double fontSize = chart.fontSize();
 		double chartWidth = chart.width();
+		chart.chartButtonVanGoghs().recalculateOffset();
+		double offset = chart.chartButtonVanGoghs().offset();
 		
-		tradeButs.close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-		tradeButs.cancelTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 -fontSize*2);
-		tradeButs.cancelSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-		tradeButs.sl().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
-		tradeButs.tp().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
-		tradeButs.setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 60);
-		tradeButs.setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 70 + fontSize*2);
+		tradeButs.close().setX(offset);
+		tradeButs.cancelTP().setX(offset);
+		tradeButs.cancelSL().setX(offset);
+		tradeButs.sl().setX(offset + fontSize*2 + 2);
+		tradeButs.tp().setX(offset + fontSize*2 + 2);
+		tradeButs.setSL().setX(offset + fontSize*2 + 162);
+		tradeButs.setTP().setX(offset + fontSize*2 + 162 + fontSize*2 + 5);
 		for (PendingTradePair p : pbn.tradePairs()) {
-			p.pendingTradeButtons().order().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 100);
-			p.pendingTradeButtons().close().setX(ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2);
-			p.pendingTradeButtons().setSL().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 10);
-			p.pendingTradeButtons().setTP().setX(ChartNode.CHT_MARGIN + chartWidth / 2 + 20 + fontSize*2);
+			p.pendingTradeButtons().order().setX(offset + fontSize*2 + 2);
+			p.pendingTradeButtons().close().setX(offset);
+			p.pendingTradeButtons().setSL().setX(offset + fontSize*2 + 112);
+			p.pendingTradeButtons().setTP().setX(offset + fontSize*2 + 112 + fontSize*2 + 5);
 		}
 		limitOrder.setX(ChartNode.CHT_MARGIN + chartWidth - fontSize*2-2);
 		stopOrder.setX(ChartNode.CHT_MARGIN + chartWidth - fontSize*4-6);
@@ -398,11 +400,7 @@ public class ChartMarketReplayButtons {
 		}
 	}
 	
-	public void draw() {				
-		sell.draw();
-		txtVolume.draw();
-		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
-		buy.draw();
+	public void draw() {						
 		pbn.draw();		
 		tradeButs.sl().draw();
 		tradeButs.cancelSL().draw();		
@@ -412,6 +410,10 @@ public class ChartMarketReplayButtons {
 		tradeButs.close().draw();
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
+		sell.draw();
+		txtVolume.draw();
+		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
+		buy.draw();
 		if (ChartNode.drawCrosshair().get()) {
 			limitOrder.draw();
 			stopOrder.draw();

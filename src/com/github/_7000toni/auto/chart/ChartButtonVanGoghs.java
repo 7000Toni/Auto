@@ -17,9 +17,20 @@ import javafx.scene.text.Text;
 
 public class ChartButtonVanGoghs {
 	private ChartNode c;
+	private double offset;
 	
 	public ChartButtonVanGoghs(ChartNode c) {
 		this.c = c;
+		recalculateOffset();
+	}
+	
+	public void recalculateOffset() {
+		offset = c.width() - ChartNode.CHT_MARGIN - c.fontSize()*2*3 - c.fontSize()*4+2 - 182;
+		offset = ChartNode.CHT_MARGIN*2 + offset * MiscellaneousSettings.tradeButtonOffset();
+	}
+	
+	public double offset() {
+		return offset;
 	}
 	
 	public IVanGogh menuButtonVG(CanvasButton menuBtn) {
@@ -299,7 +310,7 @@ public class ChartButtonVanGoghs {
 		MarketReplay mr = c.marketReplay();
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth / 2;
+		double x1 = ChartNode.CHT_MARGIN + chartWidth * MiscellaneousSettings.tradeButtonOffset();
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double slY = c.priceToYCoord(mr.unvalidatedSlPrice().get());	
 		if (mr.unvalidatedSlPrice().get() == -1) {
@@ -380,7 +391,7 @@ public class ChartButtonVanGoghs {
 		MarketReplay mr = c.marketReplay();
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth / 2;
+		double x1 = ChartNode.CHT_MARGIN + chartWidth * MiscellaneousSettings.tradeButtonOffset();
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double tpY = c.priceToYCoord(mr.unvalidatedTpPrice().get());
 		if (mr.unvalidatedTpPrice().get() == -1) {
@@ -618,7 +629,6 @@ public class ChartButtonVanGoghs {
 		double chartWidth = c.width();
 		MarketReplay mr = c.marketReplay();
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth / 2;
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double entryY = c.priceToYCoord(c.roundToNearestTick(mr.trade().entryPrice()));
 		
@@ -631,7 +641,7 @@ public class ChartButtonVanGoghs {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 				gc.setStroke(boxColour);
 			}
-			gc.strokeLine(x1, (int)entryY+0.5, x2, (int)entryY+0.5);
+			gc.strokeLine(offset + c.fontSize()*2 + 2, (int)entryY+0.5, x2, (int)entryY+0.5);
 			drawPriceBox(entryY, mr.trade().entryPrice(), Color.WHITE, boxColour);
 			return true;
 		}
@@ -656,15 +666,14 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
-			double x1 = ChartNode.CHT_MARGIN + c.width() / 2;
 			double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
-			order.setX(x1 - 100);
+			order.setX(offset);
 			order.setY(entryY - c.fontSize());
 			order.setText(null);
 			order.calculateOffsets(gc.getFont());
 			double hp = c.marketReplay().trade().profit();
 			String neg = hp<0?"-":"";
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 5, 4*c.fontSize()/3, ((Integer)(c.marketReplay().trade().volume())).toString(), neg + "$" + Math.abs(hp), textColour, boxColour, false);
+			drawTradeBox(offset + c.fontSize()*2 + 2, entryY - c.fontSize(), 5, 4*c.fontSize()/3, ((Integer)(c.marketReplay().trade().volume())).toString(), neg + "$" + Math.abs(hp), textColour, boxColour, false);
 		};
 	}
 	
@@ -673,7 +682,6 @@ public class ChartButtonVanGoghs {
 		GraphicsContext gc = c.graphicsContext();
 		double chartWidth = c.width();
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth / 2;
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 		
@@ -686,7 +694,7 @@ public class ChartButtonVanGoghs {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 				gc.setStroke(boxColour);
 			}
-			gc.strokeLine(x1, (int)entryY+0.5, x2, (int)entryY+0.5);
+			gc.strokeLine(offset + c.fontSize()*2 + 2, (int)entryY+0.5, x2, (int)entryY+0.5);
 			drawPriceBox(entryY, trade.price(), Color.WHITE, boxColour);
 			order.enable();
 			return true;
@@ -724,8 +732,6 @@ public class ChartButtonVanGoghs {
 				textColour = Color.WHITE;
 				boxColour = Color.LIGHTGRAY;
 			} 
-			
-			double x1 = ChartNode.CHT_MARGIN + c.width() / 2;
 			double entryY = c.priceToYCoord(c.roundToNearestTick(trade.price()));
 			String volume = ((Integer)trade.volume()).toString();
 			String text;
@@ -734,9 +740,9 @@ public class ChartButtonVanGoghs {
 			} else {
 				text = "STOP";
 			}
-			order.setX(x1 - 100);
+			order.setX(offset);
 			order.setY(entryY - c.fontSize());
-			drawTradeBox(x1 - 100, entryY - c.fontSize(), 5, 4*c.fontSize()/3, volume, text, textColour, boxColour, true);
+			drawTradeBox(offset + c.fontSize()*2 + 2, entryY - c.fontSize(), 5, 4*c.fontSize()/3, volume, text, textColour, boxColour, true);
 		};
 	}
 	

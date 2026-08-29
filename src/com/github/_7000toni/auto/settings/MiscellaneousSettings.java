@@ -4,6 +4,7 @@ public class MiscellaneousSettings {
 	private static String initFileDir = "./";
 	private static double arcW = 8;
 	private static double arcH = 8;
+	private static double tbOffset = 0.5;
 	
 	public static String initFileDir() {
 		return initFileDir;
@@ -15,6 +16,10 @@ public class MiscellaneousSettings {
 	
 	public static double arcH() {
 		return arcH;
+	}
+	
+	public static double tradeButtonOffset() {
+		return tbOffset;
 	}
 	
 	public static void setInitFileDir(String initFileDir) {
@@ -29,11 +34,16 @@ public class MiscellaneousSettings {
 		MiscellaneousSettings.arcH = arcH;
 	}
 	
+	public static void setTradeButtonOffset(double tbOffset) {
+		MiscellaneousSettings.tbOffset = tbOffset;
+	}
+	
 	public static String string() {
 		String s = "";
 		s += initFileDir + "\n";
 		s += ((Double)arcW).toString() + "\n";
-		s += ((Double)arcH).toString();
+		s += ((Double)arcH).toString() + "\n";
+		s += ((Double)tbOffset).toString();
 		return s;
 	}
 	
@@ -41,5 +51,6 @@ public class MiscellaneousSettings {
 		initFileDir = "./";
 		arcW = 8;
 		arcH = 8;
+		tbOffset = 0.5;
 	}
 }

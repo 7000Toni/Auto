@@ -25,16 +25,19 @@ public class PendingTradePair {
 		} else {
 			text += "STOP";
 		}
-		penTradeButs.setOrder(new CanvasButton(chart.graphicsContext(), 100, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 - 100 - chart.fontSize()*2, 0, text, 6, chart.fontSize()/3));
+		chart.chartButtonVanGoghs().recalculateOffset();
+		double offset = chart.chartButtonVanGoghs().offset();
+		double fontSize = chart.fontSize();
+		penTradeButs.setOrder(new CanvasButton(chart.graphicsContext(), 100, chart.fontSize()*2, offset + fontSize*2 + 2, 0, text, 6, chart.fontSize()/3));
 		penTradeButs.order().setVanGogh(chart.chartButtonVanGoghs().penOrderVG(penTradeButs.order(), penTrade));
 		
-		penTradeButs.setClose(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 - 102 - chart.fontSize()*2, 0, "X", 9, chart.fontSize()/3));
+		penTradeButs.setClose(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, offset, 0, "X", 9, chart.fontSize()/3));
 		penTradeButs.close().setVanGogh(chart.chartButtonVanGoghs().penCloseVG(penTradeButs.close(), penTrade));		
 		
-		penTradeButs.setSetSL(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 + 10, 0, "SL", 6, chart.fontSize()/3));
+		penTradeButs.setSetSL(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, offset + fontSize*2 + 112, 0, "SL", 6, chart.fontSize()/3));
 		penTradeButs.setSL().setVanGogh(chart.chartButtonVanGoghs().penSetSlVG(penTradeButs.setSL(), penTrade));		
 		
-		penTradeButs.setSetTP(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, ChartNode.CHT_MARGIN + chart.width() / 2 + 20 + chart.fontSize()*2, 0, "TP", 6, chart.fontSize()/3));
+		penTradeButs.setSetTP(new CanvasButton(chart.graphicsContext(), chart.fontSize()*2, chart.fontSize()*2, offset + fontSize*2 + 112 + fontSize*2 + 5, 0, "TP", 6, chart.fontSize()/3));
 		penTradeButs.setTP().setVanGogh(chart.chartButtonVanGoghs().penSetTpVG(penTradeButs.setTP(), penTrade));
 		
 		setEvents();

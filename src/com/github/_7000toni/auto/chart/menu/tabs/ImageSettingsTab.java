@@ -76,6 +76,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
 			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcWSB().setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
 			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcHSB().setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().tboSB().setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();

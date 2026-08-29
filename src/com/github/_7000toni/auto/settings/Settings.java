@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Settings {
-	private static final String version = "1.0";
+	private static final String version = "2.0";
 	private static String settings = null;	
 	private static boolean dontSave = false;
 	
@@ -103,12 +103,16 @@ public class Settings {
 			String arcH = br.readLine();
 			settings += arcH + "\n";
 			MiscellaneousSettings.setArcH(Double.parseDouble(arcH));
+			String tbOffset = br.readLine();
+			settings += tbOffset + "\n";
+			MiscellaneousSettings.setTradeButtonOffset(Double.parseDouble(tbOffset));
 			if (darkMode != Chart.darkMode().get()) {
 				Chart.toggleDarkMode();
 			}
 		} catch (Exception e) {
 			ColourSettings.setDefaultColours();
 			ImageSettings.setDefaultSettings();
+			MiscellaneousSettings.setDefaultSettings();
 			saveSettings();
 			e.printStackTrace();
 		}

@@ -43,6 +43,8 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 	private CanvasButton setInitFileDir;
 	private HorizontalScrollBar arcWSB;
 	private HorizontalScrollBar arcHSB;	
+	private CanvasLabel tradeButtonOffset;
+	private HorizontalScrollBar tboSB;
 	
 	public MiscellaneousSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
 		this.x = x;
@@ -98,7 +100,22 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			MiscellaneousSettings.setArcH(20 * newValue.doubleValue());
 		});
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 200, "RESET");
+		tradeButtonOffset = new CanvasLabel(gc, 290, 20, x + 5, y + 200, "TRADE BUTTON OFFSET");
+		tradeButtonOffset.setVanGogh((x2, y2, gc2) -> {
+			tradeButtonOffset.defaultDraw(gc.getFont());
+		});
+		tboSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 225);
+		tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
+		tboSB.percentage().addListener((observable, oldValue, newValue) -> {
+			MiscellaneousSettings.setTradeButtonOffset(newValue.doubleValue());
+			for (Chart c : Chart.charts()) {
+				if (c.chartNode().replayMode()) {
+					c.chartNode().tradeButtons().resetButtons();
+				}
+			}
+		});
+		
+		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 245, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
@@ -107,12 +124,13 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			chartMenu.chartSettingsMenu().imageSettingsTab().bsb().setX(x + ((ImageSettings.brightness() + 1) / 2) * 270);
 			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
 			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		defaultMiscellaneousSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 200, "DEFAULT");
+		defaultMiscellaneousSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 245, "DEFAULT");
 		defaultMiscellaneousSettings.setVanGogh((x2, y2, gc2) -> {
 			defaultMiscellaneousSettings.defaultDraw(gc.getFont());
 		});
@@ -120,12 +138,13 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			MiscellaneousSettings.setDefaultSettings();
 			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
 			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 225, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x + 5, y + 270, "SAVE");
 		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -156,10 +175,15 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		return arcHSB;
 	}
 	
+	public HorizontalScrollBar tboSB() {
+		return tboSB;
+	}
+	
 	private void drawHSBRects() {
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeRoundRect(x + 5.5, arcWSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.strokeRoundRect(x + 5.5, arcHSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x + 5.5, tboSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawMiscellaneousSettingsMenu() {
@@ -170,6 +194,8 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		arcWSB.draw();
 		arcH.draw();
 		arcHSB.draw();
+		tradeButtonOffset.draw();
+		tboSB.draw();
 		reset.draw();
 		defaultMiscellaneousSettings.draw();
 		save.draw();
@@ -181,7 +207,9 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		sceneGraph.addNode(new TNode<ICanvasNode>(arcW, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(arcWSB, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(arcH, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(arcHSB, menuNode));		
+		sceneGraph.addNode(new TNode<ICanvasNode>(arcHSB, menuNode));	
+		sceneGraph.addNode(new TNode<ICanvasNode>(tradeButtonOffset, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(tboSB, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(defaultMiscellaneousSettings, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
@@ -218,6 +246,12 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		arcHSB.setMaxPos(x + 295);
 		arcHSB.setX(hsbOffset2 + x);
 		
+		tradeButtonOffset.setX(x + 5);
+		double hsbOffset3 = tboSB.x() - this.x;
+		tboSB.setMinPos(x + 5);
+		tboSB.setMaxPos(x + 295);
+		tboSB.setX(hsbOffset3 + x);
+		
 		reset.setX(x + 5);
 		defaultMiscellaneousSettings.setX(x + 152.5);
 		save.setX(x + 5);
@@ -234,10 +268,12 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		arcWSB.setY(y + 135);
 		arcH.setY(y + 155);
 		arcHSB.setY(y + 180);
+		tradeButtonOffset.setY(y + 200);
+		tboSB.setY(y + 225);
 		
-		reset.setY(y + 200);
-		defaultMiscellaneousSettings.setY(y + 200);
-		save.setY(y + 225);
+		reset.setY(y + 245);
+		defaultMiscellaneousSettings.setY(y + 245);
+		save.setY(y + 270);
 		
 		this.y = y;
 	}
