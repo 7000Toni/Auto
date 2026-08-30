@@ -310,7 +310,6 @@ public class ChartButtonVanGoghs {
 		MarketReplay mr = c.marketReplay();
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth * MiscellaneousSettings.tradeButtonOffset();
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double slY = c.priceToYCoord(mr.unvalidatedSlPrice().get());	
 		if (mr.unvalidatedSlPrice().get() == -1) {
@@ -324,7 +323,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.sl().enable();
 				tradeButs.sl().setY(slY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.strokeLine(x1, (int)slY+0.5, x2, (int)slY+0.5);
+				gc.strokeLine(offset + c.fontSize()*2 + 3, (int)slY+0.5, x2, (int)slY+0.5);
 				drawPriceBox(slY, mr.unvalidatedSlPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				return true;
 			} else {
@@ -335,7 +334,7 @@ public class ChartButtonVanGoghs {
 			if (c.onChart(ChartNode.CHT_MARGIN + 1, slY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, slY - fontSize - 3)) {
 				tradeButs.sl().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.strokeLine(x1, (int)slY+0.5, x2, (int)slY+0.5);
+				gc.strokeLine(offset + c.fontSize()*2 + 3, (int)slY+0.5, x2, (int)slY+0.5);
 				drawPriceBox(slY, mr.unvalidatedSlPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
 				tradeButs.sl().setY(slY - fontSize);
 				return true;
@@ -391,7 +390,6 @@ public class ChartButtonVanGoghs {
 		MarketReplay mr = c.marketReplay();
 		TradeButtons tradeButs = c.tradeButtons().buttons(); 
 		
-		double x1 = ChartNode.CHT_MARGIN + chartWidth * MiscellaneousSettings.tradeButtonOffset();
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double tpY = c.priceToYCoord(mr.unvalidatedTpPrice().get());
 		if (mr.unvalidatedTpPrice().get() == -1) {
@@ -405,7 +403,7 @@ public class ChartButtonVanGoghs {
 				tradeButs.tp().enable();
 				tradeButs.tp().setY(tpY - fontSize);
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-				gc.strokeLine(x1, (int)tpY+0.5, x2, (int)tpY+0.5);
+				gc.strokeLine(offset + c.fontSize()*2 + 3, (int)tpY+0.5, x2, (int)tpY+0.5);
 				drawPriceBox(tpY, mr.unvalidatedTpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				return true;
 			} else {
@@ -416,7 +414,7 @@ public class ChartButtonVanGoghs {
 			if (c.onChart(ChartNode.CHT_MARGIN + 1, tpY + fontSize + 3) && c.onChart(ChartNode.CHT_MARGIN + 1, tpY - fontSize - 3)) {
 				tradeButs.tp().enable();
 				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-				gc.strokeLine(x1, (int)tpY+0.5, x2, (int)tpY+0.5);
+				gc.strokeLine(offset + c.fontSize()*2 + 3, (int)tpY+0.5, x2, (int)tpY+0.5);
 				drawPriceBox(tpY, mr.unvalidatedTpPrice().get(), Color.WHITE, ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
 				tradeButs.tp().setY(tpY - fontSize);
 				return true;
@@ -641,7 +639,7 @@ public class ChartButtonVanGoghs {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 				gc.setStroke(boxColour);
 			}
-			gc.strokeLine(offset + c.fontSize()*2 + 2, (int)entryY+0.5, x2, (int)entryY+0.5);
+			gc.strokeLine(offset + c.fontSize()*2 + 3, (int)entryY+0.5, x2, (int)entryY+0.5);
 			drawPriceBox(entryY, mr.trade().entryPrice(), Color.WHITE, boxColour);
 			return true;
 		}
@@ -694,7 +692,7 @@ public class ChartButtonVanGoghs {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 				gc.setStroke(boxColour);
 			}
-			gc.strokeLine(offset + c.fontSize()*2 + 2, (int)entryY+0.5, x2, (int)entryY+0.5);
+			gc.strokeLine(offset + c.fontSize()*2 + 3, (int)entryY+0.5, x2, (int)entryY+0.5);
 			drawPriceBox(entryY, trade.price(), Color.WHITE, boxColour);
 			order.enable();
 			return true;
