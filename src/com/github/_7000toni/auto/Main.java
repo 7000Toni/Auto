@@ -58,10 +58,10 @@ public class Main extends Application {
 	
 	public static ArrayList<String> getChartsOnStart(boolean all) {		
 		File f = new File("./onstart.txt");
-		if (!f.exists()) {
-			return null;
-		}
 		ArrayList<String> charts = new ArrayList<String>();
+		if (!f.exists()) {
+			return charts;
+		}		
 		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
 				BufferedReader br = new BufferedReader(new InputStreamReader(bis))) {
 			String in = br.readLine();			

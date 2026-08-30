@@ -37,7 +37,7 @@ public class Settings {
         	settingsDir.mkdir();
         }
         
-        return new File(settingsDir.getAbsoluteFile() + "/settings");
+        return new File(settingsDir.getAbsoluteFile() + "/settings." + version.replace('.', '_'));
 	}
 	
 	private static void setSettingsString() {
