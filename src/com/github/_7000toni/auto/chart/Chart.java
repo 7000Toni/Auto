@@ -272,12 +272,19 @@ public class Chart implements ICanvasWindow {
 	public static void toggleDarkMode() {
 		darkMode.set(!darkMode.get());		
 		Settings.saveDarkMode();
+		resetBSBs();
 		drawCharts(null);
 		Menu m = Menu.menu();
 		if (m != null) {
 			m.draw();
 		}
 		MarketReplayNode.drawReplayNodes();
+	}
+	
+	private static void resetBSBs() {
+		for (Chart c : Chart.charts) {
+			c.menu().chartSettingsMenu().imageSettingsTab().resetBSB();
+		}
 	}
 	
 	private void drawFrame() {
