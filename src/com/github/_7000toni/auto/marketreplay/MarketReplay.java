@@ -43,6 +43,7 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
+	private double net = 0;
 	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
 	public MarketReplay(Chart chart, MarketReplayNode mrNode, int index) {		
@@ -88,6 +89,46 @@ public class MarketReplay {
 		paused.set(!paused.get());
 	}
 	
+	public void loadState(MarketReplayState mrs) {
+		if (!mrs.signature().equals(data.signature()) || mrs.index() >= data.tickData().size() - 1) {
+			return;
+		}
+		paused.set(true);		
+		trade.loadState(mrs.tradeState(), data);		
+		index.set(mrs.index());
+		slPrice.set(mrs.slPrice());
+		tpPrice.set(mrs.tpPrice());
+		unvalidatedSlPrice.set(mrs.unvalidatedSlPrice());
+		unvalidatedTpPrice.set(mrs.unvalidatedTpPrice());
+		pendingTrades = mrs.pendingTrades();
+		Trade.addNetProfit(-net);
+		net = mrs.netProfit();
+		Trade.addNetProfit(net);
+		
+		data.setReplayTickDataSize(index.get() + 1);		
+		int ci = index.get();
+		if (ci >= tickDataSize.get()) {
+			ci = tickDataSize.get() - 1;
+		}
+		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
+		
+		double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
+		mrNode.hsb().setPosition(newHSBPos, false);		
+		mrNode.updateHSBPos();
+		
+		for (ChartNode c : charts) {
+			c.initPendingTrades();
+		}
+	}
+	
+	public void setNetProfit(double net) {
+		this.net = net;
+	}
+	
+	public void addProfit(double profit) {
+		net += profit;
+	}
+	
 	public void toggleLive() {
 		if (live.get()) {
 			live.set(false);
@@ -100,6 +141,10 @@ public class MarketReplay {
 				c.setKeepStartIndex(false);
 			}
 		}
+	}
+	
+	public double netProfit() {
+		return net;
 	}
 	
 	public ReadOnlyIntegerProperty tickDataSize() {
@@ -243,7 +288,7 @@ public class MarketReplay {
 	}
 	
 	public void closeTrade(int currentPriceIndex) {
-		trade.close(currentPriceIndex);
+		trade.close(currentPriceIndex, this);
 		closedTradeProc();
 	}
 	
@@ -252,7 +297,7 @@ public class MarketReplay {
 	}
 	
 	public void scaleOut(double volume, int index) {
-		trade.scaleOut(volume, index);
+		trade.scaleOut(volume, index, this);
 		closedTradeProc();
 		if (trade.closed()) {
 			for (ChartNode c : charts) {
@@ -346,7 +391,7 @@ public class MarketReplay {
 			nt = false;
 		} 		
 		if (nt) {
-			trade().updateTrade(data.tickDataSize(true).get() - 1);
+			trade().updateTrade(data.tickDataSize(true).get() - 1, this);
 			if (trade().closed()) {
 				closedTradeProc();
 				for (ChartNode c : charts) {
@@ -412,7 +457,7 @@ public class MarketReplay {
 	
 	public void tick() {		
 		if (!trade().closed()) {
-			trade().updateTrade(data.tickDataSize(true).get() - 1);			
+			trade().updateTrade(data.tickDataSize(true).get() - 1, this);			
 			if (trade().closed()) {
 				closedTradeProc();
 				if (!charts.isEmpty()) {
@@ -446,9 +491,9 @@ public class MarketReplay {
 				double newHSBPos;
 				for (ChartNode c : charts) {
 					if (c.drawCandlesticks().get()) {
-						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.m1CandlesDataSize(c.replayMode()).get() - c.numCandlesticks() * ChartNode.END_MARGIN_COEF));
+						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() / (c.timeframe().size(true, false) - c.numCandlesticks() * ChartNode.END_MARGIN_COEF));
 					} else {
-						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() /(data.tickDataSize(c.replayMode()).get() - c.numDataPoints() * ChartNode.END_MARGIN_COEF));
+						newHSBPos = (ChartNode.CHT_MARGIN + c.width() - Chart.HSB_WIDTH) * ((double)c.startIndex() / (c.timeframe().size(true, true) - c.numDataPoints() * ChartNode.END_MARGIN_COEF));
 					}								
 					c.setKeepStartIndex(true);
 					c.chart().hsb().setPosition(newHSBPos, false);

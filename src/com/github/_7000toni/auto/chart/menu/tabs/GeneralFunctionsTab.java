@@ -1,4 +1,6 @@
 package com.github._7000toni.auto.chart.menu.tabs;
+import java.io.File;
+
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
@@ -11,6 +13,7 @@ import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
+import com.github._7000toni.auto.marketreplay.MarketReplayState;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
@@ -24,6 +27,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
@@ -48,8 +52,11 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton resetMRNPos;
 	private CanvasButton toggleShortReport;
 	private CanvasButton saveMRHst;
+	private CanvasButton saveState;
+	private CanvasButton loadState;
 	
 	private BooleanProperty mrRecentlySaved = new SimpleBooleanProperty(false);
+	private BooleanProperty mrStateRecentlySaved = new SimpleBooleanProperty(false);
 	private boolean replayMode = false;
 	private boolean resetSceneGraph = false;
 	private boolean replayButtonsInit = false;
@@ -192,6 +199,46 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			}.start();
 		});
 		
+		saveState = new CanvasButton(gc, 290, 20, x + 5, y + 460, "SAVE STATE");
+		saveState.setVanGogh(cmbvg.toggleVG(saveState, mrStateRecentlySaved, "SAVED", "SAVE STATE"));
+		saveState.setOnMouseClicked(e -> {
+			MarketReplayState mrs = new MarketReplayState(chart.chartNode().marketReplay());
+			mrs.saveToFile();
+			mrStateRecentlySaved.set(true);
+			new AnimationTimer() {
+				private long init = 0;				
+				@Override
+				public void handle(long now) {
+					if (init == 0) {
+						init = now;
+					}
+					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
+						mrStateRecentlySaved.set(false);
+						chart.draw();
+						this.stop();
+					}
+				}
+			}.start();
+		});
+		
+		loadState = new CanvasButton(gc, 290, 20, x + 5, y + 485, "LOAD STATE");
+		loadState.setVanGogh((x2, y2, gc2) -> {
+			loadState.defaultDraw(gc.getFont());
+		});
+		loadState.setOnMouseClicked(e -> {
+			FileChooser fc = new FileChooser();
+			fc.setInitialDirectory(new File("./"));
+			fc.setTitle("Select A Market Replay State For " + chart.chartNode().data().name());
+			File file = fc.showOpenDialog(null);			
+			if (file == null) {
+				return;
+			}
+			MarketReplayState mrs = new MarketReplayState(file);
+			if (mrs != null && mrs.valid()) {
+				chart.chartNode().marketReplay().loadState(mrs);
+			}
+		});
+		
 		replayButtonsInit = true;
 	}
 	
@@ -213,6 +260,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			saveHst.draw();
 			toggleShortReport.draw();
 			saveMRHst.draw();
+			saveState.draw();
+			loadState.draw();
 		}
 		drawNetProfit();
 	}
@@ -222,7 +271,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			return;
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText("NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 475);
+		gc.fillText(chart.chartNode().data().name() + " NET PROFIT: " + Round.round(chart.chartNode().marketReplay().netProfit(), 2), x + 7, y + 525);
+		gc.fillText("GLOBAL NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 525 + gc.getFont().getSize() + 5);
 	}
 	
 	public void setGeneralFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
@@ -243,6 +293,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
 			sceneGraph.addNode(new TNode<ICanvasNode>(toggleShortReport, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveMRHst, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(saveState, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(loadState, menuNode));
 		}
 	}
 	
@@ -254,6 +306,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			saveHst.disable();
 			toggleShortReport.disable();
 			saveMRHst.disable();
+			saveState.disable();
+			loadState.disable();
 		}
 	}
 	
@@ -267,6 +321,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		saveHst.enable();
 		toggleShortReport.enable();
 		saveMRHst.enable();
+		saveState.enable();
+		loadState.enable();
 	}
 	
 	public void setReplayMode(boolean replayMode) {
@@ -332,6 +388,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			saveHst.setX(x + 5);
 			toggleShortReport.setX(x + 5);
 			saveMRHst.setX(x + 5);	
+			saveState.setX(x + 5);
+			loadState.setX(x + 5);
 		}
 		
 		this.x = x;
@@ -357,6 +415,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			saveHst.setY(y + 385);
 			toggleShortReport.setY(y + 410);
 			saveMRHst.setY(y + 425);
+			saveState.setY(y + 460);
+			loadState.setY(y + 485);
 		}
 		
 		this.y = y;

@@ -1,5 +1,10 @@
 package com.github._7000toni.auto.marketreplay.trade.history;
-public class TradeHistory implements ITradeHistory {	
+
+import java.io.Serializable;
+
+public class TradeHistory implements ITradeHistory, Serializable {	
+	private static final long serialVersionUID = 1L;
+	
 	private boolean buy;
 	private int entryIndex;
 	private int exitIndex;

@@ -1,6 +1,10 @@
 package com.github._7000toni.auto.marketreplay.trade;
 
-public class PendingTrade implements ITrade {
+import java.io.Serializable;
+
+public class PendingTrade implements ITrade, Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private boolean limit;
 	private boolean buy;
 	private double price;

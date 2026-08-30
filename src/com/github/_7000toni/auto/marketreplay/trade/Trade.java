@@ -3,10 +3,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.marketreplay.MarketReplay;
+import com.github._7000toni.auto.marketreplay.TradeState;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistory;
 import com.github._7000toni.auto.miscellaneous.Round;
 
@@ -38,7 +41,7 @@ public class Trade implements ITrade {
 	protected static BooleanProperty shortReport = new SimpleBooleanProperty(true);
 	protected static double net = 0;	
 	
-	private class TradeHistoryPair {
+	private class TradeHistoryPair {		
 		private TradeHistory history;
 		private String name;
 		
@@ -56,7 +59,9 @@ public class Trade implements ITrade {
 		}
 	}
 	
-	private class EntryPair {
+	public static class EntryPair implements Serializable {
+		private static final long serialVersionUID = 1L;
+		
 		private double volume;
 		private int entryIndex;
 		
@@ -123,7 +128,7 @@ public class Trade implements ITrade {
 		this.exitPrice = -1;
 	}
 	
-	public void close(int currentPriceIndex) {
+	public void close(int currentPriceIndex, MarketReplay mr) {
 		partialVol = volume;
 		this.currentPriceIndex = currentPriceIndex;
 		this.exitPrice = data.tickData().get(currentPriceIndex).price();
@@ -131,10 +136,17 @@ public class Trade implements ITrade {
 		this.exitTime = data.tickData().get(currentPriceIndex).dateTime();
 		this.closed = true;	
 		net += profit;
+		if (mr != null) {
+			mr.addProfit(profit);
+		}
 		for (EntryPair e : entryIndices) {
 			history.add(new TradeHistoryPair(new TradeHistory(buy, e.entryIndex(), currentPriceIndex), data.name()));
 		}
 		entryIndices.removeAll(entryIndices);
+	}
+	
+	public ArrayList<EntryPair> entryIndices() {
+		return entryIndices;
 	}
 	
 	public void cancelSL() {
@@ -149,6 +161,33 @@ public class Trade implements ITrade {
 			return;
 		}
 		tp = -1;		
+	}
+
+	public void loadState(TradeState tradeState, Dataset data) {
+		this.data = data;
+		entryPrice = tradeState.entryPrice();
+		entryIndices = tradeState.entryIndices();
+		currentPriceIndex = tradeState.currentPriceIndex();
+		sl = tradeState.sl();
+		tp = tradeState.tp();
+		exitPrice = tradeState.exitPrice();
+		entryTime = tradeState.entryTime();
+		exitTime = tradeState.exitTime();
+		buy = tradeState.buy();
+		closed = tradeState.closed();
+		closedByRewind = tradeState.closedByRewind();
+		volume = tradeState.volume();
+		composite = tradeState.composite();
+		partial = tradeState.partial();
+		partialVol = tradeState.partialVol();
+		for (TradeHistory th : tradeState.history()) {
+			TradeHistoryPair thp = new TradeHistoryPair(th, tradeState.mrName());
+			history.add(thp);
+		}
+	}
+	
+	public static void addNetProfit(double netProfit) {
+		Trade.net += netProfit;
 	}
 	
 	public static void removeHistory(String name) {
@@ -181,6 +220,18 @@ public class Trade implements ITrade {
 	
 	public double profit() {
 		return profit(volume);
+	}
+	
+	public boolean composite() {
+		return composite;
+	}
+	
+	public boolean partial() {
+		return partial;
+	}
+	
+	public double partialVol() {
+		return partialVol;
 	}
 	
 	public double profit(double volume) {
@@ -226,19 +277,23 @@ public class Trade implements ITrade {
 		composite = true;
 	}
 	
-	public void scaleOut(double vol, int currentPriceIndex) {
+	public void scaleOut(double vol, int currentPriceIndex, MarketReplay mr) {
 		if (closed) {
 			return;
 		}
 		if (volume - vol <= 0) {
-			close(currentPriceIndex);
+			close(currentPriceIndex, mr);
 		} else {
 			volume -= vol;
 			partial = true;
 			partialVol = vol;
 			exitPrice = data.tickData().get(currentPriceIndex).price();
 			exitTime = data.tickData().get(currentPriceIndex).dateTime();
-			net += profit(vol);		
+			double p = profit(vol);
+			net += p;
+			if (mr != null) {
+				mr.addProfit(p);
+			}
 			while (vol > 0) {
 				if (entryIndices.getLast().volume() > vol) {
 					entryIndices.getLast().addVolume(-vol);
@@ -252,7 +307,7 @@ public class Trade implements ITrade {
 		}		
 	}
 	
-	public void updateTrade(int currentPriceIndex) {
+	public void updateTrade(int currentPriceIndex, MarketReplay mr) {
 		if (closed) {
 			return;
 		}
@@ -264,12 +319,12 @@ public class Trade implements ITrade {
 			double price = data.tickData().get(i).price();
 			if (buy) {
 				if (price >= tp && tp != -1 || price <= sl && sl != -1) {	
-					close(i);
+					close(i, mr);
 					break;
 				}
 			} else {
 				if (price <= tp && tp != -1 || price >= sl && sl != -1) {
-					close(i);
+					close(i, mr);
 					break;
 				}
 			}

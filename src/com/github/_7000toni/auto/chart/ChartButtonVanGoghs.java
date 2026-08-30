@@ -740,7 +740,7 @@ public class ChartButtonVanGoghs {
 			} else {
 				text = "STOP";
 			}
-			order.setX(offset);
+			order.setX(offset + c.fontSize()*2 + 2);
 			order.setY(entryY - c.fontSize());
 			drawTradeBox(offset + c.fontSize()*2 + 2, entryY - c.fontSize(), 5, 4*c.fontSize()/3, volume, text, textColour, boxColour, true);
 		};

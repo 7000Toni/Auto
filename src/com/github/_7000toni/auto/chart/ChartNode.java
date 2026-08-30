@@ -394,12 +394,18 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
 			
-			for (PendingTrade pt : mr.pendingTrades()) {
-				cmrb.addPenTradePair(new PendingTradePair(pt, this));
-			}
+			initPendingTrades();
 			drawMRN.set(true);
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
+		}
+	}
+	
+	public void initPendingTrades() {
+		if (replayMode) {
+			for (PendingTrade pt : mr.pendingTrades()) {
+				cmrb.addPenTradePair(new PendingTradePair(pt, this));
+			}
 		}
 	}
 	

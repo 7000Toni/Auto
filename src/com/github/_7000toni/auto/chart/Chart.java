@@ -38,8 +38,8 @@ public class Chart implements ICanvasWindow {
 	public final static double WIDTH_EXTRA = 16;
 	public final static double HEIGHT_EXTRA = 39;
 	
-	public final static double MIN_WIDTH = 950; 
-	public final static double MIN_HEIGHT = 595; 
+	public final static double MIN_WIDTH = 800; 
+	public final static double MIN_HEIGHT = 400; 
 
 	public final static double HSB_WIDTH = 100;
 	public final static double HSB_HEIGHT = 10;	
