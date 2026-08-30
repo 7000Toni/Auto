@@ -128,15 +128,7 @@ public class DatasetLoader {
 				}
 			}		
 			for (LoadingDataset l : loadingSets) {
-				String s = signature;
-				if (Signature.validFull(s)) {
-					s = s.substring(s.indexOf(' ') + 1);
-				}
-				String ls = l.signature();
-				if (Signature.validFull(ls)) {
-					ls = ls.substring(ls.indexOf(' ') + 1);
-				}
-				if (s.equals(ls)) {
+				if (signature.equals(l.signature())) {
 					return 1;
 				}
 			}
