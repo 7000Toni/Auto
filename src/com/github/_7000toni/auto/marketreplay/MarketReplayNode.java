@@ -341,7 +341,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		int percent = (int)(mr.index().get() * 100 / (double)(mr.maxSize().get() - 1));
+		int percent = (int)(100 * (mr.index().get() / (double)(mr.maxSize().get() - 1)));
 		if (percent > 100) {
 			percent = 100;
 		} else if (percent < 0) {
