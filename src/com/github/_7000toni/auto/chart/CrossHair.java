@@ -53,6 +53,14 @@ public class CrossHair {
 		return IntegerProperty.readOnlyIntegerProperty(unfocusedDateIndex);
 	}
 	
+	public static Timeframe timeframe() {
+		return CrossHair.tf;
+	}
+	
+	public static void clearTimeframe() {
+		CrossHair.tf = null;
+	}
+	
 	public static double price() {
 		return CrossHair.price.get();
 	}

@@ -11,6 +11,7 @@ import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.DatasetButton;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartPane;
+import com.github._7000toni.auto.chart.CrossHair;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
 import com.github._7000toni.auto.dataset.reader.MarketTickFileReader;
@@ -272,7 +273,10 @@ public class DatasetLoader {
 					replays.remove(mrn);
 				}
 				int index = dsb.datasetIndex();
-				datasets.remove(index);
+				if (CrossHair.timeframe().dataset().signature().equals(datasets.get(index).signature())) {
+					CrossHair.clearTimeframe();
+				}
+				datasets.remove(index);				
 				Menu.menu().recalculateVSBPos();			
 			} finally {
 				Menu.menu().varLock().unlock();

@@ -11,19 +11,19 @@ import com.github._7000toni.auto.dataset.Dataset.DataPair;
 
 public class Timeframe {
 	private String name;
-	private Dataset dataSet;
+	private Dataset dataset;
 	private ArrayList<Candlestick> data = null;
 	private ArrayList<DataPair> tickData = null;
 	private boolean base = false;
 	private boolean tickBased;
 	private int period = -1;
 	
-	public Timeframe(Dataset dataSet, boolean base) {
-		this.dataSet = dataSet;
+	public Timeframe(Dataset dataset, boolean base) {
+		this.dataset = dataset;
 		this.name = Dataset.BASE_TF_NAME;
 		this.base = true;
-		this.data = dataSet.m1Candles();
-		this.tickData = dataSet.tickData();
+		this.data = dataset.m1Candles();
+		this.tickData = dataset.tickData();
 		this.period = 1;
 		this.tickBased = true;
 	}
@@ -32,8 +32,8 @@ public class Timeframe {
 		constructorStuff(dataSet, tickBased, period);
 	}
 	
-	private void constructorStuff(Dataset dataSet, boolean tickBased, int period) {
-		this.dataSet = dataSet;
+	private void constructorStuff(Dataset dataset, boolean tickBased, int period) {
+		this.dataset = dataset;
 		this.tickBased = tickBased;
 		this.period = period;
 		name = determineName(tickBased, period);
@@ -84,7 +84,7 @@ public class Timeframe {
 		float open = 0;
 		float high = 0;
 		float low = 0;
-		ArrayList<DataPair> tickData = dataSet.tickData();
+		ArrayList<DataPair> tickData = dataset.tickData();
 		int size = tickData.size();
 		for (int i = 0; i < size; i++) {
 			float val = tickData.get(i).price();
@@ -108,7 +108,7 @@ public class Timeframe {
 	
 	private void calculateCandleComposite() {
 		this.data = new ArrayList<Candlestick>();		
-		ArrayList<Candlestick> candles = dataSet.m1Candles();
+		ArrayList<Candlestick> candles = dataset.m1Candles();
 		if (candles.isEmpty()) {
 			return;
 		}
@@ -153,6 +153,10 @@ public class Timeframe {
 		} else {
 			return Duration.between(last, current).toMinutes() > period;
 		}
+	}
+	
+	public Dataset dataset() {
+		return dataset;
 	}
 	
 	public ArrayList<Candlestick> data() {
@@ -210,8 +214,8 @@ public class Timeframe {
 		int size;
 		if (tickBased) {
 			if (replayMode) {
-				size = (int)((dataSet.tickDataSize(replayMode).get())/(double)period);				
-				if (dataSet.tickDataSize(replayMode).get() % period != 0) {
+				size = (int)((dataset.tickDataSize(replayMode).get())/(double)period);				
+				if (dataset.tickDataSize(replayMode).get() % period != 0) {
 					size += 1;
 				}
 			} else {
@@ -219,9 +223,9 @@ public class Timeframe {
 			}
 		} else {
 			if (replayMode) {
-				ArrayList<Candlestick> m1Candles = dataSet.m1Candles();
-				LocalDateTime currDate = m1Candles.get(dataSet.m1CandlesDataSize(true).get()-1).dateTime();
-				int startIndex = (int)((dataSet.m1CandlesDataSize(true).get())/(double)period);
+				ArrayList<Candlestick> m1Candles = dataset.m1Candles();
+				LocalDateTime currDate = m1Candles.get(dataset.m1CandlesDataSize(true).get()-1).dateTime();
+				int startIndex = (int)((dataset.m1CandlesDataSize(true).get())/(double)period);
 				size = startIndex + 1;
 				if (data.get(size - 1).dateTime().isEqual(currDate)) {					
 					return size;
@@ -246,9 +250,9 @@ public class Timeframe {
 			return size(replayMode);
 		} else {
 			if (tick) {
-				return dataSet.tickDataSize(replayMode).get();
+				return dataset.tickDataSize(replayMode).get();
 			} else {
-				return dataSet.m1CandlesDataSize(replayMode).get();
+				return dataset.m1CandlesDataSize(replayMode).get();
 			}
 		}
 	}

@@ -518,6 +518,9 @@ public class MarketReplay {
 				if (!run.get()) {
 					this.stop();
 				}
+				if (paused.get()) {
+					return;
+				}
 				if (lastTickTime == 0) {
 					lastTickTime = now;
 					timeToNextTick.set(timeToNextTick(index.get()));
