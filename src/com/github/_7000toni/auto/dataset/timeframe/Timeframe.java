@@ -224,15 +224,15 @@ public class Timeframe {
 		} else {
 			if (replayMode) {
 				ArrayList<Candlestick> m1Candles = dataset.m1Candles();
-				LocalDateTime currDate = m1Candles.get(dataset.m1CandlesDataSize(true).get()-1).dateTime();
-				int startIndex = (int)((dataset.m1CandlesDataSize(true).get())/(double)period);
+				LocalDateTime currDate = m1Candles.get(dataset.m1CandlesDataSize(true).get()-1).dateTime();				
+				int startIndex = (int)((dataset.m1CandlesDataSize(true).get()-1)/(double)period);
 				size = startIndex + 1;
 				if (data.get(size - 1).dateTime().isEqual(currDate)) {					
 					return size;
 				}
-				boolean add = data.get(startIndex).dateTime().isBefore(currDate);				
+				boolean add = data.get(startIndex).dateTime().isBefore(currDate);		
 				while(true) {					
-					if (size == 1 && !add || size == data.size() && add || data.get(size - 1).dateTime().isEqual(currDate) || data.get(size - 1).dateTime().isBefore(currDate) && !add || data.get(size - 1).dateTime().isAfter(currDate) && add) {
+					if (size == 1 && !add || size == data.size() && add || data.get(size).dateTime().isEqual(currDate) || data.get(size).dateTime().isBefore(currDate) && !add || data.get(size).dateTime().isAfter(currDate) && add) {
 						break;
 					} else {
 						size += add?1:-1;
@@ -242,7 +242,7 @@ public class Timeframe {
 				size = data.size();
 			}			
 		}	
-		return size==0?1:size;
+		return size;
 	}
 	
 	public int size(boolean replayMode, boolean tick) {
