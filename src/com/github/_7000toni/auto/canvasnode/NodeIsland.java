@@ -2,7 +2,9 @@ package com.github._7000toni.auto.canvasnode;
 
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.canvasnode.button.CanvasButton;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.MiscellaneousSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -12,14 +14,18 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 public class NodeIsland extends CanvasNode {
-	public static final int MARGIN = 2;
+	public static final int MARGIN = 3;
 	public static final int FONT_SIZE = 10;
 	
 	private BooleanProperty draggable = new SimpleBooleanProperty(true);
+	private double maxWidth;
 	private double minX;
 	private double maxX;
 	private double minY;
@@ -30,24 +36,21 @@ public class NodeIsland extends CanvasNode {
 	private ArrayList<TNode<ICanvasNode>> nodes = new ArrayList<TNode<ICanvasNode>>();
 	private Tree<ICanvasNode> sceneGraph;
 	
-	private CanvasButton close;
-	
 	private double dragXOrigin = 0;
 	private double dragYOrigin = 0;
 	
-	public NodeIsland(GraphicsContext gc, String name, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
-		constructorStuff(gc, name, x, y, width, height, sceneGraph, parent, draggable, minX, maxX, minY, maxY, nodes);
+	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxWidth, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+		constructorStuff(gc, name, x, y, maxWidth, sceneGraph, parent, draggable, minX, maxX, minY, maxY, nodes);
 	}
 	
-	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double maxWidth, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
 		this.x = x;
 		this.x = Math.max(minX, this.x);
 		this.x = Math.min(this.x, maxX);
 		this.y = y;
 		this.y = Math.max(minY, this.y);
 		this.y = Math.min(this.y, maxY);
-		this.width = width;
-		this.height = height;
+		this.maxWidth = maxWidth;
 		this.draggable.set(draggable);
 		this.minX = minX;
 		this.maxX = maxX;
@@ -57,38 +60,39 @@ public class NodeIsland extends CanvasNode {
 		this.gc = gc;
 		this.sceneGraph = sceneGraph;
 		
-		close = new CanvasButton(gc, 40, 20, x+349, y+10, null, 0, 0);
-		close.setVanGogh((x2, y2, gc2) -> {
-			close.defaultDraw(gc.getFont());
-		});
-		
 		ni = new TNode<ICanvasNode>(this, parent);
 		sceneGraph.addNode(ni);
-		sceneGraph.addNode(new TNode<ICanvasNode>(close, ni));
-		for (ICanvasNode n : nodes) {
-			TNode<ICanvasNode> tn = new TNode<ICanvasNode>(n, ni);
-			this.nodes.add(tn);
-			sceneGraph.addNode(tn);
+		if (nodes != null) {
+			for (ICanvasNode n : nodes) {
+				addNode(n);
+			}
 		}
-		resetNodePositions();
 		
 		setOnMousePressed(e -> {
-			dragXOrigin = e.getX();
-			dragYOrigin = e.getY();
-			if (e.getButton() == MouseButton.SECONDARY) {
-				this.draggable.set(!this.draggable.get());
-			}
+			defaultOnMousePressed(e);
 		});
 		setOnMouseDragged(e -> {
-			if (this.draggable.get()) {
-				setX(this.x + e.getX() - dragXOrigin);
-				setY(this.y + e.getY() - dragYOrigin);
-				dragXOrigin = e.getX();
-				dragYOrigin = e.getY();
-			}
+			defaultOnMouseDragged(e);
 		});
 		
 		draw();
+	}
+	
+	public void defaultOnMousePressed(MouseEvent e) {
+		dragXOrigin = e.getX();
+		dragYOrigin = e.getY();
+		if (e.getButton() == MouseButton.SECONDARY) {
+			this.draggable.set(!this.draggable.get());
+		}
+	}
+	
+	public void defaultOnMouseDragged(MouseEvent e) {
+		if (this.draggable.get()) {
+			setX(this.x + e.getX() - dragXOrigin);
+			setY(this.y + e.getY() - dragYOrigin);
+			dragXOrigin = e.getX();
+			dragYOrigin = e.getY();
+		}
 	}
 	
 	public ArrayList<ICanvasNode> nodes() {
@@ -99,11 +103,21 @@ public class NodeIsland extends CanvasNode {
 		return n;
 	}	
 	
-	public void addNode(ICanvasNode node) {
+	public boolean addNode(ICanvasNode node) {
+		if (node.width() + width > maxWidth) {
+			return false;
+		}
 		TNode<ICanvasNode> tn = new TNode<ICanvasNode>(node, ni);
 		this.nodes.add(tn);
 		sceneGraph.addNode(tn);
-		resetNodePositions();
+		resetNodePositions(x);
+		if (x+width > maxX) {
+			setX(maxX);
+		}
+		if (y+height > maxY) {
+			setY(maxY);
+		}
+		return true;
 	}	
 	
 	public void removeNode(ICanvasNode node) {
@@ -112,7 +126,7 @@ public class NodeIsland extends CanvasNode {
 			if (cn.element().equals(node)) {
 				sceneGraph.removeNode(cn);
 				nodes.remove(i);
-				resetNodePositions();
+				resetNodePositions(x);
 				break;
 			}
 		}
@@ -122,8 +136,21 @@ public class NodeIsland extends CanvasNode {
 		return ni;
 	}
 	
-	private void resetNodePositions() {		
-		
+	private void resetNodePositions(double x) {
+		double off = MARGIN;
+		double height = 0;
+		for (TNode<ICanvasNode> tn : nodes) {
+			ICanvasNode cn = tn.element();
+			cn.setX(x + off);
+			cn.setY(y + MARGIN*2 + FONT_SIZE);
+			off += cn.width() + MARGIN;
+			height = Math.max(height, cn.height());
+		}
+		Text t = new Text(name);
+		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
+		double wid = t.getLayoutBounds().getWidth() + MARGIN*2; 
+		width = Math.max(off, wid);
+		this.height = height + FONT_SIZE + MARGIN*3; 
 	}
 	
 	public String name() {
@@ -136,6 +163,14 @@ public class NodeIsland extends CanvasNode {
 	
 	public void setDraggable(boolean draggable) {
 		this.draggable.set(draggable);
+	}
+	
+	public double maxWidth() {
+		return maxWidth;
+	}
+	
+	public void setMaxWidth(double maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 	
 	public double minX() {
@@ -187,24 +222,42 @@ public class NodeIsland extends CanvasNode {
 	
 	private void drawNode() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, FONT_SIZE));
-		
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
+		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
+		if (hover) {
+			gc.setStroke(Color.GRAY);
+		}
+		if (pressed) {
+			if (draggable.get()) {
+				gc.setStroke(Color.DIMGRAY);
+			} else {
+				gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
+			}
+		}
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
+		gc.fillRoundRect((int)x+0.5, (int)y+0.5, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)x+0.5, (int)y+0.5, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
+		gc.fillText(name, x+MARGIN, y+MARGIN+FONT_SIZE);
 		gc.setFont(oldFont);
+		for (TNode<ICanvasNode> tn : nodes) {
+			tn.element().draw();
+		}
 	}
 	
 	@Override
 	public void setX(double x) {
-		x = x>maxX?maxX:x;
+		x = x>maxX-width-1?maxX-width-1:x;
 		x = x<minX?minX:x;
 		
-		resetNodePositions();
+		resetNodePositions(x);
 		
 		this.x = x;
 	}
 	
 	@Override
 	public void setY(double y) {
-		y = y>maxY?maxY:y;
+		y = y>maxY-height-2?maxY-height-2:y;
 		y = y<minY?minY:y;
 		
 		for (TNode<ICanvasNode> tn : nodes) {
@@ -213,6 +266,12 @@ public class NodeIsland extends CanvasNode {
 		
 		this.y = y;
 	}
+	
+	@Override
+	public void setWidth(double width) {}
+	
+	@Override
+	public void setHeight(double height) {}
 	
 	@Override
 	public GraphicsContext graphicsContext() {

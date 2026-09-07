@@ -22,7 +22,8 @@ public class ChartWidthListener implements ChangeListener<Number> {
 		double newHSBPos = (c.hsb().x() / (ChartNode.CHT_MARGIN + oldCNW - c.hsb().sbWidth())) * (ChartNode.CHT_MARGIN + c.chartNode().width() - c.hsb().sbWidth());
 		c.hsb().setMaxPos(ChartNode.CHT_MARGIN +  c.chartNode().width());
 		c.hsb().setPosition(newHSBPos, false);
-		c.chartNode().updateMRNXVars();			
+		c.chartNode().updateMRNXVars();
+		c.chartNode().updateTFIXVars();
 		c.chartMenu().setX(ChartNode.CHT_MARGIN + c.chartNode().width() + c.priceMargin().width());
 		c.btnMenu().setX(ChartNode.CHT_MARGIN + c.chartNode().width() + 1);
 		c.chartNode().chartShortcut().setX(ChartNode.CHT_MARGIN + c.chartNode().width() - 15);

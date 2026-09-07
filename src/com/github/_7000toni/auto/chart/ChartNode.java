@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.NodeIsland;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;
@@ -86,7 +87,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private boolean keepStartIndex = false;
 	private MarketReplay mr;
 	private MarketReplayNode mrn;
-	private BooleanProperty drawMRN = new SimpleBooleanProperty(false);
+	private BooleanProperty drawMRN = new SimpleBooleanProperty(false);	
 	private double dragDiffAccum = 0;		
 	private boolean mrnDragged = false;
 	
@@ -114,6 +115,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private BooleanProperty skipDraw = new SimpleBooleanProperty(false);
 	private Dataset.Candlestick lastCandlestick;
 	private static BooleanProperty drawCrosshair = new SimpleBooleanProperty(true);
+	private NodeIsland tfi;
+	private BooleanProperty drawTFI = new SimpleBooleanProperty(false);
 	
 	private boolean printSpeed = false;
 	private double t = 0;
@@ -135,6 +138,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		this.tf = data.getTimeframe(Dataset.BASE_TF_NAME);
 		this.c = c;
 		gc = c.graphicsContext();		
+		fontSize = gc.getFont().getSize();
 		cbvg = new ChartButtonVanGoghs(this);	
 		chartShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
 		chartShortcut.setOnMouseMoved(e -> {
@@ -172,12 +176,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		dateMargin = new DateMargin(this);
 		
 		chartNode = new TNode<ICanvasNode>(this, sceneGraph.root());
-		sceneGraph.addNode(chartNode);
+		sceneGraph.addNode(chartNode);		
+		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));		
+		addTimeframeIsland(sceneGraph);
 		ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
 		sceneGraph.addNode(ctsNode);
-		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));
 		
-		fontSize = gc.getFont().getSize();
 		crossHair = new CrossHair(this);		
 		x = CHT_MARGIN;
 		y = CHT_MARGIN;
@@ -191,8 +195,51 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		thp = new TradeHistoryPlotter(this);
 		setOnKeyPressed(e -> {
 			c.hsb().onKeyPressed(e);
-		});
+		});		
 	}	
+	
+	private void addTimeframeIsland(Tree<ICanvasNode> sceneGraph) {
+		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, sceneGraph, chartNode, true, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
+	}
+	
+	public NodeIsland timeframeIsland() {
+		return tfi;
+	}	
+	
+	public ReadOnlyBooleanProperty drawTFI() {
+		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(drawTFI);
+	}
+	
+	public void resetTFIPos() {
+		tfi.setX(CHT_MARGIN*2);
+		if (replayMode) {
+			tfi.setY(CHT_MARGIN*3 + fontSize + CHT_MARGIN + 30);
+		} else {
+			tfi.setY(CHT_MARGIN*3 + fontSize);
+		}		
+		mrnDragged = false;
+	}
+	
+	public void updateTFIXVars() {
+		if (drawTFI.get()) {
+			tfi.setMaxX(width);
+		}
+	}
+	
+	public void updateTFIYVars() {
+		if (drawTFI.get()) {
+			tfi.setMaxY(height);
+		}	
+	}
+	
+	public void toggleTFShortcut() {
+		drawTFI.set(!drawTFI.get());
+		if (drawTFI.get()) {
+			c.sceneGraph().addNode(tfi.nodeIslandNode());
+		} else {
+			c.sceneGraph().removeNode(tfi.nodeIslandNode());
+		}
+	}
 	
 	public void initHst() {
 		hst = null;
@@ -389,7 +436,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			this.mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width - 396, CHT_MARGIN*2, -CHT_MARGIN + height - 97);
+			mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width, CHT_MARGIN*2, -CHT_MARGIN + height);
+			mrn.setOnMouseDragged(e -> {
+				mrn.defaultOnMouseDragged(e);
+				mrnDragged = true;
+			});
 			mrn.setDraggable(true);
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
@@ -398,6 +449,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawMRN.set(true);
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
+			tfi.setY(tfi.y() + CHT_MARGIN + 30);
+			if (drawChartShortcut.get()) {
+				c.sceneGraph().removeNode(ctsNode);
+			}
+			ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
+			c.sceneGraph().addNode(ctsNode);
 		}
 	}
 	
@@ -406,12 +463,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			for (PendingTrade pt : mr.pendingTrades()) {
 				cmrb.addPenTradePair(new PendingTradePair(pt, this));
 			}
-		}
-	}
-	
-	public void toggleMRNDraggable() {
-		if (replayMode) {
-			mrn.setDraggable(!mrn.draggable().get());
 		}
 	}
 	
@@ -1179,7 +1230,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				thp.plotHistory(hst);
 			}
 		}										
-		checkMeasuring();			
+		checkMeasuring();	
+		if (drawChartShortcut.get()) {
+			chartShortcut.draw();
+		}
 		if (replayMode) {					
 			drawCurrentPriceLine();
 			drawCurrentPriceBox();
@@ -1188,9 +1242,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				mrn.draw();
 			}
 		}
-		if (drawChartShortcut.get()) {
-			chartShortcut.draw();
-		}
+		if (drawTFI.get()) {
+			tfi.draw();
+		}		
 		if (printSpeed) {
 			double tm = (System.nanoTime() - b) / 1000000000.0;
 			t += tm;
@@ -1226,14 +1280,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(drawMRN);
 	}
 	
-	public boolean mrnDragged() {
-		return mrnDragged;
-	}
-	
-	public void setMRNDragged(boolean mrnDragged) {
-		this.mrnDragged = mrnDragged;
-	}
-	
 	public void resetMRNPos() {
 		mrn.setX(CHT_MARGIN*2);
 		mrn.setY(height - 100 - fontSize);
@@ -1242,21 +1288,17 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void updateMRNXVars() {
 		if (drawMRN.get()) {
-			mrn.setMaxX(-CHT_MARGIN + width - 396);
+			mrn.setMaxX(-CHT_MARGIN + width);
 		}
 	}
 	
 	public void updateMRNYVars() {
 		if (drawMRN.get()) {
-			mrn.setMaxY(-CHT_MARGIN + height - 97);
+			mrn.setMaxY(-CHT_MARGIN + height);
 			if (!mrnDragged) {
 				mrn.setY(height - 100 - fontSize);
 			}
 		}	
-	}
-	
-	public ReadOnlyBooleanProperty mrnDraggable() {
-		return ReadOnlyBooleanProperty.readOnlyBooleanProperty(mrn.draggable());
 	}
 	
 	public void toggleMRNShortcut() {

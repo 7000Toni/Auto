@@ -5,6 +5,7 @@ import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.NodeIsland;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
@@ -25,6 +26,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TimeframesTab extends CanvasNode {
@@ -89,7 +92,7 @@ public class TimeframesTab extends CanvasNode {
 			add.defaultDraw(gc.getFont());
 		});
 		add.setOnMouseClicked(e -> {
-			addTimeframe(false);
+			addTimeframe(false);					
 			add.disable();
 		});
 		
@@ -117,7 +120,7 @@ public class TimeframesTab extends CanvasNode {
 		});
 	}
 	
-	private void newChart(TimeframeButton tfb) {
+	private void newChart(Timeframe tf) {
 		Stage s = new Stage();
 		if (Main.icon() != null) {
 			s.getIcons().add(Main.icon());
@@ -125,7 +128,7 @@ public class TimeframesTab extends CanvasNode {
 		ChartNode cn = chart.chartNode();
 		s.setTitle(cn.name());
 		ChartPane cpane = new ChartPane(s, chart.width(), chart.height(), cn.data(), cn.replayMode(), cn.mr());		
-		cpane.getChart().chartNode().setTimeframe(cn.data().getTimeframe(tfb.timeframeName()));
+		cpane.getChart().chartNode().setTimeframe(tf);
 		Scene scene = new Scene(cpane);
 		scene.addEventFilter(KeyEvent.ANY, ev -> cpane.getChart().canvasEventFilter().canvasEventFilter(ev));
 		s.setScene(scene);
@@ -139,22 +142,24 @@ public class TimeframesTab extends CanvasNode {
 			tfb.setColoursRect();
 			gc.fillRoundRect(tfb.x(), tfb.y(), tfb.width(), tfb.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			tfb.setColoursText();
-			gc.fillText(tfb.text(), tfb.x() + 2, tfb.y() + tfb.textYOffset(), tfb.width() - 20);
+			gc.fillText(tfb.text(), tfb.x() + 4 + tfb.addFavouriteButton().width(), tfb.y() + tfb.textYOffset(), tfb.width() - 20);
+			tfb.addFavouriteButton().draw();
 		});
 		tfb.removeButton().disable();
 		tfb.setOnMouseClicked(e -> {
-			chart.chartNode().setTimeframe(chart.chartNode().data().getTimeframe(Dataset.BASE_TF_NAME));
+			chart.chartNode().setTimeframe(chart.chartNode().data().getTimeframe(tfb.timeframeName()));
 		});
 		tfb.setOnMouseReleased(e -> {
 			if (e.getButton() == MouseButton.SECONDARY) {
-				newChart(tfb);
+				newChart(chart.chartNode().data().getTimeframe(tfb.timeframeName()));
 			}
 		});
+		tfb.addFavouriteButton().setOnMouseClicked(e -> addFavouriteOnClicked(e, tfb, chart.chartNode().data().getTimeframe(tfb.timeframeName())));
 		tfButtons.add(tfb);
 		checkTimeframes(ctor);
 	}	
 	
-	private void addTimeframe(boolean ctor) {		
+	private void addTimeframe(boolean ctor) {	
 		Dataset dataset = chart.chartNode().data();
 		int period = Integer.parseInt(txtPeriod.text());
 		String name = Timeframe.determineName(addTicks.get(), period);
@@ -168,7 +173,7 @@ public class TimeframesTab extends CanvasNode {
 		}
 	}
 	
-	public void addTimeframe(String name, boolean ctor) {
+	private void addTimeframe(String name, boolean ctor) {
 		addTimeframe(name, chart.chartNode().data(), ctor);
 		if (tfButtons.size() == 28) {
 			add.disable();
@@ -190,8 +195,8 @@ public class TimeframesTab extends CanvasNode {
 		Dataset dataset = chart.chartNode().data();
 		ArrayList<Timeframe> timeframes = dataset.timeframes();
 		for (int i = 1; i < timeframes.size(); i++) {
-			addTimeframe(timeframes.get(i).name(), dataset, ctor);
-		}
+			addTimeframe(timeframes.get(i).name(), dataset, ctor);							
+		}		
 	}
 	
 	private void addTimeframe(String name, Dataset dataset, boolean ctor) {
@@ -203,11 +208,11 @@ public class TimeframesTab extends CanvasNode {
 			add.disable();
 		}
 		tfb.setOnMouseClicked(e -> {
-			chart.chartNode().setTimeframe(dataset.getTimeframe(name));
+			chart.chartNode().setTimeframe(dataset.getTimeframe(tfb.timeframeName()));
 		});
 		tfb.setOnMouseReleased(e -> {
 			if (e.getButton() == MouseButton.SECONDARY) {
-				newChart(tfb);
+				newChart(dataset.getTimeframe(tfb.timeframeName()));
 			}
 		});
 		tfb.removeButton().setOnMouseClicked(e -> {
@@ -224,12 +229,57 @@ public class TimeframesTab extends CanvasNode {
 				c.menu().chartFunctionsMenu().timeFramesTab().removeTimeframe(name);
 			}
 			checkNumber();
-		});		
+		});				
+		tfb.addFavouriteButton().setOnMouseClicked(e -> addFavouriteOnClicked(e, tfb, dataset.getTimeframe(tfb.timeframeName())));
 		if (!ctor) {
 			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tfb, chart.menuNode());
 			chart.sceneGraph().addNode(tfNode);
-			chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.removeButton(), tfNode));
+			chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.removeButton(), tfNode));	
+			chart.sceneGraph().addNode(new TNode<ICanvasNode>(tfb.addFavouriteButton(), tfNode));	
 		}
+	}
+	
+	private void addFavouriteOnClicked(MouseEvent e, TimeframeButton tfb, Timeframe tf) {
+		if (tfb.addFavouriteButton().on()) {
+			removeTimeframeFromIsland(tf);
+			tfb.addFavouriteButton().setOn(false);
+		} else {
+			if (addTimeframeToIslands(tf)) {
+				tfb.addFavouriteButton().setOn(true);
+			}
+		}
+	}
+	
+	private boolean addTimeframeToIslands(Timeframe tf) {
+		ChartNode cn = chart.chartNode();
+		Text t =  new Text(tf.name());
+		t.setFont(cn.graphicsContext().getFont());
+		CanvasButton cb = new CanvasButton(cn.graphicsContext(), t.getLayoutBounds().getWidth() + NodeIsland.MARGIN*2, 20, 0, 0, tf.name());
+		cb.setOnMouseClicked(e -> {
+			cn.setTimeframe(tf);
+		});
+		cb.setOnMouseReleased(e -> {
+			if (e.getButton() == MouseButton.SECONDARY) {
+				newChart(tf);
+			}
+		});
+		return cn.timeframeIsland().addNode(cb);
+	}
+	
+	private void removeTimeframeFromIsland(Timeframe tf) {	
+		ICanvasNode cnode = tfButton(tf.name());
+		if (cnode != null) {
+			chart.chartNode().timeframeIsland().removeNode(cnode);
+		}
+	}
+	
+	private ICanvasNode tfButton(String name) {
+		for (ICanvasNode cn : chart.chartNode().timeframeIsland().nodes()) {
+			if (cn instanceof CanvasButton && ((CanvasButton)cn).text().equals(name)) {
+				return cn;
+			}
+		}
+		return null;
 	}
 	
 	private void resetTFButtonsPos(int index) {
@@ -307,6 +357,7 @@ public class TimeframesTab extends CanvasNode {
 			TNode<ICanvasNode> tfNode = new TNode<ICanvasNode>(tf, menuNode);
 			sceneGraph.addNode(tfNode);
 			sceneGraph.addNode(new TNode<ICanvasNode>(tf.removeButton(), tfNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(tf.addFavouriteButton(), tfNode));
 		}
 	}
 	

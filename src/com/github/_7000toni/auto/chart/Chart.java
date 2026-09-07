@@ -132,6 +132,7 @@ public class Chart implements ICanvasWindow {
 					cn.chartShortcut().setX(ChartNode.CHT_MARGIN + cn.width() - 15);
 					
 					menu.setX(ChartNode.CHT_MARGIN + cn.width() + priceMargin.width());
+					cn.updateTFIXVars();
 					if (cn.replayMode()) {
 						cn.updateMRNXVars();
 					}

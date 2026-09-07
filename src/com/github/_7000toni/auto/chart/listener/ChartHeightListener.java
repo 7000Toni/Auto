@@ -27,6 +27,7 @@ public class ChartHeightListener implements ChangeListener<Number> {
 		}
 		c.hsb().setY(c.height() - Chart.HSB_HEIGHT);
 		c.chartNode().updateMRNYVars();
+		c.chartNode().updateTFIYVars();
 		c.chartMenu().setHeight(c.chartNode().height());
 		c.btnMenu().setY(ChartNode.CHT_MARGIN + c.chartNode().height() + 1);
 		c.draw();

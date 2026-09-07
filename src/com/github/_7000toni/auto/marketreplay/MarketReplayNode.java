@@ -26,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -171,20 +172,10 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(txtSpeed, mrn));
 		
 		setOnMousePressed(e -> {
-			dragXOrigin = e.getX();
-			dragYOrigin = e.getY();
-			if (e.getButton() == MouseButton.SECONDARY) {
-				this.draggable.set(!this.draggable.get());
-			}
+			defaultOnMousePressed(e);
 		});
 		setOnMouseDragged(e -> {
-			if (this.draggable.get()) {
-				setX(this.x + e.getX() - dragXOrigin);
-				setY(this.y + e.getY() - dragYOrigin);
-				dragXOrigin = e.getX();
-				dragYOrigin = e.getY();
-				chart.chartNode().setMRNDragged(true);
-			}
+			defaultOnMouseDragged(e);
 		});
 		
 		if (mr == null) {
@@ -192,6 +183,23 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		}
 		nodes.add(this);
 		draw();
+	}
+	
+	public void defaultOnMousePressed(MouseEvent e) {
+		dragXOrigin = e.getX();
+		dragYOrigin = e.getY();
+		if (e.getButton() == MouseButton.SECONDARY) {
+			this.draggable.set(!this.draggable.get());
+		}
+	}
+	
+	public void defaultOnMouseDragged(MouseEvent e) {
+		if (this.draggable.get()) {
+			setX(this.x + e.getX() - dragXOrigin);
+			setY(this.y + e.getY() - dragYOrigin);
+			dragXOrigin = e.getX();
+			dragYOrigin = e.getY();
+		}
 	}
 	
 	private void setTextBoxEvents() {		
@@ -370,7 +378,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	@Override
 	public void setX(double x) {
-		x = x>maxX?maxX:x;
+		x = x>maxX-width+3?maxX-width+3:x;
 		x = x<minX?minX:x;
 		
 		double hsbDiff = hsb.x() - hsb.minPos();		
@@ -390,7 +398,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	@Override
 	public void setY(double y) {
-		y = y>maxY?maxY:y;
+		y = y>maxY-height+3?maxY-height+3:y;
 		y = y<minY?minY:y;
 		
 		hsb.setY(y+90);

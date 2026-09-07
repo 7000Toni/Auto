@@ -1,6 +1,8 @@
 package com.github._7000toni.auto.canvasnode.button;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.ColourSettings;
+import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -8,6 +10,7 @@ import javafx.scene.paint.Color;
 
 public class TimeframeButton extends CanvasButton {
 	private CanvasButton remove;
+	private CanvasButton addFavourite;
 	private String timeframeName;
 	
 	public TimeframeButton(GraphicsContext gc, double width, double height, double x, double y, String text, String name) {
@@ -44,6 +47,31 @@ public class TimeframeButton extends CanvasButton {
 		};
 		remove = new CanvasButton(gc, 16, 16, x + width - 18, y + 2, null, 2, 2);	
 		remove.setVanGogh(drawCross);
+		addFavourite = new CanvasButton(gc, 8, 16, x + 2, y + 2, null, 2, 2);
+		addFavourite.setVanGogh(addFavouriteVG());
+	}
+	
+	private IVanGogh addFavouriteVG() {
+		return (x2, y2, gc2) -> {
+			if (Chart.darkMode().get()) {
+				gc2.setFill(Color.BLACK);
+			} else {
+				gc2.setFill(Color.WHITE);
+			}		
+			if (addFavourite.hover()) {
+				gc2.setFill(Color.GRAY);
+			}
+			if (addFavourite.pressed()) {
+				gc2.setFill(ColourSettings.colour(ColourIndex.MISCELLANEOUS_1));
+			}
+			if (addFavourite.on()) {
+				gc2.setFill(ColourSettings.colour(ColourIndex.MISCELLANEOUS_2));
+			}
+			if (!addFavourite.enabled()) {
+				gc2.setFill(Color.DIMGRAY);
+			}
+			gc2.fillRoundRect(x2, y2, addFavourite.width(), addFavourite.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		};
 	}
 	
 	private void setColoursShape(CanvasButton cb, GraphicsContext gc) {
@@ -77,8 +105,9 @@ public class TimeframeButton extends CanvasButton {
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + 2, y + textYOffset, width - 20);
+		gc.fillText(text, x + 4 + addFavourite.width(), y + textYOffset, width - 20);
 		remove.draw();
+		addFavourite.draw();
 	}
 	
 	@Override
@@ -95,6 +124,7 @@ public class TimeframeButton extends CanvasButton {
 		double diff = this.x - x;
 		this.x = x;
 		remove.setX(remove.x() - diff);
+		addFavourite.setX(addFavourite.x() - diff);
 	}
 	
 	@Override
@@ -102,11 +132,12 @@ public class TimeframeButton extends CanvasButton {
 		double diff = this.y - y;
 		this.y = y;
 		remove.setY(remove.y() - diff);
+		addFavourite.setY(addFavourite.y() - diff);
 	}
 	
 	@Override
 	public boolean onNode(double x, double y) {	
-		if (remove.onNode(x, y)) {
+		if (remove.onNode(x, y) && remove.enabled() || addFavourite.onNode(x, y) && addFavourite.enabled()) {
 			return false;
 		}
 		if (x > this.x + width || x < this.x) {
@@ -120,5 +151,9 @@ public class TimeframeButton extends CanvasButton {
 	
 	public CanvasButton removeButton() {
 		return remove;
+	}
+	
+	public CanvasButton addFavouriteButton() {
+		return addFavourite;
 	}
 }

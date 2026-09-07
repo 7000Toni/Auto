@@ -103,7 +103,7 @@ public class CanvasButton extends CanvasLabel {
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width);
 		gc.setFont(oldFont);
 	}
 	
@@ -114,7 +114,7 @@ public class CanvasButton extends CanvasLabel {
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width);
 		gc.setFont(oldFont);
 	}
 	
@@ -124,7 +124,7 @@ public class CanvasButton extends CanvasLabel {
 		setColoursRect();
 		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.fillText(text, x + textXOffset, y + textYOffset, width);
 	}
 	
 	@Override
@@ -132,7 +132,7 @@ public class CanvasButton extends CanvasLabel {
 		calculateOffsets(font);
 		setColoursAlt();
 		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width - 5);
+		gc.strokeText(text, x + textXOffset, y + textYOffset, width);
 	}
 	
 	@Override
