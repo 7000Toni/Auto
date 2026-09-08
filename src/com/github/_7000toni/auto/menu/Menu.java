@@ -420,7 +420,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private void setOnStart(boolean add) {
 		ArrayList<String> chartsOnStart;
 		if (add) {
-			chartsOnStart = Main.getChartsOnStart(false);
+			chartsOnStart = Main.getChartsOnStart(true);
 		} else {
 			chartsOnStart = new ArrayList<String>();
 		}
