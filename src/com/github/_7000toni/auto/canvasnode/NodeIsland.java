@@ -248,7 +248,7 @@ public class NodeIsland extends CanvasNode {
 	
 	@Override
 	public void setX(double x) {
-		x = x>maxX-width-1?maxX-width-1:x;
+		x = x>maxX-width?maxX-width:x;
 		x = x<minX?minX:x;
 		
 		resetNodePositions(x);
@@ -258,7 +258,7 @@ public class NodeIsland extends CanvasNode {
 	
 	@Override
 	public void setY(double y) {
-		y = y>maxY-height-2?maxY-height-2:y;
+		y = y>maxY-height?maxY-height:y;
 		y = y<minY?minY:y;
 		
 		for (TNode<ICanvasNode> tn : nodes) {

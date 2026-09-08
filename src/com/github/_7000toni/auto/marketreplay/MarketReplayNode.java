@@ -378,7 +378,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	@Override
 	public void setX(double x) {
-		x = x>maxX-width+3?maxX-width+3:x;
+		x = x>maxX-width+4?maxX-width+4:x;
 		x = x<minX?minX:x;
 		
 		double hsbDiff = hsb.x() - hsb.minPos();		
@@ -398,7 +398,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	@Override
 	public void setY(double y) {
-		y = y>maxY-height+3?maxY-height+3:y;
+		y = y>maxY-height+5?maxY-height+5:y;
 		y = y<minY?minY:y;
 		
 		hsb.setY(y+90);
