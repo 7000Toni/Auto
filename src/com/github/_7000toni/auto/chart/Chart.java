@@ -297,7 +297,7 @@ public class Chart implements ICanvasWindow {
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - 0.5, (int)(ChartNode.CHT_MARGIN) - 0.5, (int)(cn.width() + 2), (int)(cn.height() + 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width()) + 0.5, (int)(ChartNode.CHT_MARGIN + cn.height()) + 0.5, (int)(priceMargin.width()), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 1), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width() + 1) + 0.5, (int)(ChartNode.CHT_MARGIN + cn.height() + 1) + 0.5, (int)(priceMargin.width() - 1), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawChart() {
