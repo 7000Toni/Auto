@@ -273,7 +273,7 @@ public class DatasetLoader {
 					replays.remove(mrn);
 				}
 				int index = dsb.datasetIndex();
-				if (CrossHair.timeframe().dataset().signature().equals(datasets.get(index).signature())) {
+				if (CrossHair.timeframe() != null && CrossHair.timeframe().dataset().signature().equals(datasets.get(index).signature())) {
 					CrossHair.clearTimeframe();
 				}
 				datasets.remove(index);				
