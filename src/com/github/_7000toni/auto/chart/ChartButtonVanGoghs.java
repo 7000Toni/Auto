@@ -58,7 +58,7 @@ public class ChartButtonVanGoghs {
 				gc.setFill(Color.WHITE);
 			}
 			menuBtn.calculateOffsets(gc.getFont());
-			gc.fillText(menuBtn.text(), menuBtn.x() + menuBtn.textXOffset(), menuBtn.y() + menuBtn.textYOffset());
+			gc.fillText(menuBtn.text(), menuBtn.x() + menuBtn.textXOffset() + 1, menuBtn.y() + menuBtn.textYOffset());
 		};
 	}
 	
