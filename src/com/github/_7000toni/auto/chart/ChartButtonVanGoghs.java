@@ -37,15 +37,15 @@ public class ChartButtonVanGoghs {
 		return (x, y, gc) -> {			
 			if (menuBtn.hover()) {
 				gc.setFill(Color.GRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+				gc.fillRoundRect(x - 1, y, menuBtn.width() + 1, menuBtn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			if (menuBtn.pressed()) {
 				gc.setFill(Color.DIMGRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+				gc.fillRoundRect(x - 1, y, menuBtn.width() + 1, menuBtn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			if (!menuBtn.enabled()) {
 				gc.setFill(Color.LIGHTGRAY);
-				gc.fillRoundRect(x, y - 1, menuBtn.width(), menuBtn.height() + 1, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+				gc.fillRoundRect(x - 1, y, menuBtn.width() + 1, menuBtn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));		
 			if (menuBtn.hover()) {
@@ -58,7 +58,7 @@ public class ChartButtonVanGoghs {
 				gc.setFill(Color.WHITE);
 			}
 			menuBtn.calculateOffsets(gc.getFont());
-			gc.fillText(menuBtn.text(), menuBtn.x() + menuBtn.textXOffset(), menuBtn.y() + menuBtn.textYOffset() - 1);
+			gc.fillText(menuBtn.text(), menuBtn.x() + menuBtn.textXOffset(), menuBtn.y() + menuBtn.textYOffset());
 		};
 	}
 	

@@ -221,15 +221,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void updateTFIXVars() {
-		if (drawTFI.get()) {
-			tfi.setMaxX(width);
-		}
+		tfi.setMaxX(width);
 	}
 	
 	public void updateTFIYVars() {
-		if (drawTFI.get()) {
-			tfi.setMaxY(height);
-		}	
+		tfi.setMaxY(height);
 	}
 	
 	public void toggleTFShortcut() {
@@ -902,25 +898,25 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void drawCandleStick(Dataset.Candlestick candle, double xPos, double yPos) {
 		if (candle.open() < candle.close()) {
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
-			gc.strokeRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
+			gc.strokeRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.close() - candle.open()) / conversionVar));
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.close()) / conversionVar);
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.open()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.low()) / conversionVar);
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_FILL));
-			gc.fillRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.close() - candle.open()) / conversionVar);
+			gc.fillRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.close() - candle.open()) / conversionVar));
 		} else if (candle.open() > candle.close()) {
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_STROKE));
-			gc.strokeRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
+			gc.strokeRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.open() - candle.close()) / conversionVar));
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_FILL));
-			gc.fillRect((int)(xPos) + 0.5, yPos, candlestickWidth, (candle.open() - candle.close()) / conversionVar);
+			gc.fillRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.open() - candle.close()) / conversionVar));
 		} else {
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
 			} else {
 				gc.setStroke(Color.BLACK);
 			}
-			gc.strokeLine((int)(xPos) + 0.5, yPos, xPos + candlestickWidth, yPos);
+			gc.strokeLine((int)(xPos) + 0.5, (int)(yPos) + 0.5, xPos + candlestickWidth, (int)(yPos) + 0.5);
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
 			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
 		}
@@ -1287,13 +1283,13 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void updateMRNXVars() {
-		if (drawMRN.get()) {
+		if (replayMode) {
 			mrn.setMaxX(-CHT_MARGIN + width);
 		}
 	}
 	
 	public void updateMRNYVars() {
-		if (drawMRN.get()) {
+		if (replayMode) {
 			mrn.setMaxY(-CHT_MARGIN + height);
 			if (!mrnDragged) {
 				mrn.setY(height - 100 - fontSize);

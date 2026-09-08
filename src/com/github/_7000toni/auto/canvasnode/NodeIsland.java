@@ -62,6 +62,7 @@ public class NodeIsland extends CanvasNode {
 		
 		ni = new TNode<ICanvasNode>(this, parent);
 		sceneGraph.addNode(ni);
+		resetNodePositions(x);
 		if (nodes != null) {
 			for (ICanvasNode n : nodes) {
 				addNode(n);
@@ -235,8 +236,8 @@ public class NodeIsland extends CanvasNode {
 			}
 		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRoundRect((int)x+0.5, (int)y+0.5, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect((int)x+0.5, (int)y+0.5, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect((int)x+0.5, (int)y+0.5, (int)width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)x+0.5, (int)y+0.5, (int)width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(name, x+MARGIN, y+MARGIN+FONT_SIZE);
 		gc.setFont(oldFont);
