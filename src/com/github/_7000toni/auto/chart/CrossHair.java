@@ -186,7 +186,7 @@ public class CrossHair {
 	
 	private void drawDateBox(int index, String text) {	
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize() + 1, dateBarHalfWidth*2, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize() + 1, dateBarHalfWidth*2+0.5, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 		} else {
