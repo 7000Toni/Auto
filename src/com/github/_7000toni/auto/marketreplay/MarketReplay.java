@@ -519,6 +519,7 @@ public class MarketReplay {
 					this.stop();
 				}
 				if (paused.get()) {
+					lastTickTime = now;
 					return;
 				}
 				if (lastTickTime == 0) {
