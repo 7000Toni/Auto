@@ -212,8 +212,7 @@ public class CrossHair {
 		drawHorizontalLine(true);
 		boolean drawCandlesticks = chart.drawCandlesticks().get();	
 		double width = getWidth();
-		int var = !tf.base()&&!drawCandlesticks?-1:0;
-		dateIndex.set(chart.startIndex() + (int)(((x.get() - ChartNode.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex() + var)));
+		dateIndex.set(chart.startIndex() + (int)(((x.get() - ChartNode.CHT_MARGIN) / width) * (chart.endIndex() - chart.startIndex())));
 		if (dateIndex.get() >= chart.endIndex()) {
 			if (chart.endMargin()) {
 				dateIndex.set(-1);
@@ -283,7 +282,7 @@ public class CrossHair {
 		int startIndex = chart.startIndex();
 		int endIndex = chart.endIndex();
 		int firstIndex = data.get(startIndex).firstTickIndex();
-		int lastIndex = endIndex==data.size()?chart.data().tickData().size()-1:data.get(endIndex - 1).firstTickIndex();
+		int lastIndex = endIndex==data.size()?chart.data().tickData().size()-1:data.get(endIndex).firstTickIndex()-1;
 		if (!(tickIndex.get() > lastIndex || tickIndex.get() < firstIndex)) {
 			int index = indexSearch(data, startIndex, endIndex - 1);			
 			int diff = index - startIndex;
