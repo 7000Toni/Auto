@@ -293,7 +293,7 @@ public class Chart implements ICanvasWindow {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRect(0, 0, width, height);
 		if (ImageSettings.draw().get()) {
-			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height());
+			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height() + 1);
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - 0.5, (int)(ChartNode.CHT_MARGIN) - 0.5, (int)(cn.width() + 2), (int)(cn.height() + 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());

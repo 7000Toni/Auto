@@ -199,7 +199,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}	
 	
 	private void addTimeframeIsland(Tree<ICanvasNode> sceneGraph) {
-		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, sceneGraph, chartNode, true, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
+		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, false, sceneGraph, chartNode, true, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
 	}
 	
 	public NodeIsland timeframeIsland() {

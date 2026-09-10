@@ -25,7 +25,8 @@ public class NodeIsland extends CanvasNode {
 	public static final int FONT_SIZE = 10;
 	
 	private BooleanProperty draggable = new SimpleBooleanProperty(true);
-	private double maxWidth;
+	private double maxLength;
+	private boolean vertical;
 	private double minX;
 	private double maxX;
 	private double minY;
@@ -39,18 +40,19 @@ public class NodeIsland extends CanvasNode {
 	private double dragXOrigin = 0;
 	private double dragYOrigin = 0;
 	
-	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxWidth, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
-		constructorStuff(gc, name, x, y, maxWidth, sceneGraph, parent, draggable, minX, maxX, minY, maxY, nodes);
+	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+		constructorStuff(gc, name, x, y, maxLength, vertical, sceneGraph, parent, draggable, minX, maxX, minY, maxY, nodes);
 	}
 	
-	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double maxWidth, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
 		this.x = x;
 		this.x = Math.max(minX, this.x);
 		this.x = Math.min(this.x, maxX);
 		this.y = y;
 		this.y = Math.max(minY, this.y);
 		this.y = Math.min(this.y, maxY);
-		this.maxWidth = maxWidth;
+		this.maxLength = maxLength;
+		this.vertical = vertical;
 		this.draggable.set(draggable);
 		this.minX = minX;
 		this.maxX = maxX;
@@ -62,7 +64,7 @@ public class NodeIsland extends CanvasNode {
 		
 		ni = new TNode<ICanvasNode>(this, parent);
 		sceneGraph.addNode(ni);
-		resetNodePositions(x);
+		resetNodePositions(x, y);
 		if (nodes != null) {
 			for (ICanvasNode n : nodes) {
 				addNode(n);
@@ -105,13 +107,13 @@ public class NodeIsland extends CanvasNode {
 	}	
 	
 	public boolean addNode(ICanvasNode node) {
-		if (node.width() + width > maxWidth) {
+		if (node.width() + width > maxLength) {
 			return false;
 		}
 		TNode<ICanvasNode> tn = new TNode<ICanvasNode>(node, ni);
 		this.nodes.add(tn);
 		sceneGraph.addNode(tn);
-		resetNodePositions(x);
+		resetNodePositions(x, y);
 		if (x+width > maxX) {
 			setX(maxX);
 		}
@@ -127,7 +129,7 @@ public class NodeIsland extends CanvasNode {
 			if (cn.element().equals(node)) {
 				sceneGraph.removeNode(cn);
 				nodes.remove(i);
-				resetNodePositions(x);
+				resetNodePositions(x, y);
 				break;
 			}
 		}
@@ -137,21 +139,32 @@ public class NodeIsland extends CanvasNode {
 		return ni;
 	}
 	
-	private void resetNodePositions(double x) {
-		double off = MARGIN;
-		double height = 0;
+	private void resetNodePositions(double x, double y) {
+		double off = MARGIN + (vertical?FONT_SIZE + MARGIN*2:0);
+		double heightOrWidth = 0;		
 		for (TNode<ICanvasNode> tn : nodes) {
 			ICanvasNode cn = tn.element();
-			cn.setX(x + off);
-			cn.setY(y + MARGIN*2 + FONT_SIZE);
-			off += cn.width() + MARGIN;
-			height = Math.max(height, cn.height());
+			if (vertical) {
+				cn.setX(x + MARGIN);
+				cn.setY(y + off);
+				off += cn.height() + MARGIN;
+			} else {
+				cn.setX(x + off);
+				cn.setY(y + MARGIN*2 + FONT_SIZE);
+				off += cn.width() + MARGIN;
+			}						
+			heightOrWidth = Math.max(heightOrWidth, vertical?cn.width():cn.height());
 		}
 		Text t = new Text(name);
 		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
-		double wid = t.getLayoutBounds().getWidth() + MARGIN*2; 
-		width = Math.max(off, wid);
-		this.height = height + FONT_SIZE + MARGIN*3; 
+		double wid = t.getLayoutBounds().getWidth() + MARGIN*2; 		
+		if (vertical) {
+			width = Math.max(heightOrWidth + MARGIN*2, wid);
+			height = off;
+		} else {
+			width = Math.max(off, wid);
+			height = heightOrWidth + FONT_SIZE + MARGIN*3;
+		}
 	}
 	
 	public String name() {
@@ -166,12 +179,20 @@ public class NodeIsland extends CanvasNode {
 		this.draggable.set(draggable);
 	}
 	
-	public double maxWidth() {
-		return maxWidth;
+	public double maxLength() {
+		return maxLength;
 	}
 	
-	public void setMaxWidth(double maxWidth) {
-		this.maxWidth = maxWidth;
+	public void maxLength(double maxLength) {
+		this.maxLength = maxLength;
+	}
+	
+	public boolean vertical() {
+		return vertical;
+	}
+	
+	public void vertical(boolean vertical) {
+		this.vertical = vertical;
 	}
 	
 	public double minX() {
@@ -251,7 +272,7 @@ public class NodeIsland extends CanvasNode {
 		x = x>maxX-width?maxX-width:x;
 		x = x<minX?minX:x;
 		
-		resetNodePositions(x);
+		resetNodePositions(x, y);
 		
 		this.x = x;
 	}
@@ -261,9 +282,7 @@ public class NodeIsland extends CanvasNode {
 		y = y>maxY-height?maxY-height:y;
 		y = y<minY?minY:y;
 		
-		for (TNode<ICanvasNode> tn : nodes) {
-			tn.element().setY(y + MARGIN*2 + FONT_SIZE);
-		}
+		resetNodePositions(x, y);
 		
 		this.y = y;
 	}
