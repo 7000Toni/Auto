@@ -879,7 +879,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		for (Line l : data.lines()) {
 			if (l.price() >= trueLowest && l.price() <= trueHighest) {
 				double trueRange = trueHighest - trueLowest;
-				double y = (int)(height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height))+0.5;
+				double y = (int)(height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height))+1.5;
 				if (l.highlighted()) {
 					gc.setFill(Color.RED);
 					gc.setStroke(Color.RED);
@@ -895,31 +895,78 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		}		
 	}
 	
-	public void drawCandleStick(Dataset.Candlestick candle, double xPos, double yPos) {
+	public void drawCandlestick(Dataset.Candlestick candle, double xPos, double yPos) {
 		if (candle.open() < candle.close()) {
-			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
-			gc.strokeRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.close() - candle.open()) / conversionVar));
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.close()) / conversionVar);
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.open()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.close() - candle.low()) / conversionVar);
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_FILL));
-			gc.fillRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.close() - candle.open()) / conversionVar));
+			drawUpCandle(candle, xPos, yPos);
 		} else if (candle.open() > candle.close()) {
-			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_STROKE));
-			gc.strokeRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.open() - candle.close()) / conversionVar));
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_FILL));
-			gc.fillRect((int)(xPos) + 0.5, (int)(yPos) + 0.5, (int)candlestickWidth, (int)((candle.open() - candle.close()) / conversionVar));
+			drawDownCandle(candle, xPos, yPos);
 		} else {
-			if (Chart.darkMode().get()) {
-				gc.setStroke(Color.WHITE);
-			} else {
-				gc.setStroke(Color.BLACK);
-			}
-			gc.strokeLine((int)(xPos) + 0.5, (int)(yPos) + 0.5, xPos + candlestickWidth, (int)(yPos) + 0.5);
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos, (int)(xPos + candlestickWidth / 2) + 0.5, yPos - (candle.high() - candle.open()) / conversionVar);
-			gc.strokeLine((int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.close()) / conversionVar, (int)(xPos + candlestickWidth / 2) + 0.5, yPos + (candle.open() - candle.low()) / conversionVar);
+			drawDojiCandle(candle, xPos, yPos);
 		}
+	}
+	
+	private void drawUpCandle(Dataset.Candlestick candle, double xPos, double yPos) {		
+		double xBox = (int)(xPos) + 0.5;
+		double yBox = (int)(yPos) + 0.5;			
+		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double cWidth = (int)candlestickWidth;
+		double cHeight = (int)((candle.close() - candle.open()) / conversionVar);
+		double yTopWick = yPos - (candle.high() - candle.close()) / conversionVar;
+		double yBottomWick = yPos + (candle.close() - candle.open()) / conversionVar;
+		double y2BottomWick = yPos + (candle.close() - candle.low()) / conversionVar;
+		if (candlestickWidth <= 1) {
+			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
+			gc.strokeLine(xBox, yTopWick, xBox, y2BottomWick);
+			return;
+		}
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_FILL));
+		gc.fillRect(xBox, yBox, cWidth, cHeight);
+		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.UP_CANDLESTICK_STROKE));
+		gc.strokeRect(xBox, yBox, cWidth, cHeight);
+		gc.strokeLine(midX, yBox, midX, yTopWick);
+		gc.strokeLine(midX, yBottomWick, midX, y2BottomWick);		
+	}
+	
+	private void drawDownCandle(Dataset.Candlestick candle, double xPos, double yPos) {		
+		double xBox = (int)(xPos) + 0.5;
+		double yBox = (int)(yPos) + 0.5;			
+		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double cWidth = (int)candlestickWidth;
+		double cHeight = (int)((candle.open() - candle.close()) / conversionVar);
+		double yTopWick = yPos - (candle.high() - candle.open()) / conversionVar;
+		double yBottomWick = yPos + (candle.open() - candle.close()) / conversionVar;
+		double y2BottomWick = yPos + (candle.open() - candle.low()) / conversionVar;
+		if (candlestickWidth <= 1) {
+			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_STROKE));
+			gc.strokeLine(xBox, yTopWick, xBox, y2BottomWick);
+			return;
+		}
+		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_FILL));
+		gc.fillRect(xBox, yBox, cWidth, cHeight);
+		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.DOWN_CANDLESTICK_STROKE));
+		gc.strokeRect(xBox, yBox, cWidth, cHeight);
+		gc.strokeLine(midX, yBox, midX, yTopWick);
+		gc.strokeLine(midX, yBottomWick, midX, y2BottomWick);		
+	}
+	
+	private void drawDojiCandle(Dataset.Candlestick candle, double xPos, double yPos) {
+		if (Chart.darkMode().get()) {
+			gc.setStroke(Color.WHITE);
+		} else {
+			gc.setStroke(Color.BLACK);
+		}
+		double xDoji = (int)(xPos) + 0.5;
+		double yDoji = (int)(yPos) + 0.5;			
+		double dojiWidth = xPos + candlestickWidth;
+		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double yWick = yPos - (candle.high() - candle.open()) / conversionVar;
+		double y2Wick = yPos + (candle.open() - candle.low()) / conversionVar;
+		if (candlestickWidth <= 1) {
+			gc.strokeLine(xDoji, yWick, xDoji, y2Wick);
+			return;
+		}
+		gc.strokeLine(xDoji, yDoji, dojiWidth, yDoji);
+		gc.strokeLine(midX, yWick, midX, y2Wick);
 	}
 	
 	private void calculateIndices() {	
@@ -1031,7 +1078,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				yPos = ((highest - lastCandlestick.open()) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			}
-			drawCandleStick(lastCandlestick, xPos, yPos);			
+			drawCandlestick(lastCandlestick, xPos, yPos);			
 		}		
 	}
 	
