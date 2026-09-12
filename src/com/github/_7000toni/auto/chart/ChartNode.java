@@ -879,7 +879,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		for (Line l : data.lines()) {
 			if (l.price() >= trueLowest && l.price() <= trueHighest) {
 				double trueRange = trueHighest - trueLowest;
-				double y = (int)(height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height))+1.5;
+				double y = (int)(height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height))+Chart.OFFSET*3;
 				if (l.highlighted()) {
 					gc.setFill(Color.RED);
 					gc.setStroke(Color.RED);
@@ -906,9 +906,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void drawUpCandle(Dataset.Candlestick candle, double xPos, double yPos) {		
-		double xBox = (int)(xPos) + 0.5;
-		double yBox = (int)(yPos) + 0.5;			
-		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double xBox = (int)(xPos) + Chart.OFFSET;
+		double yBox = (int)(yPos) + Chart.OFFSET;			
+		double midX = (int)(xPos + candlestickWidth / 2) + Chart.OFFSET;
 		double cWidth = (int)candlestickWidth;
 		double cHeight = (int)((candle.close() - candle.open()) / conversionVar);
 		double yTopWick = yPos - (candle.high() - candle.close()) / conversionVar;
@@ -928,9 +928,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void drawDownCandle(Dataset.Candlestick candle, double xPos, double yPos) {		
-		double xBox = (int)(xPos) + 0.5;
-		double yBox = (int)(yPos) + 0.5;			
-		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double xBox = (int)(xPos) + Chart.OFFSET;
+		double yBox = (int)(yPos) + Chart.OFFSET;			
+		double midX = (int)(xPos + candlestickWidth / 2) + Chart.OFFSET;
 		double cWidth = (int)candlestickWidth;
 		double cHeight = (int)((candle.open() - candle.close()) / conversionVar);
 		double yTopWick = yPos - (candle.high() - candle.open()) / conversionVar;
@@ -955,10 +955,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		} else {
 			gc.setStroke(Color.BLACK);
 		}
-		double xDoji = (int)(xPos) + 0.5;
-		double yDoji = (int)(yPos) + 0.5;			
+		double xDoji = (int)(xPos) + Chart.OFFSET;
+		double yDoji = (int)(yPos) + Chart.OFFSET;			
 		double dojiWidth = xPos + candlestickWidth;
-		double midX = (int)(xPos + candlestickWidth / 2) + 0.5;
+		double midX = (int)(xPos + candlestickWidth / 2) + Chart.OFFSET;
 		double yWick = yPos - (candle.high() - candle.open()) / conversionVar;
 		double y2Wick = yPos + (candle.open() - candle.low()) / conversionVar;
 		if (candlestickWidth <= 1) {
@@ -1017,7 +1017,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (tf.base()) {
 			ArrayList<DataPair> data = tf.tickData();
 			endMargin = false;
-			double startY = height - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price() - lowest) / range) * (height - chtDataMargin * 2));		
+			double startY = height - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price() - lowest) / range) * (height - chtDataMargin * 2)) + Chart.OFFSET*3;		
 			double prevY = startY - ((data.get(startIndex + 1).price() - data.get(startIndex).price()) / conversionVar);
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 			gc.strokeLine(CHT_MARGIN, startY, xDiff + CHT_MARGIN, prevY);		
@@ -1107,7 +1107,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (price > highest || price < lowest) {
 			return;
 		}		
-		double yPos = (int)(((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + 0.5;
+		double yPos = (int)(((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + Chart.OFFSET;
 		gc.setStroke(Color.SLATEBLUE);
 		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + width, yPos);	
 	}
@@ -1138,9 +1138,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					double ex = endX + 50;
 					if (ex >= CHT_MARGIN + width) {
 						ex -= 100;
-						gc.strokeLine(ex + 0.5, n100 + 0.5, endX, n100 + 0.5);
+						gc.strokeLine(ex + Chart.OFFSET, n100 + Chart.OFFSET, endX, n100 + Chart.OFFSET);
 					} else {
-						gc.strokeLine(endX + 0.5, n100 + 0.5, ex, n100 + 0.5);
+						gc.strokeLine(endX + Chart.OFFSET, n100 + Chart.OFFSET, ex, n100 + Chart.OFFSET);
 					}				
 				}
 			}

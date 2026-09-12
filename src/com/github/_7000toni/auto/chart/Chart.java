@@ -42,7 +42,9 @@ public class Chart implements ICanvasWindow {
 	public final static double MIN_HEIGHT = 400; 
 
 	public final static double HSB_WIDTH = 100;
-	public final static double HSB_HEIGHT = 10;	
+	public final static double HSB_HEIGHT = 10;
+	
+	public final static double OFFSET = 0.5;	
 	
 	private static ArrayList<Chart> charts = new ArrayList<Chart>();	
 	private static BooleanProperty darkMode = new SimpleBooleanProperty(false);
@@ -296,8 +298,8 @@ public class Chart implements ICanvasWindow {
 			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height() + 1);
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - 0.5, (int)(ChartNode.CHT_MARGIN) - 0.5, (int)(cn.width() + 2), (int)(cn.height() + 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width() + 1) + 0.5, (int)(ChartNode.CHT_MARGIN + cn.height() + 1) + 0.5, (int)(priceMargin.width() - 1), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(cn.width() + 2), (int)(cn.height() + 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width() + 1) + OFFSET, (int)(ChartNode.CHT_MARGIN + cn.height() + 1) + OFFSET, (int)(priceMargin.width() - 1), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawChart() {

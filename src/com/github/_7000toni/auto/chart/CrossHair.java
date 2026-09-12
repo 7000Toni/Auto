@@ -158,11 +158,12 @@ public class CrossHair {
 			yPos = (int)(((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN);			
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeLine(ChartNode.CHT_MARGIN, yPos+0.5, ChartNode.CHT_MARGIN + chart.width(), yPos+0.5);
+		gc.strokeLine(ChartNode.CHT_MARGIN, yPos+Chart.OFFSET, ChartNode.CHT_MARGIN + chart.width(), yPos+Chart.OFFSET);
 		drawPriceBox(yPos);
 	}
 	
 	private void drawPriceBox(double yPos) {
+		yPos += Chart.OFFSET;
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillRoundRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
@@ -180,13 +181,13 @@ public class CrossHair {
 			return;
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeLine(xPos+0.5, ChartNode.CHT_MARGIN, xPos+0.5, chart.height() + ChartNode.CHT_MARGIN - 0.5);		
+		gc.strokeLine(xPos+Chart.OFFSET, ChartNode.CHT_MARGIN, xPos+Chart.OFFSET, chart.height() + ChartNode.CHT_MARGIN - Chart.OFFSET);		
 		drawDateBox(index, setDateBarX(xPos, index));
 	}
 	
 	private void drawDateBox(int index, String text) {	
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize() + 1, dateBarHalfWidth*2+0.5, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize() + 1, dateBarHalfWidth*2+Chart.OFFSET, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 		} else {
