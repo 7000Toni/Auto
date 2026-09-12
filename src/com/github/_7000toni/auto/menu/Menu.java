@@ -580,7 +580,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	}
 	
 	private void addVSB() {
-		if (!excess) {
+		if (!excess && !Double.isNaN(stage.getWidth())) {
 			stage.setWidth(stage.getWidth() + 10);
 			width += 10;
 			canvas.setWidth(width);
@@ -589,7 +589,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		}
 	}
 	
-	private void removeVSB() {
+	private void removeVSB() {		
 		if (excess) {
 			stage.setWidth(stage.getWidth() - 10);
 			width -= 10;
