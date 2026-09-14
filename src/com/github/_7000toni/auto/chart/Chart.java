@@ -295,11 +295,11 @@ public class Chart implements ICanvasWindow {
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRect(0, 0, width, height);
 		if (ImageSettings.draw().get()) {
-			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width(), cn.height() + 1);
+			ImageFunctions.drawImage(gc, ImageSettings.image(), ChartNode.CHT_MARGIN, ChartNode.CHT_MARGIN, cn.width()-1, cn.height());
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(cn.width() + 2), (int)(cn.height() + 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width() + 1) + OFFSET, (int)(ChartNode.CHT_MARGIN + cn.height() + 1) + OFFSET, (int)(priceMargin.width() - 1), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 2), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(ChartNode.CHT_MARGIN) - OFFSET, (int)(cn.width() + 1), (int)(cn.height() + 1), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect((int)(ChartNode.CHT_MARGIN + cn.width()) + OFFSET, (int)(ChartNode.CHT_MARGIN + cn.height()) + OFFSET, (int)priceMargin.width(), (int)(Chart.HSB_HEIGHT + ChartNode.CHT_MARGIN - 1), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawChart() {

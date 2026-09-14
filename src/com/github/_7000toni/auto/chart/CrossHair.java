@@ -155,15 +155,15 @@ public class CrossHair {
 				return;
 			}
 		} else {
-			yPos = (int)(((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN);			
+			yPos = ((chart.highest() + chart.dataMarginTickSize() - price.get()) / (chart.range() + chart.dataMarginTickSize() * 2)) * chart.height() + ChartNode.CHT_MARGIN;			
 		}
+		yPos = (int)yPos + Chart.OFFSET;
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeLine(ChartNode.CHT_MARGIN, yPos+Chart.OFFSET, ChartNode.CHT_MARGIN + chart.width(), yPos+Chart.OFFSET);
+		gc.strokeLine(ChartNode.CHT_MARGIN, yPos, ChartNode.CHT_MARGIN + chart.width(), yPos);
 		drawPriceBox(yPos);
 	}
 	
 	private void drawPriceBox(double yPos) {
-		yPos += Chart.OFFSET;
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillRoundRect(chart.width() + ChartNode.CHT_MARGIN, yPos - chart.fontSize()/2, chart.chart().priceMargin().width(), chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
@@ -175,25 +175,25 @@ public class CrossHair {
 	}
 	
 	private void drawVerticalLine(double xPos, int index) {
-		xPos = (int)xPos;
+		xPos = (int)xPos + Chart.OFFSET;
 		if (xPos < ChartNode.CHT_MARGIN || xPos > ChartNode.CHT_MARGIN + chart.width()) {
 			chart.setFocusedChart(false);
 			return;
 		}
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeLine(xPos+Chart.OFFSET, ChartNode.CHT_MARGIN, xPos+Chart.OFFSET, chart.height() + ChartNode.CHT_MARGIN - Chart.OFFSET);		
+		gc.strokeLine(xPos, ChartNode.CHT_MARGIN + Chart.OFFSET, xPos, chart.height() + ChartNode.CHT_MARGIN);		
 		drawDateBox(index, setDateBarX(xPos, index));
 	}
 	
 	private void drawDateBox(int index, String text) {	
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize() + 1, dateBarHalfWidth*2+Chart.OFFSET, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(dateBarX, chart.height() + ChartNode.CHT_MARGIN - chart.fontSize(), dateBarHalfWidth*2, chart.fontSize(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		if (Chart.darkMode().get()) {
 			gc.setFill(Color.BLACK);
 		} else {
 			gc.setFill(Color.WHITE);
 		}
-		gc.fillText(text, dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
+		gc.fillText(text, dateBarX + DATE_BAR_MARGIN, chart.height() + ChartNode.CHT_MARGIN - Chart.OFFSET*2, (dateBarHalfWidth + DATE_BAR_MARGIN) * 2);
 	}
 	
 	private double getWidth() {
@@ -312,8 +312,8 @@ public class CrossHair {
 		if (chart.focusedChart().get()) {		
 			drawFocusedChartCrossHair();
 			if (chart.replayMode()) {
-				chart.tradeButtons().limitOrder().setY(y.get() - chart.fontSize()/2); 
-				chart.tradeButtons().stopOrder().setY(y.get() - chart.fontSize()/2);
+				chart.tradeButtons().limitOrder().setY((int)y.get() + Chart.OFFSET - chart.fontSize()/2); 
+				chart.tradeButtons().stopOrder().setY((int)y.get() + Chart.OFFSET - chart.fontSize()/2);
 			}
 		} else if (chart.name().equals(name.get()) && ChartNode.onSomeChart(name.get())) {
 			drawUnfocusedChartCrossHair();

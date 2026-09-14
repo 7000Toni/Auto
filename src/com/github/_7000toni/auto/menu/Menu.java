@@ -303,7 +303,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			toggleOnStart();
 		});
 		
-		toggleReaders_OnStart = new CanvasButton(gc, 100, 27.8, MARGIN, MARGIN + 58*3 + 137.2, "ONSTART");
+		toggleReaders_OnStart = new CanvasButton(gc, 100, 26.8, MARGIN, MARGIN + 58*3 + 137.2, "ONSTART");
 		toggleReaders_OnStart.setVanGogh((x, y, gc) -> {
 			if (showReaders.get()) {
 				toggleReaders_OnStart.setText("ONSTART");
