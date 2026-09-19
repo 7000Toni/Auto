@@ -1,7 +1,7 @@
 package com.github._7000toni.auto.dataset.timeframe;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class Timeframe {
 	private boolean tickBased;
 	private int period = -1;
 	
-	public Timeframe(Dataset dataset, boolean base) {
+	public Timeframe(Dataset dataset) {
 		this.dataset = dataset;
 		this.name = Dataset.BASE_TF_NAME;
 		this.base = true;
@@ -143,15 +143,15 @@ public class Timeframe {
 	
 	private boolean checkAdd(LocalDateTime last, LocalDateTime current) {
 		if (period == 43800) {
-			return Duration.between(last, current).toDays() > 31 || current.getMonth() != last.getMonth();
+			return ChronoUnit.DAYS.between(last, current) > 31 || current.getMonth() != last.getMonth();
 		} else if (period == 10080) {
-			return Duration.between(last, current).toDays() > 7 || current.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) != last.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+			return ChronoUnit.DAYS.between(last, current) > 7 || current.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) != last.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
 		} else if (period == 1440) {
-			return Duration.between(last, current).toHours() > 24 || current.getDayOfWeek() != last.getDayOfWeek();
+			return ChronoUnit.HOURS.between(last, current) > 24 || current.getDayOfWeek() != last.getDayOfWeek();
 		} else if (period < 1440) {
-			return Duration.between(last, current).toMinutes() > period || current.getMinute() % period == 0;
+			return ChronoUnit.MINUTES.between(last, current) > period || current.getMinute() % period == 0;
 		} else {
-			return Duration.between(last, current).toMinutes() > period;
+			return ChronoUnit.MINUTES.between(last, current) > period;
 		}
 	}
 	

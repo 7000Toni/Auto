@@ -342,7 +342,7 @@ public class MarketReplay {
 			}
 		}
 		timeToNextTick.set(0);
-		data.setReplayTickDataSize(this.index.get());
+		data.setReplayTickDataSize(this.index.get() + 1);
 		int ci = this.index.get();
 		if (ci >= tickDataSize.get()) {
 			ci = tickDataSize.get() - 1;
@@ -469,11 +469,11 @@ public class MarketReplay {
 	}
 	
 	private void nextTick(double diff) {
-		while (!paused.get() && index.get() < tickDataSize.get()) {
+		while (!paused.get() && index.get() < tickDataSize.get() - 1) {
 			index.set(index.get() + 1);
 			diff -= timeToNextTick.get();
 			timeToNextTick.set(timeToNextTick(index.get()));
-			data.setReplayTickDataSize(index.get());
+			data.setReplayTickDataSize(index.get() + 1);
 			int ci = index.get();
 			if (ci >= tickDataSize.get()) {
 				ci = tickDataSize.get() - 1;

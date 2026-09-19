@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReentrantLock;
@@ -321,16 +322,7 @@ public class Dataset {
 	}
 	
 	private void checkAddCandlestick(ReadFileVars rfv) {
-		long ldtPrevEpochSec = rfv.ldtPrev.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
-		long ldtEpochSec = rfv.ldt.atZone(ZoneOffset.UTC).toInstant().getEpochSecond();
-		int diff = (int)((ldtEpochSec - ldtPrevEpochSec) / 60.0);
-		if (diff == 0) {
-			if (rfv.val > rfv.high) {
-				rfv.high = rfv.val;
-			} else if (rfv.val < rfv.low) {
-				rfv.low = rfv.val;
-			}
-		} else {
+		if (rfv.ldtPrev.getMinute() != rfv.ldt.getMinute() || ChronoUnit.MINUTES.between(rfv.ldtPrev, rfv.ldt) > 0) {
 			addCandlestick(rfv);
 			rfv.firstTickIndex = rfv.progress - 1;
 			rfv.open = rfv.val;
@@ -338,6 +330,12 @@ public class Dataset {
 			rfv.low = rfv.val;
 			rfv.close = rfv.val;
 			rfv.ldtPrev = rfv.ldt.minusSeconds(rfv.ldt.getSecond()).minusNanos(rfv.ldt.getNano());
+		} else {
+			if (rfv.val > rfv.high) {
+				rfv.high = rfv.val;
+			} else if (rfv.val < rfv.low) {
+				rfv.low = rfv.val;
+			}
 		}
 		rfv.prevPrice = rfv.val;
 	}
@@ -408,9 +406,11 @@ public class Dataset {
 				checkLength(rfv.val);
 			}
 			size = rfv.progress;
-			addCandlestick(rfv);
-			System.out.println("finished loading: " + name);
-			timeframes.add(new Timeframe(this, true));
+			if (m1Candles.size() == tickData.getLast().candleIndex) {
+				addCandlestick(rfv);
+			}
+			timeframes.add(new Timeframe(this));
+			System.out.println("finished loading: " + name);			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -11,7 +11,9 @@ import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.ChartPane;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
@@ -44,6 +46,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private HorizontalMRPaneScrollBar hsb;
 	private String name;	
 	private TNode<ICanvasNode> mrn;
+	private ChartNode chartNode = null;
 	
 	private static ArrayList<MarketReplayNode> nodes = new ArrayList<MarketReplayNode>();
 	
@@ -83,6 +86,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		this.maxY = maxY;
 		this.stage = stage;				
 		name = chart.chartNode().name();
+		if (parent.element() instanceof ChartNode) {
+			chartNode = (ChartNode)parent.element();
+		}
 		stage.setTitle(name + " Replay");
 		if (mr == null) {
 			this.mr = new MarketReplay(chart, this, index);
@@ -138,7 +144,18 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (txtMoveTicks.text().equals("")) {
 				return;
 			}
-			this.mr.setIndex(-Integer.parseInt(txtMoveTicks.text()), true);
+			if (chartNode == null) {
+				this.mr.setIndex(-Integer.parseInt(txtMoveTicks.text()), true);
+			} else {
+				Timeframe tf = chartNode.timeframe();
+				int idx = tf.size(true, !chartNode.drawCandlesticks().get()) - Integer.parseInt(txtMoveTicks.text()) - 1;				
+				if (tf.base() && !chartNode.drawCandlesticks().get()) {
+					this.mr.setIndex(idx, false);
+				} else {
+					idx = idx<0?0:idx;
+					this.mr.setIndex(tf.data().get(idx).firstTickIndex(), false);
+				}
+			}
 			updateHSBPos();
 			if (!this.mr.charts().isEmpty()) {
 				this.mr.charts().getFirst().draw();
@@ -148,7 +165,18 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (txtMoveTicks.text().equals("")) {
 				return;
 			}
-			this.mr.setIndex(Integer.parseInt(txtMoveTicks.text()), true);
+			if (chartNode == null) {
+				this.mr.setIndex(Integer.parseInt(txtMoveTicks.text()), true);
+			} else {
+				Timeframe tf = chartNode.timeframe();
+				int maxSize = tf.size(false, !chartNode.drawCandlesticks().get());
+				int idx = tf.size(true, !chartNode.drawCandlesticks().get()) + Integer.parseInt(txtMoveTicks.text()) - 1;				
+				if (tf.base() && !chartNode.drawCandlesticks().get()) {
+					this.mr.setIndex(idx, false);
+				} else {
+					this.mr.setIndex(idx>=maxSize?tf.dataset().tickData().size() - 1:tf.data().get(idx).firstTickIndex(), false);
+				}
+			}
 			updateHSBPos();
 			if (!this.mr.charts().isEmpty()) {
 				this.mr.charts().getFirst().draw();

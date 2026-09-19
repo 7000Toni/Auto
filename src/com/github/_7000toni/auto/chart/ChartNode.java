@@ -114,6 +114,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private ChartMarketReplayButtons cmrb;
 	private BooleanProperty skipDraw = new SimpleBooleanProperty(false);
 	private Dataset.Candlestick lastCandlestick;
+	private Dataset.Candlestick lastReplayCandlestick;
 	private static BooleanProperty drawCrosshair = new SimpleBooleanProperty(true);
 	private NodeIsland tfi;
 	private BooleanProperty drawTFI = new SimpleBooleanProperty(false);
@@ -369,8 +370,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return candlestickSpacing;
 	}
 	
-	public Dataset.Candlestick lastCandlestick() {
-		return lastCandlestick;
+	public Dataset.Candlestick lastReplayCandlestick() {
+		return lastReplayCandlestick;
 	}
 	
 	public String name() {
@@ -788,7 +789,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		return onNode(x, y);
 	}
 	
-	private void calculateRange() {		
+	private void calculateRange() {
 		if (drawCandlesticks.get() || !tf.base()) {
 			ArrayList<Candlestick> data = tf.data();
 			if (drawCandlesticks.get()) {
@@ -821,15 +822,15 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				}				
 			}
 			if (considerLast) {
-				Dataset.Candlestick c = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex(), tf.tickBased() || tf.base());
+				lastReplayCandlestick = this.data.makeLastReplayCandlestick(data.get(ei).firstTickIndex(), tf.tickBased() || tf.base());
 				double low;
 				double high;	
 				if (drawCandlesticks.get()) {
-					low = c.low();
-					high = c.high();	
+					low = lastReplayCandlestick.low();
+					high = lastReplayCandlestick.high();	
 				} else {
-					low = c.price(lineChartDataPoint);
-					high = c.price(lineChartDataPoint);	
+					low = lastReplayCandlestick.price(lineChartDataPoint);
+					high = lastReplayCandlestick.price(lineChartDataPoint);	
 				}
 				if (high > highest) {
 					highest = high;	
@@ -969,7 +970,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		gc.strokeLine(midX, yWick, midX, y2Wick);
 	}
 	
-	private void calculateIndices() {	
+	private void calculateIndices() {
 		if (drawCandlesticks.get() || !tf.base()) {
 			int size = tf.size(replayMode, false);			
 			if (!keepStartIndex || tfChanged) {
@@ -1041,14 +1042,13 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		double prevY = startY - ((data.get(startIndex + 1).price(lineChartDataPoint) - data.get(startIndex).price(lineChartDataPoint)) / conversionVar);
 		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 		gc.strokeLine(CHT_MARGIN-Chart.OFFSET, startY, xDiff+CHT_MARGIN-Chart.OFFSET, prevY);		
-		int size = tf.size(this.replayMode, false);
 		for (int i = 1; i < numCandlesticks - 1; i++) {
 			if (startIndex + i > tf.size(this.replayMode, false) - 2) {
 				endMargin = true;
 				break;
 			}
 			if (replayMode && startIndex + i > tf.size(true, false) - 3) {
-				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex(), tf.tickBased() || tf.base());
+				lastCandlestick = lastReplayCandlestick;
 			} else {
 				lastCandlestick = data.get(startIndex + i + 1);
 			}
@@ -1067,7 +1067,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				break;
 			}
 			if (replayMode && startIndex + i == size - 1) {
-				lastCandlestick = this.data.makeLastReplayCandlestick(data.get(size - 1).firstTickIndex(), tf.tickBased() || tf.base());
+				lastCandlestick = lastReplayCandlestick;
 			} else {
 				lastCandlestick = data.get(startIndex + i);
 			}		
@@ -1078,8 +1078,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				yPos = ((highest - lastCandlestick.open()) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			}
-			drawCandlestick(lastCandlestick, xPos, yPos);			
-		}		
+			drawCandlestick(lastCandlestick, xPos, yPos);					
+		}
 	}
 	
 	private void drawCurrentPriceBox() {
@@ -1193,14 +1193,14 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			gc.fillText(trt1, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 			boolean useLast = false;
 			if (replayMode && (CrossHair.dateIndex().get() == -1 || (!focusedChart.get() && crossHair.ohlc() == null) || CrossHair.dateIndex().get() == data.m1CandlesDataSize(replayMode).get() - 1)) {				
-				crossHair.setOHLC(lastCandlestick);
+				crossHair.setOHLC(lastReplayCandlestick);
 				useLast = true;
 			}
 			if (crossHair.ohlc() != null) {				
 				String trt2 = crossHair.ohlc();
 				Dataset.Candlestick c;
 				if (useLast) {
-					c = lastCandlestick;
+					c = lastReplayCandlestick;
 				} else if (focusedChart.get()) {
 					c = tf.data().get(CrossHair.dateIndex().get());
 				} else {
