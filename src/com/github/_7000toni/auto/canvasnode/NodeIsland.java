@@ -20,11 +20,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-public class NodeIsland extends CanvasNode {
-	public static final int MARGIN = 3;
+public class NodeIsland extends CanvasNode {	
 	public static final int FONT_SIZE = 10;
 	
+	private int borderMargin = 3;
+	private int nodeMargin = 3;
 	private BooleanProperty draggable = new SimpleBooleanProperty(true);
+	private boolean permanentlyLocked = false;
 	private double maxLength;
 	private boolean vertical;
 	private double minX;
@@ -36,15 +38,21 @@ public class NodeIsland extends CanvasNode {
 	private TNode<ICanvasNode> ni;
 	private ArrayList<TNode<ICanvasNode>> nodes = new ArrayList<TNode<ICanvasNode>>();
 	private Tree<ICanvasNode> sceneGraph;
+	private boolean drawBorder = true;
 	
 	private double dragXOrigin = 0;
 	private double dragYOrigin = 0;
 	
-	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
-		constructorStuff(gc, name, x, y, maxLength, vertical, sceneGraph, parent, draggable, minX, maxX, minY, maxY, nodes);
+	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, ArrayList<ICanvasNode> nodes) {
+		constructorStuff(gc, name, x, y, maxLength, vertical, sceneGraph, parent, Double.MIN_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE, nodes);
+		setPermanentlyLocked(true);
 	}
 	
-	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+	public NodeIsland(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
+		constructorStuff(gc, name, x, y, maxLength, vertical, sceneGraph, parent, minX, maxX, minY, maxY, nodes);
+	}
+	
+	private void constructorStuff(GraphicsContext gc, String name, double x, double y, double maxLength, boolean vertical, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, double minX, double maxX, double minY, double maxY, ArrayList<ICanvasNode> nodes) {
 		this.x = x;
 		this.x = Math.max(minX, this.x);
 		this.x = Math.min(this.x, maxX);
@@ -53,7 +61,6 @@ public class NodeIsland extends CanvasNode {
 		this.y = Math.min(this.y, maxY);
 		this.maxLength = maxLength;
 		this.vertical = vertical;
-		this.draggable.set(draggable);
 		this.minX = minX;
 		this.maxX = maxX;
 		this.minY = minY;
@@ -90,7 +97,7 @@ public class NodeIsland extends CanvasNode {
 	}
 	
 	public void defaultOnMouseDragged(MouseEvent e) {
-		if (this.draggable.get()) {
+		if (draggable.get() && !permanentlyLocked) {
 			setX(this.x + e.getX() - dragXOrigin);
 			setY(this.y + e.getY() - dragYOrigin);
 			dragXOrigin = e.getX();
@@ -140,30 +147,36 @@ public class NodeIsland extends CanvasNode {
 	}
 	
 	private void resetNodePositions(double x, double y) {
-		double off = MARGIN + (vertical?FONT_SIZE + MARGIN*2:0);
+		double off = borderMargin + (vertical&&name!=null?FONT_SIZE:0);
 		double heightOrWidth = 0;		
 		for (TNode<ICanvasNode> tn : nodes) {
 			ICanvasNode cn = tn.element();
 			if (vertical) {
-				cn.setX(x + MARGIN);
+				cn.setX(x + borderMargin);
 				cn.setY(y + off);
-				off += cn.height() + MARGIN;
+				off += cn.height() + nodeMargin;
 			} else {
 				cn.setX(x + off);
-				cn.setY(y + MARGIN*2 + FONT_SIZE);
-				off += cn.width() + MARGIN;
+				cn.setY(y + (name!=null?borderMargin + FONT_SIZE:borderMargin));
+				off += cn.width() + nodeMargin;
 			}						
 			heightOrWidth = Math.max(heightOrWidth, vertical?cn.width():cn.height());
 		}
-		Text t = new Text(name);
-		t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
-		double wid = t.getLayoutBounds().getWidth() + MARGIN*2; 		
+		if (!nodes.isEmpty()) {
+			off -= nodeMargin;
+		}
+		double wid = 0;
+		if (name != null) {
+			Text t = new Text(name);
+			t.setFont(Font.font(gc.getFont().getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
+			wid = t.getLayoutBounds().getWidth() + borderMargin*2; 		
+		}		
 		if (vertical) {
-			width = Math.max(heightOrWidth + MARGIN*2, wid);
-			height = off;
+			width = Math.max(heightOrWidth + borderMargin*2, wid);
+			height = off + borderMargin;
 		} else {
-			width = Math.max(off, wid);
-			height = heightOrWidth + FONT_SIZE + MARGIN*3;
+			width = Math.max(off + borderMargin, wid);
+			height = heightOrWidth + (name!=null?FONT_SIZE + nodeMargin:borderMargin) + (nodes.isEmpty()?0:borderMargin);
 		}
 	}
 	
@@ -177,6 +190,35 @@ public class NodeIsland extends CanvasNode {
 	
 	public void setDraggable(boolean draggable) {
 		this.draggable.set(draggable);
+	}
+	
+	public boolean permanentlyLocked() {
+		return permanentlyLocked;
+	}
+	
+	public void setPermanentlyLocked(boolean permanentlyLocked) {
+		this.permanentlyLocked = permanentlyLocked;
+		if (permanentlyLocked) {
+			draggable.set(false);
+		}
+	}
+	
+	public int borderMargin() {
+		return borderMargin;
+	}
+	
+	public void setBorderMargin(int borderMargin) {
+		this.borderMargin = borderMargin;
+		resetNodePositions(x, y);
+	}
+	
+	public int nodeMargin() {
+		return nodeMargin;
+	}
+	
+	public void setNodeMargin(int nodeMargin) {
+		this.nodeMargin = nodeMargin;
+		resetNodePositions(x, y);
 	}
 	
 	public double maxLength() {
@@ -193,6 +235,14 @@ public class NodeIsland extends CanvasNode {
 	
 	public void vertical(boolean vertical) {
 		this.vertical = vertical;
+	}
+	
+	public boolean drawBorder() {
+		return drawBorder;
+	}
+	
+	public void setDrawBorder(boolean drawBorder) {
+		this.drawBorder = drawBorder;
 	}
 	
 	public double minX() {
@@ -246,10 +296,10 @@ public class NodeIsland extends CanvasNode {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, FONT_SIZE));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		if (hover) {
+		if (hover && !permanentlyLocked) {
 			gc.setStroke(Color.GRAY);
 		}
-		if (pressed) {
+		if (pressed && !permanentlyLocked) {
 			if (draggable.get()) {
 				gc.setStroke(Color.DIMGRAY);
 			} else {
@@ -258,9 +308,13 @@ public class NodeIsland extends CanvasNode {
 		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 		gc.fillRoundRect((int)x+0.5, (int)y+0.5, (int)width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect((int)x+0.5, (int)y+0.5, (int)width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(name, x+MARGIN, y+MARGIN+FONT_SIZE);
+		if (drawBorder) {
+			gc.strokeRoundRect((int)x+0.5, (int)y+0.5, (int)width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		}
+		if (name != null) {
+			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
+			gc.fillText(name, x+borderMargin, y+FONT_SIZE);
+		}
 		gc.setFont(oldFont);
 		for (TNode<ICanvasNode> tn : nodes) {
 			tn.element().draw();

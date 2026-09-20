@@ -2,6 +2,7 @@ package com.github._7000toni.auto.chart;
 
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
+import com.github._7000toni.auto.canvasnode.NodeIsland;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -12,13 +13,21 @@ import com.github._7000toni.auto.marketreplay.trade.TradeButtons;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 public class ChartMarketReplayButtons {	
 	private ChartNode chart;
 	private CanvasButton buy;
 	private CanvasButton sell;
 	private TextBox txtVolume;
+	private NodeIsland tradeSizeCalc;
+	private TextBox txtRisk;
+	private boolean tscVisible = false;
+	private BooleanProperty measuring = new SimpleBooleanProperty(false);
 	
 	private TradeButtons tradeButs;
 	private CanvasButton limitOrder;
@@ -49,8 +58,11 @@ public class ChartMarketReplayButtons {
 		
 		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.ABS_INT, true, false, false);
 		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});
+		initTradeSizeCalc(cbvg);
+		txtVolume.setOnMouseReleased(e -> {txtVolRightClickEvent(e);});
+		
 		buy = new CanvasButton(gc, bw, bh, txtVolume.width() + ChartNode.CHT_MARGIN, inity, "BUY", 9, fontSize + 7);
-		buy.setVanGogh(cbvg.buyVG(buy));
+		buy.setVanGogh(cbvg.buyVG(buy));		
 		
 		tradeButs = new TradeButtons();
 		
@@ -91,6 +103,84 @@ public class ChartMarketReplayButtons {
 		}
 		int val = Integer.parseInt(txtVolume.text());
 		if (val > 10000000) {
+			txtVolume.setText("10000000");
+		}
+	}
+	
+	private void initTradeSizeCalc(ChartButtonVanGoghs cbvg) {
+		tradeSizeCalc = new NodeIsland(chart.graphicsContext(), "TradeSizeCalc", txtVolume.x(), txtVolume.y() + txtVolume.height() + ChartNode.CHT_MARGIN, 400, true, chart.chart().sceneGraph(), chart.chartNode(), null);
+		tradeSizeCalc.setPermanentlyLocked(true);
+		NodeIsland risk = new NodeIsland(chart.graphicsContext(), null, 0, 0, 400, false, chart.chart().sceneGraph(), tradeSizeCalc.nodeIslandNode(), null);
+		risk.setBorderMargin(0);
+		risk.setPermanentlyLocked(true);
+		risk.setDrawBorder(false);
+		CanvasLabel lblRisk = new CanvasLabel(chart.graphicsContext(), 35, 20, txtVolume.x(), txtVolume.y(), "Risk: ");
+		lblRisk.setVanGogh((x, y, gc) -> {
+			lblRisk.simpleDefaultDraw();
+		});
+		txtRisk = new TextBox(chart.chart().stage(), chart.graphicsContext(), 75, 20, 0, 0, null, TextBox.InputType.ABS_INT, false, true, false);		
+		risk.addNode(lblRisk);
+		risk.addNode(txtRisk);
+		tradeSizeCalc.addNode(risk);
+		CanvasButton measure = new CanvasButton(chart.graphicsContext(), lblRisk.width() + txtRisk.width() + risk.nodeMargin(), 20, 0, 0, "MEASURE");				
+		measure.setVanGogh(cbvg.toggleVG(measure, measuring, "MEASURING...", "MEASURE"));
+		measure.setOnMouseClicked(e -> {			
+			if (measuring.get()) {
+				measuring.set(false);
+				chart.setMeasuringRisk(false);
+			} else {
+				measuring.set(true);
+				chart.setMeasuringRisk(true);
+				if (!chart.mr().paused().get()) {
+					chart.mr().togglePause();
+				}
+			}
+		});
+		measure.disable();
+		tradeSizeCalc.addNode(measure);
+		txtRisk.setOnKeyTyped(e -> {
+			if (txtRisk.text().equals("") || txtRisk.text().equals("0")) {
+				measure.disable();
+				return;
+			}
+			measure.enable();
+			int val = Integer.parseInt(txtRisk.text());
+			if (val > 99999999) {
+				txtRisk.setText("99999999");
+			}
+		});
+		chart.chart().sceneGraph().removeNode(tradeSizeCalc.nodeIslandNode());
+	}
+	
+	private void txtVolRightClickEvent(MouseEvent e) {
+		if (e.getButton() == MouseButton.SECONDARY) {
+			if (!tscVisible) {
+				chart.chart().sceneGraph().addNode(tradeSizeCalc.nodeIslandNode());
+				tscVisible = true;
+			}
+		}
+	}
+	
+	public void hideTradeSizeCalc() {
+		if (tscVisible) {
+			chart.chart().sceneGraph().removeNode(tradeSizeCalc.nodeIslandNode());
+			tscVisible = false;
+		}
+	}
+	
+	public void measuringComplete(double measuredRisk) {
+		measuring.set(false);
+		chart.setMeasuringRisk(false);
+		if (measuredRisk == 0) {
+			return;
+		}
+		int risk = Integer.parseInt(txtRisk.text());
+		int volume = (int)(risk/measuredRisk);
+		if (volume == 0) {
+			txtVolume.setText("1");
+		} else if (volume <= 10000000) {
+			txtVolume.setText(((Integer)volume).toString());
+		} else {
 			txtVolume.setText("10000000");
 		}
 	}
@@ -381,6 +471,14 @@ public class ChartMarketReplayButtons {
 		return pbn;
 	}
 	
+	public boolean tscVisible() {
+		return tscVisible;
+	}
+	
+	public void setTSCVisible(boolean tscVisible) {
+		this.tscVisible = tscVisible;
+	}
+	
 	public void addPenTradePair(PendingTradePair ptp) {
 		pbn.addPair(ptp);
 	}
@@ -420,6 +518,9 @@ public class ChartMarketReplayButtons {
 		} else {
 			limitOrder.disable();
 			stopOrder.disable();
+		}
+		if (tscVisible) {
+			tradeSizeCalc.draw();
 		}
 	}
 }

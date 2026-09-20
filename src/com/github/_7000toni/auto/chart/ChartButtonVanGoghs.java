@@ -1,5 +1,6 @@
 package com.github._7000toni.auto.chart;
 
+import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.IVanGogh;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -11,6 +12,7 @@ import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -32,6 +34,17 @@ public class ChartButtonVanGoghs {
 	public double offset() {
 		return offset;
 	}
+	
+	public IVanGogh toggleVG(CanvasLabel cl, ReadOnlyBooleanProperty condition, String text1, String text2) {
+		return (x, y, gc) -> {
+			if (condition.get()) {
+				cl.setText(text1);	
+			} else {
+				cl.setText(text2);
+			}
+			cl.defaultDraw(gc.getFont());
+		};
+	}	
 	
 	public IVanGogh menuButtonVG(CanvasButton menuBtn) {
 		return (x, y, gc) -> {			

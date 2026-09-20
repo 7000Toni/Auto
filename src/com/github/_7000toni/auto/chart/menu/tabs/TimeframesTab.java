@@ -5,7 +5,6 @@ import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
-import com.github._7000toni.auto.canvasnode.NodeIsland;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.button.TimeframeButton;
@@ -261,7 +260,7 @@ public class TimeframesTab extends CanvasNode {
 		ChartNode cn = chart.chartNode();
 		Text t =  new Text(tf.name());
 		t.setFont(cn.graphicsContext().getFont());
-		CanvasButton cb = new CanvasButton(cn.graphicsContext(), t.getLayoutBounds().getWidth() + NodeIsland.MARGIN*2, 20, 0, 0, tf.name());
+		CanvasButton cb = new CanvasButton(cn.graphicsContext(), t.getLayoutBounds().getWidth() + cn.timeframeIsland().nodeMargin()*2, 20, 0, 0, tf.name());
 		cb.setOnMouseClicked(e -> {
 			cn.setTimeframe(tf);
 		});

@@ -94,6 +94,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private int lineHighlighted = -1;
 	private boolean lineDragging = false;
 	private boolean measuring = false;
+	private boolean measuringRisk = false;
+	private double measuredRisk = 0;
 	private double startX = 0;
 	private double startY = 0;
 	private double endX = 0;
@@ -117,7 +119,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private Dataset.Candlestick lastReplayCandlestick;
 	private static BooleanProperty drawCrosshair = new SimpleBooleanProperty(true);
 	private NodeIsland tfi;
-	private BooleanProperty drawTFI = new SimpleBooleanProperty(false);
+	private BooleanProperty drawTFI = new SimpleBooleanProperty(false);	
 	
 	private boolean printSpeed = false;
 	private double t = 0;
@@ -200,7 +202,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}	
 	
 	private void addTimeframeIsland(Tree<ICanvasNode> sceneGraph) {
-		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, false, sceneGraph, chartNode, true, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
+		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, false, sceneGraph, chartNode, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
+		if (!drawTFI.get()) {
+			sceneGraph.removeNode(tfi.nodeIslandNode());
+		}
 	}
 	
 	public NodeIsland timeframeIsland() {
@@ -623,8 +628,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		
 	public void onMouseReleased(MouseEvent e) {
 		if (measuring) {
-			measuring = false;		
+			measuring = false;					
 			c.stage().getScene().cursorProperty().set(Cursor.DEFAULT);
+			if (replayMode && measuringRisk) {
+				cmrb.measuringComplete(measuredRisk);
+			}
 		} 		
 		lineDragging = false;
 		dragDiffAccum = 0;
@@ -1149,6 +1157,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			double ey = endY;
 			DecimalFormat df = new DecimalFormat("#");
 			df.setMaximumFractionDigits(data.numDecimalPts());
+			measuredRisk = endPrice - startPrice;
 			String text = df.format(roundToNearestTick(endPrice - startPrice)) + " from: " + ((Double)startPrice).toString();
 			Text t = new Text(text);
 			double prc_msrmnt_length = t.getLayoutBounds().getWidth() + 5;
@@ -1445,6 +1454,30 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
+		}
+	}
+	
+	public boolean measuringRisk() {
+		return measuringRisk;
+	}
+	
+	public void setMeasuringRisk(boolean measuringRisk) {
+		this.measuringRisk = measuringRisk;
+	}
+	
+	public double measuredRisk() {
+		return measuredRisk;
+	}
+		
+	@Override
+	public void setFocused(boolean focused) {
+		if (!measuringRisk) {
+			this.focused = focused;
+			if (replayMode) {
+				cmrb.hideTradeSizeCalc();
+			}
+		} else {
+			this.focused = focused;
 		}
 	}
 }
