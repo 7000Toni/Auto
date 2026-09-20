@@ -116,7 +116,7 @@ public class ChartMarketReplayButtons {
 		risk.setDrawBorder(false);
 		CanvasLabel lblRisk = new CanvasLabel(chart.graphicsContext(), 35, 20, txtVolume.x(), txtVolume.y(), "Risk: ");
 		lblRisk.setVanGogh((x, y, gc) -> {
-			lblRisk.simpleDefaultDraw();
+			lblRisk.simpleDefaultDraw(gc.getFont());
 		});
 		txtRisk = new TextBox(chart.chart().stage(), chart.graphicsContext(), 75, 20, 0, 0, null, TextBox.InputType.ABS_INT, false, true, false);		
 		risk.addNode(lblRisk);
@@ -171,6 +171,7 @@ public class ChartMarketReplayButtons {
 	public void measuringComplete(double measuredRisk) {
 		measuring.set(false);
 		chart.setMeasuringRisk(false);
+		hideTradeSizeCalc();
 		if (measuredRisk == 0) {
 			return;
 		}
