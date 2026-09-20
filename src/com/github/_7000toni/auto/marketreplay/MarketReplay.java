@@ -51,16 +51,11 @@ public class MarketReplay {
 		this.name = chart.chartNode().name();
 		this.data = chart.chartNode().data();
 		this.mrNode = mrNode;
-		this.tickDataSize.set(data.tickDataSize(false).get());
-		if (index < 0) {
-			index = 0;
-		}
+		this.tickDataSize.set(data.tickDataSize(false).get());	
+		index = index>=tickDataSize.get()?tickDataSize.get()-1:index;
+		index = index<0?0:index;
 		data.setReplayTickDataSize(index + 1);		
-		int ci = index;
-		if (ci >= tickDataSize.get()) {
-			ci = tickDataSize.get() - 1;
-		}
-		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);		
+		data.setReplayM1CandlesDataSize(data.tickData().get(index).candleIndex() + 1);		
 		this.index.set(index);
 		chart.chartNode().enableReplayMode(this);
 	}
@@ -343,11 +338,7 @@ public class MarketReplay {
 		}
 		timeToNextTick.set(0);
 		data.setReplayTickDataSize(this.index.get() + 1);
-		int ci = this.index.get();
-		if (ci >= tickDataSize.get()) {
-			ci = tickDataSize.get() - 1;
-		}	
-		data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
+		data.setReplayM1CandlesDataSize(data.tickData().get(this.index.get()).candleIndex() + 1);
 		tick();
 		
 		if (!charts.isEmpty()) {
@@ -474,11 +465,7 @@ public class MarketReplay {
 			diff -= timeToNextTick.get();
 			timeToNextTick.set(timeToNextTick(index.get()));
 			data.setReplayTickDataSize(index.get() + 1);
-			int ci = index.get();
-			if (ci >= tickDataSize.get()) {
-				ci = tickDataSize.get() - 1;
-			}
-			data.setReplayM1CandlesDataSize(data.tickData().get(ci).candleIndex() + 1);
+			data.setReplayM1CandlesDataSize(data.tickData().get(index.get()).candleIndex() + 1);
 			if (live.get()) {
 				double newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
 				mrNode.hsb().setPosition(newHSBPos, false);		
