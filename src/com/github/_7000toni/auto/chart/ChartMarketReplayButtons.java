@@ -180,7 +180,7 @@ public class ChartMarketReplayButtons {
 			return;
 		}
 		int risk = Integer.parseInt(txtRisk.text());
-		int volume = (int)(risk/measuredRisk);
+		int volume = (int)(risk/Math.abs(measuredRisk));
 		if (volume == 0) {
 			txtVolume.setText("1");
 		} else if (volume <= 10000000) {
