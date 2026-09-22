@@ -460,10 +460,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawMRN.set(true);
 			mr.addChart(this);
 			c.menu().chartFunctionsMenu().generalFunctionstab().setReplayMode(true);
-			tfi.setY(tfi.y() + CHT_MARGIN + 30);
-			if (drawChartShortcut.get()) {
-				c.sceneGraph().removeNode(ctsNode);
-			}
+			tfi.setY(tfi.y() + CHT_MARGIN + 30);			
 			LinkedList<CanvasNode> nodes = nodeMan.nodes();
 			nodeMan = new NodeManager();	
 			Iterator<CanvasNode> i = nodes.iterator();
@@ -476,6 +473,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			c.sceneGraph().removeNode(nodeManNode);
 			nodeManNode = new TNode<ICanvasNode>(nodeMan, chartNode);
 			c.sceneGraph().addNode(nodeManNode);	
+			
+			if (drawChartShortcut.get()) {
+				c.sceneGraph().removeNode(ctsNode);
+			}
+			ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
+			c.sceneGraph().addNode(ctsNode);
 			
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			cmrb.disableButtons();
