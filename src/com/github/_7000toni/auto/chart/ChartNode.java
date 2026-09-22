@@ -1226,7 +1226,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			String trt1 = data.name() + midDot + tfName;
 			gc.fillText(trt1, CHT_MARGIN + INFO_MARGIN, CHT_MARGIN + fontSize);
 			boolean useLast = false;
-			if (replayMode && (CrossHair.dateIndex().get() == -1 || (!focusedChart.get() && crossHair.ohlc() == null) || CrossHair.dateIndex().get() == data.m1CandlesDataSize(replayMode).get() - 1)) {				
+			if (replayMode && (CrossHair.dateIndex().get() == -1 || (!focusedChart.get() && crossHair.ohlc() == null) || CrossHair.dateIndex().get() == data.m1CandlesDataSize(replayMode).get() - 1)) {
+				if (lastReplayCandlestick == null) {
+					lastReplayCandlestick = this.data.makeLastReplayCandlestick(tf.data().get(endIndex).firstTickIndex(), tf.tickBased() || tf.base());
+				}
 				crossHair.setOHLC(lastReplayCandlestick);
 				useLast = true;
 			}
