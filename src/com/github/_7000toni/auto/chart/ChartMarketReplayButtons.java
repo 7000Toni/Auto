@@ -37,7 +37,8 @@ public class ChartMarketReplayButtons {
 	public ChartMarketReplayButtons(ChartNode chart, MarketReplay mr, ChartButtonVanGoghs cbvg) {
 		this.chart = chart;		
 		init(mr, cbvg);
-		addToSceneGraph();
+		initTradeSizeCalc(cbvg);
+		addToSceneGraph();		
 		setMouseEvents();
 		resetButtons();
 	}
@@ -57,8 +58,7 @@ public class ChartMarketReplayButtons {
 		sell.setVanGogh(cbvg.sellVG(sell));	
 		
 		txtVolume = new TextBox(chart.chart().stage(), gc, 100, bh, initx + bw + mgn, inity, "1", TextBox.InputType.ABS_INT, true, false, false);
-		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});
-		initTradeSizeCalc(cbvg);
+		txtVolume.setOnKeyTyped(e -> {txtVolKeyTypedEvent();});		
 		txtVolume.setOnMouseReleased(e -> {txtVolRightClickEvent(e);});
 		
 		buy = new CanvasButton(gc, bw, bh, txtVolume.width() + ChartNode.CHT_MARGIN, inity, "BUY", 9, fontSize + 7);
@@ -108,9 +108,14 @@ public class ChartMarketReplayButtons {
 	}
 	
 	private void initTradeSizeCalc(ChartButtonVanGoghs cbvg) {
-		tradeSizeCalc = new NodeIsland(chart.graphicsContext(), "TradeSizeCalc", txtVolume.x(), txtVolume.y() + txtVolume.height() + ChartNode.CHT_MARGIN, 400, true, chart.chart().sceneGraph(), chart.chartNode(), null);
-		tradeSizeCalc.setPermanentlyLocked(true);
-		NodeIsland risk = new NodeIsland(chart.graphicsContext(), null, 0, 0, 400, false, chart.chart().sceneGraph(), tradeSizeCalc.nodeIslandNode(), null);
+		tradeSizeCalc = new NodeIsland(chart.graphicsContext(), "TradeSizeCalc", txtVolume.x(), txtVolume.y() + txtVolume.height() + ChartNode.CHT_MARGIN, 400, true, null);
+		NodeIsland risk = new NodeIsland(chart.graphicsContext(), null, 0, 0, 400, false, null);
+		risk.nodeMan().xProperty().addListener((observable, oldValue, newValue) -> {
+			risk.setX(newValue.doubleValue());
+		});
+		risk.nodeMan().yProperty().addListener((observable, oldValue, newValue) -> {
+			risk.setY(newValue.doubleValue());
+		});
 		risk.setBorderMargin(0);
 		risk.setPermanentlyLocked(true);
 		risk.setDrawBorder(false);
@@ -121,7 +126,7 @@ public class ChartMarketReplayButtons {
 		txtRisk = new TextBox(chart.chart().stage(), chart.graphicsContext(), 75, 20, 0, 0, null, TextBox.InputType.ABS_INT, false, true, false);		
 		risk.addNode(lblRisk);
 		risk.addNode(txtRisk);
-		tradeSizeCalc.addNode(risk);
+		tradeSizeCalc.addNode(risk.nodeMan());
 		CanvasButton measure = new CanvasButton(chart.graphicsContext(), lblRisk.width() + txtRisk.width() + risk.nodeMargin(), 20, 0, 0, "MEASURE");				
 		measure.setVanGogh(cbvg.toggleVG(measure, measuring, "MEASURING...", "MEASURE"));
 		measure.setOnMouseClicked(e -> {			
@@ -149,13 +154,12 @@ public class ChartMarketReplayButtons {
 				txtRisk.setText("99999999");
 			}
 		});
-		chart.chart().sceneGraph().removeNode(tradeSizeCalc.nodeIslandNode());
 	}
 	
 	private void txtVolRightClickEvent(MouseEvent e) {
 		if (e.getButton() == MouseButton.SECONDARY) {
 			if (!tscVisible) {
-				chart.chart().sceneGraph().addNode(tradeSizeCalc.nodeIslandNode());
+				chart.nodeMan().addNode(tradeSizeCalc.nodeMan());
 				tscVisible = true;
 			}
 		}
@@ -163,7 +167,7 @@ public class ChartMarketReplayButtons {
 	
 	public void hideTradeSizeCalc() {
 		if (tscVisible) {
-			chart.chart().sceneGraph().removeNode(tradeSizeCalc.nodeIslandNode());
+			chart.nodeMan().removeNode(tradeSizeCalc.nodeMan());
 			tscVisible = false;
 		}
 	}
@@ -470,14 +474,6 @@ public class ChartMarketReplayButtons {
 	
 	public PendingButtonsNode pendingButtonsNode() {
 		return pbn;
-	}
-	
-	public boolean tscVisible() {
-		return tscVisible;
-	}
-	
-	public void setTSCVisible(boolean tscVisible) {
-		this.tscVisible = tscVisible;
 	}
 	
 	public void addPenTradePair(PendingTradePair ptp) {

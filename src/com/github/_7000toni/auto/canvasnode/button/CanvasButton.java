@@ -19,7 +19,7 @@ public class CanvasButton extends CanvasLabel {
 	
 	public CanvasButton(GraphicsContext gc, double width, double height, double x, double y, String text) {
 		super(gc, width, height, x, y, text);
-		this.enabled = true;
+		this.enabled.set(true);
 	}	
 	
 	public boolean on() {
@@ -35,28 +35,28 @@ public class CanvasButton extends CanvasLabel {
 	}
 	
 	public void disable() {
-		enabled = false;
-		pressed = false;
-		hover = false;
+		enabled.set(false);
+		pressed.set(false);
+		hover.set(false);
 	}
 	
 	public void enable() {
-		this.enabled = true;
+		this.enabled.set(true);
 	}
 	
 	public boolean enabled() {
-		return this.enabled;
+		return this.enabled.get();
 	}
 	
 	public void setColoursRect() {
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));	
-		if (hover) {
+		if (hover.get()) {
 			gc.setFill(Color.GRAY);
 		}
-		if (pressed) {
+		if (pressed.get()) {
 			gc.setFill(Color.DIMGRAY);
 		}
-		if (!enabled) {
+		if (!enabled.get()) {
 			gc.setFill(Color.LIGHTGRAY);
 		}
 	}
@@ -67,13 +67,13 @@ public class CanvasButton extends CanvasLabel {
 		} else {
 			gc.setFill(Color.WHITE);
 		}		
-		if (hover) {
+		if (hover.get()) {
 			gc.setFill(Color.WHITE);
 		}
-		if (pressed) {
+		if (pressed.get()) {
 			gc.setFill(Color.BLACK);
 		}
-		if (!enabled) {
+		if (!enabled.get()) {
 			gc.setFill(Color.DIMGRAY);
 		}
 	}
@@ -81,15 +81,15 @@ public class CanvasButton extends CanvasLabel {
 	public void setColoursAlt() {
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		if (hover) {
+		if (hover.get()) {
 			gc.setStroke(Color.WHITE);
 			gc.setFill(Color.GRAY);
 		}
-		if (pressed) {
+		if (pressed.get()) {
 			gc.setStroke(Color.BLACK);
 			gc.setFill(Color.DIMGRAY);
 		}
-		if (!enabled) {
+		if (!enabled.get()) {
 			gc.setStroke(Color.DIMGRAY);
 			gc.setFill(Color.LIGHTGRAY);
 		}
@@ -98,23 +98,23 @@ public class CanvasButton extends CanvasLabel {
 	@Override
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width);
+		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
 		gc.setFont(oldFont);
 	}
 	
 	@Override
 	public void alternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width);
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
 		gc.setFont(oldFont);
 	}
 	
@@ -122,17 +122,17 @@ public class CanvasButton extends CanvasLabel {
 	public void defaultDraw(Font font) {
 		calculateOffsets(font);
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width);
+		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
 	}
 	
 	@Override
 	public void alternateDraw(Font font) {
 		calculateOffsets(font);
 		setColoursAlt();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeText(text, x + textXOffset, y + textYOffset, width);
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
 	}
 	
 	@Override
@@ -140,7 +140,7 @@ public class CanvasButton extends CanvasLabel {
 		if (vg == null) {
 			defaultDraw();
 		} else {
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}
 }

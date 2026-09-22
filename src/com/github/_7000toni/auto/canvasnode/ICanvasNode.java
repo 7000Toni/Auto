@@ -1,4 +1,6 @@
 package com.github._7000toni.auto.canvasnode;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
@@ -33,7 +35,9 @@ public interface ICanvasNode {
 	public void setHover(boolean hover);
 	public void setPressed(boolean pressed);
 	public boolean hover();
+	public BooleanProperty hoverProperty();
 	public boolean pressed();
+	public BooleanProperty pressedProperty();
 	public boolean onNode(double x, double y);	
 	public void draw();
 	public GraphicsContext graphicsContext();
@@ -42,13 +46,19 @@ public interface ICanvasNode {
 	public void setY(double y);
 	public double x();
 	public double y();
+	public DoubleProperty xProperty();
+	public DoubleProperty yProperty();
 	public void setWidth(double width);
 	public void setHeight(double height);
 	public double width();
 	public double height();
+	public DoubleProperty widthProperty();
+	public DoubleProperty heightProperty();
 	public boolean enabled();
+	public BooleanProperty enabledProperty();
 	public void enable();
 	public void disable();
 	public boolean focused();
+	public BooleanProperty focusedProperty();
 	public void setFocused(boolean focused);
 }

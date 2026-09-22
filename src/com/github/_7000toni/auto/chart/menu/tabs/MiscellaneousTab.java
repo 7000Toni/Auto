@@ -29,10 +29,10 @@ public class MiscellaneousTab extends CanvasNode {
 	private IntegerProperty mfProg = new SimpleIntegerProperty(-2);
 	
 	public MiscellaneousTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
 		
@@ -40,15 +40,15 @@ public class MiscellaneousTab extends CanvasNode {
 	}
 	
 	private void initMiscellaneousMenu(ChartMenuButtonVanGoghs cmbvg) {
-		miscellaneousFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "MISCELLANEOUS FUNCTIONS");
+		miscellaneousFunctions = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "MISCELLANEOUS FUNCTIONS");
 		miscellaneousFunctions.setVanGogh((x2, y2, gc2) -> {
 			miscellaneousFunctions.defaultDraw(gc.getFont());
 		});	
 		
-		txtContract = new TextBox(chart.stage(), gc, 100, 20, x + 5, y + 85, "", TextBox.InputType.ANY, false, true, false);
+		txtContract = new TextBox(chart.stage(), gc, 100, 20, x.get() + 5, y.get() + 85, "", TextBox.InputType.ANY, false, true, false);
 		setTextEvents();
 				
-		databendoOptimizer = new CanvasButton(gc, 185, 20, x + 110, y + 85, "DATABENDO OPTIMIZER");
+		databendoOptimizer = new CanvasButton(gc, 185, 20, x.get() + 110, y.get() + 85, "DATABENDO OPTIMIZER");
 		databendoOptimizer.setVanGogh(cmbvg.databendoOptimizerVG(databendoOptimizer, doProg));
 		databendoOptimizer.setOnMouseClicked(e -> {
 			String contract = null;
@@ -58,7 +58,7 @@ public class MiscellaneousTab extends CanvasNode {
 			RandomFunctions.databendoOptimizer(contract, doProg, chart.chartNode());
 		});
 				
-		mergeFiles = new CanvasButton(gc, 290, 20, x + 5, y + 110, "MERGE FILES");
+		mergeFiles = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 110, "MERGE FILES");
 		mergeFiles.setVanGogh(cmbvg.mergeFilesVG(mergeFiles, mfProg));
 		mergeFiles.setOnMouseClicked(e -> {
 			RandomFunctions.mergeFiles(mfProg, chart.chartNode());
@@ -115,7 +115,7 @@ public class MiscellaneousTab extends CanvasNode {
 		databendoOptimizer.setX(x + 110);
 		mergeFiles.setX(x + 5);
 		
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -125,6 +125,6 @@ public class MiscellaneousTab extends CanvasNode {
 		databendoOptimizer.setY(y + 85);
 		mergeFiles.setY(y + 110);
 		
-		this.y = y;
+		this.y.set(y);
 	}
 }

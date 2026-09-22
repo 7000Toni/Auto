@@ -40,7 +40,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 		//gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
 		for (double i = minPos + 6; i < maxPos - 5; i++) {
 			gc.setStroke(ColourCalculator.grayScale(i, minPos + 5, maxPos - 6));
-			gc.strokeLine(i, y + 6, i, y + 9);
+			gc.strokeLine(i, y.get() + 6, i, y.get() + 9);
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 			defaultDraw();
 		} else {			
 			drawHSBBar();
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > x) {
+						if (initPos > x.get()) {
 							add = true;
 						} else {
 							add = false;
@@ -82,7 +82,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 						this.stop();
 					}
 					
-					if (onScrollBar(initPos, y)) {
+					if (onScrollBar(initPos, y.get())) {
 						this.stop();
 					}
 					
@@ -90,13 +90,13 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 						lastTick = now;		
 						if (add) {
 							setPosition(sbWidth / 2, true);
-							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+							double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
 							MarketReplayNode.drawReplayNodes();
 						} else {
 							setPosition(-(sbWidth / 2), true);
-							double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+							double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
 							MarketReplayNode.drawReplayNodes();
@@ -127,11 +127,11 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 	
 	@Override
 	public void onMouseDragged(MouseEvent e) {
-		double b = ((x - minPos) / (maxPos - minPos - 10)) * 2 - 1;
+		double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 		ImageSettings.setBrightness(b);
 		Chart.drawCharts(null);
 		MarketReplayNode.drawReplayNodes();
-		if (onMouseDragged == null || !enabled) {
+		if (onMouseDragged == null || !enabled.get()) {
 			return;
 		}
 		onMouseDragged.handle(e);

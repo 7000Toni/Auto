@@ -26,10 +26,10 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	private int settingsMenuIndex = 0;
 	
 	public ChartSettingsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
 		this.chartMenu = chartMenu;		
@@ -40,7 +40,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initSettingsMenu() {
-		previousSettings = new CanvasButton(gc, 142.5, 20, x + 5, y + 60, "PREVIOUS");
+		previousSettings = new CanvasButton(gc, 142.5, 20, x.get() + 5, y.get() + 60, "PREVIOUS");
 		previousSettings.setVanGogh((x2, y2, gc2) -> {
 			previousSettings.defaultDraw(gc.getFont());
 		});
@@ -49,7 +49,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 		});
 		
-		nextSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 60, "NEXT");	
+		nextSettings = new CanvasButton(gc, 142.5, 20, x.get() + 152.5, y.get() + 60, "NEXT");	
 		nextSettings.setVanGogh((x2, y2, gc2) -> {
 			nextSettings.defaultDraw(gc.getFont());
 		});
@@ -116,7 +116,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		cst.setX(x);
 		ist.setX(x);
 		mst.setX(x);
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -127,6 +127,6 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 		cst.setY(y);
 		ist.setY(y);
 		mst.setY(y);
-		this.y = y;	
+		this.y.set(y);	
 	}
 }

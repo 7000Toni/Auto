@@ -27,7 +27,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 		//gc.strokeRect(minPos + 5, y + 5, maxPos - minPos - 10, 5);
 		for (double i = minPos + 6; i < maxPos - 5; i++) {
 			gc.setStroke(ColourCalculator.colour(i, minPos + 5, maxPos - 6));
-			gc.strokeLine(i, y + 6, i, y + 9);
+			gc.strokeLine(i, y.get() + 6, i, y.get() + 9);
 		}
 	}
 	
@@ -37,7 +37,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 			defaultDraw();
 		} else {
 			drawHSBBar();
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}
 	
@@ -56,7 +56,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > x) {
+						if (initPos > x.get()) {
 							add = true;
 						} else {
 							add = false;
@@ -69,7 +69,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 						this.stop();
 					}
 					
-					if (onScrollBar(initPos, y)) {
+					if (onScrollBar(initPos, y.get())) {
 						this.stop();
 					}
 					
@@ -111,7 +111,7 @@ public class ColourPickerScrollBar extends HorizontalScrollBar {
 	@Override
 	public void onMouseDragged(MouseEvent e) {
 		((ColourPicker)sbo).unintializeColours();
-		if (onMouseDragged == null || !enabled) {
+		if (onMouseDragged == null || !enabled.get()) {
 			return;
 		}
 		onMouseDragged.handle(e);

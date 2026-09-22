@@ -103,9 +103,9 @@ public class TimeframeButton extends CanvasButton {
 	public void defaultDraw() {		
 		calculateOffsets(gc.getFont());
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + 4 + addFavourite.width(), y + textYOffset, width - 20);
+		gc.fillText(text, x.get() + 4 + addFavourite.width(), y.get() + textYOffset, width.get() - 20);
 		remove.draw();
 		addFavourite.draw();
 	}
@@ -115,22 +115,22 @@ public class TimeframeButton extends CanvasButton {
 		if (vg == null) {
 			defaultDraw();
 		} else {
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}
 	
 	@Override
 	public void setX(double x) {
-		double diff = this.x - x;
-		this.x = x;
+		double diff = this.x.get() - x;
+		this.x.set(x);
 		remove.setX(remove.x() - diff);
 		addFavourite.setX(addFavourite.x() - diff);
 	}
 	
 	@Override
 	public void setY(double y) {
-		double diff = this.y - y;
-		this.y = y;
+		double diff = this.y.get() - y;
+		this.y.set(y);
 		remove.setY(remove.y() - diff);
 		addFavourite.setY(addFavourite.y() - diff);
 	}
@@ -140,10 +140,10 @@ public class TimeframeButton extends CanvasButton {
 		if (remove.onNode(x, y) && remove.enabled() || addFavourite.onNode(x, y) && addFavourite.enabled()) {
 			return false;
 		}
-		if (x > this.x + width || x < this.x) {
+		if (x > this.x.get() + width.get() || x < this.x.get()) {
 			return false;
 		}
-		if (y > this.y + height || y < this.y) {
+		if (y > this.y.get() + height.get() || y < this.y.get()) {
 			return false;
 		}
 		return true;

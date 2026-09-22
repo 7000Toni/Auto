@@ -19,10 +19,10 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	private Color finalColour;
 	
 	public ColourPicker(double x, double y, double width, double height, GraphicsContext gc, ChartMenu chartMenu) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.gc = gc;
 		this.chartMenu = chartMenu;
 		hsb = new ColourPickerScrollBar(this, x - 5, x + 295, 15, 15, y + 150);
@@ -38,10 +38,10 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 		int b = (int)(c.getBlue() * 255);
 		
 		double hsbPerc = (hsb.x() - hsb.minPos()) / (hsb.maxPos() - hsb.sbWidth() - hsb.minPos());
-		for (double i = x + 146; i < x + 289; i++) {
-			double percx = (142 - (i - x - 146)) / 142;			
-			for (double j = y + 1; j < y + 144; j++) {
-				double percy = (142 - (j - y - 1)) / 142;
+		for (double i = x.get() + 146; i < x.get() + 289; i++) {
+			double percx = (142 - (i - x.get() - 146)) / 142;			
+			for (double j = y.get() + 1; j < y.get() + 144; j++) {
+				double percy = (142 - (j - y.get() - 1)) / 142;
 				int r2;
 				int g2;
 				int b2;
@@ -58,7 +58,7 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 					g2 = (int) (((percx * (255 - g)) + g) * percy);
 					b2 = (int) (percy * b);
 				}				
-				colours[(int)(i - x - 146)][(int)(j - y - 1)] = Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")");
+				colours[(int)(i - x.get() - 146)][(int)(j - y.get() - 1)] = Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")");
 				gc.getPixelWriter().setColor((int)i, (int)j, Color.web("rgb(" + r2 + "," + g2 + "," +  b2 + ")"));
 			}
 		}
@@ -72,9 +72,9 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 	
 	private void fillColourSquare() {
 		if (coloursInitialized) {
-			for (double i = x + 146; i < x + 289; i++) {
-				for (double j = y + 1; j < y + 144; j++) {			
-					gc.getPixelWriter().setColor((int)i, (int)j, colours[(int)(i - x - 146)][(int)(j - y - 1)]);
+			for (double i = x.get() + 146; i < x.get() + 289; i++) {
+				for (double j = y.get() + 1; j < y.get() + 144; j++) {			
+					gc.getPixelWriter().setColor((int)i, (int)j, colours[(int)(i - x.get() - 146)][(int)(j - y.get() - 1)]);
 				}
 			}
 		} else {
@@ -122,14 +122,14 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 			
 		fillColourSquare();
 		gc.setFill(finalColour);
-		gc.fillRect(x + 1, y + 1, width/2 - 2, width / 2 - 2);
+		gc.fillRect(x.get() + 1, y.get() + 1, width.get()/2 - 2, width.get() / 2 - 2);
 		if (finalColour.equals(ColourSettings.colour(ColourIndex.CHART_BACKGROUND))) {
 			if (Chart.darkMode().get()) {
 				gc.setStroke(Color.WHITE);
-				gc.strokeRect(x + 1.5, y + 1.5, width/2 - 3, width / 2 - 3);
+				gc.strokeRect(x.get() + 1.5, y.get() + 1.5, width.get()/2 - 3, width.get() / 2 - 3);
 			} else {
 				gc.setStroke(Color.BLACK);
-				gc.strokeRect(x + 1.5, y + 1.5, width/2 - 3, width / 2 - 3);
+				gc.strokeRect(x.get() + 1.5, y.get() + 1.5, width.get()/2 - 3, width.get() / 2 - 3);
 			}
 		}
 		hsb.draw();
@@ -138,21 +138,21 @@ public class ColourPicker extends CanvasNode implements IScrollBarOwner {
 
 	@Override
 	public void setX(double x) {
-		double hsbOffset = hsb.x() - this.x;
-		double usbXOffset = usb.x() - this.x;		
-		this.x = x;		
+		double hsbOffset = hsb.x() - this.x.get();
+		double usbXOffset = usb.x() - this.x.get();		
+		this.x.set(x);		
 		hsb.setMinPos(x - 5);
 		hsb.setMaxPos(x + 295);
 		hsb.setX(hsbOffset + x);
-		usb.setMinXPos(x + width/2 - 5);
+		usb.setMinXPos(x + width.get()/2 - 5);
 		usb.setMaxXPos(x + 295);
 		usb.setX(usbXOffset + x);
 	}
 
 	@Override
 	public void setY(double y) {
-		double usbYOffset = usb.y() - this.y;
-		this.y = y;		
+		double usbYOffset = usb.y() - this.y.get();
+		this.y.set(y);		
 		hsb.setY(y + 150);
 		usb.setMinYPos(y - 5);
 		usb.setMaxYPos(y + 150);

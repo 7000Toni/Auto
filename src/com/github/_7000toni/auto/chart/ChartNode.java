@@ -2,6 +2,8 @@ package com.github._7000toni.auto.chart;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
@@ -67,6 +69,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private Timeframe tf = null;
 	private char lineChartDataPoint = 'c';
 	private boolean tfChanged = false;
+	private NodeManager nodeMan;
+	private TNode<ICanvasNode> nodeManNode;	
 	
 	private BooleanProperty focusedChart = new SimpleBooleanProperty(false);
 	private double range;	
@@ -135,15 +139,15 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void constructorStuff(double widthParam, double heightParam, Stage stage, Dataset data, Chart c, Tree<ICanvasNode> sceneGraph) throws Exception {		
-		this.width = widthParam;
-		this.height = heightParam;
+		this.width.set(widthParam);
+		this.height.set(heightParam);
 		this.data = data;
 		this.tf = data.getTimeframe(Dataset.BASE_TF_NAME);
 		this.c = c;
 		gc = c.graphicsContext();		
 		fontSize = gc.getFont().getSize();
 		cbvg = new ChartButtonVanGoghs(this);	
-		chartShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width - 15, CHT_MARGIN + 5, null);
+		chartShortcut = new CanvasButton(gc, 10, 10, CHT_MARGIN + width.get() - 15, CHT_MARGIN + 5, null);
 		chartShortcut.setOnMouseMoved(e -> {
 			setFocusedChart(false);
 		});
@@ -180,19 +184,22 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		
 		chartNode = new TNode<ICanvasNode>(this, sceneGraph.root());
 		sceneGraph.addNode(chartNode);		
-		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));		
-		addTimeframeIsland(sceneGraph);
+		sceneGraph.addNode(new TNode<ICanvasNode>(dateMargin, chartNode));	
+		nodeMan = new NodeManager();
+		nodeManNode = new TNode<ICanvasNode>(nodeMan, chartNode);
+		sceneGraph.addNode(nodeManNode);	
+		addTimeframeIsland();
 		ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
 		sceneGraph.addNode(ctsNode);
 		
 		crossHair = new CrossHair(this);		
-		x = CHT_MARGIN;
-		y = CHT_MARGIN;
-		width = c.width() - c.priceMargin().width() - CHT_MARGIN;
-		height = c.height() - Chart.HSB_HEIGHT - CHT_MARGIN*2;
-		candlestickWidth = width * CNDL_WDTH_COEF;
+		x.set(CHT_MARGIN);
+		y.set(CHT_MARGIN);
+		width.set(c.width() - c.priceMargin().width() - CHT_MARGIN);
+		height.set(c.height() - Chart.HSB_HEIGHT - CHT_MARGIN*2);
+		candlestickWidth = width.get() * CNDL_WDTH_COEF;
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
-		numCandlesticks = (int)(width / (candlestickWidth + candlestickSpacing));
+		numCandlesticks = (int)(width.get() / (candlestickWidth + candlestickSpacing));
 		chtDataMargin = CHT_MARGIN + fontSize;
 		setEventHandlers();		
 		thp = new TradeHistoryPlotter(this);
@@ -201,10 +208,14 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		});		
 	}	
 	
-	private void addTimeframeIsland(Tree<ICanvasNode> sceneGraph) {
-		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, false, sceneGraph, chartNode, CHT_MARGIN*2, width, CHT_MARGIN*2, height, null);
+	public NodeManager nodeMan() {
+		return nodeMan;
+	}
+	
+	private void addTimeframeIsland() {
+		tfi = new NodeIsland(gc, "TIMEFRAMES", CHT_MARGIN*2, CHT_MARGIN*3 + fontSize, 400, false, nodeMan, CHT_MARGIN*2, width.get(), CHT_MARGIN*2, height.get(), null);		
 		if (!drawTFI.get()) {
-			sceneGraph.removeNode(tfi.nodeIslandNode());
+			nodeMan.removeNode(tfi.nodeMan());
 		}
 	}
 	
@@ -227,19 +238,19 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void updateTFIXVars() {
-		tfi.setMaxX(width);
+		tfi.setMaxX(width.get());
 	}
 	
 	public void updateTFIYVars() {
-		tfi.setMaxY(height);
+		tfi.setMaxY(height.get());
 	}
 	
 	public void toggleTFShortcut() {
 		drawTFI.set(!drawTFI.get());
 		if (drawTFI.get()) {
-			c.sceneGraph().addNode(tfi.nodeIslandNode());
+			nodeMan.addNode(tfi.nodeMan());
 		} else {
-			c.sceneGraph().removeNode(tfi.nodeIslandNode());
+			nodeMan.removeNode(tfi.nodeMan());
 		}
 	}
 	
@@ -422,12 +433,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private void setHSBPos() {
 		double newHSBPos;
 		if (drawCandlesticks.get() || !tf.base()) {
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));			
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));			
 		} else {
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
 		}
 		c.hsb().setPosition(newHSBPos, false);	
-		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
+		if (newHSBPos < CHT_MARGIN + width.get() - Chart.HSB_WIDTH) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -438,14 +449,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height - fontSize - 100, 399, 100, c.sceneGraph(), chartNode, true, CHT_MARGIN*2, -CHT_MARGIN + width, CHT_MARGIN*2, -CHT_MARGIN + height);
+			mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height.get() - fontSize - 100, 399, 100, nodeMan, true, CHT_MARGIN*2, -CHT_MARGIN + width.get(), CHT_MARGIN*2, -CHT_MARGIN + height.get());
 			mrn.setOnMouseDragged(e -> {
 				mrn.defaultOnMouseDragged(e);
 				mrnDragged = true;
 			});
-			mrn.setDraggable(true);
-			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
-			cmrb.disableButtons();
+			mrn.setDraggable(true);			
 			
 			initPendingTrades();
 			drawMRN.set(true);
@@ -455,8 +464,21 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			if (drawChartShortcut.get()) {
 				c.sceneGraph().removeNode(ctsNode);
 			}
-			ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
-			c.sceneGraph().addNode(ctsNode);
+			LinkedList<CanvasNode> nodes = nodeMan.nodes();
+			nodeMan = new NodeManager();	
+			Iterator<CanvasNode> i = nodes.iterator();
+			while (i.hasNext()) {
+				nodeMan.addNode(i.next());
+			}
+			if (drawTFI.get()) {
+				nodeMan.addNode(tfi.nodeMan());
+			}
+			c.sceneGraph().removeNode(nodeManNode);
+			nodeManNode = new TNode<ICanvasNode>(nodeMan, chartNode);
+			c.sceneGraph().addNode(nodeManNode);	
+			
+			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
+			cmrb.disableButtons();
 		}
 	}
 	
@@ -545,10 +567,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private boolean onPendingButtonArea(double x, double y) {
-		if (y < CHT_MARGIN || y > CHT_MARGIN + height) {
+		if (y < CHT_MARGIN || y > CHT_MARGIN + height.get()) {
 			return false;
 		}
-		if (x < CHT_MARGIN + width - (fontSize*4+6)*2 || x > CHT_MARGIN + width) {
+		if (x < CHT_MARGIN + width.get() - (fontSize*4+6)*2 || x > CHT_MARGIN + width.get()) {
 			return false;
 		}
 		return true;
@@ -595,9 +617,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		} else if (e.isPrimaryButtonDown()) {
 			if (onChart(e.getX(), e.getY())) {
 				chartInitPos = e.getX();							
-				double price = ((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
-				double upperPrice = ((((height - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
-				double lowerPrice = ((((height - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
+				double price = ((((height.get() - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest;
+				double upperPrice = ((((height.get() - (chtDataMargin*2)) - (e.getY() - LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest;
+				double lowerPrice = ((((height.get() - (chtDataMargin*2)) - (e.getY() + LINE_PRESS_MARGIN - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest;
 				int i = -1;
 				int j = 0;
 				double minDiff = Double.MAX_VALUE;
@@ -640,7 +662,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void onMouseDragged(MouseEvent e) {			
 		if (lineDragging) {
-			double price = roundToNearestTick(((((height - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest); 
+			double price = roundToNearestTick(((((height.get() - (chtDataMargin*2)) - (e.getY() - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest); 
 			data.lines().get(lineHighlighted).setPrice(price);
 		}
 		if (e.getButton() == MouseButton.SECONDARY) {
@@ -659,7 +681,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (diff != 0) {
 					startIndex = startIndex - diff;
 					checkStartIndex();
-					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
+					newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			} else {				
@@ -667,12 +689,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (diff != 0) {
 					startIndex = startIndex - diff;
 					checkStartIndex();
-					newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
+					newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
 					dragDiffAccum = 0;
 				}
 			}
 			if (dragDiffAccum == 0 && posDiff != 0) {
-				if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
+				if (newHSBPos < CHT_MARGIN + width.get() - Chart.HSB_WIDTH) {
 					keepStartIndex = true;
 				} else {
 					keepStartIndex = false;
@@ -731,12 +753,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(size - numCandlesticks * END_MARGIN_COEF));
+				newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(size - numCandlesticks * END_MARGIN_COEF));
 			}
 		} else { 
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(size - numCandlesticks * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(size - numCandlesticks * END_MARGIN_COEF));
 		}
-		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH || customSI) {
+		if (newHSBPos < CHT_MARGIN + width.get() - Chart.HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -756,8 +778,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		} else if (delta < 0) {
 			setNumDataPoints((int)(numDataPoints * 1.01 * multiplier));
 		}
-		double xDiff = width / (double)numDataPoints;
-		if (xDiff * (size - 1) < width) {
+		double xDiff = width.get() / (double)numDataPoints;
+		if (xDiff * (size - 1) < width.get()) {
 			setNumDataPoints(size - 1);
 		} else if (numDataPoints < 100) {
 			setNumDataPoints(100);
@@ -772,12 +794,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
-				newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(size - numDataPoints * END_MARGIN_COEF));				
+				newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(size - numDataPoints * END_MARGIN_COEF));				
 			}
 		} else {
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex /(size - numDataPoints * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex /(size - numDataPoints * END_MARGIN_COEF));
 		}
-		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH || customSI) {
+		if (newHSBPos < CHT_MARGIN + width.get() - Chart.HSB_WIDTH || customSI) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -888,7 +910,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		for (Line l : data.lines()) {
 			if (l.price() >= trueLowest && l.price() <= trueHighest) {
 				double trueRange = trueHighest - trueLowest;
-				double y = height + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height);
+				double y = height.get() + CHT_MARGIN - (((l.price() - trueLowest) / trueRange) * height.get());
 				if (l.highlighted()) {
 					gc.setFill(Color.RED);
 					gc.setStroke(Color.RED);
@@ -896,10 +918,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					gc.setFill(Color.GRAY);
 					gc.setStroke(Color.GRAY);
 				}
-				gc.strokeLine(CHT_MARGIN, (int)y + Chart.OFFSET, width + CHT_MARGIN, (int)y + Chart.OFFSET);				
-				gc.fillRoundRect(width + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+				gc.strokeLine(CHT_MARGIN, (int)y + Chart.OFFSET, width.get() + CHT_MARGIN, (int)y + Chart.OFFSET);				
+				gc.fillRoundRect(width.get() + CHT_MARGIN, y - fontSize/2, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 				gc.setFill(Color.WHITE);
-				gc.fillText(((Double)(roundToNearestTick(l.price()))).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, y + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
+				gc.fillText(((Double)(roundToNearestTick(l.price()))).toString(), width.get() + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, y + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
 			}
 		}		
 	}
@@ -985,7 +1007,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (size < numCandlesticks * END_MARGIN_COEF) {
 					startIndex = 0;
 				} else {					
-					startIndex = (int)((c.hsb().x() / (width + CHT_MARGIN - Chart.HSB_WIDTH)) * (size - numCandlesticks * END_MARGIN_COEF));
+					startIndex = (int)((c.hsb().x() / (width.get() + CHT_MARGIN - Chart.HSB_WIDTH)) * (size - numCandlesticks * END_MARGIN_COEF));
 				}
 			}
 			endIndex = startIndex + numCandlesticks;
@@ -998,7 +1020,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 				if (size < (numDataPoints - 1) * END_MARGIN_COEF) {
 					startIndex = 0;
 				} else {
-					startIndex = (int)((c.hsb().x() / (width + CHT_MARGIN - Chart.HSB_WIDTH)) * (size - (numDataPoints - 1) * END_MARGIN_COEF));
+					startIndex = (int)((c.hsb().x() / (width.get() + CHT_MARGIN - Chart.HSB_WIDTH)) * (size - (numDataPoints - 1) * END_MARGIN_COEF));
 				}
 			}
 			endIndex = startIndex + numDataPoints;
@@ -1010,14 +1032,14 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void setPreDrawVars() {
-		tickSizeOnChart = (height - chtDataMargin * 2) / (range / data.tickSize());
+		tickSizeOnChart = (height.get() - chtDataMargin * 2) / (range / data.tickSize());
 		dataMarginTickSize = (chtDataMargin / tickSizeOnChart) * data.tickSize();
 		conversionVar = data.tickSize() / tickSizeOnChart;	
 		if (!drawCandlesticks.get()) {
 			if (tf.base()) {
-				xDiff = width / (double)numDataPoints;
+				xDiff = width.get() / (double)numDataPoints;
 			} else {
-				xDiff = width / (double)(numCandlesticks - 1);
+				xDiff = width.get() / (double)(numCandlesticks - 1);
 			}
 		}
 	}
@@ -1026,7 +1048,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (tf.base()) {
 			ArrayList<DataPair> data = tf.tickData();
 			endMargin = false;
-			double startY = height - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price() - lowest) / range) * (height - chtDataMargin * 2));		
+			double startY = height.get() - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price() - lowest) / range) * (height.get() - chtDataMargin * 2));		
 			double prevY = startY - ((data.get(startIndex + 1).price() - data.get(startIndex).price()) / conversionVar);
 			gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 			gc.strokeLine(CHT_MARGIN-Chart.OFFSET, startY, xDiff+CHT_MARGIN-Chart.OFFSET, prevY);		
@@ -1046,7 +1068,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private void drawLineChartFromCandles() {
 		ArrayList<Candlestick> data = tf.data();
 		endMargin = false;
-		double startY = height - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price(lineChartDataPoint) - lowest) / range) * (height - chtDataMargin * 2));		
+		double startY = height.get() - chtDataMargin + CHT_MARGIN - (((data.get(startIndex).price(lineChartDataPoint) - lowest) / range) * (height.get() - chtDataMargin * 2));		
 		double prevY = startY - ((data.get(startIndex + 1).price(lineChartDataPoint) - data.get(startIndex).price(lineChartDataPoint)) / conversionVar);
 		gc.setStroke(ColourSettings.colour(ColourSettings.ColourIndex.LINE_CHART));
 		gc.strokeLine(CHT_MARGIN-Chart.OFFSET, startY, xDiff+CHT_MARGIN-Chart.OFFSET, prevY);		
@@ -1082,9 +1104,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			double yPos;
 			double xPos = CHT_MARGIN + (candlestickWidth + candlestickSpacing) * i;
 			if (lastCandlestick.open() < lastCandlestick.close()) {
-				yPos = ((highest - lastCandlestick.close()) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+				yPos = ((highest - lastCandlestick.close()) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			} else {
-				yPos = ((highest - lastCandlestick.open()) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+				yPos = ((highest - lastCandlestick.open()) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 			}
 			drawCandlestick(lastCandlestick, xPos, yPos);					
 		}
@@ -1099,11 +1121,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (price > highest || price < lowest) {
 			return;
 		}	
-		double yPos = ((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
+		double yPos = ((highest - price) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
 		gc.setFill(Color.SLATEBLUE);		
-		gc.fillRoundRect(width + CHT_MARGIN, (int)(yPos - fontSize/2) + Chart.OFFSET, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(width.get() + CHT_MARGIN, (int)(yPos - fontSize/2) + Chart.OFFSET, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(Color.WHITE);
-		gc.fillText(((Double)(Round.round(price, data.numDecimalPts()))).toString(), width + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
+		gc.fillText(((Double)(Round.round(price, data.numDecimalPts()))).toString(), width.get() + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
 	}
 	
 	private void drawCurrentPriceLine() {	
@@ -1115,9 +1137,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (price > highest || price < lowest) {
 			return;
 		}		
-		double yPos = (int)(((highest - price) / range) * (height - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + Chart.OFFSET;
+		double yPos = (int)(((highest - price) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + Chart.OFFSET;
 		gc.setStroke(Color.SLATEBLUE);
-		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + width, yPos);	
+		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + width.get(), yPos);	
 	}
 	
 	private void checkDrawLines() {
@@ -1129,7 +1151,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private void checkMeasuring() {		
 		if (measuring) {
 			double startPrice = roundToNearestTick(yCoordToPrice(startY));
-			double endPrice = roundToNearestTick(((((height - (chtDataMargin*2)) - (endY - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest);
+			double endPrice = roundToNearestTick(((((height.get() - (chtDataMargin*2)) - (endY - ChartNode.CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest);
 			gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 			gc.strokeLine(startX, startY, endX, endY);
 			double n100 = Math.abs(endY - startY);
@@ -1142,9 +1164,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			}
 			
 			if (n100 != -1) {
-				if (n100 > CHT_MARGIN && n100 < CHT_MARGIN + height - fontSize) {
+				if (n100 > CHT_MARGIN && n100 < CHT_MARGIN + height.get() - fontSize) {
 					double ex = endX + 50;
-					if (ex >= CHT_MARGIN + width) {
+					if (ex >= CHT_MARGIN + width.get()) {
 						ex -= 100;
 						gc.strokeLine(ex - Chart.OFFSET, n100 - Chart.OFFSET, endX, n100 - Chart.OFFSET);
 					} else {
@@ -1162,7 +1184,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			Text t = new Text(text);
 			double prc_msrmnt_length = t.getLayoutBounds().getWidth() + 5;
 			boolean right = true;
-			if (endX > CHT_MARGIN + width - prc_msrmnt_length) {
+			if (endX > CHT_MARGIN + width.get() - prc_msrmnt_length) {
 				ex -= prc_msrmnt_length + 5;
 				right = false;
 			}
@@ -1173,11 +1195,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					dropped = true;
 				}
 			}
-			if (endX > CHT_MARGIN + width - prc_msrmnt_length && dropped && right) {
+			if (endX > CHT_MARGIN + width.get() - prc_msrmnt_length && dropped && right) {
 				ex -= prc_msrmnt_length + 5;
 			}
-			if (endY >= height + CHT_MARGIN - fontSize) {
-				ey = height + CHT_MARGIN - fontSize;
+			if (endY >= height.get() + CHT_MARGIN - fontSize) {
+				ey = height.get() + CHT_MARGIN - fontSize;
 			}
 			gc.setFill(Color.SLATEBLUE);				
 			gc.fillText(text, ex + 1, ey - 2, prc_msrmnt_length);
@@ -1241,11 +1263,11 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public double yCoordToPrice(double y) {
-		return ((((height - (chtDataMargin*2)) - (y - CHT_MARGIN - chtDataMargin)) / (double)(height - (chtDataMargin*2))) * range) + lowest;
+		return ((((height.get() - (chtDataMargin*2)) - (y - CHT_MARGIN - chtDataMargin)) / (double)(height.get() - (chtDataMargin*2))) * range) + lowest;
 	}
 	
 	public double priceToYCoord(double price) {
-		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * height + CHT_MARGIN;
+		return ((highest + dataMarginTickSize - price) / (range + dataMarginTickSize * 2)) * height.get() + CHT_MARGIN;
 	}
 	
 	private void checkTF() {
@@ -1290,13 +1312,8 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			drawCurrentPriceLine();
 			drawCurrentPriceBox();
 			cmrb.draw();
-			if (drawMRN.get()) {
-				mrn.draw();
-			}
 		}
-		if (drawTFI.get()) {
-			tfi.draw();
-		}		
+		nodeMan.draw();		
 		if (printSpeed) {
 			double tm = (System.nanoTime() - b) / 1000000000.0;
 			t += tm;
@@ -1334,21 +1351,21 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void resetMRNPos() {
 		mrn.setX(CHT_MARGIN*2);
-		mrn.setY(height - 100 - fontSize);
+		mrn.setY(height.get() - 100 - fontSize);
 		mrnDragged = false;
 	}
 	
 	public void updateMRNXVars() {
 		if (replayMode) {
-			mrn.setMaxX(-CHT_MARGIN + width);
+			mrn.setMaxX(-CHT_MARGIN + width.get());
 		}
 	}
 	
 	public void updateMRNYVars() {
 		if (replayMode) {
-			mrn.setMaxY(-CHT_MARGIN + height);
+			mrn.setMaxY(-CHT_MARGIN + height.get());
 			if (!mrnDragged) {
-				mrn.setY(height - 100 - fontSize);
+				mrn.setY(height.get() - 100 - fontSize);
 			}
 		}	
 	}
@@ -1356,9 +1373,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	public void toggleMRNShortcut() {
 		drawMRN.set(!drawMRN.get());
 		if (drawMRN.get()) {
-			c.sceneGraph().addNode(mrn.node());
+			nodeMan.addNode(mrn.nodeMan());
 		} else {
-			c.sceneGraph().removeNode(mrn.node());
+			nodeMan.removeNode(mrn.nodeMan());
 		}
 	}
 	
@@ -1369,7 +1386,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	}	
 	
 	public void setCandleStickVars(int numCandlesticks) {	
-		candlestickWidth = (width / numCandlesticks) / (1 + CNDL_SPAC_COEF);
+		candlestickWidth = (width.get() / numCandlesticks) / (1 + CNDL_SPAC_COEF);
 		candlestickSpacing = candlestickWidth * CNDL_SPAC_COEF;
 		t = 0;
 		c2 = 0;
@@ -1427,7 +1444,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				startIndex = tf.data().get(startIndex).firstTickIndex();
 			}
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, true) - numDataPoints * END_MARGIN_COEF));
 			c.hsb().setPosition(newHSBPos, false);				
 		} else {
 			if (tf.data().isEmpty()) {
@@ -1447,10 +1464,10 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			} else {
 				startIndex = tf.tickData().get(startIndex).candleIndex();
 			}
-			newHSBPos = (CHT_MARGIN + width - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
+			newHSBPos = (CHT_MARGIN + width.get() - Chart.HSB_WIDTH) * ((double)startIndex / (tf.size(replayMode, false) - numCandlesticks * END_MARGIN_COEF));
 			c.hsb().setPosition(newHSBPos, false);				
 		}
-		if (newHSBPos < CHT_MARGIN + width - Chart.HSB_WIDTH) {
+		if (newHSBPos < CHT_MARGIN + width.get() - Chart.HSB_WIDTH) {
 			keepStartIndex = true;
 		} else {
 			keepStartIndex = false;
@@ -1472,12 +1489,12 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void setFocused(boolean focused) {
 		if (!measuringRisk) {
-			this.focused = focused;
+			this.focused.set(focused);
 			if (replayMode) {
 				cmrb.hideTradeSizeCalc();
 			}
 		} else {
-			this.focused = focused;
+			this.focused.set(focused);
 		}
 	}
 }

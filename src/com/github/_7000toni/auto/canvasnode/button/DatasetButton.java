@@ -99,9 +99,9 @@ public class DatasetButton extends CanvasButton {
 	@Override
 	public void defaultDraw() {
 		setColoursRect();
-		gc.fillRoundRect(x, y, width, height, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
-		gc.fillText(text, x + textXOffset, y + textYOffset, width - 93);
+		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - 93);
 		close.draw();
 		mr.draw();
 	}
@@ -111,22 +111,22 @@ public class DatasetButton extends CanvasButton {
 		if (vg == null) {
 			defaultDraw();
 		} else {
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}
 	
 	@Override
 	public void setX(double x) {
-		double diff = this.x - x;
-		this.x = x;
+		double diff = this.x.get() - x;
+		this.x.set(x);
 		close.setX(close.x() - diff);
 		mr.setX(mr.x() - diff);
 	}
 	
 	@Override
 	public void setY(double y) {
-		double diff = this.y - y;
-		this.y = y;
+		double diff = this.y.get() - y;
+		this.y.set(y);
 		close.setY(close.y() - diff);
 		mr.setY(mr.y() - diff);
 	}
@@ -136,10 +136,10 @@ public class DatasetButton extends CanvasButton {
 		if (mr.onNode(x, y) || close.onNode(x, y)) {
 			return false;
 		}
-		if (x > this.x + width || x < this.x) {
+		if (x > this.x.get() + width.get() || x < this.x.get()) {
 			return false;
 		}
-		if (y > this.y + height || y < this.y) {
+		if (y > this.y.get() + height.get() || y < this.y.get()) {
 			return false;
 		}
 		return true;

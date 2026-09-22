@@ -345,7 +345,7 @@ public class MarketReplay {
 			charts.get(0).draw();
 		}
 		mrNode.updateHSBPos();
-		mrNode.draw();
+		mrNode.nodeMan().draw();
 	}
 	
 	private int timeToNextTick(int index) {
@@ -520,7 +520,7 @@ public class MarketReplay {
 					if (!charts.isEmpty()) {
 						charts.get(0).draw();
 					}
-					mrNode.draw();
+					mrNode.nodeMan().draw();
 					lastTickTime = now;
 				}				
 			}

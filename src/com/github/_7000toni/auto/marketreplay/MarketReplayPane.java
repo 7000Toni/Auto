@@ -7,6 +7,7 @@ import com.github._7000toni.auto.canvasnode.CanvasWrapper;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasWindow;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.chart.NodeManager;
 import com.github._7000toni.auto.menu.Menu;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
@@ -29,6 +30,7 @@ public class MarketReplayPane extends GridPane implements ICanvasWindow {
 	private ICanvasNode lastFocused = null;
 	private boolean dragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
+	private NodeManager nodeMan;
 	
 	public MarketReplayPane(Chart chart, int index, Stage stage) {
 		stage.setTitle(chart.chartNode().name() + " Replay");		
@@ -42,7 +44,9 @@ public class MarketReplayPane extends GridPane implements ICanvasWindow {
 		canvas.addEventFilter(Event.ANY, e -> {
 			cef.canvasEventFilter(e);
 		});
-		mrNode = new MarketReplayNode(chart, index, canvas.getGraphicsContext2D(), stage, 0, 0, 399, 100, sceneGraph, sceneGraph.root(), false, 0, 0, 0, 0);		
+		nodeMan = new NodeManager();
+		sceneGraph.addNode(new TNode<ICanvasNode>(nodeMan, sceneGraph.root()));
+		mrNode = new MarketReplayNode(chart, index, canvas.getGraphicsContext2D(), stage, 0, 0, 399, 100, nodeMan, false, 0, 0, 0, 0);	
 		this.add(canvas, 0, 0);	
 	}
 	
@@ -106,6 +110,6 @@ public class MarketReplayPane extends GridPane implements ICanvasWindow {
 
 	@Override
 	public void draw() {
-		mrNode.draw();
+		nodeMan.draw();
 	}
 }

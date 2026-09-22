@@ -30,7 +30,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > x) {
+						if (initPos > x.get()) {
 							add = true;
 						} else {
 							add = false;
@@ -43,7 +43,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 						this.stop();
 					}
 					
-					if (initPos >= x && initPos <= x + sbWidth) {
+					if (initPos >= x.get() && initPos <= x.get() + sbWidth) {
 						this.stop();
 					}
 					
@@ -68,7 +68,7 @@ public class HorizontalChartScrollBar extends HorizontalScrollBar {
 	public void onMouseDragged(MouseEvent e) {
 		if (dragging) {
 			double posDiff = e.getX() - initPos;
-			setPosition(x + posDiff, false);
+			setPosition(x.get() + posDiff, false);
 			initPos = (int)e.getX();
 			((ChartNode) sbo).setKeepStartIndex(false);
 			if (!((ChartNode) sbo).onChart(e.getX(), e.getY())) {

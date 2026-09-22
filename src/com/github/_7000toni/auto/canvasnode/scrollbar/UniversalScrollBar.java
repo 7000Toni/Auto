@@ -95,20 +95,20 @@ public class UniversalScrollBar extends CanvasNode {
 		if (dragging) {
 			double posXDiff = e.getX() - initXPos;
 			double posYDiff = e.getY() - initYPos;
-			if (x + posXDiff > maxXPos - sbWidth) {
-				x = maxXPos - sbWidth;
-			} else if (x + posXDiff < minXPos) {
-				x = minXPos;
+			if (x.get() + posXDiff > maxXPos - sbWidth) {
+				x.set(maxXPos - sbWidth);
+			} else if (x.get() + posXDiff < minXPos) {
+				x.set(minXPos);
 			} else {
-				x += posXDiff;
+				x.set(x.get() + posXDiff);
 			}
 			initXPos = (int)e.getX();
-			if (y + posYDiff > maxYPos - sbHeight) {
-				y = maxYPos - sbHeight;
-			} else if (y + posYDiff < minYPos) {
-				y = minYPos;
+			if (y.get() + posYDiff > maxYPos - sbHeight) {
+				y.set(maxYPos - sbHeight);
+			} else if (y.get() + posYDiff < minYPos) {
+				y.set(minYPos);
 			} else {
-				y += posYDiff;
+				y.set(y.get() + posYDiff);
 			}
 			initYPos = (int)e.getY();
 		}
@@ -132,22 +132,22 @@ public class UniversalScrollBar extends CanvasNode {
 	
 	public void setMaxXPos(double maxXPos) {
 		this.maxXPos = maxXPos;
-		setXPosition(x, false);
+		setXPosition(x.get(), false);
 	}
 	
 	public void setMinXPos(double minXPos) {
 		this.minXPos = minXPos;
-		setXPosition(x, false);
+		setXPosition(x.get(), false);
 	}
 	
 	public void setMaxYPos(double maxYPos) {
 		this.maxYPos = maxYPos;
-		setYPosition(y, false);
+		setYPosition(y.get(), false);
 	}
 	
 	public void setMinYPos(double minYPos) {
 		this.minYPos = minYPos;
-		setYPosition(y, false);
+		setYPosition(y.get(), false);
 	}
 	
 	public DoubleProperty xPercentage() {
@@ -221,8 +221,8 @@ public class UniversalScrollBar extends CanvasNode {
 	}
 	
 	protected boolean onScrollBar(double x, double y) {
-		if (y <= this.y + sbHeight && y >= this.y) {
-			if (x <= this.x + sbWidth && x >= this.x) {
+		if (y <= this.y.get() + sbHeight && y >= this.y.get()) {
+			if (x <= this.x.get() + sbWidth && x >= this.x.get()) {
 				return true;
 			}
 		}
@@ -241,18 +241,18 @@ public class UniversalScrollBar extends CanvasNode {
 	}
 	
 	protected void checkXPos() {
-		if (x > maxXPos) {
-			x = maxXPos - sbWidth;
-		} else if (x < minXPos) {
-			x = minXPos - sbWidth;
+		if (x.get() > maxXPos) {
+			x.set(maxXPos - sbWidth);
+		} else if (x.get() < minXPos) {
+			x.set(minXPos - sbWidth);
 		}
 	}
 	
 	protected void checkYPos() {
-		if (y > maxYPos) {
-			y = maxYPos - sbHeight;
-		} else if (y < minYPos) {
-			y = minYPos - sbHeight;
+		if (y.get() > maxYPos) {
+			y.set(maxYPos - sbHeight);
+		} else if (y.get() < minYPos) {
+			y.set(minYPos - sbHeight);
 		}
 	}
 	
@@ -261,23 +261,23 @@ public class UniversalScrollBar extends CanvasNode {
 			return;
 		}
 		if (increment) {
-			if (pos + x > maxXPos - sbWidth) {
-				x = maxXPos - sbWidth;
-			} else if (pos + x < minXPos) {	
-				x = minXPos;
+			if (pos + x.get() > maxXPos - sbWidth) {
+				x.set(maxXPos - sbWidth);
+			} else if (pos + x.get() < minXPos) {	
+				x.set(minXPos);
 			} else {
-				x += pos;
+				x.set(x.get() + pos);
 			}
 		} else {
 			if (pos > maxXPos - sbWidth) {
-				x = maxXPos - sbWidth;
+				x.set(maxXPos - sbWidth);
 			} else if (pos < minXPos) {	
-				x = minXPos;
+				x.set(minXPos);
 			} else {
-				x = pos;
+				x.set(pos);
 			}
 		}
-		xPercentage.set((x - minXPos) / (maxXPos - minXPos - sbWidth));
+		xPercentage.set((x.get() - minXPos) / (maxXPos - minXPos - sbWidth));
 	}	
 	
 	public void setYPosition(double pos, boolean increment) {
@@ -285,23 +285,23 @@ public class UniversalScrollBar extends CanvasNode {
 			return;
 		}
 		if (increment) {
-			if (pos + y > maxYPos - sbHeight) {
-				y = maxYPos - sbHeight;
-			} else if (pos + x < minYPos) {	
-				y = minYPos;
+			if (pos + y.get() > maxYPos - sbHeight) {
+				y.set(maxYPos - sbHeight);
+			} else if (pos + x.get() < minYPos) {	
+				y.set(minYPos);
 			} else {
-				y += pos;
+				y.set(y.get() + pos);
 			}
 		} else {
 			if (pos > maxYPos - sbHeight) {
-				y = maxYPos - sbHeight;
+				y.set(maxYPos - sbHeight);
 			} else if (pos < minYPos) {	
-				y = minYPos;
+				y.set(minYPos);
 			} else {
-				y = pos;
+				y.set(pos);
 			}
 		}
-		yPercentage.set((y - minYPos) / (maxYPos - minYPos - sbHeight));
+		yPercentage.set((y.get() - minYPos) / (maxYPos - minYPos - sbHeight));
 	}	
 	
 	@Override
@@ -323,7 +323,7 @@ public class UniversalScrollBar extends CanvasNode {
 		if (dragging) {
 			gc.setFill(Color.DIMGRAY);
 		} 
-		gc.fillRect(x, y, sbWidth, sbHeight);
+		gc.fillRect(x.get(), y.get(), sbWidth, sbHeight);
 	}
 	
 	@Override
@@ -331,7 +331,7 @@ public class UniversalScrollBar extends CanvasNode {
 		if (vg == null) {
 			defaultDraw();
 		} else {
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}	
 	

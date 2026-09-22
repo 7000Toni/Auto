@@ -33,8 +33,8 @@ public class VerticalScrollBar extends CanvasNode {
 		this.maxPos = maxPos;
 		this.sbWidth = sbWidth;
 		this.sbHeight = sbHeight;
-		this.x = x;
-		this.y = minPos;
+		this.x.set(x);
+		this.y.set(minPos);
 		this.gc = sbo.graphicsContext();
 		
 		onMouseDragged = e -> {defaultOnMouseDragged(e);};
@@ -76,7 +76,7 @@ public class VerticalScrollBar extends CanvasNode {
 				@Override
 				public void handle(long now) {
 					if (lastTick == 0) {
-						if (initPos > y) {
+						if (initPos > y.get()) {
 							add = true;
 						} else {
 							add = false;
@@ -89,7 +89,7 @@ public class VerticalScrollBar extends CanvasNode {
 						this.stop();
 					}
 					
-					if (onScrollBar(x, initPos)) {
+					if (onScrollBar(x.get(), initPos)) {
 						this.stop();
 					}
 					
@@ -125,7 +125,7 @@ public class VerticalScrollBar extends CanvasNode {
 	public void defaultOnMouseDragged(MouseEvent e) {
 		if (dragging) {
 			double posDiff = e.getY() - initPos;
-			setPosition(y + posDiff, false);
+			setPosition(y.get() + posDiff, false);
 			initPos = (int)e.getY();
 		}
 	}
@@ -140,12 +140,12 @@ public class VerticalScrollBar extends CanvasNode {
 	
 	public void setMaxPos(double maxPos) {
 		this.maxPos = maxPos;
-		setPosition(y, false);
+		setPosition(y.get(), false);
 	}
 	
 	public void setMinPos(double minPos) {
 		this.minPos = minPos;
-		setPosition(y, false);
+		setPosition(y.get(), false);
 	}
 	
 	public DoubleProperty percentage() {
@@ -187,8 +187,8 @@ public class VerticalScrollBar extends CanvasNode {
 	}
 	
 	protected boolean onScrollBar(double x, double y) {
-		if (y <= this.y + sbHeight && y >= this.y) {
-			if (x <= this.x + sbWidth && x >= this.x) {
+		if (y <= this.y.get() + sbHeight && y >= this.y.get()) {
+			if (x <= this.x.get() + sbWidth && x >= this.x.get()) {
 				return true;
 			}
 		}
@@ -198,7 +198,7 @@ public class VerticalScrollBar extends CanvasNode {
 	
 	protected boolean inScrollBarArea(double x, double y) {	
 		if (y <= maxPos && y >= minPos) {
-			if (x <= this.x + sbWidth && x >= this.x) {	
+			if (x <= this.x.get() + sbWidth && x >= this.x.get()) {	
 				return true;
 			}
 		}
@@ -206,10 +206,10 @@ public class VerticalScrollBar extends CanvasNode {
 	}
 	
 	protected void checkYPos() {
-		if (y > maxPos) {
-			y = maxPos - sbHeight;
-		} else if (y < minPos) {
-			y = minPos - sbHeight;
+		if (y.get() > maxPos) {
+			y.set(maxPos - sbHeight);
+		} else if (y.get() < minPos) {
+			y.set(minPos - sbHeight);
 		}
 	}
 	
@@ -218,23 +218,23 @@ public class VerticalScrollBar extends CanvasNode {
 			return;
 		}
 		if (increment) {
-			if (pos + y > maxPos - sbHeight) {
-				y = maxPos - sbHeight;
-			} else if (pos + y < minPos) {	
-				y = minPos;
+			if (pos + y.get() > maxPos - sbHeight) {
+				y.set(maxPos - sbHeight);
+			} else if (pos + y.get() < minPos) {	
+				y.set(minPos);
 			} else {
-				y += pos;
+				y.set(y.get() + pos);
 			}
 		} else {
 			if (pos > maxPos - sbHeight) {
-				y = maxPos - sbHeight;
+				y.set(maxPos - sbHeight);
 			} else if (pos < minPos) {	
-				y = minPos;
+				y.set(minPos);
 			} else {
-				y = pos;
+				y.set(pos);
 			}
 		}
-		percentage.set((y - minPos) / (maxPos - minPos - sbHeight));
+		percentage.set((y.get() - minPos) / (maxPos - minPos - sbHeight));
 	}		
 	
 	@Override
@@ -251,7 +251,7 @@ public class VerticalScrollBar extends CanvasNode {
 		if (dragging) {
 			gc.setFill(Color.DIMGRAY);
 		} 
-		gc.fillRoundRect(x, y, sbWidth, sbHeight, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get(), y.get(), sbWidth, sbHeight, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	@Override
@@ -259,7 +259,7 @@ public class VerticalScrollBar extends CanvasNode {
 		if (vg == null) {
 			defaultDraw();
 		} else {
-			vg.draw(x, y, gc);
+			vg.draw(x.get(), y.get(), gc);
 		}
 	}	
 	
@@ -268,7 +268,7 @@ public class VerticalScrollBar extends CanvasNode {
 		if (!onNode(e.getX(), e.getY())) {
 			hovering = false;
 		}
-		if (onMouseReleased == null || !enabled) {
+		if (onMouseReleased == null || !enabled.get()) {
 			return;
 		}
 		onMouseReleased.handle(e);

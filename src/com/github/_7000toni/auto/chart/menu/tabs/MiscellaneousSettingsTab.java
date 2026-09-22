@@ -47,10 +47,10 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 	private HorizontalScrollBar tboSB;
 	
 	public MiscellaneousSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
@@ -60,12 +60,12 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 	}
 	
 	private void initMiscellaneousSettingsMenu() {
-		miscellaneousSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "MISCELLANEOUS SETTINGS");
+		miscellaneousSettings = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "MISCELLANEOUS SETTINGS");
 		miscellaneousSettings.setVanGogh((x2, y2, gc2) -> {
 			miscellaneousSettings.defaultDraw(gc.getFont());
 		});
 				
-		setInitFileDir = new CanvasButton(gc, 290, 20, x + 5, y + 85, "SET INIT LOAD FILE DIR");
+		setInitFileDir = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 85, "SET INIT LOAD FILE DIR");
 		setInitFileDir.setVanGogh((x2, y2, gc2) -> {
 			setInitFileDir.defaultDraw(gc.getFont());
 		});
@@ -80,32 +80,32 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			}
 		});		
 		
-		arcW = new CanvasLabel(gc, 290, 20, x + 5, y + 110, "ARC WIDTH");
+		arcW = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 110, "ARC WIDTH");
 		arcW.setVanGogh((x2, y2, gc2) -> {
 			arcW.defaultDraw(gc.getFont());
 		});
-		arcWSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 135);
-		arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+		arcWSB = new HorizontalScrollBar(this, x.get() + 5, x.get() + 295, 20, 10, y.get() + 135);
+		arcWSB.setX(x.get() + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
 		arcWSB.percentage().addListener((observable, oldValue, newValue) -> {
 			MiscellaneousSettings.setArcW(20 * newValue.doubleValue());
 		});
 		
-		arcH = new CanvasLabel(gc, 290, 20, x + 5, y + 155, "ARC HEIGHT");
+		arcH = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 155, "ARC HEIGHT");
 		arcH.setVanGogh((x2, y2, gc2) -> {
 			arcH.defaultDraw(gc.getFont());
 		});
-		arcHSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 180);
-		arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+		arcHSB = new HorizontalScrollBar(this, x.get() + 5, x.get() + 295, 20, 10, y.get() + 180);
+		arcHSB.setX(x.get() + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
 		arcHSB.percentage().addListener((observable, oldValue, newValue) -> {
 			MiscellaneousSettings.setArcH(20 * newValue.doubleValue());
 		});
 		
-		tradeButtonOffset = new CanvasLabel(gc, 290, 20, x + 5, y + 200, "TRADE BUTTON OFFSET");
+		tradeButtonOffset = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 200, "TRADE BUTTON OFFSET");
 		tradeButtonOffset.setVanGogh((x2, y2, gc2) -> {
 			tradeButtonOffset.defaultDraw(gc.getFont());
 		});
-		tboSB = new HorizontalScrollBar(this, x + 5, x + 295, 20, 10, y + 225);
-		tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
+		tboSB = new HorizontalScrollBar(this, x.get() + 5, x.get() + 295, 20, 10, y.get() + 225);
+		tboSB.setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 		tboSB.percentage().addListener((observable, oldValue, newValue) -> {
 			MiscellaneousSettings.setTradeButtonOffset(newValue.doubleValue());
 			for (Chart c : Chart.charts()) {
@@ -115,36 +115,36 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			}
 		});
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 245, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x.get() + 5, y.get() + 245, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
-			chartMenu.chartSettingsMenu().imageSettingsTab().bsb().setX(x + ((ImageSettings.brightness() + 1) / 2) * 270);
-			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
-			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
-			tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
+			chartMenu.chartSettingsMenu().imageSettingsTab().bsb().setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 270);
+			arcWSB.setX(x.get() + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+			arcHSB.setX(x.get() + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			tboSB.setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		defaultMiscellaneousSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 245, "DEFAULT");
+		defaultMiscellaneousSettings = new CanvasButton(gc, 142.5, 20, x.get() + 152.5, y.get() + 245, "DEFAULT");
 		defaultMiscellaneousSettings.setVanGogh((x2, y2, gc2) -> {
 			defaultMiscellaneousSettings.defaultDraw(gc.getFont());
 		});
 		defaultMiscellaneousSettings.setOnMouseClicked(e -> {
 			MiscellaneousSettings.setDefaultSettings();
-			arcWSB.setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
-			arcHSB.setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
-			tboSB.setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
+			arcWSB.setX(x.get() + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+			arcHSB.setX(x.get() + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			tboSB.setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 270, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 270, "SAVE");
 		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -181,9 +181,9 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 	
 	private void drawHSBRects() {
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeRoundRect(x + 5.5, arcWSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect(x + 5.5, arcHSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect(x + 5.5, tboSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x.get() + 5.5, arcWSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x.get() + 5.5, arcHSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x.get() + 5.5, tboSB.y() + 0.5, 290, 9, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 	}
 	
 	private void drawMiscellaneousSettingsMenu() {
@@ -235,19 +235,19 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		setInitFileDir.setX(x + 5);
 		
 		arcW.setX(x + 5);
-		double hsbOffset = arcWSB.x() - this.x;
+		double hsbOffset = arcWSB.x() - this.x.get();
 		arcWSB.setMinPos(x + 5);
 		arcWSB.setMaxPos(x + 295);
 		arcWSB.setX(hsbOffset + x);
 		
 		arcH.setX(x + 5);
-		double hsbOffset2 = arcHSB.x() - this.x;
+		double hsbOffset2 = arcHSB.x() - this.x.get();
 		arcHSB.setMinPos(x + 5);
 		arcHSB.setMaxPos(x + 295);
 		arcHSB.setX(hsbOffset2 + x);
 		
 		tradeButtonOffset.setX(x + 5);
-		double hsbOffset3 = tboSB.x() - this.x;
+		double hsbOffset3 = tboSB.x() - this.x.get();
 		tboSB.setMinPos(x + 5);
 		tboSB.setMaxPos(x + 295);
 		tboSB.setX(hsbOffset3 + x);
@@ -256,7 +256,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		defaultMiscellaneousSettings.setX(x + 152.5);
 		save.setX(x + 5);
 		
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -275,6 +275,6 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		defaultMiscellaneousSettings.setY(y + 245);
 		save.setY(y + 270);
 		
-		this.y = y;
+		this.y.set(y);
 	}
 }

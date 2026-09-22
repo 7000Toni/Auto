@@ -13,7 +13,7 @@ public class VerticalMenuScrollBar extends VerticalScrollBar {
 		if (fast) {
 			speed *= 2;
 		}
-		double newHSBPos = y * (1 - speed);
+		double newHSBPos = y.get() * (1 - speed);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -23,7 +23,7 @@ public class VerticalMenuScrollBar extends VerticalScrollBar {
 		if (fast) {
 			speed *= 2;
 		}
-		double newHSBPos = y * (1 + speed);
+		double newHSBPos = y.get() * (1 + speed);
 		setPosition(newHSBPos, false);
 	}
 	
@@ -33,22 +33,23 @@ public class VerticalMenuScrollBar extends VerticalScrollBar {
 			return;
 		}
 		if (increment) {
-			if (pos + y > maxPos - sbHeight) {
-				y = maxPos - sbHeight;
-			} else if (pos + y < minPos) {	
-				y = minPos;
+			if (pos + y.get() > maxPos - sbHeight) {
+				y.set(maxPos - sbHeight);
+			} else if (pos + y.get() < minPos) {	
+				y.set(minPos);
 			} else {
-				y += pos;
+				y.set(y.get() + pos);
 			}
 		} else {
 			if (pos > maxPos - sbHeight) {
-				y = maxPos - sbHeight;
+				y.set(maxPos - sbHeight);
 			} else if (pos < minPos) {	
-				y = minPos;
+				y.set(minPos);
 			} else {
-				y = pos;
+				y.set(pos);
 			}
 		}
+		percentage.set((y.get() - minPos) / (maxPos - minPos - sbHeight));
 		((Menu)sbo).adjustDatasetPositions();
 	}	
 }

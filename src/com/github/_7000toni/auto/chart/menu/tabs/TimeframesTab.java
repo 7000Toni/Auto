@@ -45,10 +45,10 @@ public class TimeframesTab extends CanvasNode {
 	private ArrayList<TimeframeButton> tfButtons = new ArrayList<TimeframeButton>();
 	
 	public TimeframesTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
 		this.cmbvg = cmbvg;
@@ -57,12 +57,12 @@ public class TimeframesTab extends CanvasNode {
 	}
 	
 	private void initTimeFramesMenu() {
-		timeFramesFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "TIMEFRAME FUNCTIONS");
+		timeFramesFunctions = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "TIMEFRAME FUNCTIONS");
 		timeFramesFunctions.setVanGogh((x2, y2, gc2) -> {
 			timeFramesFunctions.defaultDraw(gc.getFont());
 		});	
 		
-		ticks = new CanvasButton(gc, 142, 20, x + 5, y + 85, "TICKS");
+		ticks = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 85, "TICKS");
 		ticks.setVanGogh(cmbvg.menuButtonVG(ticks, gc.getFont().getSize()));
 		ticks.setOnMouseClicked(e -> {
 			ticks.setOn(true);
@@ -71,7 +71,7 @@ public class TimeframesTab extends CanvasNode {
 			checkNumber();
 		});		
 		
-		minutes = new CanvasButton(gc, 142, 20, x + 153, y + 85, "MINUTES");
+		minutes = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 85, "MINUTES");
 		minutes.setVanGogh(cmbvg.menuButtonVG(minutes, gc.getFont().getSize()));
 		minutes.setOnMouseClicked(e -> {
 			minutes.setOn(true);
@@ -80,13 +80,13 @@ public class TimeframesTab extends CanvasNode {
 			checkNumber();
 		});		
 		
-		enterPeriod = new CanvasLabel(gc, 290, 20, x + 5, y + 110, "ENTER PERIOD");
+		enterPeriod = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 110, "ENTER PERIOD");
 		enterPeriod.setVanGogh(cmbvg.toggleVG(enterPeriod, addTicks, "ENTER THE NUMBER OF TICKS", "ENTER THE NUMBER OF MINUTES"));	
 		
-		txtPeriod = new TextBox(chart.stage(), gc, 143, 20, x + 5, y + 135, "2", TextBox.InputType.ABS_INT, false, true, false);
+		txtPeriod = new TextBox(chart.stage(), gc, 143, 20, x.get() + 5, y.get() + 135, "2", TextBox.InputType.ABS_INT, false, true, false);
 		setTextEvents();
 		
-		add = new CanvasButton(gc, 142, 20, x + 5, y + 135, "ADD");
+		add = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 135, "ADD");
 		add.setVanGogh((x2, y2, gc2) -> {
 			add.defaultDraw(gc.getFont());
 		});
@@ -95,7 +95,7 @@ public class TimeframesTab extends CanvasNode {
 			add.disable();
 		});
 		
-		added = new CanvasLabel(gc, 290, 20, x + 5, y + 160, "ADDED TIMEFRAMES");
+		added = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 160, "ADDED TIMEFRAMES");
 		added.setVanGogh((x2, y2, gc2) -> {
 			added.defaultDraw(gc.getFont());
 		});	
@@ -135,7 +135,7 @@ public class TimeframesTab extends CanvasNode {
 	}
 	
 	private void addBaseTimeframe(boolean ctor) {
-		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x + 5, y + 185, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
+		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, x.get() + 5, y.get() + 185, Dataset.BASE_TF_NAME, Dataset.BASE_TF_NAME);
 		tfb.setVanGogh((x2, y2, gc) -> {
 			tfb.calculateOffsets(gc.getFont());
 			tfb.setColoursRect();
@@ -201,7 +201,7 @@ public class TimeframesTab extends CanvasNode {
 	private void addTimeframe(String name, Dataset dataset, boolean ctor) {
 		int x = tfButtons.size() % 2 == 0?5:153;
 		int y = 185 + (tfButtons.size() / 2) * 25;
-		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, this.x + x, this.y + y, name, name);
+		TimeframeButton tfb = new TimeframeButton(gc, 142, 20, this.x.get() + x, this.y.get() + y, name, name);
 		tfButtons.add(tfb);
 		if (tfButtons.size() == 28) {
 			add.disable();
@@ -250,13 +250,13 @@ public class TimeframesTab extends CanvasNode {
 			removeTimeframeFromIsland(tf);
 			tfb.addFavouriteButton().setOn(false);
 		} else {
-			if (addTimeframeToIslands(tf)) {
+			if (addTimeframeToIsland(tf)) {
 				tfb.addFavouriteButton().setOn(true);
 			}
 		}
 	}
 	
-	private boolean addTimeframeToIslands(Timeframe tf) {
+	private boolean addTimeframeToIsland(Timeframe tf) {
 		ChartNode cn = chart.chartNode();
 		Text t =  new Text(tf.name());
 		t.setFont(cn.graphicsContext().getFont());
@@ -273,14 +273,14 @@ public class TimeframesTab extends CanvasNode {
 	}
 	
 	private void removeTimeframeFromIsland(Timeframe tf) {	
-		ICanvasNode cnode = tfButton(tf.name());
+		CanvasNode cnode = tfButton(tf.name());
 		if (cnode != null) {
 			chart.chartNode().timeframeIsland().removeNode(cnode);
 		}
 	}
 	
-	private ICanvasNode tfButton(String name) {
-		for (ICanvasNode cn : chart.chartNode().timeframeIsland().nodes()) {
+	private CanvasNode tfButton(String name) {
+		for (CanvasNode cn : chart.chartNode().timeframeIsland().nodes()) {
 			if (cn instanceof CanvasButton && ((CanvasButton)cn).text().equals(name)) {
 				return cn;
 			}
@@ -292,9 +292,9 @@ public class TimeframesTab extends CanvasNode {
 		for (int i = index; i < tfButtons.size(); i++) {
 			TimeframeButton tb = tfButtons.get(i);
 			if (i % 2 == 0) {
-				tb.setX(this.x + 5);
+				tb.setX(this.x.get() + 5);
 			} else {						
-				tb.setX(this.x + 153);
+				tb.setX(this.x.get() + 153);
 				tb.setY(tb.y() - 25);
 			}
 		}
@@ -387,7 +387,7 @@ public class TimeframesTab extends CanvasNode {
 		added.setX(x + 5);
 		setTFButtonsXPos(x);
 		
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -401,6 +401,6 @@ public class TimeframesTab extends CanvasNode {
 		added.setY(y + 160);
 		setTFButtonsYPos(y);
 		
-		this.y = y;
+		this.y.set(y);
 	}
 }

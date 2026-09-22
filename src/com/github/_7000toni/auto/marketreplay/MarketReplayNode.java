@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
-import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
@@ -13,12 +12,11 @@ import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.ChartPane;
+import com.github._7000toni.auto.chart.NodeManager;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
-import com.github._7000toni.auto.tree.TNode;
-import com.github._7000toni.auto.tree.Tree;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -45,8 +43,8 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private GraphicsContext gc;
 	private HorizontalMRPaneScrollBar hsb;
 	private String name;	
-	private TNode<ICanvasNode> mrn;
 	private ChartNode chartNode = null;
+	private NodeManager nodeMan;
 	
 	private static ArrayList<MarketReplayNode> nodes = new ArrayList<MarketReplayNode>();
 	
@@ -62,23 +60,31 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private double dragXOrigin = 0;
 	private double dragYOrigin = 0;
 	
-	public MarketReplayNode(Chart chart, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, index, null, gc, stage, x, y, width, height, sceneGraph, parent, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(Chart chart, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(chart, index, null, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
 	}
 	
-	public MarketReplayNode(Chart chart, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, sceneGraph, parent, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(Chart chart, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
 	}
 	
-	private void constructorStuff(Chart chart, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> parent, boolean draggable, double minX, double maxX, double minY, double maxY) {		
-		this.x = x;
-		this.x = Math.max(minX, this.x);
-		this.x = Math.min(this.x, maxX);
-		this.y = y;
-		this.y = Math.max(minY, this.y);
-		this.y = Math.min(this.y, maxY);
-		this.width = width;
-		this.height = height;
+	public MarketReplayNode(Chart chart, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(chart, index, null, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
+	}
+	
+	public MarketReplayNode(Chart chart, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
+	}
+
+	private void constructorStuff(Chart chart, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {		
+		this.x.set(x);
+		this.x.set(Math.max(minX, this.x.get()));
+		this.x.set(Math.min(this.x.get(), maxX));
+		this.y.set(y);
+		this.y.set(Math.max(minY, this.y.get()));
+		this.y.set(Math.min(this.y.get(), maxY));
+		this.width.set(width);
+		this.height.set(height);
 		this.draggable.set(draggable);
 		this.minX = minX;
 		this.maxX = maxX;
@@ -86,9 +92,6 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		this.maxY = maxY;
 		this.stage = stage;				
 		name = chart.chartNode().name();
-		if (parent.element() instanceof ChartNode) {
-			chartNode = (ChartNode)parent.element();
-		}
 		stage.setTitle(name + " Replay");
 		if (mr == null) {
 			this.mr = new MarketReplay(chart, this, index);
@@ -188,16 +191,19 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 				this.mr.charts().getFirst().draw();
 			}
 		});
-		mrn = new TNode<ICanvasNode>(this, parent);
-		sceneGraph.addNode(mrn);
-		sceneGraph.addNode(new TNode<ICanvasNode>(hsb, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(newChart, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(pausePlay, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(back, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(forward, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(live, mrn));	
-		sceneGraph.addNode(new TNode<ICanvasNode>(txtMoveTicks, mrn));
-		sceneGraph.addNode(new TNode<ICanvasNode>(txtSpeed, mrn));
+		
+		this.nodeMan = new NodeManager(this);		
+		this.nodeMan.addNode(newChart);
+		this.nodeMan.addNode(pausePlay);
+		this.nodeMan.addNode(back);
+		this.nodeMan.addNode(forward);
+		this.nodeMan.addNode(live);
+		this.nodeMan.addNode(hsb);
+		this.nodeMan.addNode(txtMoveTicks);
+		this.nodeMan.addNode(txtSpeed);
+		if (nodeMan != null) {
+			nodeMan.addNode(this.nodeMan);
+		}
 		
 		setOnMousePressed(e -> {
 			defaultOnMousePressed(e);
@@ -213,6 +219,10 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		draw();
 	}
 	
+	public NodeManager nodeMan() {
+		return nodeMan;
+	}
+	
 	public void defaultOnMousePressed(MouseEvent e) {
 		dragXOrigin = e.getX();
 		dragYOrigin = e.getY();
@@ -223,8 +233,8 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void defaultOnMouseDragged(MouseEvent e) {
 		if (this.draggable.get()) {
-			setX(this.x + e.getX() - dragXOrigin);
-			setY(this.y + e.getY() - dragYOrigin);
+			setX(this.x.get() + e.getX() - dragXOrigin);
+			setY(this.y.get() + e.getY() - dragYOrigin);
 			dragXOrigin = e.getX();
 			dragYOrigin = e.getY();
 		}
@@ -261,10 +271,6 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			mr.setSpeed(Integer.parseInt(txtSpeed.text()));
 		});
 	}	
-	
-	public TNode<ICanvasNode> node() {
-		return mrn;
-	}
 	
 	public void updateHSBPos() {		
 		for (MarketReplayNode n : nodes) {
@@ -311,7 +317,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setMinX(double minX) {
 		this.minX = minX;
-		setX(x);
+		setX(x.get());
 	}
 	
 	public double maxX() {
@@ -320,7 +326,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setMaxX(double maxX) {
 		this.maxX = maxX;
-		setX(x);
+		setX(x.get());
 	}
 	
 	public double minY() {
@@ -329,7 +335,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setMinY(double minY) {
 		this.minY = minY;
-		setY(y);
+		setY(y.get());
 	}
 	
 	public double maxY() {
@@ -338,7 +344,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setMaxY(double maxY) {
 		this.maxY = maxY;
-		setY(y);
+		setY(y.get());
 	}
 	
 	@Override
@@ -364,10 +370,10 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		if (hover) {
+		if (hover.get()) {
 			gc.setStroke(Color.GRAY);
 		}
-		if (pressed) {
+		if (pressed.get()) {
 			if (draggable.get()) {
 				gc.setStroke(Color.DIMGRAY);
 			} else {
@@ -375,8 +381,8 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		}
 		gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-		gc.fillRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		gc.strokeRoundRect(x-1.5, y-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.fillRoundRect(x.get()-1.5, y.get()-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+		gc.strokeRoundRect(x.get()-1.5, y.get()-1.5, 400+3, 100+3, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		int percent = (int)(100 * (mr.index().get() / (double)(mr.maxSize().get() - 1)));
 		if (percent > 100) {
 			percent = 100;
@@ -391,22 +397,22 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			time = tick.minusNanos(tick.getNano()).toString().replace('T', ' ');
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(percent + "%  " + time, x + 10, y + 25, 240);
-		gc.fillText("SPEED", x + 260, y + 25);			
-		hsb.draw();
+		gc.fillText(percent + "%  " + time, x.get() + 10, y.get() + 25, 240);
+		gc.fillText("SPEED", x.get() + 260, y.get() + 25);			
+		/*hsb.draw();
 		newChart.draw();
 		pausePlay.draw();
 		back.draw();
 		forward.draw();
 		live.draw();
 		txtMoveTicks.draw();
-		txtSpeed.draw();	
+		txtSpeed.draw();*/	
 		gc.setFont(oldFont);
 	}
 	
 	@Override
 	public void setX(double x) {
-		x = x>maxX-width+4?maxX-width+4:x;
+		x = x>maxX-width.get()+4?maxX-width.get()+4:x;
 		x = x<minX?minX:x;
 		
 		double hsbDiff = hsb.x() - hsb.minPos();		
@@ -421,12 +427,12 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		txtMoveTicks.setX(x+102);
 		txtSpeed.setX(x+260);
 		
-		this.x = x;
+		this.x.set(x);
 	}
 	
 	@Override
 	public void setY(double y) {
-		y = y>maxY-height+5?maxY-height+5:y;
+		y = y>maxY-height.get()+5?maxY-height.get()+5:y;
 		y = y<minY?minY:y;
 		
 		hsb.setY(y+90);
@@ -438,7 +444,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		txtMoveTicks.setY(y+40);
 		txtSpeed.setY(y+40);
 		
-		this.y = y;
+		this.y.set(y);
 	}
 	
 	@Override

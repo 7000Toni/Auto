@@ -49,10 +49,10 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasLabel noImage;	
 	
 	public ImageSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
@@ -62,39 +62,39 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initImageSettingsMenu() {
-		imageSettings = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "IMAGE SETTINGS");
+		imageSettings = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "IMAGE SETTINGS");
 		imageSettings.setVanGogh((x2, y2, gc2) -> {
 			imageSettings.defaultDraw(gc.getFont());
 		});
 		
-		reset = new CanvasButton(gc, 142.5, 20, x + 5, y + 230, "RESET");
+		reset = new CanvasButton(gc, 142.5, 20, x.get() + 5, y.get() + 230, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
 		reset.setOnMouseClicked(e -> {
 			Settings.loadSettings();
 			resetBSB();
-			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcWSB().setX(x + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
-			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcHSB().setX(x + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
-			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().tboSB().setX(x + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcWSB().setX(x.get() + 5 + (MiscellaneousSettings.arcW() / 20) * 270);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().arcHSB().setX(x.get() + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
+			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().tboSB().setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		defaultImageSettings = new CanvasButton(gc, 142.5, 20, x + 152.5, y + 230, "DEFAULT");
+		defaultImageSettings = new CanvasButton(gc, 142.5, 20, x.get() + 152.5, y.get() + 230, "DEFAULT");
 		defaultImageSettings.setVanGogh((x2, y2, gc2) -> {
 			defaultImageSettings.defaultDraw(gc.getFont());
 		});
 		defaultImageSettings.setOnMouseClicked(e -> {
 			ImageSettings.setDefaultSettings();
-			bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
+			bsb.setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x + 5, y + 255, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x.get()+ 5, y.get() + 255, "SAVE");
 		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -116,15 +116,15 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			}.start();
 		});
 		
-		brightness = new CanvasLabel(gc, 290, 20, x + 5, y + 85, "BRIGHTNESS");
+		brightness = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 85, "BRIGHTNESS");
 		brightness.setVanGogh((x2, y2, gc2) -> {
 			brightness.defaultDraw(gc.getFont());
 		});
 		
-		bsb = new BrightnessScrollBar(this, x, x + 299, 15, 15, y + 105);
-		bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
+		bsb = new BrightnessScrollBar(this, x.get(), x.get() + 299, 15, 15, y.get() + 105);
+		bsb.setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 289);
 		
-		drawImg = new CanvasButton(gc, 290, 20, x + 5, y + 130, "DRAW IMAGE");
+		drawImg = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 130, "DRAW IMAGE");
 		drawImg.setVanGogh(cmbvg.imgSettingsToggleVG(drawImg, "DON'T DRAW", "DRAW IMAGE"));
 		drawImg.setOnMouseClicked(e -> {
 			ImageSettings.setDraw(!ImageSettings.draw().get());
@@ -132,7 +132,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});		
 		
-		stretch = new CanvasButton(gc, 290, 20, x + 5, y + 155, "STRETCH IMAGE");
+		stretch = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 155, "STRETCH IMAGE");
 		stretch.setVanGogh(cmbvg.imgSettingsToggleVG(stretch, "DON'T STRETCH", "STRETCH IMAGE"));		
 		stretch.setOnMouseClicked(e -> {
 			ImageSettings.setStretch(!ImageSettings.stretch().get());
@@ -140,7 +140,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		clearImage = new CanvasButton(gc, 290, 20, x + 5, y + 180, "CLEAR IMAGE");
+		clearImage = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 180, "CLEAR IMAGE");
 		clearImage.setVanGogh((x2, y2, gc2) -> {
 			clearImage.defaultDraw(gc.getFont());
 		});
@@ -150,7 +150,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		setImage = new CanvasButton(gc, 290, 20, x + 5, y + 205, "SET IMAGE");
+		setImage = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 205, "SET IMAGE");
 		setImage.setVanGogh((x2, y2, gc2) -> {
 			setImage.defaultDraw(gc.getFont());
 		});
@@ -173,7 +173,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		noImage = new CanvasLabel(gc, 290, 20, x + 5, y + 280, "NO IMAGE SELECTED");
+		noImage = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 280, "NO IMAGE SELECTED");
 		noImage.setVanGogh((x2, y2, gc2) -> {
 			noImage.defaultDraw(gc.getFont());
 		});
@@ -194,12 +194,12 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			noImage.draw();
 		} else {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
-			ImageFunctions.drawImage(gc, ImageSettings.image(), x + 5, y + 280, 290, 165);
+			ImageFunctions.drawImage(gc, ImageSettings.image(), x.get() + 5, y.get() + 280, 290, 165);
 		}
 	}
 	
 	public void resetBSB() {
-		bsb.setX(x + ((ImageSettings.brightness() + 1) / 2) * 289);
+		bsb.setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 289);
 	}
 	
 	public BrightnessScrollBar bsb() {
@@ -237,7 +237,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		imageSettings.setX(x + 5);
 		brightness.setX(x + 5);
 		
-		double hsbOffset = bsb.x() - this.x;
+		double hsbOffset = bsb.x() - this.x.get();
 		bsb.setMinPos(x);
 		bsb.setMaxPos(x + 299);
 		bsb.setX(hsbOffset + x);
@@ -248,7 +248,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		setImage.setX(x + 5);
 		clearImage.setX(x + 5);
 		noImage.setX(x + 5);
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -265,6 +265,6 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		setImage.setY(y + 180);
 		clearImage.setY(y + 205);
 		noImage.setY(y + 305);
-		this.y = y;
+		this.y.set(y);
 	}
 }

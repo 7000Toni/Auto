@@ -65,10 +65,10 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private boolean replayButtonsInit = false;
 	
 	public GeneralFunctionsTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x.set(x);
+		this.y.set(y);
+		this.width.set(width);
+		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
 		this.cmbvg = cmbvg;
@@ -78,12 +78,12 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initGeneralFunctionsMenu() {
-		generalFunctions = new CanvasLabel(gc, 290, 20, x + 5, y + 35, "GENERAL FUNCTIONS");
+		generalFunctions = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "GENERAL FUNCTIONS");
 		generalFunctions.setVanGogh((x2, y2, gc2) -> {
 			generalFunctions.defaultDraw(gc.getFont());
 		});		
 		
-		newChart = new CanvasButton(gc, 290, 20, x + 5, y + 85, "NEW CHART");
+		newChart = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 85, "NEW CHART");
 		newChart.setVanGogh((x2, y2, gc2) -> {
 			newChart.defaultDraw(gc.getFont());
 		});
@@ -100,61 +100,61 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			s.show();
 		});
 		
-		chartType = new CanvasButton(gc, 290, 20, x + 5, y + 110, "CANDLESTICK CHART");
+		chartType = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 110, "CANDLESTICK CHART");
 		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.chartNode().drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART"));
 		chartType.setOnMouseClicked(e -> {
 			chart.chartNode().toggleChartType();
 		});
 		
-		darkMode = new CanvasButton(gc, 290, 20, x + 5, y + 135, "DARK MODE");
+		darkMode = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 135, "DARK MODE");
 		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE"));
 		darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();
 		});
 		
-		chartShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 160, "CHART SHORTCUT");
+		chartShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 160, "CHART SHORTCUT");
 		chartShortcut.setVanGogh(cmbvg.toggleVG(chartShortcut, chart.chartNode().drawChartShortcut(), "HIDE CHART SHORTCUT", "SHOW CHART SHORTCUT"));
 		chartShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleChartTypeShortcut();
 		});
 		
-		initHst = new CanvasButton(gc, 290, 20, x + 5, y + 185, "LOAD HISTORY");
+		initHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 185, "LOAD HISTORY");
 		initHst.setVanGogh(cmbvg.initHstDraw(initHst, chart));
 		initHst.setOnMouseClicked(e -> {
 			chart.chartNode().initHst();
 		});;
 		
-		toggleHst = new CanvasButton(gc, 290, 20, x + 5, y + 210, "SHOW TRADE HISTORY");
+		toggleHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 210, "SHOW TRADE HISTORY");
 		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.chartNode().plotHst(), "HIDE TRADE HISTORY", "SHOW TRADE HISTORY"));
 		toggleHst.setOnMouseClicked(e -> {
 			chart.chartNode().toggleHst();
 		});;
 		
-		toggleSkipDraw = new CanvasButton(gc, 290, 20, x + 5, y + 235, "DISABLE CHART UPDATES");
+		toggleSkipDraw = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 235, "DISABLE CHART UPDATES");
 		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "ENABLE CHART UPDATES", "DISABLE CHART UPDATES"));
 		toggleSkipDraw.setOnMouseClicked(e -> {
 			chart.chartNode().toggleSkipDraw();
 		});;
 		
-		toggleCrosshair = new CanvasButton(gc, 290, 20, x + 5, y + 260, "DON'T DRAW CROSSHAIR");
+		toggleCrosshair = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 260, "DON'T DRAW CROSSHAIR");
 		toggleCrosshair.setVanGogh(cmbvg.toggleVG(toggleCrosshair, ChartNode.drawCrosshair(), "HIDE CROSSHAIR", "DRAW CROSSHAIR"));
 		toggleCrosshair.setOnMouseClicked(e -> {
 			ChartNode.toggleDrawCrosshair();
 		});					
 		
-		timeframeShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 285, "TIMEFRAME SHORTCUT");
+		timeframeShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 285, "TIMEFRAME SHORTCUT");
 		timeframeShortcut.setVanGogh(cmbvg.toggleVG(timeframeShortcut, chart.chartNode().drawTFI(), "HIDE TIMEFRAME SHORTCUT", "SHOW TIMEFRAME SHORTCUT"));
 		timeframeShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleTFShortcut();
 		});	
 		
-		lockTimeframeShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 310, "UNLOCK TIMEFRAME SHORTCUT");
+		lockTimeframeShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 310, "UNLOCK TIMEFRAME SHORTCUT");
 		lockTimeframeShortcut.setVanGogh(cmbvg.toggleVG(lockTimeframeShortcut, chart.chartNode().timeframeIsland().draggable(), "LOCK TIMEFRAME SHORTCUT", "UNLOCK TIMEFRAME SHORTCUT"));
 		lockTimeframeShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().timeframeIsland().setDraggable(!chart.chartNode().timeframeIsland().draggable().get());
 		});
 		
-		resetTFSPos = new CanvasButton(gc, 290, 20, x + 5, y + 335, "RESET TIMEFRAME SHORTCUT");
+		resetTFSPos = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 335, "RESET TIMEFRAME SHORTCUT");
 		resetTFSPos.setVanGogh((x2, y2, gc2) -> {
 			resetTFSPos.defaultDraw(gc.getFont());
 		});
@@ -164,24 +164,24 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void initReplayButtons() {
-		marketReplay = new CanvasLabel(gc, 290, 20, x + 5, y + 360, "MARKET REPLAY");
+		marketReplay = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 360, "MARKET REPLAY");
 		marketReplay.setVanGogh((x2, y2, gc2) -> {
 			marketReplay.defaultDraw(gc.getFont());
 		});
 		
-		replayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 385, "REPLAY SHORTCUT");
+		replayShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 385, "REPLAY SHORTCUT");
 		replayShortcut.setVanGogh(cmbvg.toggleVG(replayShortcut, chart.chartNode().drawMRN(), "HIDE REPLAY SHORTCUT", "SHOW REPLAY SHORTCUT"));
 		replayShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().toggleMRNShortcut();
 		});	
 		
-		lockReplayShortcut = new CanvasButton(gc, 290, 20, x + 5, y + 410, "UNLOCK REPLAY SHORTCUT");
+		lockReplayShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 410, "UNLOCK REPLAY SHORTCUT");
 		lockReplayShortcut.setVanGogh(cmbvg.toggleVG(lockReplayShortcut, chart.chartNode().mrn().draggable(), "LOCK REPLAY SHORTCUT", "UNLOCK REPLAY SHORTCUT"));
 		lockReplayShortcut.setOnMouseClicked(e -> {
 			chart.chartNode().mrn().setDraggable(!chart.chartNode().mrn().draggable().get());
 		});
 		
-		resetMRNPos = new CanvasButton(gc, 290, 20, x + 5, y + 435, "RESET REPLAY SHORTCUT");
+		resetMRNPos = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 435, "RESET REPLAY SHORTCUT");
 		resetMRNPos.setVanGogh((x2, y2, gc2) -> {
 			resetMRNPos.defaultDraw(gc.getFont());
 		});
@@ -189,19 +189,19 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chart.chartNode().resetMRNPos();
 		});	
 		
-		saveHst = new CanvasButton(gc, 290, 20, x + 5, y + 460, "DON'T SAVE TRADE HISTORY");
+		saveHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 460, "DON'T SAVE TRADE HISTORY");
 		saveHst.setVanGogh(cmbvg.toggleVG(saveHst, MarketReplay.writeToFile(), "DON'T SAVE TRADE HISTORY", "SAVE TRADE HISTORY"));
 		saveHst.setOnMouseClicked(e -> {
 			MarketReplay.toggleWriteToFile();
 		});
 		
-		toggleShortReport = new CanvasButton(gc, 290, 20, x + 5, y + 485, "WRITE LONG REPORT");
+		toggleShortReport = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 485, "WRITE LONG REPORT");
 		toggleShortReport.setVanGogh(cmbvg.toggleVG(toggleShortReport, Trade.shortReport(), "WRITE LONG REPORT", "WRITE SHORT REPORT"));
 		toggleShortReport.setOnMouseClicked(e -> {
 			Trade.toggleShortReport();
 		});
 		
-		saveMRHst = new CanvasButton(gc, 290, 20, x + 5, y + 510, "SAVE LOADABLE HISTORY");
+		saveMRHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 510, "SAVE LOADABLE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
 		saveMRHst.setOnMouseClicked(e -> {
 			chart.chartNode().marketReplay().trade().writeHistoryToFile(chart.chartNode().name());
@@ -222,7 +222,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			}.start();
 		});
 		
-		saveState = new CanvasButton(gc, 290, 20, x + 5, y + 535, "SAVE STATE");
+		saveState = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 535, "SAVE STATE");
 		saveState.setVanGogh(cmbvg.toggleVG(saveState, mrStateRecentlySaved, "SAVED", "SAVE STATE"));
 		saveState.setOnMouseClicked(e -> {
 			MarketReplayState mrs = new MarketReplayState(chart.chartNode().marketReplay());
@@ -244,7 +244,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			}.start();
 		});
 		
-		loadState = new CanvasButton(gc, 290, 20, x + 5, y + 560, "LOAD STATE");
+		loadState = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 560, "LOAD STATE");
 		loadState.setVanGogh((x2, y2, gc2) -> {
 			loadState.defaultDraw(gc.getFont());
 		});
@@ -297,8 +297,8 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			return;
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(chart.chartNode().data().name() + " NET PROFIT: " + Round.round(chart.chartNode().marketReplay().netProfit(), 2), x + 7, y + 600);
-		gc.fillText("GLOBAL NET PROFIT: " + Round.round(Trade.net(), 2), x + 7, y + 600 + gc.getFont().getSize() + 5);
+		gc.fillText(chart.chartNode().data().name() + " NET PROFIT: " + Round.round(chart.chartNode().marketReplay().netProfit(), 2), x.get() + 7, y.get() + 600);
+		gc.fillText("GLOBAL NET PROFIT: " + Round.round(Trade.net(), 2), x.get() + 7, y.get() + 600 + gc.getFont().getSize() + 5);
 	}
 	
 	public void setGeneralFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
@@ -400,7 +400,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			loadState.setX(x + 5);
 		}
 		
-		this.x = x;
+		this.x.set(x);
 	}
 
 	@Override
@@ -430,6 +430,6 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			loadState.setY(y + 560);
 		}
 		
-		this.y = y;
+		this.y.set(y);
 	}
 }

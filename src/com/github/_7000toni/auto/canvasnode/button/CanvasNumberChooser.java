@@ -29,10 +29,10 @@ public class CanvasNumberChooser extends CanvasNode {
 	
 	public CanvasNumberChooser(GraphicsContext gc, double width, double height, double x, double y) {
 		this.gc = gc;
-		this.width = width;
-		this.height = height/(1+0.125*1.3);
-		this.x = x;
-		this.y = y + this.height*0.125*1.3;
+		this.width.set(width);
+		this.height.set(height/(1+0.125*1.3));
+		this.x.set(x);
+		this.y.set(y + this.height.get()*0.125*1.3);
 	}
 	
 	public static int number(CanvasNumberChooser... numbers) {	
@@ -235,63 +235,63 @@ public class CanvasNumberChooser extends CanvasNode {
 	
 	public void draw() {
 		resetColours();
-		double t = 0.125*height;
+		double t = 0.125*height.get();
 		setVars();
 		if (l1) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x1 = {x,x+width,x+width-t*1.2,x+t*1.2,x};
-		double[] y1 = {y,y,y+t,y+t,y};
+		double[] x1 = {x.get(),x.get()+width.get(),x.get()+width.get()-t*1.2,x.get()+t*1.2,x.get()};
+		double[] y1 = {y.get(),y.get(),y.get()+t,y.get()+t,y.get()};
 		gc.fillPolygon(x1, y1, 5);
 		if (l2) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x2 = {x+width-t,x+width,x+width,x+width-t,x+width-t};
-		double[] y2 = {y+t*1.2,y,y+height/2,y+height/2-t*1.2,y+t*1.2};
+		double[] x2 = {x.get()+width.get()-t,x.get()+width.get(),x.get()+width.get(),x.get()+width.get()-t,x.get()+width.get()-t};
+		double[] y2 = {y.get()+t*1.2,y.get(),y.get()+height.get()/2,y.get()+height.get()/2-t*1.2,y.get()+t*1.2};
 		gc.fillPolygon(x2, y2, 5);
 		if (l3) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x3 = {x+width-t,x+width,x+width,x+width-t,x+width-t};
-		double[] y3 = {y+height/2+t*0.3,y+height/2,y+height-t,y+height-t*2.2,y+height/2+t*1.2};
+		double[] x3 = {x.get()+width.get()-t,x.get()+width.get(),x.get()+width.get(),x.get()+width.get()-t,x.get()+width.get()-t};
+		double[] y3 = {y.get()+height.get()/2+t*0.3,y.get()+height.get()/2,y.get()+height.get()-t,y.get()+height.get()-t*2.2,y.get()+height.get()/2+t*1.2};
 		gc.fillPolygon(x3, y3, 5);
 		if (l4) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x4 = {x,x+t*1.2,x+width-t*1.2,x+width,x};
-		double[] y4 = {y+height-t,y+height-t*2,y+height-t*2,y+height-t,y+height-t};
+		double[] x4 = {x.get(),x.get()+t*1.2,x.get()+width.get()-t*1.2,x.get()+width.get(),x.get()};
+		double[] y4 = {y.get()+height.get()-t,y.get()+height.get()-t*2,y.get()+height.get()-t*2,y.get()+height.get()-t,y.get()+height.get()-t};
 		gc.fillPolygon(x4, y4, 5);
 		if (l5) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x5 = {x,x+t,x+t,x,x};
-		double[] y5 = {y+height/2,y+height/2+t*0.3,y+height-t*2.2,y+height-t,y+height/2};
+		double[] x5 = {x.get(),x.get()+t,x.get()+t,x.get(),x.get()};
+		double[] y5 = {y.get()+height.get()/2,y.get()+height.get()/2+t*0.3,y.get()+height.get()-t*2.2,y.get()+height.get()-t,y.get()+height.get()/2};
 		gc.fillPolygon(x5, y5, 5);
 		if (l6) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x6 = {x,x+t,x+t,x,x};
-		double[] y6 = {y,y+t*1.2,y+height/2-t*1.2,y+height/2,y};
+		double[] x6 = {x.get(),x.get()+t,x.get()+t,x.get(),x.get()};
+		double[] y6 = {y.get(),y.get()+t*1.2,y.get()+height.get()/2-t*1.2,y.get()+height.get()/2,y.get()};
 		gc.fillPolygon(x6, y6, 5);
 		if (l7) {
 			gc.setFill(onColour);
 		} else {
 			gc.setFill(offColour);
 		}
-		double[] x7 = {x,x+t*1.2,x+width-t*1.2,x+width,0};
-		double[] y7 = {y+height/2,y+height/2-t,y+height/2-t,y+height/2,y+height/2};
+		double[] x7 = {x.get(),x.get()+t*1.2,x.get()+width.get()-t*1.2,x.get()+width.get(),0};
+		double[] y7 = {y.get()+height.get()/2,y.get()+height.get()/2-t,y.get()+height.get()/2-t,y.get()+height.get()/2,y.get()+height.get()/2};
 		gc.fillPolygon(x7, y7, 5);
 		
 		gc.setFill(onColour);
@@ -301,8 +301,8 @@ public class CanvasNumberChooser extends CanvasNode {
 		if (upPressed) {
 			gc.setFill(pressColour);
 		}
-		double[] x8 = {x,x+width/2,x+width,x};
-		double[] y8 = {y-t*0.3,y-t*1.3,y-t*0.3,y-t*0.3};
+		double[] x8 = {x.get(),x.get()+width.get()/2,x.get()+width.get(),x.get()};
+		double[] y8 = {y.get()-t*0.3,y.get()-t*1.3,y.get()-t*0.3,y.get()-t*0.3};
 		gc.fillPolygon(x8, y8, 4);
 		gc.setFill(onColour);
 		if (downHover) {
@@ -311,28 +311,28 @@ public class CanvasNumberChooser extends CanvasNode {
 		if (downPressed) {
 			gc.setFill(pressColour);
 		}
-		double[] x9 = {x,x+width,x+width/2,x};
-		double[] y9 = {y+height-t+t*0.3,y+height-t+t*0.3,y+height-t+t*1.3,y+height-t+t*0.3};
+		double[] x9 = {x.get(),x.get()+width.get(),x.get()+width.get()/2,x.get()};
+		double[] y9 = {y.get()+height.get()-t+t*0.3,y.get()+height.get()-t+t*0.3,y.get()+height.get()-t+t*1.3,y.get()+height.get()-t+t*0.3};
 		gc.fillPolygon(x9, y9, 4);
 	}
 	
 	public boolean onUp(double x, double y) {
-		double t = 0.125*height;		
-		if (x > this.x + width || x < this.x) {
+		double t = 0.125*height.get();		
+		if (x > this.x.get() + width.get() || x < this.x.get()) {
 			return false;
 		}
-		if (y < this.y - t * 1.3 || y > this.y) {
+		if (y < this.y.get() - t * 1.3 || y > this.y.get()) {
 			return false;
 		}
 		return true;
 	}
 	
 	public boolean onDown(double x, double y) {
-		double t = 0.125*height;
-		if (x > this.x + width || x < this.x) {
+		double t = 0.125*height.get();
+		if (x > this.x.get() + width.get() || x < this.x.get()) {
 			return false;
 		}
-		if (y < this.y + height - t || y > this.y + height - t + t * 1.3) {
+		if (y < this.y.get() + height.get() - t || y > this.y.get() + height.get() - t + t * 1.3) {
 			return false;
 		}
 		return true;
@@ -344,7 +344,7 @@ public class CanvasNumberChooser extends CanvasNode {
 		setUpHover(false);
 		setDownPressed(false);		
 		setDownHover(false);
-		if (onMouseExited == null || !enabled) {
+		if (onMouseExited == null || !enabled.get()) {
 			return;
 		}
 		onMouseExited.handle(e);
@@ -359,7 +359,7 @@ public class CanvasNumberChooser extends CanvasNode {
 		if (onDown(e.getX(), e.getY())) {
 			setDownPressed(true);
 		}
-		if (onMousePressed == null || !enabled) {
+		if (onMousePressed == null || !enabled.get()) {
 			return;
 		}
 		onMousePressed.handle(e);
@@ -372,7 +372,7 @@ public class CanvasNumberChooser extends CanvasNode {
 		} else if (downPressed) {
 			decrementValue();
 		}
-		if (onMouseClicked == null || !enabled || !pressed) {
+		if (onMouseClicked == null || !enabled.get() || !pressed.get()) {
 			setUpPressed(false);
 			setDownPressed(false);
 			setPressed(false);
@@ -388,7 +388,7 @@ public class CanvasNumberChooser extends CanvasNode {
 	public void onMouseMoved(MouseEvent e) {
 		NodeChecks.mouseNumberChooserUpHoverCheck(this, e.getX(), e.getY());
 		NodeChecks.mouseNumberChooserDownHoverCheck(this, e.getX(), e.getY());
-		if (onMouseMoved == null || !enabled) {
+		if (onMouseMoved == null || !enabled.get()) {
 			return;
 		}
 		onMouseMoved.handle(e);
