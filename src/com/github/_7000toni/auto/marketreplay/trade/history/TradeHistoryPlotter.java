@@ -125,21 +125,21 @@ public class TradeHistoryPlotter {
 	}
 	
 	private boolean inRange(ITradeHistory h) {
-		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 || h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
+		if ((h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 || h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean onlyCloseInRange(ITradeHistory h) {
-		if (!(h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1) && h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) {
+		if ((!(h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1) && h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean onlyOpenInRange(ITradeHistory h) {
-		if (h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 && !(h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1)) {
+		if ((h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 && !(h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1)) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;
