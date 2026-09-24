@@ -102,6 +102,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		
 		hsb = new HorizontalMRPaneScrollBar(this, x, x+399, 50, 10, y+90);
 		
+		double hx = hsb.minPos() + (this.mr.index().get() / (double)this.mr.tickDataSize().get()) * (hsb.maxPos() - hsb.sbWidth() - hsb.minPos());
+		hsb.setX(hx);
+		
 		MarketReplayNodeVanGoghs mrpvg = new MarketReplayNodeVanGoghs();
 		newChart = new CanvasButton(gc, 40, 20, x+349, y+10, null, 0, 0);
 		newChart.setVanGogh(mrpvg.newChartVG(newChart));
@@ -272,9 +275,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		});
 	}	
 	
-	public void updateHSBPos() {		
+	public void updateHSBPos() {				
 		for (MarketReplayNode n : nodes) {
-			if (n != this && n.name.equals(name)) {				
+			if (n != this && n.name.equals(name)) {		
 				double x = n.hsb.minPos() + (mr.index().get() / (double)mr.tickDataSize().get()) * (n.hsb.maxPos() - n.hsb.sbWidth() - n.hsb.minPos());
 				n.hsb.setX(x);
 			}
