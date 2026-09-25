@@ -85,7 +85,7 @@ public class MarketReplay {
 	}
 	
 	public void loadState(MarketReplayState mrs) {
-		if (!mrs.signature().equals(data.signature()) || mrs.index() >= data.tickData().size() - 1) {
+		if (!mrs.signature().equals(data.signature()) || mrs.index() >= data.tickData().size()) {
 			return;
 		}
 		paused.set(true);		
