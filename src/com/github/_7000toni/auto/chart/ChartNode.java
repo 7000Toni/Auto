@@ -456,6 +456,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			});
 			mrn.setDraggable(true);			
 			
+			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
 			initPendingTrades();
 			drawMRN.set(true);
 			mr.addChart(this);
@@ -479,8 +480,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			}
 			ctsNode = new TNode<ICanvasNode>(chartShortcut, chartNode);
 			c.sceneGraph().addNode(ctsNode);
-			
-			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
+						
 			cmrb.disableButtons();
 		}
 	}
