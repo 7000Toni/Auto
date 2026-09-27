@@ -449,7 +449,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			mrn = new MarketReplayNode(c, mr, gc, c.stage(), CHT_MARGIN * 2, height.get() - fontSize - 100, 399, 100, nodeMan, true, CHT_MARGIN*2, -CHT_MARGIN + width.get(), CHT_MARGIN*2, -CHT_MARGIN + height.get());
+			mrn = new MarketReplayNode(true, this, mr, gc, c.stage(), CHT_MARGIN * 2, height.get() - fontSize - 100, 399, 100, nodeMan, true, CHT_MARGIN*2, -CHT_MARGIN + width.get(), CHT_MARGIN*2, -CHT_MARGIN + height.get());
 			mrn.setOnMouseDragged(e -> {
 				mrn.defaultOnMouseDragged(e);
 				mrnDragged = true;

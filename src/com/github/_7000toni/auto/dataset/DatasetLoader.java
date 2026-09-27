@@ -306,7 +306,7 @@ public class DatasetLoader {
 				s.getIcons().add(Main.icon());
 				s2.getIcons().add(Main.icon());
 			}
-			MarketReplayPane mrp = new MarketReplayPane(c.getChart(), 0, s2);
+			MarketReplayPane mrp = new MarketReplayPane(c.getChart().chartNode(), 0, s2);
 			s2.setOnCloseRequest(ev -> {
 				Menu.menu().varLock().lock();
 				try {

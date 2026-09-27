@@ -46,10 +46,10 @@ public class MarketReplay {
 	private double net = 0;
 	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
 	
-	public MarketReplay(Chart chart, MarketReplayNode mrNode, int index) {		
+	public MarketReplay(ChartNode chartNode, MarketReplayNode mrNode, int index) {		
 		this.charts = new ArrayList<ChartNode>();
-		this.name = chart.chartNode().name();
-		this.data = chart.chartNode().data();
+		this.name = chartNode.name();
+		this.data = chartNode.data();
 		this.mrNode = mrNode;
 		this.tickDataSize.set(data.tickDataSize(false).get());	
 		index = index>=tickDataSize.get()?tickDataSize.get()-1:index;
@@ -57,7 +57,7 @@ public class MarketReplay {
 		data.setReplayTickDataSize(index + 1);		
 		data.setReplayM1CandlesDataSize(data.tickData().get(index).candleIndex() + 1);		
 		this.index.set(index);
-		chart.chartNode().enableReplayMode(this);
+		chartNode.enableReplayMode(this);
 	}
 	
 	public static ReadOnlyBooleanProperty writeToFile() {

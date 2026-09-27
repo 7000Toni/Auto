@@ -60,23 +60,23 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private double dragXOrigin = 0;
 	private double dragYOrigin = 0;
 	
-	public MarketReplayNode(Chart chart, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, index, null, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(boolean isChild, ChartNode chartNode, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(isChild, chartNode, index, null, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
 	}
 	
-	public MarketReplayNode(Chart chart, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(boolean isChild, ChartNode chartNode, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(isChild, chartNode, 0, mr, gc, stage, x, y, width, height, null, draggable, minX, maxX, minY, maxY);
 	}
 	
-	public MarketReplayNode(Chart chart, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, index, null, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(boolean isChild, ChartNode chartNode, int index, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(isChild, chartNode, index, null, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
 	}
 	
-	public MarketReplayNode(Chart chart, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
-		constructorStuff(chart, 0, mr, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
+	public MarketReplayNode(boolean isChild, ChartNode chartNode, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {
+		constructorStuff(isChild, chartNode, 0, mr, gc, stage, x, y, width, height, nodeMan, draggable, minX, maxX, minY, maxY);
 	}
 
-	private void constructorStuff(Chart chart, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {		
+	private void constructorStuff(boolean isChild, ChartNode chartNode, int index, MarketReplay mr, GraphicsContext gc, Stage stage, double x, double y, double width, double height, NodeManager nodeMan, boolean draggable, double minX, double maxX, double minY, double maxY) {		
 		this.x.set(x);
 		this.x.set(Math.max(minX, this.x.get()));
 		this.x.set(Math.min(this.x.get(), maxX));
@@ -90,11 +90,15 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		this.maxX = maxX;
 		this.minY = minY;
 		this.maxY = maxY;
-		this.stage = stage;				
-		name = chart.chartNode().name();
+		this.stage = stage;		
+		if (isChild) {
+			this.chartNode = chartNode;
+		}
+		name = chartNode.name();
+		
 		stage.setTitle(name + " Replay");
 		if (mr == null) {
-			this.mr = new MarketReplay(chart, this, index);
+			this.mr = new MarketReplay(chartNode, this, index);
 		} else {
 			this.mr = mr;
 		}
@@ -150,7 +154,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (txtMoveTicks.text().equals("")) {
 				return;
 			}
-			if (chartNode == null) {
+			if (this.chartNode == null) {
 				this.mr.setIndex(-Integer.parseInt(txtMoveTicks.text()), true);
 			} else {
 				Timeframe tf = chartNode.timeframe();
@@ -171,7 +175,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (txtMoveTicks.text().equals("")) {
 				return;
 			}
-			if (chartNode == null) {
+			if (this.chartNode == null) {
 				this.mr.setIndex(Integer.parseInt(txtMoveTicks.text()), true);
 			} else {
 				Timeframe tf = chartNode.timeframe();
