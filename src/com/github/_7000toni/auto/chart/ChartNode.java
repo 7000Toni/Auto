@@ -9,6 +9,7 @@ import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.NodeIsland;
+import com.github._7000toni.auto.canvasnode.NodeManager;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.drawing.Line;

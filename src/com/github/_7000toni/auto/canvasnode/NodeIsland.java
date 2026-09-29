@@ -2,7 +2,6 @@ package com.github._7000toni.auto.canvasnode;
 
 import java.util.ArrayList;
 
-import com.github._7000toni.auto.chart.NodeManager;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;

@@ -1,9 +1,9 @@
 package com.github._7000toni.auto.canvasnode.scrollbar;
 import javafx.scene.input.MouseEvent;
 
-public class HorizontalMRPaneScrollBar extends HorizontalScrollBar {
+public class HorizontalMRNodeScrollBar extends HorizontalScrollBar {
 
-	public HorizontalMRPaneScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
+	public HorizontalMRNodeScrollBar(IScrollBarOwner sbo, double minPos, double maxPos, double sbWidth, double sbHeight, double yPos) {
 		super(sbo, minPos, maxPos, sbWidth, sbHeight, yPos);
 	}
 

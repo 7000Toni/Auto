@@ -5,14 +5,14 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.Main;
 import com.github._7000toni.auto.canvasnode.CanvasNode;
+import com.github._7000toni.auto.canvasnode.NodeManager;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
-import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRPaneScrollBar;
+import com.github._7000toni.auto.canvasnode.scrollbar.HorizontalMRNodeScrollBar;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.chart.ChartPane;
-import com.github._7000toni.auto.chart.NodeManager;
 import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
@@ -41,7 +41,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	private Stage stage;
 	private MarketReplay mr;
 	private GraphicsContext gc;
-	private HorizontalMRPaneScrollBar hsb;
+	private HorizontalMRNodeScrollBar hsb;
 	private String name;	
 	private ChartNode chartNode = null;
 	private NodeManager nodeMan;
@@ -104,7 +104,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		}
 		this.gc = gc;
 		
-		hsb = new HorizontalMRPaneScrollBar(this, x, x+399, 50, 10, y+90);
+		hsb = new HorizontalMRNodeScrollBar(this, x, x+399, 50, 10, y+90);
 		
 		double hx = hsb.minPos() + (this.mr.index().get() / (double)this.mr.tickDataSize().get()) * (hsb.maxPos() - hsb.sbWidth() - hsb.minPos());
 		hsb.setX(hx);
@@ -199,7 +199,10 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			}
 		});
 		
-		this.nodeMan = new NodeManager(this);		
+		this.nodeMan = new NodeManager(this);	
+		if (!isChild) {
+			this.nodeMan.setDrawParent(false);
+		}
 		this.nodeMan.addNode(newChart);
 		this.nodeMan.addNode(pausePlay);
 		this.nodeMan.addNode(back);
@@ -300,13 +303,17 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		return this.name;
 	}
 	
-	public HorizontalMRPaneScrollBar hsb() {
+	public HorizontalMRNodeScrollBar hsb() {
 		return this.hsb;
 	}
 	
 	public static void drawReplayNodes() {
+		ArrayList<String> drawn = new ArrayList<String>();
 		for (MarketReplayNode n : nodes) {
-			n.draw();
+			if (!drawn.contains(n.name)) {
+				n.draw();
+				drawn.add(n.name);
+			}			
 		}
 	}
 	
@@ -359,14 +366,20 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		if (Platform.isFxApplicationThread()) {
 			for (MarketReplayNode n : nodes) {
 				if (n.name().equals(name)) {
-					drawNode();
+					n.drawNode();					
+					if (n.chartNode == null) {
+						n.nodeMan.draw();
+					}
 				}
 			}
 		} else {
 			Platform.runLater(() -> {
 				for (MarketReplayNode n : nodes) {
 					if (n.name().equals(name)) {
-						drawNode();
+						n.drawNode();
+						if (n.chartNode == null) {
+							n.nodeMan.draw();
+						}
 					}
 				}
 			});
@@ -406,14 +419,6 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(percent + "%  " + time, x.get() + 10, y.get() + 25, 240);
 		gc.fillText("SPEED", x.get() + 260, y.get() + 25);			
-		/*hsb.draw();
-		newChart.draw();
-		pausePlay.draw();
-		back.draw();
-		forward.draw();
-		live.draw();
-		txtMoveTicks.draw();
-		txtSpeed.draw();*/	
 		gc.setFont(oldFont);
 	}
 	

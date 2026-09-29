@@ -446,6 +446,9 @@ public class MarketReplay {
 	
 	public void tick() {	
 		for (int i = lastTick.get(); i < data.tickDataSize(true).get(); i++) {
+			if (lastTick.get() < 0) {
+				continue;
+			}
 			checkPendingOrders(i);					
 		}
 		if (!trade().closed()) {

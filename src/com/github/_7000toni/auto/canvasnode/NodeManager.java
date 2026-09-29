@@ -1,9 +1,7 @@
-package com.github._7000toni.auto.chart;
+package com.github._7000toni.auto.canvasnode;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import com.github._7000toni.auto.canvasnode.CanvasNode;
 
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +13,7 @@ public class NodeManager extends CanvasNode {
 	private CanvasNode onNode;
 	private	CanvasNode lastNode;
 	private CanvasNode focused = null;
+	private boolean drawParent = true;
 	
 	public NodeManager() {}
 	
@@ -38,13 +37,21 @@ public class NodeManager extends CanvasNode {
 		this.parent = parent;
 	}
 	
+	public boolean drawParent() {
+		return drawParent;
+	}
+	
+	public void setDrawParent(boolean drawParent) {
+		this.drawParent = drawParent;
+	}
+	
 	public LinkedList<CanvasNode> nodes() {
 		return nodes;
 	}
 	
 	@Override
 	public void draw() {
-		if (parent != null) {
+		if (parent != null && drawParent) {
 			parent.draw();
 		}
 		Iterator<CanvasNode> i = nodes.descendingIterator();		
