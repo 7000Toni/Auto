@@ -393,46 +393,44 @@ public class MarketReplay {
 		}
 	}
 	
-	private void checkPendingOrders() {						
-		for (int i = lastTick.get(); i < data.tickDataSize(true).get(); i++) {
-			double currentPrice = data.tickData().get(i).price();
-			int j = 0;
-			Object[] pt = pendingTrades.toArray();
-			for (Object obj : pt) {
-				PendingTrade p = (PendingTrade) obj;
-				boolean changed = false;
-				if (p.buy()) {
-					if (currentPrice >= p.price() && !p.limit()) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						changed = true;
-						j--;
-					} else if (currentPrice <= p.price() && p.limit()) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						changed = true;
-						j--;
-					}
-				} else {
-					if (currentPrice <= p.price() && !p.limit()) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						changed = true;
-						j--;
-					} else if (currentPrice >= p.price() && p.limit()) {
-						executePendingOrder(p, i);
-						pendingTrades.remove(j);
-						changed = true;
-						j--;
-					}
+	private void checkPendingOrders(int index) {						
+		double currentPrice = data.tickData().get(index).price();
+		int j = 0;
+		Object[] pt = pendingTrades.toArray();
+		for (Object obj : pt) {
+			PendingTrade p = (PendingTrade) obj;
+			boolean changed = false;
+			if (p.buy()) {
+				if (currentPrice >= p.price() && !p.limit()) {
+					executePendingOrder(p, index);
+					pendingTrades.remove(j);
+					changed = true;
+					j--;
+				} else if (currentPrice <= p.price() && p.limit()) {
+					executePendingOrder(p, index);
+					pendingTrades.remove(j);
+					changed = true;
+					j--;
 				}
-				if (changed) {
-					for (ChartNode c : charts) {
-						c.tradeButtons().removePenTradePair(p);
-					}	
+			} else {
+				if (currentPrice <= p.price() && !p.limit()) {
+					executePendingOrder(p, index);
+					pendingTrades.remove(j);
+					changed = true;
+					j--;
+				} else if (currentPrice >= p.price() && p.limit()) {
+					executePendingOrder(p, index);
+					pendingTrades.remove(j);
+					changed = true;
+					j--;
 				}
-				j++;
 			}
+			if (changed) {
+				for (ChartNode c : charts) {
+					c.tradeButtons().removePenTradePair(p);
+				}	
+			}
+			j++;
 		}
 	}
 	
@@ -446,7 +444,10 @@ public class MarketReplay {
 		}
 	}
 	
-	public void tick() {		
+	public void tick() {	
+		for (int i = lastTick.get(); i < data.tickDataSize(true).get(); i++) {
+			checkPendingOrders(i);					
+		}
 		if (!trade().closed()) {
 			trade().updateTrade(data.tickDataSize(true).get() - 1, this);			
 			if (trade().closed()) {
@@ -455,8 +456,8 @@ public class MarketReplay {
 					charts.get(0).draw();
 				}
 			}
-		}	
-		checkPendingOrders();			
+		}		
+		lastTick.set(index.get() - 1);
 	}
 	
 	private void nextTick(double diff) {
@@ -488,8 +489,7 @@ public class MarketReplay {
 				newHSBPos = ((double)index.get() / tickDataSize.get()) * (mrNode.hsb().maxPos() - mrNode.hsb().sbWidth() - mrNode.hsb().minPos());
 				mrNode.hsb().setPosition(newHSBPos, false);
 				mrNode.updateHSBPos();
-			}												
-			lastTick.set(index.get() - 1);
+			}															
 			tick();
 			if (diff < timeToNextTick.get()) {
 				break;
