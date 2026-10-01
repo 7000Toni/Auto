@@ -14,6 +14,7 @@ public class NodeManager extends CanvasNode {
 	private	CanvasNode lastNode;
 	private CanvasNode focused = null;
 	private boolean drawParent = true;
+	private boolean drawChildren = true;
 	
 	public NodeManager() {}
 	
@@ -45,6 +46,14 @@ public class NodeManager extends CanvasNode {
 		this.drawParent = drawParent;
 	}
 	
+	public boolean drawChildren() {
+		return drawChildren;
+	}
+	
+	public void setDrawChildren(boolean drawChildren) {
+		this.drawChildren = drawChildren;
+	}
+	
 	public LinkedList<CanvasNode> nodes() {
 		return nodes;
 	}
@@ -54,10 +63,12 @@ public class NodeManager extends CanvasNode {
 		if (parent != null && drawParent) {
 			parent.draw();
 		}
-		Iterator<CanvasNode> i = nodes.descendingIterator();		
-        while (i.hasNext()) {
-        	i.next().draw();
-        }
+		if (drawChildren) {
+			Iterator<CanvasNode> i = nodes.descendingIterator();		
+	        while (i.hasNext()) {
+	        	i.next().draw();
+	        }
+		}
 	}	
 	
 	@Override

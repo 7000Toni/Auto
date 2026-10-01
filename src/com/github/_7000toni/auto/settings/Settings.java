@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Settings {
-	private static final String version = "2.0";
+	public static final String version = "2.0";
 	private static String settings = null;	
 	private static boolean dontSave = false;
 	

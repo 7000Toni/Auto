@@ -200,9 +200,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		});
 		
 		this.nodeMan = new NodeManager(this);	
-		if (!isChild) {
-			this.nodeMan.setDrawParent(false);
-		}
+		this.nodeMan.setDrawChildren(false);
 		this.nodeMan.addNode(newChart);
 		this.nodeMan.addNode(pausePlay);
 		this.nodeMan.addNode(back);
@@ -366,10 +364,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		if (Platform.isFxApplicationThread()) {
 			for (MarketReplayNode n : nodes) {
 				if (n.name().equals(name)) {
-					n.drawNode();					
-					if (n.chartNode == null) {
-						n.nodeMan.draw();
-					}
+					n.drawNode();	
 				}
 			}
 		} else {
@@ -377,9 +372,6 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 				for (MarketReplayNode n : nodes) {
 					if (n.name().equals(name)) {
 						n.drawNode();
-						if (n.chartNode == null) {
-							n.nodeMan.draw();
-						}
 					}
 				}
 			});
@@ -418,7 +410,14 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(percent + "%  " + time, x.get() + 10, y.get() + 25, 240);
-		gc.fillText("SPEED", x.get() + 260, y.get() + 25);			
+		gc.fillText("SPEED", x.get() + 260, y.get() + 25);
+		pausePlay.draw();
+		back.draw();
+		txtMoveTicks.draw();
+		forward.draw();
+		txtSpeed.draw();
+		live.draw();
+		newChart.draw();
 		gc.setFont(oldFont);
 	}
 	
