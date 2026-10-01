@@ -418,6 +418,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		txtSpeed.draw();
 		live.draw();
 		newChart.draw();
+		hsb.draw();
 		gc.setFont(oldFont);
 	}
 	
