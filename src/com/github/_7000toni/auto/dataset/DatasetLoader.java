@@ -62,7 +62,7 @@ public class DatasetLoader {
 			loadTask(files);
 			return;
 		}
-		File init = new File(MiscellaneousSettings.initFileDir());
+		File init = new File(MiscellaneousSettings.dataPath());
 		FileChooser fc = new FileChooser();
 		if (init.exists()) {
 			fc.setInitialDirectory(init);

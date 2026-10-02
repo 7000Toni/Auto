@@ -76,7 +76,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 
 			File dir = dc.showDialog(null);
 			if (dir != null) {
-				MiscellaneousSettings.setInitFileDir(dir.getAbsolutePath());
+				MiscellaneousSettings.setDataPath(dir.getAbsolutePath());
 			}
 		});		
 		

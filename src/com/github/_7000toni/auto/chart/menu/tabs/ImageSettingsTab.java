@@ -87,7 +87,11 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			defaultImageSettings.defaultDraw(gc.getFont());
 		});
 		defaultImageSettings.setOnMouseClicked(e -> {
-			ImageSettings.setDefaultSettings();
+			if (Chart.darkMode().get()) {
+				ImageSettings.setDefaultDarkModeSettings();
+			} else {
+				ImageSettings.setDefaultLightModeSettings();
+			}
 			bsb.setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);

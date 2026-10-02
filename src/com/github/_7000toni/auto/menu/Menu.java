@@ -175,7 +175,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
 		this.optimize.setVanGogh(optimizeVG);
 		this.optimize.setOnMouseClicked(e -> {
-			File init = new File(MiscellaneousSettings.initFileDir());
+			File init = new File(MiscellaneousSettings.dataPath());
 			FileChooser fc = new FileChooser();
 			if (init.exists()) {
 				fc.setInitialDirectory(init);
