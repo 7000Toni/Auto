@@ -22,7 +22,7 @@ public class ImageSettings {
 	private static BooleanProperty lmStretch = new SimpleBooleanProperty(false);
 	private static final int size = 4; 
 	
-	private static void loadImage() {
+	private static void loadDarkModeImage() {
 		File f;
 		if (dmImgDir == null) {
 			dmImage = null;
@@ -34,7 +34,7 @@ public class ImageSettings {
 					dmImage = new Image(new FileInputStream(f));
 				} catch (FileNotFoundException e) {
 					dmImage = null;
-					setSettings(null, 0, false, false, null, 0, false, false);
+					setDarkModeSettings(null, 0, false, false);
 					Settings.saveSettings();
 					e.printStackTrace();
 				}
@@ -42,6 +42,10 @@ public class ImageSettings {
 				dmDraw.set(false);
 			}
 		}
+	}
+	
+	private static void loadLightModeImage() {
+		File f;
 		
 		if (lmImgDir == null) {
 			lmImage = null;
@@ -53,7 +57,7 @@ public class ImageSettings {
 					lmImage = new Image(new FileInputStream(f));
 				} catch (FileNotFoundException e) {
 					lmImage = null;
-					setSettings(null, 0, false, false, null, 0, false, false);
+					setLightModeSettings(null, 0, false, false);
 					Settings.saveSettings();
 					e.printStackTrace();
 				}
@@ -73,33 +77,46 @@ public class ImageSettings {
 		} catch (FileNotFoundException e) {
 			if (Chart.darkMode().get()) {
 				dmImage = null;
+				setDarkModeSettings(null, 0, false, false);
 			} else {
 				lmImage = null;
-			}
-			setSettings(null, 0, false, false, null, 0, false, false);
+				setLightModeSettings(null, 0, false, false);
+			}			
 			Settings.saveSettings();
 			e.printStackTrace();
 		}
 	}
 	
-	public static void setSettings(String dmImgDir, double dmBrightness, boolean dmDraw, boolean dmStretch, String lmImgDir, double lmBrightness, boolean lmDraw, boolean lmStretch) {
-		if (dmImgDir == null && lmImgDir == null) {
+	public static void setDarkModeSettings(String dmImgDir, double dmBrightness, boolean dmDraw, boolean dmStretch) {
+		if (dmImgDir == null) {
 			return;
 		}
+		
 		ImageSettings.dmImgDir = dmImgDir;
 		ImageSettings.dmBrightness = dmBrightness;
 		ImageSettings.dmDraw.set(dmDraw);
 		ImageSettings.dmStretch.set(dmStretch);	
+		loadDarkModeImage();
+	}
+	
+	public static void setLightModeSettings(String lmImgDir, double lmBrightness, boolean lmDraw, boolean lmStretch) {
+		if (lmImgDir == null) {
+			return;
+		}
 		
 		ImageSettings.lmImgDir = lmImgDir;
 		ImageSettings.lmBrightness = lmBrightness;
 		ImageSettings.lmDraw.set(lmDraw);
 		ImageSettings.lmStretch.set(lmStretch);	
-		loadImage();
+		loadLightModeImage();
 	}
 	
-	public static void setDefaultSettings() {
-		setSettings(null, 0, false, false, null, 0, false, false);
+	public static void setDefaultDarkModeSettings() {
+		setDarkModeSettings(null, 0, false, false);
+	}
+	
+	public static void setDefaultLightModeSettings() {
+		setLightModeSettings(null, 0, false, false);
 	}
 	
 	public static void clearImage() {
@@ -206,15 +223,27 @@ public class ImageSettings {
 		return size;
 	}
 	
-	public static String string() {
-		String s = dmImgDir + "\n";
-		s += dmBrightness + "\n";
-		s += ((Boolean) dmDraw.get()).toString() + "\n";
-		s += ((Boolean) dmStretch.get()).toString() + "\n";
-		s += lmImgDir + "\n";		
-		s += lmBrightness + "\n";		
-		s += ((Boolean) lmDraw.get()).toString() + "\n";		
-		s += ((Boolean) lmStretch.get()).toString();
+	public static String darkModeSettings() {
+		String s = "IMAGE_PATH=" + dmImgDir + "\n";
+		s += "BRIGHTNESS=" + dmBrightness + "\n";
+		s += "DRAW_IMAGE=" + ((Boolean) dmDraw.get()).toString() + "\n";
+		s += "STRETCH_IMAGE=" + ((Boolean) dmStretch.get()).toString() + "\n\n";
+		return s;
+	}
+	
+	public static String lightModeSettings() {
+		String s = "IMAGE_PATH=" + lmImgDir + "\n";		
+		s += "BRIGHTNESS=" + lmBrightness + "\n";		
+		s += "DRAW_IMAGE=" + ((Boolean) lmDraw.get()).toString() + "\n";		
+		s += "STRETCH_IMAGE=" + ((Boolean) lmStretch.get()).toString() + "\n\n";
+		return s;
+	}
+	
+	public static String defaultSettings() {
+		String s = "IMAGE_PATH=null\n";		
+		s += "BRIGHTNESS=0\n";		
+		s += "DRAW_IMAGE=false\n";		
+		s += "STRETCH_IMAGE=false\n\n";
 		return s;
 	}
 }

@@ -73,15 +73,28 @@ public class ColourSettings {
 		}
 	}
 	
-	public static String string() {
+	private static String string(ArrayList<Color> colours, int offset) {
 		String s = "";
-		for (int i = 0; i < colours.size(); i++) {
-			Color c = colours.get(i);
-			s += c.toString();
-			if (i != colours.size() - 1) {
-				s += "\n";
-			}
+		for (int i = offset; i < SIZE+offset; i++) {
+			s += ColourIndex.values()[i].name();
+			s += "=" + colours.get(i) + "\n";
 		}
-		return s;
+		return s + "\n";
+	}
+	
+	public static String lightModeString() {
+		return string(colours, 0);
+	}
+	
+	public static String darkModeString() {
+		return string(colours, SIZE);
+	}
+	
+	public static String defaultLightModeString() {
+		return string(defaultColours(), 0);
+	}
+	
+	public static String defaultDarkModeString() {
+		return string(defaultColours(), SIZE);
 	}
 }

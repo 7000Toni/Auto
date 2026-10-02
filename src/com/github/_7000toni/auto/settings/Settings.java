@@ -4,6 +4,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.settings.sections.DarkModeColoursSection;
+import com.github._7000toni.auto.settings.sections.DarkModeImageSettingsSection;
+import com.github._7000toni.auto.settings.sections.GeneralSection;
+import com.github._7000toni.auto.settings.sections.LightModeColoursSection;
+import com.github._7000toni.auto.settings.sections.LightModeImageSettingsSection;
+import com.github._7000toni.auto.settings.sections.MiscellaneousSettingsSection;
 
 import javafx.scene.paint.Color;
 
@@ -15,9 +21,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Settings {
-	public static final String version = "2.0";
-	private static String settings = null;	
-	private static boolean dontSave = false;
+	public static final String version = "1.0";	
+	private static String loadedVersion = null;
 	
 	public static void loadSettings() {        
         File settings = settings();
@@ -37,83 +42,21 @@ public class Settings {
         	settingsDir.mkdir();
         }
         
-        return new File(settingsDir.getAbsoluteFile() + "/settings." + version.replace('.', '_'));
-	}
-	
-	private static void setSettingsString() {
-		settings = version + "\n";
-		settings += Chart.darkMode().get() + "\n";
-		settings += ColourSettings.string() + "\n";
-		settings += ImageSettings.string() + "\n";
-		settings += MiscellaneousSettings.string() + "\n";
+        return new File(settingsDir.getAbsoluteFile() + "/settings.ini");
 	}
 	
 	private static void load() {
-		boolean darkMode;
 		try (FileInputStream fis = new FileInputStream(settings());
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			if (!br.readLine().equals(Settings.version)) {
-				setSettingsString();
-				dontSave = true;
-				return;
-			}
-			settings = version + "\n";
-			darkMode = Boolean.parseBoolean(br.readLine());		
-			settings += darkMode + "\n";
-			for (int i = 0; i < ColourSettings.SIZE*2; i++) {
-				String colour = br.readLine();
-				settings += colour + "\n";
-				if (colour == null || colour.isBlank()) {
-					ColourSettings.setDefaultColours();
-					saveSettings();
-					break;
-				} else {
-					ColourSettings.colours().set(i, Color.web(colour));
-				}
-			}
-			ArrayList<String> imgSettings = new ArrayList<String>();
-			for (int i = 0; i < 2; i++) {
-				String imgDir = br.readLine();
-				settings += imgDir + "\n";
-				imgSettings.add(imgDir);
-				
-				String brightnessString = br.readLine();
-				settings += brightnessString + "\n";
-				imgSettings.add(brightnessString);
-				
-				if (imgDir == null || brightnessString == null) {
-					return;
-				}
-				String draw = br.readLine();
-				settings += draw + "\n";
-				imgSettings.add(draw);
-				
-				String stretch = br.readLine();
-				settings += stretch + "\n";
-				imgSettings.add(stretch);
-			}			
-			ImageSettings.setSettings(imgSettings.get(0), Double.parseDouble(imgSettings.get(1)), Boolean.parseBoolean(imgSettings.get(2)), Boolean.parseBoolean(imgSettings.get(3)),
-									imgSettings.get(4), Double.parseDouble(imgSettings.get(5)), Boolean.parseBoolean(imgSettings.get(6)),Boolean.parseBoolean( imgSettings.get(7)));
-			String initFileDir = br.readLine();
-			settings += initFileDir + "\n";
-			MiscellaneousSettings.setInitFileDir(initFileDir);
-			String arcW = br.readLine();
-			settings += arcW + "\n";
-			MiscellaneousSettings.setArcW(Double.parseDouble(arcW));
-			String arcH = br.readLine();
-			settings += arcH + "\n";
-			MiscellaneousSettings.setArcH(Double.parseDouble(arcH));
-			String tbOffset = br.readLine();
-			settings += tbOffset + "\n";
-			MiscellaneousSettings.setTradeButtonOffset(Double.parseDouble(tbOffset));
-			if (darkMode != Chart.darkMode().get()) {
-				Chart.toggleDarkMode();
-			}
+			GeneralSection gs = new GeneralSection();
+			LightModeColoursSection lmcs = new LightModeColoursSection();
+			DarkModeColoursSection dmcs = new DarkModeColoursSection();
+			LightModeImageSettingsSection lmiss = new LightModeImageSettingsSection();
+			DarkModeImageSettingsSection dmiss = new DarkModeImageSettingsSection();
+			MiscellaneousSettingsSection mss = new MiscellaneousSettingsSection();
+			gs.setSettings(GeneralSection.loadSettings(GeneralSection.SECTION_NAME, gs.defaultSettings()));
+			
 		} catch (Exception e) {
-			ColourSettings.setDefaultColours();
-			ImageSettings.setDefaultSettings();
-			MiscellaneousSettings.setDefaultSettings();
-			saveSettings();
 			e.printStackTrace();
 		}
 	}	
@@ -145,5 +88,13 @@ public class Settings {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void setLoadedVersion(String version) {
+		loadedVersion = version;
+	}
+	
+	public static String loadedVersion() {
+		return loadedVersion;
 	}
 }

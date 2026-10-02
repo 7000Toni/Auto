@@ -2,7 +2,7 @@ package com.github._7000toni.auto.settings.sections;
 
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
-public class MiscellaneousSettingsSection extends SettingsSection {
+public class UnknownSettingsSection extends SettingsSection {
 	public static final String SECTION_NAME = "MISCELLANEOUS_SETTINGS";
 	
 	@Override

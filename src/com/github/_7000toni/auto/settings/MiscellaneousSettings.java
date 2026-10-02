@@ -1,13 +1,13 @@
 package com.github._7000toni.auto.settings;
 
 public class MiscellaneousSettings {
-	private static String initFileDir = "./";
+	private static String dataPath = "./";
 	private static double arcW = 8;
 	private static double arcH = 8;
 	private static double tbOffset = 0.5;
 	
-	public static String initFileDir() {
-		return initFileDir;
+	public static String dataPath() {
+		return dataPath;
 	}
 	
 	public static double arcW() {
@@ -22,8 +22,8 @@ public class MiscellaneousSettings {
 		return tbOffset;
 	}
 	
-	public static void setInitFileDir(String initFileDir) {
-		MiscellaneousSettings.initFileDir = initFileDir;
+	public static void setDataPath(String dataPath) {
+		MiscellaneousSettings.dataPath = dataPath;
 	}
 	
 	public static void setArcW(double arcW) {
@@ -39,18 +39,25 @@ public class MiscellaneousSettings {
 	}
 	
 	public static String string() {
-		String s = "";
-		s += initFileDir + "\n";
-		s += ((Double)arcW).toString() + "\n";
-		s += ((Double)arcH).toString() + "\n";
-		s += ((Double)tbOffset).toString();
+		String s = "DATA_PATH=" + dataPath + "\n";
+		s += "ARC_WIDTH=" + ((Double)arcW).toString() + "\n";
+		s += "ARC_HEIGHT=" + ((Double)arcH).toString() + "\n";
+		s += "TRADE_BUTTON_OFFSET=" + ((Double)tbOffset).toString() + "\n\n";
 		return s;
 	}
 	
 	public static void setDefaultSettings() {
-		initFileDir = "./";
+		dataPath = "./";
 		arcW = 8;
 		arcH = 8;
 		tbOffset = 0.5;
+	}
+	
+	public static String defaultSettings() {
+		String s = "DATA_PATH=./\n";
+		s += "ARC_WIDTH=8\n";
+		s += "ARC_HEIGHT=8\n";
+		s += "TRADE_BUTTON_OFFSET=0.5\n\n";
+		return s;
 	}
 }
