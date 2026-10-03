@@ -42,7 +42,7 @@ public class MiscellaneousSettings {
 		String s = "DATA_PATH=" + dataPath + "\n";
 		s += "ARC_WIDTH=" + ((Double)arcW).toString() + "\n";
 		s += "ARC_HEIGHT=" + ((Double)arcH).toString() + "\n";
-		s += "TRADE_BUTTON_OFFSET=" + ((Double)tbOffset).toString() + "\n\n";
+		s += "TRADE_BUTTON_OFFSET=" + ((Double)tbOffset).toString() + "\n";
 		return s;
 	}
 	
@@ -57,7 +57,7 @@ public class MiscellaneousSettings {
 		String s = "DATA_PATH=./\n";
 		s += "ARC_WIDTH=8\n";
 		s += "ARC_HEIGHT=8\n";
-		s += "TRADE_BUTTON_OFFSET=0.5\n\n";
+		s += "TRADE_BUTTON_OFFSET=0.5\n";
 		return s;
 	}
 }

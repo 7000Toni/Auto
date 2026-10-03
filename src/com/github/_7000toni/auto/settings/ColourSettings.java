@@ -39,7 +39,7 @@ public class ColourSettings {
 	}
 	
 	public static void setColour(ColourIndex cindex, Color colour) {
-		int index = Chart.darkMode().get()?cindex.index:cindex.index+10;
+		int index = Chart.darkMode().get()?cindex.index+SIZE:cindex.index;
 		colours.set(index, colour);
 	}
 	
@@ -75,11 +75,11 @@ public class ColourSettings {
 	
 	private static String string(ArrayList<Color> colours, int offset) {
 		String s = "";
-		for (int i = offset; i < SIZE+offset; i++) {
-			s += ColourIndex.values()[i].name();
+		for (int i = offset; i < SIZE + offset; i++) {
+			s += ColourIndex.values()[i - offset].name();
 			s += "=" + colours.get(i) + "\n";
 		}
-		return s + "\n";
+		return s;
 	}
 	
 	public static String lightModeString() {

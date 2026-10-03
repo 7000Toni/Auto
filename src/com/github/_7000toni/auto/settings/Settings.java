@@ -1,28 +1,30 @@
 package com.github._7000toni.auto.settings;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
-import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.settings.sections.DarkModeColoursSection;
-import com.github._7000toni.auto.settings.sections.DarkModeImageSettingsSection;
+import com.github._7000toni.auto.settings.sections.DarkModeImageSection;
 import com.github._7000toni.auto.settings.sections.GeneralSection;
 import com.github._7000toni.auto.settings.sections.LightModeColoursSection;
-import com.github._7000toni.auto.settings.sections.LightModeImageSettingsSection;
-import com.github._7000toni.auto.settings.sections.MiscellaneousSettingsSection;
+import com.github._7000toni.auto.settings.sections.LightModeImageSection;
+import com.github._7000toni.auto.settings.sections.MiscellaneousSection;
+import com.github._7000toni.auto.settings.sections.SettingsSectionHelper;
+import com.github._7000toni.auto.settings.sections.UnknownSettingsSections;
 
-import javafx.scene.paint.Color;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Settings {
 	public static final String version = "1.0";	
 	private static String loadedVersion = null;
+	
+	private static GeneralSection gs = new GeneralSection();
+	private static LightModeColoursSection lmcs = new LightModeColoursSection();
+	private static DarkModeColoursSection dmcs = new DarkModeColoursSection();
+	private static LightModeImageSection lmis = new LightModeImageSection();
+	private static DarkModeImageSection dmis = new DarkModeImageSection();
+	private static MiscellaneousSection ms = new MiscellaneousSection();
 	
 	public static void loadSettings() {        
         File settings = settings();
@@ -42,33 +44,39 @@ public class Settings {
         	settingsDir.mkdir();
         }
         
-        return new File(settingsDir.getAbsoluteFile() + "/settings.ini");
+        File settings = new File(settingsDir.getAbsoluteFile() + "/settings.ini");
+        if (!settings.exists()) {
+        	try {
+				settings.createNewFile();
+				loadedVersion = version;
+				saveSettings();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+        return settings;
 	}
 	
-	private static void load() {
-		try (FileInputStream fis = new FileInputStream(settings());
-				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-			GeneralSection gs = new GeneralSection();
-			LightModeColoursSection lmcs = new LightModeColoursSection();
-			DarkModeColoursSection dmcs = new DarkModeColoursSection();
-			LightModeImageSettingsSection lmiss = new LightModeImageSettingsSection();
-			DarkModeImageSettingsSection dmiss = new DarkModeImageSettingsSection();
-			MiscellaneousSettingsSection mss = new MiscellaneousSettingsSection();
-			gs.setSettings(GeneralSection.loadSettings(GeneralSection.SECTION_NAME, gs.defaultSettings()));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private static void load() {		
+		gs.setSettings(SettingsSectionHelper.loadSettings(GeneralSection.SECTION_NAME, gs.defaultSettings()));
+		lmcs.setSettings(SettingsSectionHelper.loadSettings(LightModeColoursSection.SECTION_NAME, lmcs.defaultSettings()));
+		dmcs.setSettings(SettingsSectionHelper.loadSettings(DarkModeColoursSection.SECTION_NAME, dmcs.defaultSettings()));
+		lmis.setSettings(SettingsSectionHelper.loadSettings(LightModeImageSection.SECTION_NAME, lmis.defaultSettings()));
+		dmis.setSettings(SettingsSectionHelper.loadSettings(DarkModeImageSection.SECTION_NAME, dmis.defaultSettings()));
+		ms.setSettings(SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, ms.defaultSettings()));
 	}	
 	
 	public static void saveSettings() {
 		File settings = settings();
+		String strUs = UnknownSettingsSections.unknownSections();
 		try (PrintWriter pw = new PrintWriter(settings)) {
-			pw.println(version);
-			pw.println(Chart.darkMode().get());
-			pw.println(ColourSettings.string());
-			pw.println(ImageSettings.string());
-			pw.print(MiscellaneousSettings.string());
+			pw.println(GeneralSection.SECTION_NAME + "\n" + gs.currentSettings());
+			pw.println(LightModeColoursSection.SECTION_NAME + "\n" + lmcs.currentSettings());
+			pw.println(DarkModeColoursSection.SECTION_NAME + "\n" + dmcs.currentSettings());
+			pw.println(LightModeImageSection.SECTION_NAME + "\n" + lmis.currentSettings());
+			pw.println(DarkModeImageSection.SECTION_NAME + "\n" + dmis.currentSettings());
+			pw.println(MiscellaneousSection.SECTION_NAME + "\n" + ms.currentSettings());
+			pw.print(strUs);
 			pw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -76,14 +84,20 @@ public class Settings {
 	}
 	
 	public static void saveDarkMode() {
-		if (dontSave) {
-			return;
-		}
+		String strLmcs = LightModeColoursSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(LightModeColoursSection.SECTION_NAME, lmcs.defaultSettings());
+		String strDmcs = DarkModeColoursSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(DarkModeColoursSection.SECTION_NAME, dmcs.defaultSettings());
+		String strLmis = LightModeImageSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(LightModeImageSection.SECTION_NAME, lmis.defaultSettings());
+		String strDmis = DarkModeImageSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(DarkModeImageSection.SECTION_NAME, dmis.defaultSettings());
+		String strMs = MiscellaneousSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, ms.defaultSettings());
+		String strUs = UnknownSettingsSections.unknownSections();
 		try (PrintWriter pw = new PrintWriter(settings())) {
-			pw.println(version);
-			pw.println(Chart.darkMode().get());
-			String subSettings = settings.substring(settings.indexOf('\n') + 1);
-			pw.print(subSettings.substring(subSettings.indexOf('\n') + 1));
+			pw.println(GeneralSection.SECTION_NAME + "\n" + gs.currentSettings());
+			pw.print(strLmcs);
+			pw.print(strDmcs);
+			pw.print(strLmis);
+			pw.print(strDmis);
+			pw.print(strMs);
+			pw.print(strUs);
 			pw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();

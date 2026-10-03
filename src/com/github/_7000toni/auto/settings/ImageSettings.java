@@ -227,7 +227,7 @@ public class ImageSettings {
 		String s = "IMAGE_PATH=" + dmImgDir + "\n";
 		s += "BRIGHTNESS=" + dmBrightness + "\n";
 		s += "DRAW_IMAGE=" + ((Boolean) dmDraw.get()).toString() + "\n";
-		s += "STRETCH_IMAGE=" + ((Boolean) dmStretch.get()).toString() + "\n\n";
+		s += "STRETCH_IMAGE=" + ((Boolean) dmStretch.get()).toString() + "\n";
 		return s;
 	}
 	
@@ -235,7 +235,7 @@ public class ImageSettings {
 		String s = "IMAGE_PATH=" + lmImgDir + "\n";		
 		s += "BRIGHTNESS=" + lmBrightness + "\n";		
 		s += "DRAW_IMAGE=" + ((Boolean) lmDraw.get()).toString() + "\n";		
-		s += "STRETCH_IMAGE=" + ((Boolean) lmStretch.get()).toString() + "\n\n";
+		s += "STRETCH_IMAGE=" + ((Boolean) lmStretch.get()).toString() + "\n";
 		return s;
 	}
 	
@@ -243,7 +243,7 @@ public class ImageSettings {
 		String s = "IMAGE_PATH=null\n";		
 		s += "BRIGHTNESS=0\n";		
 		s += "DRAW_IMAGE=false\n";		
-		s += "STRETCH_IMAGE=false\n\n";
+		s += "STRETCH_IMAGE=false\n";
 		return s;
 	}
 }

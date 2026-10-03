@@ -2,16 +2,27 @@ package com.github._7000toni.auto.settings.sections;
 
 import com.github._7000toni.auto.settings.ImageSettings;
 
-public class LightModeImageSettingsSection implements SettingsSection {
-	public static final String SECTION_NAME = "LIGHT_MODE_IMAGE_SETTINGS";
+public class LightModeImageSection implements SettingsSection {
+	public static final String SECTION_NAME = "[LIGHT_MODE_IMAGE_SETTINGS]";
 	
 	@Override
 	public void setSettings(String section) {
+		if (section == null) {
+			return;
+		}
+		
 		String imagePath = SettingsSectionHelper.setting(section, "IMAGE_PATH");
 		String brightness = SettingsSectionHelper.setting(section, "BRIGHTNESS");
+		brightness = SettingsSectionHelper.settingValue(brightness);
 		String drawImage = SettingsSectionHelper.setting(section, "DRAW_IMAGE");
+		drawImage = SettingsSectionHelper.settingValue(drawImage);
 		String stretchImage = SettingsSectionHelper.setting(section, "STRETCH_IMAGE");
-		ImageSettings.setLightModeSettings(imagePath, Double.parseDouble(brightness), Boolean.parseBoolean(drawImage), Boolean.parseBoolean(stretchImage));
+		stretchImage = SettingsSectionHelper.settingValue(stretchImage);
+		try {
+			ImageSettings.setDarkModeSettings(imagePath, Double.parseDouble(brightness), Boolean.parseBoolean(drawImage), Boolean.parseBoolean(stretchImage));
+		} catch (NumberFormatException | NullPointerException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

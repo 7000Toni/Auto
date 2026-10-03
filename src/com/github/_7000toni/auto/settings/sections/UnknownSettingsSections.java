@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.settings.Settings;
 
-public class UnknownSettingsSection {
+public class UnknownSettingsSections {
 	private static ArrayList<String> sections = new ArrayList<String>();
 	private static boolean init = false;
 	
@@ -16,13 +16,13 @@ public class UnknownSettingsSection {
 		sections.add(DarkModeColoursSection.SECTION_NAME);
 		sections.add(LightModeColoursSection.SECTION_NAME);
 		sections.add(GeneralSection.SECTION_NAME);
-		sections.add(LightModeImageSettingsSection.SECTION_NAME);
-		sections.add(DarkModeImageSettingsSection.SECTION_NAME);
-		sections.add(MiscellaneousSettingsSection.SECTION_NAME);
+		sections.add(LightModeImageSection.SECTION_NAME);
+		sections.add(DarkModeImageSection.SECTION_NAME);
+		sections.add(MiscellaneousSection.SECTION_NAME);
 		init = true;
 	}
 	
-	public static String unknownSection() {
+	public static String unknownSections() {
 		if (!init) {
 			init();
 		}
@@ -32,23 +32,22 @@ public class UnknownSettingsSection {
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			String s = "";
 			String in;
-			String lastSection;
 			while ((in = SettingsSectionHelper.nextSection(br)) != null) {
-				if (sections.contains(lastSection = in.substring(1, in.length() - 2))) {
+				if (sections.contains(in)) {
 					continue;
 				}
-				s += in + SettingsSectionHelper.loadSection(br, true);
+				s += in + "\n" + SettingsSectionHelper.loadSection(br, true);
 				boolean chain = true;				
 				while (chain) {
 					int i = s.lastIndexOf("[");
 					int j = s.lastIndexOf("]");
 					if (i != -1 && j != -1 && i < j) {
-						String nextSection = s.substring(i + 1, j);
-						if (nextSection.equals(lastSection)) {							
+						String nextSection = s.substring(i, j - 1);
+						if (nextSection.equals(in)) {							
 							break;
 						}
 						if (!sections.contains(nextSection)) {
-							s += SettingsSectionHelper.loadSection(br, true);
+							s += nextSection + "\n" + SettingsSectionHelper.loadSection(br, true);
 						} else {
 							chain = false;
 						}
