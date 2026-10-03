@@ -13,11 +13,11 @@ public class UnknownSettingsSections {
 	private static boolean init = false;
 	
 	private static void init() {
-		sections.add(DarkModeColoursSection.SECTION_NAME);
-		sections.add(LightModeColoursSection.SECTION_NAME);
+		sections.add(ColoursSection.LM_SECTION_NAME);
+		sections.add(ColoursSection.DM_SECTION_NAME);
 		sections.add(GeneralSection.SECTION_NAME);
-		sections.add(LightModeImageSection.SECTION_NAME);
-		sections.add(DarkModeImageSection.SECTION_NAME);
+		sections.add(ImageSection.LM_SECTION_NAME);
+		sections.add(ImageSection.DM_SECTION_NAME);
 		sections.add(MiscellaneousSection.SECTION_NAME);
 		init = true;
 	}
@@ -32,32 +32,71 @@ public class UnknownSettingsSections {
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			String s = "";
 			String in;
-			while ((in = SettingsSectionHelper.nextSection(br)) != null) {
+			while ((in = SettingsSectionHelper.nextSection(br)) != null && in.contains("[") && in.contains("]")) {
 				if (sections.contains(in)) {
 					continue;
 				}
 				s += in + "\n" + SettingsSectionHelper.loadSection(br, true);
-				boolean chain = true;				
-				while (chain) {
+				while (true) {
 					int i = s.lastIndexOf("[");
 					int j = s.lastIndexOf("]");
 					if (i != -1 && j != -1 && i < j) {
-						String nextSection = s.substring(i, j - 1);
-						if (nextSection.equals(in)) {							
+						String nextSection = s.substring(i, j + 1);						
+						if (nextSection.equals(in)) {
 							break;
 						}
 						if (!sections.contains(nextSection)) {
-							s += nextSection + "\n" + SettingsSectionHelper.loadSection(br, true);
+							s += nextSection + "\n" + SettingsSectionHelper.loadSection(br, true);							
 						} else {
-							chain = false;
+							break;
 						}
 					}
+					break;
 				}
 			}
-			return s;
+			return s.equals("")?s:"\n"+s;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	private static String readLine(String in) {
+		int i = in.indexOf("\n");
+		if (i != -1) {
+			return in.substring(0, i);
+		}
+		return in;
+	}
+	
+	private static String discardLine(String in) {
+		int i = in.indexOf("\n");
+		if (i != -1 && i != in.length() - 1) {
+			return in.substring(i + 1);
+		}
+		return null;
+	}
+	
+	private static String settingName(String in) {
+		int i = in.indexOf("=");
+		if (i != -1) {
+			return in.substring(0, i);
+		}
+		return null;
+	}
+	
+	public static String unknownSettings(String section, ArrayList<String> settings) {
+		if (section == null || settings == null) {
+			return null;
+		}
+		String out = "";
+		do {
+			String in = readLine(section);
+			String settingName = settingName(in);
+			if (settingName != null && !settings.contains(settingName)) {
+				out += in + "\n";
+			}
+		} while ((section = discardLine(section)) != null);
+		return out;
 	}
 }

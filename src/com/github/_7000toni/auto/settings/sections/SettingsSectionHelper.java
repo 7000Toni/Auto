@@ -68,7 +68,7 @@ public class SettingsSectionHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return sec + (nextSection?"\n"+in:"");
+		return sec + (nextSection&&in!=null?"\n"+in:"");
 	}
 	
 	public static String setting(String section, String name) {

@@ -1,13 +1,14 @@
 package com.github._7000toni.auto.settings.sections;
 
+import java.util.ArrayList;
+
 import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.settings.Settings;
 
-public class GeneralSection implements SettingsSection {	
+public class GeneralSection {	
 	public static final String SECTION_NAME = "[GENERAL]";
 	
-	@Override
-	public void setSettings(String section) {
+	public static void setSettings(String section) {
 		if (section == null) {
 			return;
 		}
@@ -27,17 +28,22 @@ public class GeneralSection implements SettingsSection {
 		}
 	}
 	
-	@Override
-	public String defaultSettings() {
+	public static String defaultSettings() {
 		String s = "VERSION=" + Settings.version + "\n";
 		s += "DARK_MODE=false\n";
 		return s;
 	}
 	
-	@Override
-	public String currentSettings() {
+	public static String currentSettings() {
 		String s = "VERSION=" + Settings.loadedVersion() + "\n";
 		s += "DARK_MODE=" + Chart.darkMode().get() + "\n";
 		return s;
+	}
+	
+	public static ArrayList<String> settings() {
+		ArrayList<String> settings = new ArrayList<String>();
+		settings.add("VERSION");	
+		settings.add("DARK_MODE");
+		return settings;
 	}
 }

@@ -1,12 +1,13 @@
 package com.github._7000toni.auto.settings.sections;
 
+import java.util.ArrayList;
+
 import com.github._7000toni.auto.settings.MiscellaneousSettings;
 
-public class MiscellaneousSection implements SettingsSection {
+public class MiscellaneousSection {
 	public static final String SECTION_NAME = "[MISCELLANEOUS_SETTINGS]";
 	
-	@Override
-	public void setSettings(String section) {
+	public static void setSettings(String section) {
 		if (section == null) {
 			return;
 		}
@@ -33,13 +34,20 @@ public class MiscellaneousSection implements SettingsSection {
 		}
 	}
 	
-	@Override
-	public String defaultSettings() {
+	public static String defaultSettings() {
 		return MiscellaneousSettings.defaultSettings();
 	}
 	
-	@Override
-	public String currentSettings() {
+	public static String currentSettings() {
 		return MiscellaneousSettings.string();
+	}
+	
+	public static ArrayList<String> settings() {
+		ArrayList<String> settings = new ArrayList<String>();
+		settings.add("DATA_PATH");	
+		settings.add("ARC_WIDTH");
+		settings.add("ARC_HEIGHT");
+		settings.add("TRADE_BUTTON_OFFSET");
+		return settings;
 	}
 }

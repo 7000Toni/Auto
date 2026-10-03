@@ -2,11 +2,9 @@ package com.github._7000toni.auto.settings;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.github._7000toni.auto.settings.sections.DarkModeColoursSection;
-import com.github._7000toni.auto.settings.sections.DarkModeImageSection;
+import com.github._7000toni.auto.settings.sections.ColoursSection;
 import com.github._7000toni.auto.settings.sections.GeneralSection;
-import com.github._7000toni.auto.settings.sections.LightModeColoursSection;
-import com.github._7000toni.auto.settings.sections.LightModeImageSection;
+import com.github._7000toni.auto.settings.sections.ImageSection;
 import com.github._7000toni.auto.settings.sections.MiscellaneousSection;
 import com.github._7000toni.auto.settings.sections.SettingsSectionHelper;
 import com.github._7000toni.auto.settings.sections.UnknownSettingsSections;
@@ -18,13 +16,6 @@ import java.io.PrintWriter;
 public class Settings {
 	public static final String version = "1.0";	
 	private static String loadedVersion = null;
-	
-	private static GeneralSection gs = new GeneralSection();
-	private static LightModeColoursSection lmcs = new LightModeColoursSection();
-	private static DarkModeColoursSection dmcs = new DarkModeColoursSection();
-	private static LightModeImageSection lmis = new LightModeImageSection();
-	private static DarkModeImageSection dmis = new DarkModeImageSection();
-	private static MiscellaneousSection ms = new MiscellaneousSection();
 	
 	public static void loadSettings() {        
         File settings = settings();
@@ -58,24 +49,30 @@ public class Settings {
 	}
 	
 	private static void load() {		
-		gs.setSettings(SettingsSectionHelper.loadSettings(GeneralSection.SECTION_NAME, gs.defaultSettings()));
-		lmcs.setSettings(SettingsSectionHelper.loadSettings(LightModeColoursSection.SECTION_NAME, lmcs.defaultSettings()));
-		dmcs.setSettings(SettingsSectionHelper.loadSettings(DarkModeColoursSection.SECTION_NAME, dmcs.defaultSettings()));
-		lmis.setSettings(SettingsSectionHelper.loadSettings(LightModeImageSection.SECTION_NAME, lmis.defaultSettings()));
-		dmis.setSettings(SettingsSectionHelper.loadSettings(DarkModeImageSection.SECTION_NAME, dmis.defaultSettings()));
-		ms.setSettings(SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, ms.defaultSettings()));
+		GeneralSection.setSettings(SettingsSectionHelper.loadSettings(GeneralSection.SECTION_NAME, GeneralSection.defaultSettings()));
+		ColoursSection.setSettings(false, SettingsSectionHelper.loadSettings(ColoursSection.LM_SECTION_NAME, ColoursSection.defaultSettings(false)));
+		ColoursSection.setSettings(true, SettingsSectionHelper.loadSettings(ColoursSection.DM_SECTION_NAME, ColoursSection.defaultSettings(true)));
+		ImageSection.setSettings(false, SettingsSectionHelper.loadSettings(ImageSection.LM_SECTION_NAME, ImageSection.defaultSettings()));
+		ImageSection.setSettings(true, SettingsSectionHelper.loadSettings(ImageSection.DM_SECTION_NAME, ImageSection.defaultSettings()));
+		MiscellaneousSection.setSettings(SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, MiscellaneousSection.defaultSettings()));
 	}	
 	
 	public static void saveSettings() {
 		File settings = settings();
+		String strUgs = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(GeneralSection.SECTION_NAME, GeneralSection.defaultSettings()), GeneralSection.settings());
+		String strUlmcs = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(ColoursSection.LM_SECTION_NAME, ColoursSection.defaultSettings(false)), ColoursSection.settings());
+		String strUdmcs = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(ColoursSection.DM_SECTION_NAME, ColoursSection.defaultSettings(true)), ColoursSection.settings());
+		String strUlmis = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(ImageSection.LM_SECTION_NAME, ImageSection.defaultSettings()), ImageSection.settings());
+		String strUdmis = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(ImageSection.DM_SECTION_NAME, ImageSection.defaultSettings()), ImageSection.settings());
+		String strUms = UnknownSettingsSections.unknownSettings(SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, MiscellaneousSection.defaultSettings()), MiscellaneousSection.settings());
 		String strUs = UnknownSettingsSections.unknownSections();
 		try (PrintWriter pw = new PrintWriter(settings)) {
-			pw.println(GeneralSection.SECTION_NAME + "\n" + gs.currentSettings());
-			pw.println(LightModeColoursSection.SECTION_NAME + "\n" + lmcs.currentSettings());
-			pw.println(DarkModeColoursSection.SECTION_NAME + "\n" + dmcs.currentSettings());
-			pw.println(LightModeImageSection.SECTION_NAME + "\n" + lmis.currentSettings());
-			pw.println(DarkModeImageSection.SECTION_NAME + "\n" + dmis.currentSettings());
-			pw.println(MiscellaneousSection.SECTION_NAME + "\n" + ms.currentSettings());
+			pw.println(GeneralSection.SECTION_NAME + "\n" + GeneralSection.currentSettings() + strUgs);
+			pw.println(ColoursSection.LM_SECTION_NAME + "\n" + ColoursSection.currentSettings(false) + strUlmcs);
+			pw.println(ColoursSection.DM_SECTION_NAME + "\n" + ColoursSection.currentSettings(true) + strUdmcs);
+			pw.println(ImageSection.LM_SECTION_NAME + "\n" + ImageSection.currentSettings(false) + strUlmis);
+			pw.println(ImageSection.DM_SECTION_NAME + "\n" + ImageSection.currentSettings(true) + strUdmis);
+			pw.print(MiscellaneousSection.SECTION_NAME + "\n" + MiscellaneousSection.currentSettings() + strUms);
 			pw.print(strUs);
 			pw.flush();
 		} catch (IOException e) {
@@ -84,14 +81,14 @@ public class Settings {
 	}
 	
 	public static void saveDarkMode() {
-		String strLmcs = LightModeColoursSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(LightModeColoursSection.SECTION_NAME, lmcs.defaultSettings());
-		String strDmcs = DarkModeColoursSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(DarkModeColoursSection.SECTION_NAME, dmcs.defaultSettings());
-		String strLmis = LightModeImageSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(LightModeImageSection.SECTION_NAME, lmis.defaultSettings());
-		String strDmis = DarkModeImageSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(DarkModeImageSection.SECTION_NAME, dmis.defaultSettings());
-		String strMs = MiscellaneousSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, ms.defaultSettings());
+		String strLmcs = ColoursSection.LM_SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(ColoursSection.LM_SECTION_NAME, ColoursSection.defaultSettings(false));
+		String strDmcs = ColoursSection.DM_SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(ColoursSection.DM_SECTION_NAME, ColoursSection.defaultSettings(true));
+		String strLmis = ImageSection.LM_SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(ImageSection.LM_SECTION_NAME, ImageSection.defaultSettings());
+		String strDmis = ImageSection.DM_SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(ImageSection.DM_SECTION_NAME, ImageSection.defaultSettings());
+		String strMs = MiscellaneousSection.SECTION_NAME + "\n" + SettingsSectionHelper.loadSettings(MiscellaneousSection.SECTION_NAME, MiscellaneousSection.defaultSettings());
 		String strUs = UnknownSettingsSections.unknownSections();
 		try (PrintWriter pw = new PrintWriter(settings())) {
-			pw.println(GeneralSection.SECTION_NAME + "\n" + gs.currentSettings());
+			pw.println(GeneralSection.SECTION_NAME + "\n" + GeneralSection.currentSettings());
 			pw.print(strLmcs);
 			pw.print(strDmcs);
 			pw.print(strLmis);
