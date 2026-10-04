@@ -509,9 +509,9 @@ public class ChartMarketReplayButtons {
 		txtVolume.draw();
 		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
 		buy.draw();
-		if (ChartNode.drawCrosshair().get()) {
-			limitOrder.draw();
+		if (ChartNode.drawCrosshair().get()) {			
 			stopOrder.draw();
+			limitOrder.draw();
 		} else {
 			limitOrder.disable();
 			stopOrder.disable();

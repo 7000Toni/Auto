@@ -764,10 +764,9 @@ public class ChartButtonVanGoghs {
 				return;
 			}
 			btn.calculateOffsets(gc.getFont());
-			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-			gc.fillRoundRect(x, y, btn.width() + 2, btn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-			if (btn.text().contains("LMT")) {
-				gc.fillRect(x - 4, y, btn.width() + 8, btn.height());
+			gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));			
+			if (btn.text().contains("STP")) {
+				gc.fillRoundRect(x, y, btn.width() * 2 + 4, btn.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			}
 			if (Chart.darkMode().get()) {
 				gc.setFill(Color.BLACK);
