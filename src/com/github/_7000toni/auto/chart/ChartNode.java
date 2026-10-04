@@ -1172,9 +1172,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 					double ex = endX + 50;
 					if (ex >= CHT_MARGIN + width.get()) {
 						ex -= 100;
-						gc.strokeLine(ex - Chart.OFFSET, n100 - Chart.OFFSET, endX, n100 - Chart.OFFSET);
+						gc.strokeLine(ex + Chart.OFFSET, n100 + Chart.OFFSET, endX, n100 + Chart.OFFSET);
 					} else {
-						gc.strokeLine(endX - Chart.OFFSET, n100 - Chart.OFFSET, ex, n100 - Chart.OFFSET);
+						gc.strokeLine(endX + Chart.OFFSET, n100 + Chart.OFFSET, ex, n100 + Chart.OFFSET);
 					}				
 				}
 			}
