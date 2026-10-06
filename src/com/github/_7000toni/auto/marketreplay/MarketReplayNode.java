@@ -363,14 +363,14 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	public void draw() {
 		if (Platform.isFxApplicationThread()) {
 			for (MarketReplayNode n : nodes) {
-				if (n.name().equals(name)) {
+				if (n.name().equals(name) && (n.chartNode == null || n.chartNode.drawMRN().get())) {
 					n.drawNode();	
 				}
 			}
 		} else {
 			Platform.runLater(() -> {
 				for (MarketReplayNode n : nodes) {
-					if (n.name().equals(name)) {
+					if (n.name().equals(name) && (n.chartNode == null || n.chartNode.drawMRN().get())) {
 						n.drawNode();
 					}
 				}
