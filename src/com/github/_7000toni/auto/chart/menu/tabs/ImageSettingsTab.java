@@ -67,7 +67,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			imageSettings.defaultDraw(gc.getFont());
 		});
 		
-		reset = new CanvasButton(gc, 142.5, 20, x.get() + 5, y.get() + 230, "RESET");
+		reset = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 230, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
@@ -82,7 +82,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		defaultImageSettings = new CanvasButton(gc, 142.5, 20, x.get() + 152.5, y.get() + 230, "DEFAULT");
+		defaultImageSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 230, "DEFAULT");
 		defaultImageSettings.setVanGogh((x2, y2, gc2) -> {
 			defaultImageSettings.defaultDraw(gc.getFont());
 		});
@@ -235,7 +235,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void setX(double x) {
 		reset.setX(x + 5);
-		defaultImageSettings.setX(x + 152.5);
+		defaultImageSettings.setX(x + 153);
 		save.setX(x + 5);
 		
 		imageSettings.setX(x + 5);

@@ -43,8 +43,10 @@ public class MarketReplay {
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
-	private double net = 0;
+	private double profit = 0;
+	private MRStateProfitPair profitPair = null;
 	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
+	private static ArrayList<MRStateProfitPair> profitPairs = new ArrayList<MRStateProfitPair>();
 	
 	public MarketReplay(ChartNode chartNode, MarketReplayNode mrNode, int index) {		
 		this.charts = new ArrayList<ChartNode>();
@@ -96,9 +98,7 @@ public class MarketReplay {
 		unvalidatedSlPrice.set(mrs.unvalidatedSlPrice());
 		unvalidatedTpPrice.set(mrs.unvalidatedTpPrice());
 		pendingTrades = mrs.pendingTrades();
-		Trade.addNetProfit(-net);
-		net = mrs.netProfit();
-		Trade.addNetProfit(net);
+		addMRSNetProfit(mrs);
 		
 		data.setReplayTickDataSize(index.get() + 1);		
 		int ci = index.get();
@@ -116,12 +116,37 @@ public class MarketReplay {
 		}
 	}
 	
-	public void setNetProfit(double net) {
-		this.net = net;
+	private void addMRSNetProfit(MarketReplayState mrs) {
+		boolean found = false;
+		double subProfit = profit;
+		for (MRStateProfitPair pp : profitPairs) {
+			if (pp.signature().equals(mrs.signature())) {				
+				subProfit = pp.profit();
+				pp.setProfit(mrs.netProfit());
+				found = true;
+			}
+		}
+		if (!found) {
+			profitPair = new MRStateProfitPair(mrs.signature(), mrs.netProfit());
+			profitPairs.add(profitPair);
+		}
+		Trade.addNetProfit(-subProfit);
+		profit = mrs.netProfit();
+		Trade.addNetProfit(profit);
+	}
+	
+	public void setProfit(double profit) {
+		this.profit = profit;
+		if (profitPair != null) {
+			profitPair.setProfit(profit);
+		}
 	}
 	
 	public void addProfit(double profit) {
-		net += profit;
+		this.profit += profit;
+		if (profitPair != null) {
+			profitPair.addProfit(profit);
+		}
 	}
 	
 	public void toggleLive() {
@@ -138,8 +163,8 @@ public class MarketReplay {
 		}
 	}
 	
-	public double netProfit() {
-		return net;
+	public double profit() {
+		return profit;
 	}
 	
 	public ReadOnlyIntegerProperty tickDataSize() {

@@ -115,7 +115,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			}
 		});
 		
-		reset = new CanvasButton(gc, 142.5, 20, x.get() + 5, y.get() + 245, "RESET");
+		reset = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 245, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
@@ -130,7 +130,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			MarketReplayNode.drawReplayNodes();
 		});
 		
-		defaultMiscellaneousSettings = new CanvasButton(gc, 142.5, 20, x.get() + 152.5, y.get() + 245, "DEFAULT");
+		defaultMiscellaneousSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 245, "DEFAULT");
 		defaultMiscellaneousSettings.setVanGogh((x2, y2, gc2) -> {
 			defaultMiscellaneousSettings.defaultDraw(gc.getFont());
 		});
@@ -253,7 +253,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		tboSB.setX(hsbOffset3 + x);
 		
 		reset.setX(x + 5);
-		defaultMiscellaneousSettings.setX(x + 152.5);
+		defaultMiscellaneousSettings.setX(x + 153);
 		save.setX(x + 5);
 		
 		this.x.set(x);

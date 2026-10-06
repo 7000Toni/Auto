@@ -1,5 +1,7 @@
-res/
-bin/
+/res/
+/bin/
+/states/
+/history/
 trades.txt
 err.txt
 out.txt

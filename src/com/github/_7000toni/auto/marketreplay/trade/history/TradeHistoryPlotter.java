@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.dataset.timeframe.Timeframe;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -15,17 +16,30 @@ public class TradeHistoryPlotter {
 	}
 	
 	public void plotHistory(ArrayList<? extends ITradeHistory> history) {
-		if (chart.drawCandlesticks().get()) {
-			return;
-		}
 		GraphicsContext gc = chart.graphicsContext();
+		Timeframe tf = chart.timeframe();
 		ArrayList<Dataset.DataPair> data = chart.data().tickData();
 		for (ITradeHistory h : history) {			
 			if (inRange(h)) {
-				double x1 = ChartNode.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
-				double x2 = ChartNode.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
-				double y1 = chart.priceToYCoord(data.get(h.entryIndex()).price());
-				double y2 = chart.priceToYCoord(data.get(h.exitIndex()).price());
+				int enI;
+				int exI;
+				double x1;
+				double x2;
+				double y1;
+				double y2;
+				if (tf.base() && !chart.drawCandlesticks().get()) {
+					x1 = ChartNode.CHT_MARGIN + (h.entryIndex() - chart.startIndex()) * chart.xDiff();
+					x2 = ChartNode.CHT_MARGIN + (h.exitIndex() - chart.startIndex()) * chart.xDiff();
+				} else {
+					enI = tf.getIndexContaining(h.entryIndex());
+					exI = tf.getIndexContaining(h.exitIndex());	
+					double width = chart.candlestickWidth() + chart.candlestickSpacing();
+					double offset = chart.candlestickWidth() / 2;
+					x1 = ChartNode.CHT_MARGIN + (enI - chart.startIndex()) * width + offset;
+					x2 = ChartNode.CHT_MARGIN + (exI - chart.startIndex()) * width + offset;
+				}
+				y1 = chart.priceToYCoord(data.get(h.entryIndex()).price());
+				y2 = chart.priceToYCoord(data.get(h.exitIndex()).price());
 				
 				double gradient = (-y2+y1)/(x2-x1);				
 				double dy = 0;
@@ -124,22 +138,56 @@ public class TradeHistoryPlotter {
 		return false;
 	}
 	
+	private int getTickDataStartIndex() {
+		Timeframe tf = chart.timeframe();
+		int si;
+		if (tf.base() && !chart.drawCandlesticks().get()) {
+			si = chart.startIndex();
+		} else {
+			ArrayList<Dataset.Candlestick> data = tf.data();
+			si = data.get(chart.startIndex()).firstTickIndex();		
+		}
+		return si;
+	}
+	
+	private int getTickDataEndIndex() {
+		Timeframe tf = chart.timeframe();
+		int ei;
+		if (tf.base() && !chart.drawCandlesticks().get()) {
+			ei = chart.endIndex();
+		} else {
+			ArrayList<Dataset.Candlestick> data = tf.data();		
+			if (chart.endIndex() + 1 > data.size()) {
+				ei = chart.data().tickData().size() - 1;
+			} else {
+				ei = data.get(chart.endIndex() + 1).firstTickIndex() - 1;
+			}
+		}
+		return ei;
+	}
+	
 	private boolean inRange(ITradeHistory h) {
-		if ((h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 || h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
+		int si = getTickDataStartIndex();
+		int ei = getTickDataEndIndex();
+		if ((h.entryIndex() >= si && h.entryIndex() < ei + 1 || h.exitIndex() >= si && h.exitIndex() < ei + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean onlyCloseInRange(ITradeHistory h) {
-		if ((!(h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1) && h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
+		int si = getTickDataStartIndex();
+		int ei = getTickDataEndIndex();
+		if ((!(h.entryIndex() >= si && h.entryIndex() < ei + 1) && h.exitIndex() >= si && h.exitIndex() < ei + 1) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean onlyOpenInRange(ITradeHistory h) {
-		if ((h.entryIndex() >= chart.startIndex() && h.entryIndex() < chart.endIndex() + 1 && !(h.exitIndex() >= chart.startIndex() && h.exitIndex() < chart.endIndex() + 1)) && h.entryIndex() != -1 && h.exitIndex() != -1) {
+		int si = getTickDataStartIndex();
+		int ei = getTickDataEndIndex();
+		if ((h.entryIndex() >= si && h.entryIndex() < ei + 1 && !(h.exitIndex() >= si && h.exitIndex() < ei + 1)) && h.entryIndex() != -1 && h.exitIndex() != -1) {
 			return true;
 		}
 		return false;

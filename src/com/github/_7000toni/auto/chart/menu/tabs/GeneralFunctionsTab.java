@@ -204,7 +204,11 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		saveMRHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 510, "SAVE LOADABLE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE LOADABLE HISTORY"));
 		saveMRHst.setOnMouseClicked(e -> {
-			chart.chartNode().marketReplay().trade().writeHistoryToFile(chart.chartNode().name());
+			Trade t = chart.chartNode().marketReplay().trade();
+			t.writeHistoryToFile(chart.chartNode().name());
+			if (t.blank()) {
+				return;
+			}
 			mrRecentlySaved.set(true);
 			new AnimationTimer() {
 				private long init = 0;				
@@ -297,7 +301,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			return;
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(chart.chartNode().data().name() + " NET PROFIT: " + Round.round(chart.chartNode().marketReplay().netProfit(), 2), x.get() + 7, y.get() + 600);
+		gc.fillText(chart.chartNode().data().name() + " PROFIT: " + Round.round(chart.chartNode().marketReplay().profit(), 2), x.get() + 7, y.get() + 600);
 		gc.fillText("GLOBAL NET PROFIT: " + Round.round(Trade.net(), 2), x.get() + 7, y.get() + 600 + gc.getFont().getSize() + 5);
 	}
 	

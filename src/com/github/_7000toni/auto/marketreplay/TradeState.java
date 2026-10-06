@@ -27,6 +27,7 @@ public class TradeState implements Serializable {
 	private boolean composite;
 	private boolean partial;
 	private double partialVol;
+	private boolean blank;
 	private ArrayList<TradeHistory> history = new ArrayList<TradeHistory>();
 	
 	public TradeState(Trade trade, String mrName, int index) {
@@ -111,6 +112,10 @@ public class TradeState implements Serializable {
 	
 	public double partialVol() {
 		return partialVol;
+	}
+	
+	public boolean blank() {
+		return blank;
 	}
 	
 	public ArrayList<TradeHistory> history() {

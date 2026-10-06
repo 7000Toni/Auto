@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
@@ -41,12 +44,22 @@ public class MarketReplayState implements Serializable {
 		unvalidatedSlPrice = mr.unvalidatedSlPrice().get();
 		unvalidatedTpPrice = mr.unvalidatedTpPrice().get();
 		pendingTrades = mr.pendingTrades();
-		net = mr.netProfit();
+		net = mr.profit();
 		trade = new TradeState(mr.trade(), name, index);
 	}
 	
+	private void checkDir(String dir) {
+		try {
+			Path p = Paths.get(dir);
+			Files.createDirectories(p);			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void saveToFile() {
-		try (FileOutputStream fos = new FileOutputStream(new File("./" + name + ".state"));
+		checkDir("./states");
+		try (FileOutputStream fos = new FileOutputStream(new File("./states/" + name + ".state"));
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 			oos.writeObject(this);

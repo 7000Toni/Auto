@@ -143,7 +143,7 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void setX(double x) {
 		chartFunctions.setX(x + 5);
-		chartSettings.setX(x + 152.5);		
+		chartSettings.setX(x + 153);		
 		
 		cfm.setX(x);
 		csm.setX(x);
