@@ -666,7 +666,8 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			}
 			if (l.validFullSignature()) {
 				gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2));
-				gc.fillRoundRect(120, l.y(), 510 * l.progress().get() / 100.0, 48, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
+				double progress = l.progress().get() / 100.0;
+				gc.fillRoundRect(120, l.y(), 510 * (progress>1?1:progress), 48, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 			} else {
 				l.draw();
 			}
