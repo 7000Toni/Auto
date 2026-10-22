@@ -248,6 +248,9 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void toggleTFShortcut() {
 		drawTFI.set(!drawTFI.get());
+		if (replayMode) {
+			return;
+		}
 		if (drawTFI.get()) {
 			nodeMan.addNode(tfi.nodeMan());
 		} else {
@@ -450,27 +453,28 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		if (!this.replayMode) {
 			this.replayMode = true;
 			this.mr = mr;
-			mrn = new MarketReplayNode(true, this, mr, gc, c.stage(), CHT_MARGIN * 2, height.get() - fontSize - 100, 399, 100, nodeMan, true, CHT_MARGIN*2, -CHT_MARGIN + width.get(), CHT_MARGIN*2, -CHT_MARGIN + height.get());
+			mrn = new MarketReplayNode(true, this, mr, gc, c.stage(), CHT_MARGIN * 2, height.get() - fontSize - 100, 399, 100, null, true, CHT_MARGIN*2, -CHT_MARGIN + width.get(), CHT_MARGIN*2, -CHT_MARGIN + height.get());
 			mrn.setOnMouseDragged(e -> {
 				mrn.defaultOnMouseDragged(e);
 				mrnDragged = true;
 			});
 			mrn.setDraggable(true);			
 			
-			LinkedList<CanvasNode> nodes = nodeMan.nodes();
+			LinkedList<ICanvasNode> nodes = nodeMan.nodes();
 			nodeMan = new NodeManager();	
-			Iterator<CanvasNode> i = nodes.iterator();
+			Iterator<ICanvasNode> i = nodes.iterator();
 			while (i.hasNext()) {
 				nodeMan.addNode(i.next());
 			}
 			if (drawTFI.get()) {
-				nodeMan.addNode(tfi.nodeMan());
+				nodeMan.removeNode(tfi.nodeMan());
 			}
 			c.sceneGraph().removeNode(nodeManNode);
 			nodeManNode = new TNode<ICanvasNode>(nodeMan, chartNode);
 			c.sceneGraph().addNode(nodeManNode);	
 			
 			cmrb = new ChartMarketReplayButtons(this, mr, cbvg);
+			
 			initPendingTrades();
 			drawMRN.set(true);
 			mr.addChart(this);
@@ -1380,11 +1384,6 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void toggleMRNShortcut() {
 		drawMRN.set(!drawMRN.get());
-		if (drawMRN.get()) {
-			nodeMan.addNode(mrn.nodeMan());
-		} else {
-			nodeMan.removeNode(mrn.nodeMan());
-		}
 	}
 	
 	public void setNumDataPoints(int numDataPoints) {	

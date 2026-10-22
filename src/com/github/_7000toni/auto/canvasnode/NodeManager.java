@@ -8,33 +8,33 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 public class NodeManager extends CanvasNode {
-	private LinkedList<CanvasNode> nodes = new LinkedList<CanvasNode>();
-	private CanvasNode parent = null;
-	private CanvasNode onNode;
-	private	CanvasNode lastNode;
-	private CanvasNode focused = null;
+	private LinkedList<ICanvasNode> nodes = new LinkedList<ICanvasNode>();
+	private ICanvasNode parent = null;
+	private ICanvasNode onNode;
+	private	ICanvasNode lastNode;
+	private ICanvasNode focused = null;
 	private boolean drawParent = true;
 	private boolean drawChildren = true;
 	
 	public NodeManager() {}
 	
-	public NodeManager(CanvasNode parent) {
+	public NodeManager(ICanvasNode parent) {
 		this.parent = parent;
 	}
 	
-	public void addNode(CanvasNode node) {
+	public void addNode(ICanvasNode node) {
 		nodes.addFirst(node);
 	}
 	
-	public void removeNode(CanvasNode node) {
+	public void removeNode(ICanvasNode node) {
 		nodes.remove(node);
 	}
 		
-	public CanvasNode parent() {
+	public ICanvasNode parent() {
 		return parent;
 	}
 	
-	public void setParent(CanvasNode parent) {
+	public void setParent(ICanvasNode parent) {
 		this.parent = parent;
 	}
 	
@@ -54,8 +54,12 @@ public class NodeManager extends CanvasNode {
 		this.drawChildren = drawChildren;
 	}
 	
-	public LinkedList<CanvasNode> nodes() {
+	public LinkedList<ICanvasNode> nodes() {
 		return nodes;
+	}
+	
+	public ICanvasNode onNode() {
+		return onNode;
 	}
 	
 	@Override
@@ -64,7 +68,7 @@ public class NodeManager extends CanvasNode {
 			parent.draw();
 		}
 		if (drawChildren) {
-			Iterator<CanvasNode> i = nodes.descendingIterator();		
+			Iterator<ICanvasNode> i = nodes.descendingIterator();		
 	        while (i.hasNext()) {
 	        	i.next().draw();
 	        }
@@ -73,18 +77,18 @@ public class NodeManager extends CanvasNode {
 	
 	@Override
 	public boolean onNode(double x, double y) {
-		Iterator<CanvasNode> i = nodes.iterator();
+		Iterator<ICanvasNode> i = nodes.iterator();
 		lastNode = onNode;
-		while (i.hasNext()) {
-			CanvasNode n = i.next();
-			if (n.onNode(x, y)) {
+		while (i.hasNext()) {			
+			ICanvasNode n = i.next();
+			if (n.enabled() && n.onNode(x, y)) {
 				onNode = n;				
 				return true;
 			}
 		}				
 		if (parent != null) {
-			if (parent.onNode(x, y)) {
-				onNode = parent;
+			if (parent.enabled() && parent.onNode(x, y)) {
+				onNode = parent;				
 				return true;
 			}
 		}			

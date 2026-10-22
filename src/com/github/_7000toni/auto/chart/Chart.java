@@ -281,7 +281,7 @@ public class Chart implements ICanvasWindow {
 		if (m != null) {
 			m.draw();
 		}
-		MarketReplayNode.drawReplayNodes();
+		MarketReplayNode.drawReplayPanes();
 	}
 	
 	private static void resetBSBs() {

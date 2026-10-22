@@ -79,7 +79,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			chartMenu.chartSettingsMenu().miscellaneousSettingsTab().tboSB().setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		defaultImageSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 230, "DEFAULT");
@@ -95,7 +95,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			bsb.setX(x.get() + ((ImageSettings.brightness() + 1) / 2) * 289);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x.get()+ 5, y.get() + 255, "SAVE");
@@ -133,7 +133,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		drawImg.setOnMouseClicked(e -> {
 			ImageSettings.setDraw(!ImageSettings.draw().get());
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});		
 		
 		stretch = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 155, "STRETCH IMAGE");
@@ -141,7 +141,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		stretch.setOnMouseClicked(e -> {
 			ImageSettings.setStretch(!ImageSettings.stretch().get());
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		clearImage = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 180, "CLEAR IMAGE");
@@ -151,7 +151,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		clearImage.setOnMouseClicked(e -> {
 			ImageSettings.clearImage();
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		setImage = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 205, "SET IMAGE");
@@ -174,7 +174,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 				ImageSettings.setImage(file);
 			}
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		noImage = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 280, "NO IMAGE SELECTED");

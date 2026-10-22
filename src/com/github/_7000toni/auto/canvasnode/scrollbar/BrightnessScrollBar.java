@@ -93,13 +93,13 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 							double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
-							MarketReplayNode.drawReplayNodes();
+							MarketReplayNode.drawReplayPanes();
 						} else {
 							setPosition(-(sbWidth / 2), true);
 							double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 							ImageSettings.setBrightness(b);
 							Chart.drawCharts(null);
-							MarketReplayNode.drawReplayNodes();
+							MarketReplayNode.drawReplayPanes();
 						}
 					} 
 				}
@@ -130,7 +130,7 @@ public class BrightnessScrollBar extends HorizontalScrollBar {
 		double b = ((x.get() - minPos) / (maxPos - minPos - 10)) * 2 - 1;
 		ImageSettings.setBrightness(b);
 		Chart.drawCharts(null);
-		MarketReplayNode.drawReplayNodes();
+		MarketReplayNode.drawReplayPanes();
 		if (onMouseDragged == null || !enabled.get()) {
 			return;
 		}

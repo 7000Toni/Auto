@@ -127,7 +127,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			tboSB.setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		defaultMiscellaneousSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 245, "DEFAULT");
@@ -141,7 +141,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 			tboSB.setX(x.get() + 5 + MiscellaneousSettings.tradeButtonOffset() * 270);
 			Menu.menu().draw();
 			Chart.drawCharts(null);
-			MarketReplayNode.drawReplayNodes();
+			MarketReplayNode.drawReplayPanes();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 270, "SAVE");

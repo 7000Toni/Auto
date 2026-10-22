@@ -3,6 +3,7 @@ package com.github._7000toni.auto.chart;
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
 import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.NodeIsland;
+import com.github._7000toni.auto.canvasnode.NodeManager;
 import com.github._7000toni.auto.canvasnode.TextBox;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.marketreplay.MarketReplay;
@@ -29,6 +30,7 @@ public class ChartMarketReplayButtons {
 	private boolean tscVisible = false;
 	private BooleanProperty measuring = new SimpleBooleanProperty(false);
 	
+	private ReplayButtonsNode rbn;
 	private TradeButtons tradeButs;
 	private CanvasButton limitOrder;
 	private CanvasButton stopOrder;
@@ -66,7 +68,7 @@ public class ChartMarketReplayButtons {
 		
 		tradeButs = new TradeButtons();
 		
-		tradeButs.setOrder(new CanvasButton(gc, 0, 0, ChartNode.CHT_MARGIN + chartWidth / 2 - 100 - fontSize*2, 0, "ORDER", 9, fontSize/3));
+		tradeButs.setOrder(new CanvasButton(gc, 100, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 50 - fontSize*2, 0, "ORDER", 9, fontSize/3));
 		tradeButs.order().setVanGogh(cbvg.orderVG(tradeButs.order(), mr.trade()));
 		
 		tradeButs.setClose(new CanvasButton(gc, fontSize*2, fontSize*2, ChartNode.CHT_MARGIN + chartWidth / 2 - 102 - fontSize*2, 0, "X", 9, fontSize/3));
@@ -95,6 +97,7 @@ public class ChartMarketReplayButtons {
 		stopOrder = new CanvasButton(gc, fontSize*2+2, fontSize, ChartNode.CHT_MARGIN + chartWidth - fontSize*4-6, 0, "STP");			
 		stopOrder.setVanGogh(cbvg.pendingVG(stopOrder));
 		pbn = new PendingButtonsNode();
+		rbn = new ReplayButtonsNode(chart, tradeButs, sell, buy, txtVolume, pbn);
 	}
 	
 	private void txtVolKeyTypedEvent() {
@@ -364,6 +367,10 @@ public class ChartMarketReplayButtons {
 			setCrossHairVars(e.getX(), e.getY());
 		});	
 		
+		tradeButs.order().setOnMouseMoved(e -> {
+			setCrossHairVars(e.getX(), e.getY());
+		});
+		
 		tradeButs.close().setOnMouseMoved(e -> {
 			setCrossHairVars(e.getX(), e.getY());
 		});
@@ -397,19 +404,14 @@ public class ChartMarketReplayButtons {
 		return Integer.parseInt(txtVolume.text());
 	}
 	
-	private void addToSceneGraph() {
+	private void addToSceneGraph() {		
 		Tree<ICanvasNode> sceneGraph = chart.chart().sceneGraph();
 		chart.chart().varLock().lock();
-		try {			
-			sceneGraph.addNode(new TNode<ICanvasNode>(sell, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(txtVolume, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(buy, chart.chartNode()));
-			sceneGraph.addNode(new TNode<ICanvasNode>(pbn, chart.chartNode()));
+		try {
 			sceneGraph.addNode(new TNode<ICanvasNode>(limitOrder, chart.chartNode()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(stopOrder, chart.chartNode()));
-			for (CanvasLabel b : tradeButs.buttons()) {
-				sceneGraph.addNode(new TNode<ICanvasNode>(b, chart.chartNode()));
-			}
+			NodeManager nodeMan = chart.nodeMan();	
+			nodeMan.addNode(rbn);	
 		} finally {
 			chart.chart().varLock().unlock();
 		}
@@ -496,7 +498,7 @@ public class ChartMarketReplayButtons {
 	}
 	
 	public void draw() {						
-		pbn.draw();		
+		/*pbn.draw();		
 		tradeButs.sl().draw();
 		tradeButs.cancelSL().draw();		
 		tradeButs.tp().draw();
@@ -506,9 +508,9 @@ public class ChartMarketReplayButtons {
 		tradeButs.setSL().draw();
 		tradeButs.setTP().draw();
 		sell.draw();
-		txtVolume.draw();
+		txtVolume.draw();*/
 		buy.setX(ChartNode.CHT_MARGIN + txtVolume.x() + txtVolume.width());
-		buy.draw();
+		//buy.draw();
 		if (ChartNode.drawCrosshair().get()) {			
 			stopOrder.draw();
 			limitOrder.draw();

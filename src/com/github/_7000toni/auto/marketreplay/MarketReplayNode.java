@@ -149,6 +149,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (!this.mr.charts().isEmpty()) {
 				this.mr.charts().getFirst().draw();
 			}
+			drawReplayPanes();
 		});
 		back.setOnMouseClicked(e -> {
 			if (txtMoveTicks.text().equals("")) {
@@ -197,6 +198,7 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (!this.mr.charts().isEmpty()) {
 				this.mr.charts().getFirst().draw();
 			}
+			drawReplayPanes();
 		});
 		
 		this.nodeMan = new NodeManager(this);	
@@ -285,6 +287,9 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			if (n != this && n.name.equals(name)) {		
 				double x = n.hsb.minPos() + (mr.index().get() / (double)mr.tickDataSize().get()) * (n.hsb.maxPos() - n.hsb.sbWidth() - n.hsb.minPos());
 				n.hsb.setX(x);
+				if (n.chartNode == null) {
+					n.drawNode();
+				}
 			}
 		}
 	}
@@ -293,7 +298,10 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 		for (MarketReplayNode n : nodes) {
 			if (n != this && n.name.equals(name)) {				
 				n.txtSpeed.setText(txtSpeed.text());
-			}
+				if (n.chartNode == null) {
+					n.drawNode();
+				}
+			}			
 		}
 	}
 	
@@ -303,6 +311,14 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	
 	public HorizontalMRNodeScrollBar hsb() {
 		return this.hsb;
+	}
+	
+	public static void drawReplayPanes() {
+		for (MarketReplayNode n : nodes) {
+			if (n.chartNode == null) {
+				n.drawNode();
+			}			
+		}
 	}
 	
 	public static void drawReplayNodes() {
@@ -362,23 +378,15 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void draw() {
 		if (Platform.isFxApplicationThread()) {
-			for (MarketReplayNode n : nodes) {
-				if (n.name().equals(name) && (n.chartNode == null || n.chartNode.drawMRN().get())) {
-					n.drawNode();	
-				}
-			}
+			drawNode();	
 		} else {
 			Platform.runLater(() -> {
-				for (MarketReplayNode n : nodes) {
-					if (n.name().equals(name) && (n.chartNode == null || n.chartNode.drawMRN().get())) {
-						n.drawNode();
-					}
-				}
+				drawNode();
 			});
 		}		
 	}
 	
-	private void drawNode() {
+	public void drawNode() {
 		Font oldFont = gc.getFont();
 		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 20));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));

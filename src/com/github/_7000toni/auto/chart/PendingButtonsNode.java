@@ -53,22 +53,26 @@ public class PendingButtonsNode extends CanvasNode {
 		lastNode = onNode;
 		while (i.hasNext()) {
 			PendingTradePair n = i.next();
-			if (n.pendingTradeButtons().order().onNode(x, y)) {
+			CanvasButton order = n.pendingTradeButtons().order();
+			if (order.enabled() && order.onNode(x, y)) {
 				onNode = n.pendingTradeButtons().order();	
 				onNodePair = n;
 				return true;
 			}
-			if (n.pendingTradeButtons().close().onNode(x, y)) {
+			CanvasButton close = n.pendingTradeButtons().close();
+			if (close.enabled() && close.onNode(x, y)) {
 				onNode = n.pendingTradeButtons().close();
 				onNodePair = n;
 				return true;
 			}
-			if (n.pendingTradeButtons().setSL().onNode(x, y) && n.pendingTradeButtons().setSL().enabled()) {
+			CanvasButton setSL = n.pendingTradeButtons().setSL();
+			if (setSL.enabled() && setSL.onNode(x, y) && n.pendingTradeButtons().setSL().enabled()) {
 				onNode = n.pendingTradeButtons().setSL();
 				onNodePair = n;
 				return true;
 			}
-			if (n.pendingTradeButtons().setTP().onNode(x, y) && n.pendingTradeButtons().setTP().enabled()) {
+			CanvasButton setTP = n.pendingTradeButtons().setTP();
+			if (setTP.enabled() && setTP.onNode(x, y) && n.pendingTradeButtons().setTP().enabled()) {
 				onNode = n.pendingTradeButtons().setTP();
 				onNodePair = n;
 				return true;
