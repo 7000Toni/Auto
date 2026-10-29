@@ -678,7 +678,7 @@ public class ChartButtonVanGoghs {
 				boxColour = ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_2);
 			}
 			double entryY = c.priceToYCoord(c.roundToNearestTick(c.marketReplay().trade().entryPrice()));
-			order.setX(offset + c.fontSize()*2 + 3 + 100);
+			order.setX(offset + c.fontSize()*2 + 2 + 100);
 			order.setY(entryY - c.fontSize());
 			order.setText(null);
 			order.calculateOffsets(gc.getFont());
