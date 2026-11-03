@@ -1,17 +1,13 @@
 package com.github._7000toni.auto.miscellaneous;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Round {
 	public static double round(double val, int decimalPlaces) {
-		if (decimalPlaces < 1) {
+		if (Double.isNaN(val)) {
 			return val;
 		}
-		int val2 = (int)(val * Math.pow(10, decimalPlaces + 1));
-		int val3 = (int)(val * Math.pow(10, decimalPlaces));
-		int val4 = val3 * 10;
-		int val5 = val2 - val4;
-		if (val5 >= 5) {
-			val3++;
-		}
-		return val3 / Math.pow(10, decimalPlaces);
+		return BigDecimal.valueOf(val).setScale(decimalPlaces, RoundingMode.HALF_UP).doubleValue();
 	}
 }
