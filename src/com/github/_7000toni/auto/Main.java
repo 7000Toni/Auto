@@ -21,8 +21,10 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 	private static Image icon = new Image(Main.class.getResourceAsStream("/icon.png"));	
+	private static String[] args = null; 
 	
 	public static void main(String[] args) {
+		Main.args = args;
 		setOutputFile();
 		launch(args);
 		System.exit(0);
@@ -76,6 +78,12 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+		if (args != null) {
+			for (String s : args) {
+				charts.add(s);
+			}
+			args = null;
+		}
 		return charts;
 	}
 	
