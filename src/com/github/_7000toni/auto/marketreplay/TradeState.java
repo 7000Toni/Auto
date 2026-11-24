@@ -9,7 +9,7 @@ import com.github._7000toni.auto.marketreplay.trade.Trade.EntryPair;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistory;
 
 public class TradeState implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private String mrName;
 	private double entryPrice;
@@ -22,7 +22,6 @@ public class TradeState implements Serializable {
 	private LocalDateTime exitTime;
 	private boolean buy;
 	private boolean closed;
-	private boolean closedByRewind;
 	private int volume;
 	private boolean composite;
 	private boolean partial;
@@ -42,7 +41,6 @@ public class TradeState implements Serializable {
 		exitTime = trade.exitTime();
 		buy = trade.buy();
 		closed = trade.closed();
-		closedByRewind = trade.closedByRewind();
 		volume = trade.volume();
 		composite = trade.composite();
 		partial = trade.partial();
@@ -92,10 +90,6 @@ public class TradeState implements Serializable {
 	
 	public boolean closed() {
 		return closed;
-	}
-	
-	public boolean closedByRewind() {
-		return closedByRewind;
 	}
 	
 	public int volume() {

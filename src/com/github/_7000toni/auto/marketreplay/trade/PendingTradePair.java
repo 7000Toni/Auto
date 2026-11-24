@@ -44,7 +44,7 @@ public class PendingTradePair {
 	}
 	
 	private void checkTP() {
-		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedTpPrice().get() != -1 && chart.marketReplay().trade().closed()) {	
+		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedTpPrice().get() != Trade.NO_VAL && chart.marketReplay().trade().closed()) {	
 			PendingTrade penTrade = chart.tradeButtons().pendingButtonsNode().tradePairs().get(0).pendingTrade();
 			if (chart.marketReplay().unvalidatedTpPrice().get() < penTrade.price() && penTrade.buy() ||
 					chart.marketReplay().unvalidatedTpPrice().get() > penTrade.price() && !penTrade.buy()) {
@@ -54,7 +54,7 @@ public class PendingTradePair {
 	}
 	
 	private void checkSL() {		
-		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedSlPrice().get() != -1 && chart.marketReplay().trade().closed()) {
+		if (chart.tradeButtons().pendingButtonsNode().tradePairs().size() == 1 && chart.marketReplay().unvalidatedSlPrice().get() != Trade.NO_VAL && chart.marketReplay().trade().closed()) {
 			PendingTrade penTrade = chart.tradeButtons().pendingButtonsNode().tradePairs().get(0).pendingTrade();
 			if (chart.marketReplay().unvalidatedSlPrice().get() > penTrade.price() && penTrade.buy() ||
 					chart.marketReplay().unvalidatedSlPrice().get() < penTrade.price() && !penTrade.buy()) {

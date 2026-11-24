@@ -325,7 +325,7 @@ public class ChartButtonVanGoghs {
 		
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double slY = c.priceToYCoord(mr.unvalidatedSlPrice().get());	
-		if (mr.unvalidatedSlPrice().get() == -1) {
+		if (mr.unvalidatedSlPrice().get() == Trade.NO_VAL) {
 			tradeButs.sl().disable();
 			return false;
 		} else if (mr.trade().closed()) {		
@@ -405,7 +405,7 @@ public class ChartButtonVanGoghs {
 		
 		double x2 = ChartNode.CHT_MARGIN + chartWidth;
 		double tpY = c.priceToYCoord(mr.unvalidatedTpPrice().get());
-		if (mr.unvalidatedTpPrice().get() == -1) {
+		if (mr.unvalidatedTpPrice().get() == Trade.NO_VAL) {
 			tradeButs.tp().disable();
 			return false;
 		} else if (mr.trade().closed()) {		

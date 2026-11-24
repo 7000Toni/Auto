@@ -1,5 +1,4 @@
 package com.github._7000toni.auto.marketreplay;
-import java.io.File;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
@@ -35,17 +34,17 @@ public class MarketReplay {
 	private BooleanProperty run = new SimpleBooleanProperty(false);
 	private IntegerProperty timeToNextTick = new SimpleIntegerProperty(); 
 	
-	private DoubleProperty slPrice = new SimpleDoubleProperty(-1);
-	private DoubleProperty tpPrice = new SimpleDoubleProperty(-1);
-	private DoubleProperty unvalidatedSlPrice = new SimpleDoubleProperty(-1);
-	private DoubleProperty unvalidatedTpPrice = new SimpleDoubleProperty(-1);
+	private DoubleProperty slPrice = new SimpleDoubleProperty(Trade.NO_VAL);
+	private DoubleProperty tpPrice = new SimpleDoubleProperty(Trade.NO_VAL);
+	private DoubleProperty unvalidatedSlPrice = new SimpleDoubleProperty(Trade.NO_VAL);
+	private DoubleProperty unvalidatedTpPrice = new SimpleDoubleProperty(Trade.NO_VAL);
 	private Trade trade = new Trade(); 
 	private IntegerProperty lastTick = new SimpleIntegerProperty(0);
 	private long lastTickTime = 0;
 	private ArrayList<PendingTrade> pendingTrades = new ArrayList<PendingTrade>();
 	private double profit = 0;
 	private MRStateProfitPair profitPair = null;
-	private static BooleanProperty writeToFile = new SimpleBooleanProperty(true);
+	
 	private static ArrayList<MRStateProfitPair> profitPairs = new ArrayList<MRStateProfitPair>();
 	
 	public MarketReplay(ChartNode chartNode, MarketReplayNode mrNode, int index) {		
@@ -61,15 +60,7 @@ public class MarketReplay {
 		this.index.set(index);
 		chartNode.enableReplayMode(this);
 	}
-	
-	public static ReadOnlyBooleanProperty writeToFile() {
-		return writeToFile;
-	}
-	
-	public static void toggleWriteToFile() {
-		writeToFile.set(!writeToFile.get());
-	}
-	
+		
 	public void addChart(ChartNode chart) {
 		charts.add(chart);
 	}
@@ -200,16 +191,16 @@ public class MarketReplay {
 	}
 	
 	public void cancelSl() {
-		slPrice.set(-1);
-		unvalidatedSlPrice.set(-1);
+		slPrice.set(Trade.NO_VAL);
+		unvalidatedSlPrice.set(Trade.NO_VAL);
 		if (!trade.closed()) {
 			trade.cancelSL();
 		}
 	}
 	
 	public void cancelTp() {
-		tpPrice.set(-1);
-		unvalidatedTpPrice.set(-1);
+		tpPrice.set(Trade.NO_VAL);
+		unvalidatedTpPrice.set(Trade.NO_VAL);
 		if (!trade.closed()) {
 			trade.cancelTP();
 		}
@@ -463,10 +454,7 @@ public class MarketReplay {
 		if (trade.closed()) {
 			cancelSl();
 			cancelTp();
-		}
-		if (writeToFile.get()) {
-			trade.writeToFile(new File("./trades.txt"));
-		}
+		}		
 	}
 	
 	public void tick() {	

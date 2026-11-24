@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 
 import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.Dataset;
+import com.github._7000toni.auto.marketreplay.trade.Trade;
 
 import javafx.beans.property.IntegerProperty;
 
@@ -102,22 +103,29 @@ public class TradeHistoryLoader {
 	}
 	
 	public static ArrayList<TradeHistory> loadMRHistory(File history) {
-		ArrayList<TradeHistory> approxHst = new ArrayList<TradeHistory>();
+		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			String in = br.readLine();
 			while (in != null) {
+				if (in.equals(Trade.SAVE_INTERVAL)) {
+					in = br.readLine();					
+					continue;
+				}				
 				StringTokenizer tokens = new StringTokenizer(in, ",");				
 				boolean buy = Boolean.parseBoolean(tokens.nextToken());
 				int entryIndex = Integer.parseInt(tokens.nextToken());
 				int exitIndex = Integer.parseInt(tokens.nextToken());
-				approxHst.add(new TradeHistory(buy, entryIndex, exitIndex));
+				double volume = Double.parseDouble(tokens.nextToken());
+				double sl = Double.parseDouble(tokens.nextToken());
+				double tp = Double.parseDouble(tokens.nextToken());
+				hst.add(new TradeHistory(buy, entryIndex, exitIndex, volume, sl, tp));			
 				in = br.readLine();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		return approxHst;
+		return hst;
 	}
 	
 	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<Dataset.DataPair> data, IntegerProperty progress) {
@@ -128,7 +136,7 @@ public class TradeHistoryLoader {
 			h.setEntryIndex(indexSearch(h.open(), data, 0, data.size() - 1));
 			h.setExitIndex(indexSearch(h.close(), data, 0, data.size() - 1));
 			if (h.entryIndex() != -1) {
-				hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex()));
+				hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex(), 0, Trade.NO_VAL, Trade.NO_VAL));
 				if (h.exitIndex() ==  -1) {
 					h.setExitIndex(data.size() - 1);
 				}
