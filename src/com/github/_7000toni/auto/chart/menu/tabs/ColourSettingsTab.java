@@ -3,6 +3,8 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
+
 import java.util.ArrayList;
 
 import com.github._7000toni.auto.canvasnode.CanvasLabel;
@@ -149,9 +151,27 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
 		});
+		cb.setOnMouseReleased(e -> {
+			if (!cb.pressed()) {
+				return;
+			}
+			if (e.getButton() == MouseButton.SECONDARY) {
+				if (Chart.darkMode().get()) {
+					ColourSettings.colours().set(index + ColourSettings.SIZE, ColourSettings.defaultColours().get(index + ColourSettings.SIZE));
+				} else {
+					ColourSettings.colours().set(index, ColourSettings.defaultColours().get(index));
+				}	
+			}
+		});
+		cb.setOnMouseDragged(e -> {		
+			if (!cb.onNode(e.getX(), e.getY())) {
+				cb.setPressed(false);
+				cb.setHover(false);
+			}
+		});
 		cbPrev.setOnMouseClicked(e -> {
 			colourPicker.setFinalColour(ColourSettings.colour(index));
-		});
+		});		
 	}
 	
 	public void setColourSettingsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {

@@ -3,6 +3,7 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
@@ -89,6 +90,12 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		arcWSB.percentage().addListener((observable, oldValue, newValue) -> {
 			MiscellaneousSettings.setArcW(20 * newValue.doubleValue());
 		});
+		arcWSB.setOnMouseDragged(e -> {
+			arcWSB.defaultOnMouseDragged(e);
+			if (e.getButton() == MouseButton.SECONDARY) {
+				arcHSB.setX(arcWSB.x());
+			}
+		});
 		
 		arcH = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 155, "ARC HEIGHT");
 		arcH.setVanGogh((x2, y2, gc2) -> {
@@ -98,6 +105,12 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		arcHSB.setX(x.get() + 5 + (MiscellaneousSettings.arcH() / 20) * 270);
 		arcHSB.percentage().addListener((observable, oldValue, newValue) -> {
 			MiscellaneousSettings.setArcH(20 * newValue.doubleValue());
+		});
+		arcHSB.setOnMouseDragged(e -> {
+			arcHSB.defaultOnMouseDragged(e);
+			if (e.getButton() == MouseButton.SECONDARY) {
+				arcWSB.setX(arcHSB.x());
+			}
 		});
 		
 		tradeButtonOffset = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 200, "TRADE BUTTON OFFSET");
