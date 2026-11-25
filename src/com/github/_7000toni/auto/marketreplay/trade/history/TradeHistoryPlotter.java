@@ -207,9 +207,10 @@ public class TradeHistoryPlotter {
 	private boolean hasRoom(Font f, String info, double x, double y) {
 		Text t = new Text(info);
 		t.setFont(f);
+		double fs = f.getSize();
 		double width = t.getLayoutBounds().getWidth();
-		double height = f.getSize() * 2 + 3;
-		return x + width < ChartNode.CHT_MARGIN + chart.width() && y + height < ChartNode.CHT_MARGIN + chart.height();
+		double height = fs * 2 + 3;
+		return x + width < ChartNode.CHT_MARGIN + chart.width() && y + height < ChartNode.CHT_MARGIN + chart.height() && y-fs+3 > ChartNode.CHT_MARGIN;
 	}
 	
 	private void drawSLTP(double x1, double y1, double sltpY, GraphicsContext gc) {
