@@ -22,8 +22,8 @@ import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.marketreplay.trade.PendingTrade;
 import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
+import com.github._7000toni.auto.marketreplay.trade.history.ITradeHistory;
 import com.github._7000toni.auto.marketreplay.trade.history.LoadingHistory;
-import com.github._7000toni.auto.marketreplay.trade.history.TradeHistory;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
@@ -131,7 +131,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	private int c2 = 0;
 	
 	private TradeHistoryPlotter thp;
-	private ArrayList<TradeHistory> hst;
+	private ArrayList<ITradeHistory> hst;
 	private BooleanProperty plotHst = new SimpleBooleanProperty(false);
 	private LoadingHistory lhst;
 	
@@ -271,7 +271,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 		lhst.loadApproxHistory(file, data.tickData());
 	}
 	
-	public void setHistory(ArrayList<TradeHistory> hst) {
+	public void setHistory(ArrayList<ITradeHistory> hst) {
 		this.hst = hst;
 	}
 	
@@ -1131,7 +1131,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			return;
 		}	
 		double yPos = ((highest - price) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN;
-		gc.setFill(Color.SLATEBLUE);		
+		gc.setFill(ColourSettings.colour(ColourIndex.CURRENT_PRICE_LINE));		
 		gc.fillRoundRect(width.get() + CHT_MARGIN, (int)(yPos - fontSize/2) + Chart.OFFSET, c.priceMargin().width(), fontSize, MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.setFill(Color.WHITE);
 		gc.fillText(((Double)(Round.round(price, data.numDecimalPts()))).toString(), width.get() + CHT_MARGIN + PriceMargin.EXTRA_SPACE/2, yPos + fontSize/3, c.priceMargin().width() - PriceMargin.EXTRA_SPACE);
@@ -1147,7 +1147,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			return;
 		}		
 		double yPos = (int)(((highest - price) / range) * (height.get() - chtDataMargin * 2) + chtDataMargin + CHT_MARGIN) + Chart.OFFSET;
-		gc.setStroke(Color.SLATEBLUE);
+		gc.setStroke(ColourSettings.colour(ColourIndex.CURRENT_PRICE_LINE));
 		gc.strokeLine(CHT_MARGIN, yPos,  CHT_MARGIN + width.get(), yPos);	
 	}
 	
@@ -1210,7 +1210,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 			if (endY >= height.get() + CHT_MARGIN - fontSize) {
 				ey = height.get() + CHT_MARGIN - fontSize;
 			}
-			gc.setFill(Color.SLATEBLUE);				
+			gc.setFill(ColourSettings.colour(ColourIndex.CURRENT_PRICE_LINE));				
 			gc.fillText(text, ex + 1, ey - 2, prc_msrmnt_length);
 		}
 	}

@@ -14,6 +14,7 @@ import com.github._7000toni.auto.chart.ChartPane;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplayState;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
+import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
@@ -42,6 +43,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton chartShortcut;	
 	private CanvasButton initHst;
 	private CanvasButton toggleHst;
+	private CanvasButton hstDetail;
 	private CanvasButton toggleSkipDraw;
 	private CanvasButton toggleCrosshair;
 	private CanvasButton timeframeShortcut;
@@ -125,10 +127,16 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 			chart.chartNode().initHst();
 		});;
 		
-		toggleHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 210, "SHOW TRADE HISTORY");
-		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.chartNode().plotHst(), "HIDE TRADE HISTORY", "SHOW TRADE HISTORY"));
+		toggleHst = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 210, "SHOW HISTORY");
+		toggleHst.setVanGogh(cmbvg.toggleVG(toggleHst, chart.chartNode().plotHst(), "HIDE HISTORY", "SHOW HISTORY"));
 		toggleHst.setOnMouseClicked(e -> {
 			chart.chartNode().toggleHst();
+		});;
+		
+		hstDetail = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 210, "SIMPLE");
+		hstDetail.setVanGogh(cmbvg.toggleVG(hstDetail, TradeHistoryPlotter.detailed(), "SIMPLE", "DETAILED"));
+		hstDetail.setOnMouseClicked(e -> {
+			TradeHistoryPlotter.toggleDetailed();
 		});;
 		
 		toggleSkipDraw = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 235, "DISABLE CHART UPDATES");
@@ -303,6 +311,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartShortcut.draw();		
 		initHst.draw();
 		toggleHst.draw();
+		hstDetail.draw();
 		toggleSkipDraw.draw();
 		toggleCrosshair.draw();
 		timeframeShortcut.draw();
@@ -340,6 +349,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(chartShortcut, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(hstDetail, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleCrosshair, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(timeframeShortcut, menuNode));
@@ -417,6 +427,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartShortcut.setX(x + 5);
 		initHst.setX(x + 5);
 		toggleHst.setX(x + 5);
+		hstDetail.setX(x + 153);
 		toggleSkipDraw.setX(x + 5);
 		toggleCrosshair.setX(x + 5);
 		timeframeShortcut.setX(x + 5);
@@ -448,6 +459,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartShortcut.setY(y + 160);		
 		initHst.setY(y + 185);
 		toggleHst.setY(y + 210);
+		hstDetail.setY(y + 210);
 		toggleSkipDraw.setY(y + 235);
 		toggleCrosshair.setY(y + 260);
 		timeframeShortcut.setY(y + 285);

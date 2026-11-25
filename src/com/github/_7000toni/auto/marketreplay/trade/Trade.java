@@ -21,7 +21,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class Trade implements ITrade {
-	public static final int NO_VAL = Integer.MIN_VALUE;
+	public static final double NO_VAL = Double.MIN_VALUE;
 	public static final String SAVE_INTERVAL = "**********";
 	
 	private Dataset data;

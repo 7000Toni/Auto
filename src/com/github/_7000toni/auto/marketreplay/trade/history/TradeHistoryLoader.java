@@ -25,11 +25,17 @@ public class TradeHistoryLoader {
 		private LocalDateTime close;
 		private int entryIndex = -1;
 		private int exitIndex = -1;
+		private double volume;
+		private double sl;
+		private double tp;
 		
-		public ApproxTradeHistory(boolean buy, LocalDateTime open, LocalDateTime close) {
+		public ApproxTradeHistory(boolean buy, LocalDateTime open, LocalDateTime close, double volume, double sl, double tp) {
 			this.buy = buy;
 			this.open = open;
 			this.close = close;
+			this.volume = volume;
+			this.sl = sl;
+			this.tp = tp;
 		}
 		
 		public boolean buy() { 
@@ -59,13 +65,25 @@ public class TradeHistoryLoader {
 		public void setExitIndex(int exitIndex) {
 			this.exitIndex = exitIndex;
 		}
+		
+		public double volume() {
+			return volume;
+		}
+		
+		public double sl() {
+			return sl;
+		}
+		
+		public double tp() {
+			return tp;
+		}
 	}
 	
-	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data) {
+	public static ArrayList<ITradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data) {
 		return loadApproxHistory(history, data, null, null);
 	}
 	
-	public static ArrayList<TradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data, IntegerProperty progress, ChartNode chart) {
+	public static ArrayList<ITradeHistory> loadApproxHistory(File history, ArrayList<Dataset.DataPair> data, IntegerProperty progress, ChartNode chart) {
 		ArrayList<ApproxTradeHistory> approxHst = new ArrayList<ApproxTradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))){
@@ -93,7 +111,7 @@ public class TradeHistoryLoader {
 				tokens.nextToken();
 				tokens.nextToken();
 				LocalDateTime close = LocalDateTime.parse(tokens.nextToken(), dtf).minusHours(3);
-				approxHst.add(new ApproxTradeHistory(buy, open, close));
+				approxHst.add(new ApproxTradeHistory(buy, open, close, Trade.NO_VAL, Trade.NO_VAL, Trade.NO_VAL));
 				in = br.readLine();
 			}
 		} catch (IOException e) {
@@ -102,8 +120,8 @@ public class TradeHistoryLoader {
 		return generateIndices(approxHst, data, progress);
 	}
 	
-	public static ArrayList<TradeHistory> loadMRHistory(File history) {
-		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
+	public static ArrayList<ITradeHistory> loadMRHistory(File history) {
+		ArrayList<ITradeHistory> hst = new ArrayList<ITradeHistory>();
 		try (FileInputStream fis = new FileInputStream(history);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
 			String in = br.readLine();
@@ -116,10 +134,14 @@ public class TradeHistoryLoader {
 				boolean buy = Boolean.parseBoolean(tokens.nextToken());
 				int entryIndex = Integer.parseInt(tokens.nextToken());
 				int exitIndex = Integer.parseInt(tokens.nextToken());
-				double volume = Double.parseDouble(tokens.nextToken());
-				double sl = Double.parseDouble(tokens.nextToken());
-				double tp = Double.parseDouble(tokens.nextToken());
-				hst.add(new TradeHistory(buy, entryIndex, exitIndex, volume, sl, tp));			
+				if (tokens.hasMoreElements()) {
+					double volume = Double.parseDouble(tokens.nextToken());
+					double sl = Double.parseDouble(tokens.nextToken());
+					double tp = Double.parseDouble(tokens.nextToken());
+					hst.add(new TradeHistory(buy, entryIndex, exitIndex, volume, sl, tp));
+				} else {
+					hst.add(new TradeHistory(buy, entryIndex, exitIndex, Trade.NO_VAL, Trade.NO_VAL, Trade.NO_VAL));
+				}
 				in = br.readLine();
 			}
 		} catch (IOException e) {
@@ -128,15 +150,15 @@ public class TradeHistoryLoader {
 		return hst;
 	}
 	
-	private static ArrayList<TradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<Dataset.DataPair> data, IntegerProperty progress) {
-		ArrayList<TradeHistory> hst = new ArrayList<TradeHistory>();
+	private static ArrayList<ITradeHistory> generateIndices(ArrayList<ApproxTradeHistory> history, ArrayList<Dataset.DataPair> data, IntegerProperty progress) {
+		ArrayList<ITradeHistory> hst = new ArrayList<ITradeHistory>();
 		long j = 0;
 		progress.set(0);		
 		for (ApproxTradeHistory h : history) {
 			h.setEntryIndex(indexSearch(h.open(), data, 0, data.size() - 1));
 			h.setExitIndex(indexSearch(h.close(), data, 0, data.size() - 1));
 			if (h.entryIndex() != -1) {
-				hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex(), 0, Trade.NO_VAL, Trade.NO_VAL));
+				hst.add(new TradeHistory(h.buy(), h.entryIndex(), h.exitIndex(), Trade.NO_VAL, Trade.NO_VAL, Trade.NO_VAL));
 				if (h.exitIndex() ==  -1) {
 					h.setExitIndex(data.size() - 1);
 				}

@@ -41,7 +41,13 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		MISCELLANEOUS_2(8, "MISCELLANEOUS 2"),
 		MISC2_PREIVEW(8, null),
 		TEXT_AND_STUFF(9, "TEXT AND STUFF"),
-		TAS_PREVIEW(9, null);
+		TAS_PREVIEW(9, null),
+		CURRENT_PRICE_LINE(10, "CURRENT PRICE LINE"),
+		CPL_PREVIEW(10, null),
+		BUY_HISTORY(11, "BUY HISTORY"),
+		BH_PREVIEW(11, null),
+		SELL_HISTORY(12, "SELL HISTORY"),
+		SH_PREVIEW(12, null);
 		
 		public final int index;
 		public final String text;

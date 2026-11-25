@@ -7,9 +7,9 @@ import com.github._7000toni.auto.chart.Chart;
 import javafx.scene.paint.Color;
 
 public class ColourSettings {
-	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
-																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
-	public static final int SIZE = 10;
+	private static ArrayList<Color> colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE,
+																					Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE));
+	public static final int SIZE = 13;
 	
 	public enum ColourIndex {
 		UP_CANDLESTICK_FILL(0),		
@@ -21,7 +21,10 @@ public class ColourSettings {
 		CHART_BACKGROUND(6),
 		MISCELLANEOUS_1(7),
 		MISCELLANEOUS_2(8),
-		TEXT_AND_STUFF(9);
+		TEXT_AND_STUFF(9),
+		CURRENT_PRICE_LINE(10),
+		BUY_HISTORY(11),
+		SELL_HISTORY(12);
 		
 		public final int index;
 		
@@ -32,7 +35,7 @@ public class ColourSettings {
 	
 	public static int index(ColourIndex colour) {
 		if (Chart.darkMode().get()) {
-			return colour.index + 10;
+			return colour.index + SIZE;
 		} else {
 			return colour.index;
 		}
@@ -48,18 +51,18 @@ public class ColourSettings {
 	}
 	
 	public static void setDefaultColours() {
-		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
-													Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
+		colours = new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE,
+													Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE));
 	}
 	
 	public static ArrayList<Color> defaultColours() {
-		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK,
-												Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE));
+		return new ArrayList<Color>(Arrays.asList(Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.BLACK, Color.WHITE, Color.WHITE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.BLACK, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE,
+												Color.CORNFLOWERBLUE, Color.CORNFLOWERBLUE, Color.ORANGE, Color.ORANGE, Color.WHITE, Color.BLACK, Color.BLACK, Color.CORNFLOWERBLUE, Color.ORANGE, Color.WHITE, Color.SLATEBLUE, Color.CORNFLOWERBLUE, Color.ORANGE));
 	}
 	
 	public static Color colour(ColourIndex cindex) {
 		if (Chart.darkMode().get()) {
-			return colours.get(cindex.index + 10);
+			return colours.get(cindex.index + SIZE);
 		} else {
 			return colours.get(cindex.index);
 		}
@@ -67,7 +70,7 @@ public class ColourSettings {
 	
 	public static Color colour(int index) {
 		if (Chart.darkMode().get()) {
-			return colours.get(index + 10);
+			return colours.get(index + SIZE);
 		} else {
 			return colours.get(index);
 		}

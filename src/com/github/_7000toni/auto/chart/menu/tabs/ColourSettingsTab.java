@@ -64,7 +64,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 		colourButtons = new ArrayList<CanvasButton>();
 		initColourButtons();
 		
-		reset = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 505, "RESET");
+		reset = new CanvasButton(gc, 142, 20, x.get() + 5, y.get() + 580, "RESET");
 		reset.setVanGogh((x2, y2, gc2) -> {
 			reset.defaultDraw(gc.getFont());
 		});
@@ -79,7 +79,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayPanes();
 		});
 		
-		defaultColours = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 505, "DEFAULT");
+		defaultColours = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 580, "DEFAULT");
 		defaultColours.setVanGogh((x2, y2, gc2) -> {
 			defaultColours.defaultDraw(gc.getFont());
 		});
@@ -90,7 +90,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			MarketReplayNode.drawReplayPanes();
 		});
 		
-		save = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 530, "SAVE");
+		save = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 605, "SAVE");
 		save.setVanGogh(cmbvg.toggleVG(save, recentlySaved, "SAVED", "SAVE"));
 		save.setOnMouseClicked(e -> {
 			Settings.saveSettings();
@@ -202,9 +202,9 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 	@Override
 	public void setY(double y) {				
 		colourSettings.setY(y + 35);
-		reset.setY(y + 505);
-		defaultColours.setY(y + 505);
-		save.setY(y + 530);
+		reset.setY(y + 580);
+		defaultColours.setY(y + 580);
+		save.setY(y + 605);
 		
 		colourSettings.setY(y + 35);	
 		
