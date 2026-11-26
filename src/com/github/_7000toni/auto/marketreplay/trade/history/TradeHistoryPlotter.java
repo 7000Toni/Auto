@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 public class TradeHistoryPlotter {	
 	private ChartNode chart;
 	private static BooleanProperty detailed = new SimpleBooleanProperty(false);
+	private boolean noSpace = false;
 	
 	private class LastTradeInfo {
 		private double x;
@@ -174,7 +175,18 @@ public class TradeHistoryPlotter {
 		}
 		gc.strokeLine(x1, y1, x2, y2);
 		
-		if (detailed.get()) {
+		boolean draw = false;
+		if (lastTrade != null && lastTrade.entryIndex() == h.entryIndex()) {
+			if ((chart.data().tickData().get(h.entryIndex()).price() <= chart.data().tickData().get(h.exitIndex()).price())
+					!= (chart.data().tickData().get(lastTrade.entryIndex()).price() <= chart.data().tickData().get(lastTrade.exitIndex()).price()) && !noSpace) {
+				noSpace = true;
+				draw = true;
+			}
+		} else {
+			draw = true;
+			noSpace = false;
+		}
+		if (detailed.get() && draw) {
 			if (h.tp() != Trade.NO_VAL) {
 				drawSLTP(x1, y1, chart.priceToYCoord(h.tp()), gc);
 			}
