@@ -24,6 +24,7 @@ import com.github._7000toni.auto.marketreplay.trade.PendingTradePair;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
 import com.github._7000toni.auto.marketreplay.trade.history.ITradeHistory;
 import com.github._7000toni.auto.marketreplay.trade.history.LoadingHistory;
+import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryComparator;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
@@ -273,6 +274,7 @@ public class ChartNode extends CanvasNode implements IScrollBarOwner {
 	
 	public void setHistory(ArrayList<ITradeHistory> hst) {
 		this.hst = hst;
+		hst.sort(new TradeHistoryComparator());
 	}
 	
 	public TNode<ICanvasNode> chartNode() {

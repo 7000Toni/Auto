@@ -20,7 +20,30 @@ import javafx.scene.text.Text;
 public class TradeHistoryPlotter {	
 	private ChartNode chart;
 	private static BooleanProperty detailed = new SimpleBooleanProperty(false);
-	private boolean noSpace = false;
+	
+	private class LastTradeInfo {
+		private double x;
+		private double y;
+		private double width;
+		
+		public LastTradeInfo(double x, double y, double width) {
+			this.x = x;
+			this.y = y;
+			this.width = width;
+		}
+		
+		public double x() {
+			return x;
+		}
+		
+		public double y() {
+			return y;
+		}
+		
+		public double width() {
+			return width;
+		}
+	}
 	
 	public TradeHistoryPlotter(ChartNode chartNode) {
 		this.chart = chartNode;
@@ -28,9 +51,10 @@ public class TradeHistoryPlotter {
 	
 	public void plotHistory(ArrayList<? extends ITradeHistory> history) {
 		ITradeHistory lastTrade = null;
+		LastTradeInfo lsi = null;
 		for (ITradeHistory h : history) {			
 			if (inRange(h)) {
-				drawLine(h, lastTrade);
+				drawLine(h, lastTrade, lsi);
 				lastTrade = h;
 			}
 		}
@@ -44,7 +68,7 @@ public class TradeHistoryPlotter {
 		detailed.set(!detailed.get());
 	}
 	
-	private void drawLine(ITradeHistory h, ITradeHistory lastTrade) {
+	private void drawLine(ITradeHistory h, ITradeHistory lastTrade, LastTradeInfo lsi) {
 		GraphicsContext gc = chart.graphicsContext();
 		Timeframe tf = chart.timeframe();
 		ArrayList<Dataset.DataPair> data = chart.data().tickData();
@@ -150,29 +174,23 @@ public class TradeHistoryPlotter {
 		}
 		gc.strokeLine(x1, y1, x2, y2);
 		
-		boolean draw = false;
-		if (lastTrade != null && lastTrade.entryIndex() == h.entryIndex()) {
-			if ((chart.data().tickData().get(h.entryIndex()).price() <= chart.data().tickData().get(h.exitIndex()).price())
-					!= (chart.data().tickData().get(lastTrade.entryIndex()).price() <= chart.data().tickData().get(lastTrade.exitIndex()).price()) && !noSpace) {
-				noSpace = true;
-				draw = true;
-			}
-		} else {
-			draw = true;
-			noSpace = false;
-		}
-		if (detailed.get() && draw) {
-			if (h.sl() != Trade.NO_VAL) {
-				drawSLTP(x1, y1, chart.priceToYCoord(h.sl()), gc);
-			}
+		if (detailed.get()) {
 			if (h.tp() != Trade.NO_VAL) {
 				drawSLTP(x1, y1, chart.priceToYCoord(h.tp()), gc);
 			}
-			drawTradeInfo(h, gc, x1);
+			if (h.sl() != Trade.NO_VAL) {
+				if (h.buy()) {
+					gc.setStroke(ColourSettings.colour(ColourIndex.SELL_HISTORY));
+				} else {
+					gc.setStroke(ColourSettings.colour(ColourIndex.BUY_HISTORY));
+				}
+				drawSLTP(x1, y1, chart.priceToYCoord(h.sl()), gc);
+			}
+			drawTradeInfo(h, lsi, gc, x1);
 		}
 	}
 	
-	private void drawTradeInfo(ITradeHistory h, GraphicsContext gc, double x) {
+	private void drawTradeInfo(ITradeHistory h, LastTradeInfo lsi, GraphicsContext gc, double x) {
 		double fs = 15;
 		double y;
 		double entryPrice = chart.data().tickData().get(h.entryIndex()).price();
@@ -185,32 +203,42 @@ public class TradeHistoryPlotter {
 			y = chart.priceToYCoord(entryPrice) + (entryPrice>exitPrice?-fs*2:fs);
 		}
 		x += 2;		
+		boolean worseThanBreakEven = h.sl()!=Trade.NO_VAL&&((h.buy()&&h.sl()<entryPrice)||(!h.buy()&&h.sl()>entryPrice));
 		double profit = Round.round((exitPrice - entryPrice) * h.volume(), 2) * (h.buy()?1:-1);
-		double risk = Round.round(Math.abs((entryPrice - h.sl()) * h.volume()), 2);
-		double rr = Round.round(profit / risk, 2);
+		double risk = (h.sl()!=Trade.NO_VAL&&worseThanBreakEven)?Round.round(Math.abs((entryPrice - h.sl()) * h.volume()), 2):Trade.NO_VAL;
+		double rr = (risk!=Trade.NO_VAL)?Round.round(profit / risk, 2):Trade.NO_VAL;
 		if (h.buy()) {
 			gc.setFill(ColourSettings.colour(ColourIndex.BUY_HISTORY));
 		} else {
 			gc.setFill(ColourSettings.colour(ColourIndex.SELL_HISTORY));
-		}
-		String info = (h.sl()==Trade.NO_VAL?"REWARD/RISK: N/A":("REWARD/RISK: " + ((Double)rr).toString())) + "\n";
-		info += (h.sl()==Trade.NO_VAL?"RISK: N/A":("RISK: " + ((Double)risk).toString())) + "\n";
-		info += (h.volume()==Trade.NO_VAL?"PROFIT: N/A":"PROFIT: " + ((Double)profit).toString());		
+		}	
+		String info = (h.volume()==Trade.NO_VAL?"PROFIT: N/A":("PROFIT: " + ((Double)profit).toString())) + "\n";	
+		info += (risk==Trade.NO_VAL?"RISK: N/A":("RISK: " + ((Double)risk).toString())) + "\n";
+		info += rr==Trade.NO_VAL?"REWARD/RISK: N/A":("REWARD/RISK: " + ((Double)rr).toString());
 		Font oldFont = gc.getFont();			
 		gc.setFont(Font.font("TW Cen MT Condensed", FontWeight.NORMAL, fs));					
-		if (hasRoom(gc.getFont(), info, x, y)) {
+		if (hasRoom(lsi, gc.getFont(), info, x, y)) {
 			gc.fillText(info, x, y);
 		}
 		gc.setFont(oldFont);		
 	}
 	
-	private boolean hasRoom(Font f, String info, double x, double y) {
+	private boolean hasRoom(LastTradeInfo lsi, Font f, String info, double x, double y) {
 		Text t = new Text(info);
 		t.setFont(f);
 		double fs = f.getSize();
 		double width = t.getLayoutBounds().getWidth();
 		double height = fs * 2 + 3;
-		return x + width < ChartNode.CHT_MARGIN + chart.width() && y + height < ChartNode.CHT_MARGIN + chart.height() && y-fs+3 > ChartNode.CHT_MARGIN;
+		if (lsi != null) {
+			if (lsi.x() + lsi.width() > x && ((y > lsi.y() && y < lsi.y() + height) || (y < lsi.y() && lsi.y() < y + height))) {
+				return false;
+			}
+		}
+		boolean hasRoom = x + width < ChartNode.CHT_MARGIN + chart.width() && y + height < ChartNode.CHT_MARGIN + chart.height() && y-fs+3 > ChartNode.CHT_MARGIN;
+		if (hasRoom) {
+			lsi = new LastTradeInfo(x, y, width);
+		}
+		return hasRoom;
 	}
 	
 	private void drawSLTP(double x1, double y1, double sltpY, GraphicsContext gc) {
