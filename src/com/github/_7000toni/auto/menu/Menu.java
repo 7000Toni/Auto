@@ -146,6 +146,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			settings.defaultDraw(Font.font(gc.getFont().getFamily(), FontWeight.NORMAL, 22));
 		});
 		settings.setOnMouseClicked(e -> {
+			if (SettingsPane.open()) {
+				return;
+			}
 			Stage s = new Stage();
 			if (Main.icon() != null) {
 				s.getIcons().add(Main.icon());

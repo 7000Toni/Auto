@@ -91,6 +91,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
+			SettingsPane.drawPane();
 		});
 		
 		defaultImageSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 230, "DEFAULT");
@@ -107,6 +108,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
+			SettingsPane.drawPane();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x.get()+ 5, y.get() + 255, "SAVE");

@@ -14,6 +14,7 @@ import com.github._7000toni.auto.chart.menu.ChartMenu;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import com.github._7000toni.auto.settings.ImageFunctions;
@@ -281,6 +282,7 @@ public class Chart implements ICanvasWindow {
 			m.draw();
 		}
 		MarketReplayNode.drawReplayPanes();
+		SettingsPane.drawPane();
 	}
 	
 	private static void resetBSBs() {

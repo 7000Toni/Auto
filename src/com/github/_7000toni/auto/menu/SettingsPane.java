@@ -23,6 +23,8 @@ import javafx.stage.Stage;
 public class SettingsPane extends GridPane implements ICanvasWindow {
 	private static double[] xP = new double[4];
 	private static double[] yP = new double[4];
+	private static boolean open = false;
+	private static SettingsPane sp = null;
 	
 	private Tree<ICanvasNode> sceneGraph;
 	private TNode<ICanvasNode> lastNode = null;
@@ -40,6 +42,8 @@ public class SettingsPane extends GridPane implements ICanvasWindow {
 	private double height;
 	
 	public SettingsPane(Stage stage, double width, double height) {
+		open = true;
+		sp = this;
 		this.stage = stage;
 		this.width = width;
 		this.height = height;
@@ -56,6 +60,10 @@ public class SettingsPane extends GridPane implements ICanvasWindow {
 		menu = new ChartMenu(0, 0, width, height, canvas.getGraphicsContext2D(), this);
 		menuNode = new TNode<ICanvasNode>(menu, sceneGraph.root());
 		sceneGraph.addNode(menuNode);
+		stage.setOnCloseRequest(e -> {
+			open = false;
+			sp = null;
+		});
 		stage.widthProperty().addListener((observable, oldValue, newValue) -> {
 			this.width = newValue.doubleValue() - Chart.WIDTH_EXTRA;
 		});
@@ -66,6 +74,16 @@ public class SettingsPane extends GridPane implements ICanvasWindow {
 		draw();
 		
 		this.add(canvas, 0, 0);
+	}
+	
+	public static boolean open() {
+		return open;
+	}
+	
+	public static void drawPane() {
+		if (sp != null) {
+			sp.draw();
+		}
 	}
 	
 	public static void drawIcon(GraphicsContext gc, double centerX, double centerY, double radius) {

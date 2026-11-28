@@ -90,6 +90,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
+			SettingsPane.drawPane();
 		});
 		
 		defaultColours = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 580, "DEFAULT");
@@ -101,6 +102,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
+			SettingsPane.drawPane();
 		});
 		
 		save = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 605, "SAVE");
@@ -165,6 +167,7 @@ public class ColourSettingsTab extends CanvasNode implements IScrollBarOwner {
 			Menu.menu().draw();
 			Chart.drawCharts(null);
 			MarketReplayNode.drawReplayPanes();
+			SettingsPane.drawPane();
 		});
 		cb.setOnMouseReleased(e -> {
 			if (!cb.pressed()) {
