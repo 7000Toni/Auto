@@ -260,14 +260,20 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 				txtMoveTicks.setText("1000");
 			}
 		});
+		txtMoveTicks.setOnScroll(e -> {
+			if (e.getDeltaY() < 0) {
+				addToTextBox(txtMoveTicks, -10, 0, 1000);
+			} else {
+				addToTextBox(txtMoveTicks, 10, 0, 1000);
+			}
+		});
 		
 		txtSpeed.setOnKeyPressed(e -> {
 			if (!txtSpeed.text().equals("") && !txtSpeed.text().equals("0")) {
 				mr.setSpeed(Integer.parseInt(txtSpeed.text()));
 			}
 			updateSpeedText(txtSpeed.text());			
-		});
-		
+		});		
 		txtSpeed.setOnKeyTyped(e -> {
 			if (txtSpeed.text().equals("") || txtSpeed.text().equals("0")) {
 				updateSpeedText(txtSpeed.text());
@@ -280,7 +286,30 @@ public class MarketReplayNode extends CanvasNode implements IScrollBarOwner {
 			updateSpeedText(txtSpeed.text());
 			mr.setSpeed(Integer.parseInt(txtSpeed.text()));
 		});
+		txtSpeed.setOnScroll(e -> {
+			if (e.getDeltaY() < 0) {
+				addToTextBox(txtSpeed, -1, 1, 999);
+				mr.setSpeed(Integer.parseInt(txtSpeed.text()));
+				updateSpeedText(txtSpeed.text());
+			} else {
+				addToTextBox(txtSpeed, 1, 1, 999);
+				mr.setSpeed(Integer.parseInt(txtSpeed.text()));
+				updateSpeedText(txtSpeed.text());
+			}
+		});
 	}	
+	
+	private void addToTextBox(TextBox txt, int amount, int lower, int upper) {
+		int val = Integer.parseInt(txt.text());
+		val += amount;
+		if (val < lower) {
+			txt.setText(((Integer)lower).toString());
+		} else if (val > upper) {
+			txt.setText(((Integer)upper).toString());
+		} else {
+			txt.setText(((Integer)val).toString());
+		}
+	}
 	
 	public void updateHSBPos() {				
 		for (MarketReplayNode n : nodes) {
