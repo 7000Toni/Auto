@@ -21,6 +21,7 @@ import com.github._7000toni.auto.chart.menu.ChartMenu;
 import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageFunctions;
 import com.github._7000toni.auto.settings.ImageSettings;
@@ -31,6 +32,7 @@ import com.github._7000toni.auto.tree.Tree;
 
 public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenuButtonVanGoghs cmbvg;
 	private ChartMenu chartMenu;
 	
@@ -48,7 +50,15 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private CanvasButton setImage;
 	private CanvasLabel noImage;	
 	
+	public ImageSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, null, sp, cmbvg);
+	}
+	
 	public ImageSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, chart, null, cmbvg);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
@@ -56,6 +66,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
+		this.sp = sp;
 		this.cmbvg = cmbvg;
 		
 		initImageSettingsMenu();
@@ -113,7 +124,11 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 					}
 					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
 						recentlySaved.set(false);
-						chart.draw();
+						if (chart != null) {
+							chart.draw();
+						} else {
+							sp.draw();
+						}
 						this.stop();
 					}
 				}
@@ -196,9 +211,15 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		save.draw();
 		if (ImageSettings.image() == null) {
 			noImage.draw();
+			if (sp != null) {
+				sp.stage().setHeight(Chart.HEIGHT_EXTRA + 305);
+			}
 		} else {
 			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.CHART_BACKGROUND));
 			ImageFunctions.drawImage(gc, ImageSettings.image(), x.get() + 5, y.get() + 280, 290, 165);
+			if (sp != null) {
+				sp.stage().setHeight(Chart.HEIGHT_EXTRA + 450);
+			}
 		}
 	}
 	
@@ -220,13 +241,17 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(defaultImageSettings, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(noImage, menuNode));
+		sceneGraph.addNode(new TNode<ICanvasNode>(noImage, menuNode));		
 	}
 	
 	public Chart chart() {
 		return chart;
 	}
 
+	public SettingsPane settingsPane() {
+		return sp;
+	}
+	
 	@Override
 	public void draw() {
 		drawImageSettingsMenu();	
@@ -257,10 +282,7 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 
 	@Override
 	public void setY(double y) {				
-		imageSettings.setY(y + 35);
-		reset.setY(y + 230);
-		defaultImageSettings.setY(y + 230);
-		save.setY(y + 255);
+		imageSettings.setY(y + 35);		
 		
 		brightness.setY(y + 85);
 		bsb.setY(y + 105);
@@ -268,7 +290,10 @@ public class ImageSettingsTab extends CanvasNode implements IScrollBarOwner {
 		stretch.setY(y + 155);
 		setImage.setY(y + 180);
 		clearImage.setY(y + 205);
-		noImage.setY(y + 305);
+		reset.setY(y + 230);
+		defaultImageSettings.setY(y + 230);
+		save.setY(y + 255);
+		noImage.setY(y + 280);
 		this.y.set(y);
 	}
 }

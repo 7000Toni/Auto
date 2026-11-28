@@ -8,7 +8,6 @@ import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 public class CanvasButton extends CanvasLabel {
 	protected boolean on = false;
@@ -98,7 +97,7 @@ public class CanvasButton extends CanvasLabel {
 	@Override
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
 		calculateOffsets(gc.getFont());
 		setColoursRect();
 		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
@@ -110,7 +109,7 @@ public class CanvasButton extends CanvasLabel {
 	@Override
 	public void alternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
 		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
@@ -120,19 +119,25 @@ public class CanvasButton extends CanvasLabel {
 	
 	@Override
 	public void defaultDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = font;
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		setColoursRect();
 		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		setColoursText();
 		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
+		gc.setFont(oldFont);
 	}
 	
 	@Override
 	public void alternateDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = font;
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		setColoursAlt();
 		gc.fillRoundRect(x.get(), y.get(), width.get(), height.get(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
 		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get());
+		gc.setFont(oldFont);
 	}
 	
 	@Override

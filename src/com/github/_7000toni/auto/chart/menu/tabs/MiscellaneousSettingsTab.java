@@ -20,6 +20,7 @@ import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.chart.menu.ChartSettingsMenu;
 import com.github._7000toni.auto.marketreplay.MarketReplayNode;
 import com.github._7000toni.auto.menu.Menu;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ImageSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
@@ -30,6 +31,7 @@ import com.github._7000toni.auto.tree.Tree;
 
 public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenuButtonVanGoghs cmbvg;
 	private ChartMenu chartMenu;
 	
@@ -47,7 +49,15 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 	private CanvasLabel tradeButtonOffset;
 	private HorizontalScrollBar tboSB;
 	
+	public MiscellaneousSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, null, sp, cmbvg);
+	}
+	
 	public MiscellaneousSettingsTab(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, chart, null, cmbvg);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
@@ -55,6 +65,7 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		this.chartMenu = chartMenu;
 		this.gc = gc;
 		this.chart = chart;
+		this.sp = sp;
 		this.cmbvg = cmbvg;
 		
 		initMiscellaneousSettingsMenu();
@@ -172,7 +183,11 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 					}
 					if ((now - init) / HorizontalScrollBar.NANO_TO_MILLI > 1500) {
 						recentlySaved.set(false);
-						chart.draw();
+						if (chart != null) {
+							chart.draw();
+						} else {
+							sp.draw();
+						}
 						this.stop();
 					}
 				}
@@ -226,17 +241,28 @@ public class MiscellaneousSettingsTab extends CanvasNode implements IScrollBarOw
 		sceneGraph.addNode(new TNode<ICanvasNode>(reset, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(defaultMiscellaneousSettings, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(save, menuNode));
+		if (sp != null) {
+			sp.stage().setHeight(Chart.HEIGHT_EXTRA + 295);
+		}
 	}
 	
 	public Chart chart() {
 		return chart;
+	}
+	
+	public SettingsPane settingsPane() {
+		return sp;
 	}
 
 	@Override
 	public void draw() {
 		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
 		if (callerClass != ChartSettingsMenu.class) {
-			chart.draw();
+			if (chart != null) {
+				chart.draw();
+			} else {
+				sp.draw();
+			}
 		} else {
 			drawMiscellaneousSettingsMenu();
 		}

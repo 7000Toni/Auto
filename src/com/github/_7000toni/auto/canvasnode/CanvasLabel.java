@@ -8,10 +8,13 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class CanvasLabel extends CanvasNode {
+	public static final Double MARGIN = 8.0;
+	
 	protected String text;
 	protected double textXOffset;
 	protected double textYOffset;
 	protected IVanGogh vg = null;
+	protected boolean bold = true;
 	
 	public CanvasLabel(GraphicsContext gc, double width, double height, double x, double y, String text, double textXOffset, double textYOffset) {
 		this.gc = gc;
@@ -31,6 +34,18 @@ public class CanvasLabel extends CanvasNode {
 		this.x.set(x);
 		this.y.set(y);
 		this.text = text;
+	}
+	
+	public void setBold(boolean bold) {
+		this.bold = bold;
+	}
+	
+	public boolean bold() {
+		return bold;
+	}
+	
+	protected FontWeight weight() {
+		return bold?FontWeight.BOLD:FontWeight.NORMAL;
 	}
 	
 	public void calculateOffsets(Font font) {
@@ -72,50 +87,56 @@ public class CanvasLabel extends CanvasNode {
 	
 	public void defaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
-		calculateOffsets(new Font(height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - 5);
-		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-5, y.get()+height.get()/2+0.5);
-		gc.strokeLine(x.get()+width.get()-textXOffset+5, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - MARGIN);
+		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-MARGIN, y.get()+height.get()/2+0.5);
+		gc.strokeLine(x.get()+width.get()-textXOffset+MARGIN, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
 		gc.setFont(oldFont);
 	}
 	
 	public void alternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
-		calculateOffsets(new Font(height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - 5);
-		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-5, y.get()+height.get()/2+0.5);
-		gc.strokeLine(x.get()+width.get()-textXOffset+5, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - MARGIN);
+		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-MARGIN, y.get()+height.get()/2+0.5);
+		gc.strokeLine(x.get()+width.get()-textXOffset+MARGIN, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
 		gc.setFont(oldFont);
 	}
 	
 	public void defaultDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - 5);
-		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-5, y.get()+height.get()/2+0.5);
-		gc.strokeLine(x.get()+width.get()-textXOffset+5, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.fillText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - MARGIN);
+		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-MARGIN, y.get()+height.get()/2+0.5);
+		gc.strokeLine(x.get()+width.get()-textXOffset+MARGIN, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.setFont(oldFont);
 	}
 	
 	public void alternateDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
-		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - 5);
-		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-5, y.get()+height.get()/2+0.5);
-		gc.strokeLine(x.get()+width.get()-textXOffset+5, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.strokeText(text, x.get() + textXOffset, y.get() + textYOffset, width.get() - MARGIN);
+		gc.strokeLine(x.get(), y.get()+height.get()/2+0.5, x.get()+textXOffset-MARGIN, y.get()+height.get()/2+0.5);
+		gc.strokeLine(x.get()+width.get()-textXOffset+MARGIN, y.get()+height.get()/2+0.5, x.get()+width.get(), y.get()+height.get()/2+0.5);
+		gc.setFont(oldFont);
 	}
 	
 	public void simpleDefaultDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
-		calculateOffsets(new Font(height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(text, x.get(), y.get() + textYOffset, width.get());
@@ -124,8 +145,8 @@ public class CanvasLabel extends CanvasNode {
 	
 	public void simpleAlternateDraw() {
 		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.EXTRA_BOLD, height.get() - 5));
-		calculateOffsets(new Font(height.get() - 5));
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), height.get() - MARGIN));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeText(text, x.get(), y.get() + textYOffset, width.get());
@@ -133,17 +154,23 @@ public class CanvasLabel extends CanvasNode {
 	}
 	
 	public void simpleDefaultDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.fillText(text, x.get(), y.get() + textYOffset, width.get());
+		gc.setFont(oldFont);
 	}
 	
 	public void simpleAlternateDraw(Font font) {
-		calculateOffsets(font);
+		Font oldFont = gc.getFont();
+		gc.setFont(Font.font(oldFont.getFamily(), weight(), oldFont.getSize()));
+		calculateOffsets(gc.getFont());
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.setStroke(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
 		gc.strokeText(text, x.get(), y.get() + textYOffset, width.get());
+		gc.setFont(oldFont);
 	}
 	
 	public void draw() {

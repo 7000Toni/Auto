@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.github._7000toni.auto.Main;
@@ -24,7 +23,6 @@ import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.dataset.Dataset;
 import com.github._7000toni.auto.dataset.DatasetLoader;
 import com.github._7000toni.auto.dataset.LoadingDataset;
-import com.github._7000toni.auto.dataset.OptimizeTask;
 import com.github._7000toni.auto.dataset.Signature;
 import com.github._7000toni.auto.dataset.reader.DukascopyNodeReader;
 import com.github._7000toni.auto.dataset.reader.ITickDataFileReader;
@@ -39,19 +37,16 @@ import com.github._7000toni.auto.tree.Tree;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.Event;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class Menu implements ICanvasWindow, IScrollBarOwner {
@@ -60,7 +55,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	private CanvasButton loadData;
-	private CanvasButton optimize;
+	private CanvasButton settings;
 	private CanvasButton marketTickReader;
 	private CanvasButton marketTickOReader;
 	private CanvasButton originalReader;
@@ -87,8 +82,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private BooleanProperty showReaders = new SimpleBooleanProperty(true);
 	private BooleanProperty onStartEnabled = new SimpleBooleanProperty(true);
 	
-	private ArrayList<LoadingDataset> loadingSets = new ArrayList<LoadingDataset>();
-	private IntegerProperty numJobs = new SimpleIntegerProperty();
+	private ArrayList<LoadingDataset> loadingSets = new ArrayList<LoadingDataset>();	
 	private final ReentrantLock varLock = new ReentrantLock();
 	private boolean dragging = false;
 	
@@ -97,31 +91,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	private TNode<ICanvasNode> lastNode = null;
 	private ICanvasNode lastFocused = null;
 	private CanvasEventFilter cef;
-	private int draggedFilesSize = 0;
-	
-	private IVanGogh optimizeVG = (x, y, gc) -> {
-		Font oldFont = gc.getFont();
-		gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 22));
-		if (numJobs.get() > 0) {
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.MISCELLANEOUS_1));
-		} else {
-			gc.setFill(ColourSettings.colour(ColourSettings.ColourIndex.TEXT_AND_STUFF));
-		}		
-		if (optimize.hover()) {
-			gc.setFill(Color.GRAY);
-		}
-		if (optimize.pressed()) {
-			gc.setFill(Color.DIMGRAY);
-		}
-		if (!optimize.enabled()) {
-			gc.setFill(Color.LIGHTGRAY);
-		}
-		gc.fillRoundRect(x, y, optimize.width(), optimize.height(), MiscellaneousSettings.arcW(), MiscellaneousSettings.arcH());
-		optimize.setColoursText();
-		optimize.calculateOffsets(gc.getFont());
-		gc.fillText(optimize.text(), x + optimize.textXOffset(), y + optimize.textYOffset());		
-		gc.setFont(oldFont);
-	};
+	private int draggedFilesSize = 0;	
 	
 	public Menu(double width, double height, Stage stage) {		
 		this.canvas = new Canvas(width, height);
@@ -160,41 +130,36 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 	}	
 	
 	private void initDefaultButtons() {
-		this.loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
-		this.loadData.setVanGogh((x, y, gc) -> {
-			Font oldFont = gc.getFont();
-			gc.setFont(Font.font(oldFont.getFamily(), FontWeight.NORMAL, 37));
-			loadData.defaultDraw(gc.getFont());
-			gc.setFont(oldFont);
+		loadData = new CanvasButton(gc, 100, 48, MARGIN, MARGIN, "LOAD", 2, 37);
+		loadData.setBold(false);
+		loadData.setVanGogh((x, y, gc) -> {
+			loadData.defaultDraw(Font.font(gc.getFont().getFamily(), FontWeight.NORMAL, 37));
 		});
-		this.loadData.setOnMouseClicked(e -> {
+		loadData.setOnMouseClicked(e -> {
 			DatasetLoader dsl = new DatasetLoader(datasets, dsButtons, replays, reader, loadingSets);
 			dsl.load();
 		});
 		
-		this.optimize = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "OPTIMIZE", 2, 32);
-		this.optimize.setVanGogh(optimizeVG);
-		this.optimize.setOnMouseClicked(e -> {
-			File init = new File(MiscellaneousSettings.dataPath());
-			FileChooser fc = new FileChooser();
-			if (init.exists()) {
-				fc.setInitialDirectory(init);
-			} else {
-				fc.setInitialDirectory(new File("./"));
-			}	
-			fc.setTitle("Select MarketTick Files");
-			List<File> files = fc.showOpenMultipleDialog(null);		
-			if (files != null) {
-				for (File f : files) {						
-					Thread t = new Thread(new OptimizeTask(f, numJobs));
-					t.start();
-				}
+		settings = new CanvasButton(gc, 100, 48, MARGIN, MARGIN + 58, "SETTINGS", 2, 32);
+		settings.setBold(false);
+		settings.setVanGogh((x, y, gc) -> {
+			settings.defaultDraw(Font.font(gc.getFont().getFamily(), FontWeight.NORMAL, 22));
+		});
+		settings.setOnMouseClicked(e -> {
+			Stage s = new Stage();
+			if (Main.icon() != null) {
+				s.getIcons().add(Main.icon());
 			}
+			s.setTitle("Settings");
+			s.setResizable(false);
+			Scene scene = new Scene(new SettingsPane(s, 300, 630));
+			s.setScene(scene);
+			s.show();
 		});
 		
-		this.marketTickReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
-		this.marketTickReader.setVanGogh(readerVG(marketTickReader, 18, false));
-		this.marketTickReader.setOnMouseClicked(e -> {			
+		marketTickReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3, "MT READER", 2, 24);
+		marketTickReader.setVanGogh(readerVG(marketTickReader, 18, false));
+		marketTickReader.setOnMouseClicked(e -> {			
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -203,9 +168,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new MarketTickFileReader();
 		});
 		
-		this.marketTickOReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "MTO READER", 2, 23);
-		this.marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16, false));
-		this.marketTickOReader.setOnMouseClicked(e -> {
+		marketTickOReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 33.3, "MTO READER", 2, 23);
+		marketTickOReader.setVanGogh(readerVG(marketTickOReader, 16, false));
+		marketTickOReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			originalReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -214,9 +179,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new OptimizedMarketTickFileReader();
 		});
 		
-		this.originalReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "OG READER", 2, 24);
-		this.originalReader.setVanGogh(readerVG(originalReader, 18, false));
-		this.originalReader.setOnMouseClicked(e -> {
+		originalReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 66.6, "OG READER", 2, 24);
+		originalReader.setVanGogh(readerVG(originalReader, 18, false));
+		originalReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			dukasNodeReader.setOn(false);
@@ -225,9 +190,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new OriginalTickFileReader();
 		});
 		
-		this.dukasNodeReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "DN READER", 2, 24);
-		this.dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18, false));
-		this.dukasNodeReader.setOnMouseClicked(e -> {
+		dukasNodeReader = new CanvasButton(gc, 100, 29.3, MARGIN, MARGIN + 58*3 + 99.9, "DN READER", 2, 24);
+		dukasNodeReader.setVanGogh(readerVG(dukasNodeReader, 18, false));
+		dukasNodeReader.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
@@ -236,8 +201,9 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			reader = new DukascopyNodeReader();
 		});
 		
-		this.darkMode = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2, "DARK", 2, 0);
-		this.darkMode.setVanGogh((x, y, gc) -> {
+		darkMode = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2, "DARK", 2, 0);
+		darkMode.setBold(false);
+		darkMode.setVanGogh((x, y, gc) -> {
 			Font oldFont = gc.getFont();
 			int fontSize;
 			if (Chart.darkMode().get()) {
@@ -253,13 +219,13 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			darkMode.defaultDraw(gc.getFont());
 			gc.setFont(oldFont);
 		});
-		this.darkMode.setOnMouseClicked(e -> {
+		darkMode.setOnMouseClicked(e -> {
 			Chart.toggleDarkMode();	
 		});
 		
-		this.auto = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2 + 26, "AUTO READER", 2, 17);
-		this.auto.setVanGogh(readerVG(auto, 15, false));
-		this.auto.setOnMouseClicked(e -> {
+		auto = new CanvasButton(gc, 100, 22, MARGIN, MARGIN + 58*2 + 26, "AUTO READER", 2, 17);
+		auto.setVanGogh(readerVG(auto, 15, false));
+		auto.setOnMouseClicked(e -> {
 			marketTickReader.setOn(false);
 			marketTickOReader.setOn(false);
 			originalReader.setOn(false);
@@ -267,7 +233,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			auto.setOn(true);
 			reader = null;
 		});
-		this.auto.toggleOn();		
+		auto.toggleOn();		
 	}
 	
 	private void initOnStartButtons() {
@@ -326,7 +292,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 		}
 		
 		sceneGraph.addNode(new TNode<ICanvasNode>(loadData, sceneGraph.root()));
-		sceneGraph.addNode(new TNode<ICanvasNode>(optimize, sceneGraph.root()));
+		sceneGraph.addNode(new TNode<ICanvasNode>(settings, sceneGraph.root()));
 		if (showReaders.get()) {
 			sceneGraph.addNode(new TNode<ICanvasNode>(marketTickReader, sceneGraph.root()));
 			sceneGraph.addNode(new TNode<ICanvasNode>(marketTickOReader, sceneGraph.root()));
@@ -619,7 +585,7 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			}			
 			
 			loadData.draw();
-			optimize.draw();
+			settings.draw();
 			if (showReaders.get()) {
 				marketTickReader.draw();
 				marketTickOReader.draw();

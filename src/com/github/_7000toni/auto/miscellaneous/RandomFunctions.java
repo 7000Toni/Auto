@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.github._7000toni.auto.chart.ChartNode;
 import com.github._7000toni.auto.dataset.Signature;
 
 import javafx.beans.property.IntegerProperty;
@@ -20,7 +19,7 @@ import javafx.stage.FileChooser;
 public class RandomFunctions {
 	private static final ReentrantLock varLock = new ReentrantLock();
 	
-	public static void mergeFiles(IntegerProperty prog, ChartNode cn) {
+	public static void mergeFiles(IntegerProperty prog) {
 		FileChooser fc = new FileChooser();
 		fc.setInitialDirectory(new File("./"));
 		fc.setTitle("Select Files");
@@ -76,7 +75,7 @@ public class RandomFunctions {
 		}).start();
 	}
 	
-	public static void databendoOptimizer(String contract, IntegerProperty prog, ChartNode cn) {
+	public static void databendoOptimizer(String contract, IntegerProperty prog) {
 		FileChooser fc = new FileChooser();
 		fc.setInitialDirectory(new File("./"));
 		fc.setTitle("Select Databendo Files");

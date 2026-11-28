@@ -15,6 +15,7 @@ import com.github._7000toni.auto.chart.menu.ChartMenuButtonVanGoghs;
 import com.github._7000toni.auto.marketreplay.MarketReplayState;
 import com.github._7000toni.auto.marketreplay.trade.Trade;
 import com.github._7000toni.auto.marketreplay.trade.history.TradeHistoryPlotter;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.miscellaneous.Round;
 import com.github._7000toni.auto.settings.ColourSettings;
 import com.github._7000toni.auto.settings.ColourSettings.ColourIndex;
@@ -32,6 +33,7 @@ import javafx.stage.Stage;
 
 public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenuButtonVanGoghs cmbvg;
 	
 	private CanvasLabel generalFunctions;
@@ -63,29 +65,58 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	private BooleanProperty mrRecentlySaved = new SimpleBooleanProperty(false);
 	private BooleanProperty mrLRecentlySaved = new SimpleBooleanProperty(false);
 	private BooleanProperty mrStateRecentlySaved = new SimpleBooleanProperty(false);
-	private boolean replayMode = false;
 	private boolean resetSceneGraph = false;
+	private boolean staticReplayButtonsInit = false;
 	private boolean replayButtonsInit = false;
 	
+	public GeneralFunctionsTab(double x, double y, double width, double height, GraphicsContext gc, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, gc, null, sp, cmbvg);
+	}
+	
 	public GeneralFunctionsTab(double x, double y, double width, double height, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, gc, chart, null, cmbvg);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, GraphicsContext gc, Chart chart, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
 		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
+		this.sp = sp;
 		this.cmbvg = cmbvg;
 				
-		initGeneralFunctionsMenu();
-		setReplayMode(false);
+		initStaticGeneralFunctionsMenu();
+		if (chart != null) {
+			initGeneralFunctionsMenu();
+			setReplayMode(false);
+		}
+		if (sp != null) {
+			initStaticReplayButtons();
+		}		
 	}
 	
-	private void initGeneralFunctionsMenu() {
+	private void initStaticGeneralFunctionsMenu() {
 		generalFunctions = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 35, "GENERAL FUNCTIONS");
 		generalFunctions.setVanGogh((x2, y2, gc2) -> {
 			generalFunctions.defaultDraw(gc.getFont());
-		});		
+		});	
 		
+		darkMode = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 135, "DARK MODE");
+		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE"));
+		darkMode.setOnMouseClicked(e -> {
+			Chart.toggleDarkMode();
+		});
+		
+		toggleCrosshair = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 260, "DON'T DRAW CROSSHAIR");
+		toggleCrosshair.setVanGogh(cmbvg.toggleVG(toggleCrosshair, ChartNode.drawCrosshair(), "HIDE CROSSHAIR", "DRAW CROSSHAIR"));
+		toggleCrosshair.setOnMouseClicked(e -> {
+			ChartNode.toggleDrawCrosshair();
+		});
+	}
+	
+	private void initGeneralFunctionsMenu() {		
 		newChart = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 85, "NEW CHART");
 		newChart.setVanGogh((x2, y2, gc2) -> {
 			newChart.defaultDraw(gc.getFont());
@@ -107,12 +138,6 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		chartType.setVanGogh(cmbvg.toggleVG(chartType, chart.chartNode().drawCandlesticks(), "LINE CHART", "CANDLESTICK CHART"));
 		chartType.setOnMouseClicked(e -> {
 			chart.chartNode().toggleChartType();
-		});
-		
-		darkMode = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 135, "DARK MODE");
-		darkMode.setVanGogh(cmbvg.toggleVG(darkMode, Chart.darkMode(), "LIGHT MODE", "DARK MODE"));
-		darkMode.setOnMouseClicked(e -> {
-			Chart.toggleDarkMode();
 		});
 		
 		chartShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 160, "CHART SHORTCUT");
@@ -143,13 +168,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		toggleSkipDraw.setVanGogh(cmbvg.toggleVG(toggleSkipDraw, chart.chartNode().skipDraw(), "ENABLE CHART UPDATES", "DISABLE CHART UPDATES"));
 		toggleSkipDraw.setOnMouseClicked(e -> {
 			chart.chartNode().toggleSkipDraw();
-		});;
-		
-		toggleCrosshair = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 260, "DON'T DRAW CROSSHAIR");
-		toggleCrosshair.setVanGogh(cmbvg.toggleVG(toggleCrosshair, ChartNode.drawCrosshair(), "HIDE CROSSHAIR", "DRAW CROSSHAIR"));
-		toggleCrosshair.setOnMouseClicked(e -> {
-			ChartNode.toggleDrawCrosshair();
-		});					
+		});;			
 		
 		timeframeShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 285, "TIMEFRAME SHORTCUT");
 		timeframeShortcut.setVanGogh(cmbvg.toggleVG(timeframeShortcut, chart.chartNode().drawTFI(), "HIDE TIMEFRAME SHORTCUT", "SHOW TIMEFRAME SHORTCUT"));
@@ -172,12 +191,32 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		});	
 	}
 	
-	private void initReplayButtons() {
+	private void initStaticReplayButtons() {
 		marketReplay = new CanvasLabel(gc, 290, 20, x.get() + 5, y.get() + 360, "MARKET REPLAY");
 		marketReplay.setVanGogh((x2, y2, gc2) -> {
 			marketReplay.defaultDraw(gc.getFont());
 		});
 		
+		toggleShortReport = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 485, "WRITE LONG REPORT");
+		toggleShortReport.setVanGogh(cmbvg.toggleVG(toggleShortReport, Trade.shortReport(), "WRITE LONG REPORT", "WRITE SHORT REPORT"));
+		toggleShortReport.setOnMouseClicked(e -> {
+			Trade.toggleShortReport();
+		});
+		
+		saveHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 460, "DON'T SAVE TRADE HISTORY");
+		saveHst.setVanGogh(cmbvg.toggleVG(saveHst, Trade.writeToFile(), "DON'T SAVE TRADE HISTORY", "SAVE TRADE HISTORY"));
+		saveHst.setOnMouseClicked(e -> {
+			Trade.toggleWriteToFile();
+		});
+		
+		staticReplayButtonsInit = true;
+		
+		if (chart == null) {
+			setY(y.get());
+		}
+	}
+	
+	private void initReplayButtons() {
 		replayShortcut = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 385, "REPLAY SHORTCUT");
 		replayShortcut.setVanGogh(cmbvg.toggleVG(replayShortcut, chart.chartNode().drawMRN(), "HIDE REPLAY SHORTCUT", "SHOW REPLAY SHORTCUT"));
 		replayShortcut.setOnMouseClicked(e -> {
@@ -196,19 +235,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		});
 		resetMRNPos.setOnMouseClicked(e -> {
 			chart.chartNode().resetMRNPos();
-		});	
-		
-		saveHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 460, "DON'T SAVE TRADE HISTORY");
-		saveHst.setVanGogh(cmbvg.toggleVG(saveHst, Trade.writeToFile(), "DON'T SAVE TRADE HISTORY", "SAVE TRADE HISTORY"));
-		saveHst.setOnMouseClicked(e -> {
-			Trade.toggleWriteToFile();
-		});
-		
-		toggleShortReport = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 485, "WRITE LONG REPORT");
-		toggleShortReport.setVanGogh(cmbvg.toggleVG(toggleShortReport, Trade.shortReport(), "WRITE LONG REPORT", "WRITE SHORT REPORT"));
-		toggleShortReport.setOnMouseClicked(e -> {
-			Trade.toggleShortReport();
-		});
+		});			
 		
 		saveMRHst = new CanvasButton(gc, 290, 20, x.get() + 5, y.get() + 510, "SAVE HISTORY");
 		saveMRHst.setVanGogh(cmbvg.toggleVG(saveMRHst, mrRecentlySaved, "SAVED", "SAVE HISTORY"));
@@ -305,25 +332,29 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	
 	private void drawGeneralFunctionsMenu() {
 		generalFunctions.draw();
-		newChart.draw();
-		chartType.draw();
 		darkMode.draw();
-		chartShortcut.draw();		
-		initHst.draw();
-		toggleHst.draw();
-		hstDetail.draw();
-		toggleSkipDraw.draw();
 		toggleCrosshair.draw();
-		timeframeShortcut.draw();
-		lockTimeframeShortcut.draw();
-		resetTFSPos.draw();
-		if (replayMode) {
-			marketReplay.draw();			
+		if (chart != null) {
+			newChart.draw();
+			chartType.draw();
+			chartShortcut.draw();		
+			initHst.draw();
+			toggleHst.draw();
+			hstDetail.draw();
+			toggleSkipDraw.draw();
+			timeframeShortcut.draw();
+			lockTimeframeShortcut.draw();
+			resetTFSPos.draw();
+		}
+		if (staticReplayButtonsInit) {
+			marketReplay.draw();
+			saveHst.draw();
+			toggleShortReport.draw();			
+		}
+		if (replayButtonsInit) {
 			replayShortcut.draw();
 			lockReplayShortcut.draw();
-			resetMRNPos.draw();
-			saveHst.draw();
-			toggleShortReport.draw();
+			resetMRNPos.draw();			
 			saveMRHst.draw();
 			saveMRLHst.draw();
 			saveState.draw();
@@ -333,7 +364,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void drawNetProfit() {
-		if (!chart.chartNode().replayMode()) {
+		if (chart == null || !chart.chartNode().replayMode()) {
 			return;
 		}
 		gc.setFill(ColourSettings.colour(ColourIndex.TEXT_AND_STUFF));
@@ -343,39 +374,48 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	
 	public void setGeneralFunctionsSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
 		sceneGraph.addNode(new TNode<ICanvasNode>(generalFunctions, menuNode)); 
-		sceneGraph.addNode(new TNode<ICanvasNode>(newChart, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(chartType, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(darkMode, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(chartShortcut, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
-		sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(hstDetail, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
 		sceneGraph.addNode(new TNode<ICanvasNode>(toggleCrosshair, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(timeframeShortcut, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(lockTimeframeShortcut, menuNode));
-		sceneGraph.addNode(new TNode<ICanvasNode>(resetTFSPos, menuNode));
-		if (replayMode) {
+		if (chart != null) {
+			sceneGraph.addNode(new TNode<ICanvasNode>(newChart, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartType, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(chartShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(initHst, menuNode)); 
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleHst, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(hstDetail, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(toggleSkipDraw, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(timeframeShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(lockTimeframeShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(resetTFSPos, menuNode));
+		}
+		if (staticReplayButtonsInit) {
 			sceneGraph.addNode(new TNode<ICanvasNode>(marketReplay, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(lockReplayShortcut, menuNode));
-			sceneGraph.addNode(new TNode<ICanvasNode>(resetMRNPos, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveHst, menuNode)); 
 			sceneGraph.addNode(new TNode<ICanvasNode>(toggleShortReport, menuNode));
+		}
+		if (replayButtonsInit) {
+			sceneGraph.addNode(new TNode<ICanvasNode>(replayShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(lockReplayShortcut, menuNode));
+			sceneGraph.addNode(new TNode<ICanvasNode>(resetMRNPos, menuNode));			
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveMRHst, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveMRLHst, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(saveState, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(loadState, menuNode));
 		}
+		if (sp != null) {
+			sp.stage().setHeight(Chart.HEIGHT_EXTRA + 210);
+		}
 	}
 	
 	private void disableReplayButtons() {
+		if (staticReplayButtonsInit) {
+			saveHst.disable();
+			toggleShortReport.disable();			
+		}
 		if (replayButtonsInit) {
 			replayShortcut.disable();
 			lockReplayShortcut.disable();
-			resetMRNPos.disable();
-			saveHst.disable();
-			toggleShortReport.disable();
+			resetMRNPos.disable();				
 			saveMRHst.disable();
 			saveMRLHst.disable();
 			saveState.disable();
@@ -384,6 +424,9 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	private void enableReplayButtons() {
+		if (!staticReplayButtonsInit) {
+			initStaticReplayButtons();
+		}
 		if (!replayButtonsInit) {
 			initReplayButtons();
 		}
@@ -399,7 +442,6 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void setReplayMode(boolean replayMode) {
-		this.replayMode = replayMode;
 		this.resetSceneGraph = true;
 		if (replayMode) {
 			enableReplayButtons();			
@@ -410,7 +452,7 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 
 	@Override
 	public void draw() {	
-		if (chart.chartMenu().functions() && resetSceneGraph) {
+		if (chart != null && chart.chartMenu().functions() && resetSceneGraph) {
 			chart.chartMenu().setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
 			resetSceneGraph = false;
 		}
@@ -433,13 +475,15 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		timeframeShortcut.setX(x + 5);
 		lockTimeframeShortcut.setX(x + 5);
 		resetTFSPos.setX(x + 5);
-		if (replayMode) {
-			marketReplay.setX(x + 5);
+		if (staticReplayButtonsInit) {
+			marketReplay.setX(x + 5);			
+			toggleShortReport.setX(x + 5);			
+		}
+		if (replayButtonsInit) {
 			replayShortcut.setX(x + 5);
 			lockReplayShortcut.setX(x + 5);
 			resetMRNPos.setX(x + 5);
 			saveHst.setX(x + 5);
-			toggleShortReport.setX(x + 5);
 			saveMRHst.setX(x + 5);	
 			saveMRLHst.setX(x + 5);
 			saveState.setX(x + 5);
@@ -450,9 +494,16 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 	}
 
 	@Override
-	public void setY(double y) {				
-		generalFunctions.setY(y + 35);			
-		
+	public void setY(double y) {		
+		generalFunctions.setY(y + 35);
+		if (chart != null) {
+			chartSetY(y);
+		} else {
+			settingsPaneSetY(y);
+		}
+	}
+	
+	private void chartSetY(double y) {
 		newChart.setY(y + 85);
 		chartType.setY(y + 110);
 		darkMode.setY(y + 135);
@@ -465,17 +516,31 @@ public class GeneralFunctionsTab extends CanvasNode implements IScrollBarOwner {
 		timeframeShortcut.setY(y + 285);
 		lockTimeframeShortcut.setY(y + 310);
 		resetTFSPos.setY(y + 335);
-		if (replayMode) {
+		if (staticReplayButtonsInit) {
 			marketReplay.setY(y + 360);
+			toggleShortReport.setY(y + 485);
+		}
+		if (replayButtonsInit) {
 			replayShortcut.setY(y + 385);
 			lockReplayShortcut.setY(y + 410);
 			resetMRNPos.setY(y + 435);
 			saveHst.setY(y + 460);
-			toggleShortReport.setY(y + 485);
 			saveMRHst.setY(y + 510);
 			saveMRLHst.setY(y + 535);
 			saveState.setY(y + 560);
 			loadState.setY(y + 585);
+		}
+		
+		this.y.set(y);
+	}
+	
+	private void settingsPaneSetY(double y) {	
+		darkMode.setY(y + 85);
+		toggleCrosshair.setY(y + 110);
+		if (staticReplayButtonsInit) {
+			marketReplay.setY(y + 135);
+			saveHst.setY(y + 160);
+			toggleShortReport.setY(y + 185);
 		}
 		
 		this.y.set(y);

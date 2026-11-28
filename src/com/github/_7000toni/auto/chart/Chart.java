@@ -65,7 +65,7 @@ public class Chart implements ICanvasWindow {
 	private CanvasWrapper cw;
 	private boolean dragging = false;
 	private final ReentrantLock varLock = new ReentrantLock();
-	TNode<ICanvasNode> menuNode;
+	private TNode<ICanvasNode> menuNode;
 	
 	private boolean menuHidden = true;
 	private CanvasButton btnMenu;
@@ -90,8 +90,7 @@ public class Chart implements ICanvasWindow {
 		canvas = new Canvas(width, height);
 		gc = canvas.getGraphicsContext2D();
 		Font f = Menu.menu().graphicsContext().getFont();
-		gc.setFont(Font.font(f.getFamily(), FontWeight.EXTRA_BOLD, 12));
-		
+		gc.setFont(Font.font(f.getFamily(), FontWeight.BOLD, 12));
 		sceneGraph = new Tree<ICanvasNode>();
 		cw = new CanvasWrapper(canvas, sceneGraph);		
 		sceneGraph.addNode(new TNode<ICanvasNode>(cw, null));

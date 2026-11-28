@@ -8,6 +8,7 @@ import com.github._7000toni.auto.chart.menu.tabs.DrawingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.GeneralFunctionsTab;
 import com.github._7000toni.auto.chart.menu.tabs.MiscellaneousTab;
 import com.github._7000toni.auto.chart.menu.tabs.TimeframesTab;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -15,6 +16,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenu chartMenu;
 	
 	private GeneralFunctionsTab gft;
@@ -27,18 +29,32 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private int functionsMenuIndex = 0;
 	
+	public ChartFunctionsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, null, sp, cmbvg);
+	}
+	
 	public ChartFunctionsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, chart, null, cmbvg);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
 		this.height.set(height);
 		this.chartMenu = chartMenu;
 		this.gc = gc;
+		this.sp = sp;
 		this.chart = chart;
-		gft = new GeneralFunctionsTab(x, y, width, height, gc, chart, cmbvg);
-		dt = new DrawingsTab(x, y, width, height, gc, chart, cmbvg);
-		tft = new TimeframesTab(x, y, width, height, gc, chart, cmbvg);
-		mt = new MiscellaneousTab(x, y, width, height, gc, chart, cmbvg);
+		if (chart != null) {
+			gft = new GeneralFunctionsTab(x, y, width, height, gc, chart, cmbvg);
+			dt = new DrawingsTab(x, y, width, height, gc, chart, cmbvg);
+			tft = new TimeframesTab(x, y, width, height, gc, chart, cmbvg);
+			mt = new MiscellaneousTab(x, y, width, height, gc, chart, cmbvg);
+		} else {
+			gft = new GeneralFunctionsTab(x, y, width, height, gc, sp, cmbvg);
+			mt = new MiscellaneousTab(x, y, width, height, gc, sp, cmbvg);
+		}
 		
 		initFunctionsMenu();
 	}
@@ -49,8 +65,12 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			previousFunctions.defaultDraw(gc.getFont());
 		});
 		previousFunctions.setOnMouseClicked(e -> {
-			functionsMenuIndex = functionsMenuIndex==0?3:Math.abs((functionsMenuIndex - 1) % 3);
-			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			if (chart != null) {
+				functionsMenuIndex = functionsMenuIndex==0?3:(functionsMenuIndex - 1);
+			} else {
+				functionsMenuIndex = functionsMenuIndex==0?3:0;
+			}
+			setSceneGraph();
 		});
 		
 		nextFunctions = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 60, "NEXT");	
@@ -58,9 +78,21 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 			nextFunctions.defaultDraw(gc.getFont());
 		});
 		nextFunctions.setOnMouseClicked(e -> {
-			functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 4); 
-			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			if (chart != null) {
+				functionsMenuIndex = Math.abs((functionsMenuIndex + 1) % 4);
+			} else {
+				functionsMenuIndex = functionsMenuIndex==0?3:0;
+			}
+			setSceneGraph();
 		});				
+	}
+	
+	private void setSceneGraph() {
+		if (chart != null) {
+			chartMenu.setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+		} else {
+			chartMenu.setFunctionsMenuSceneGraph(sp.sceneGraph(), sp.menuNode());
+		}
 	}
 	
 	private void drawFunctionsMenu() {
@@ -78,7 +110,7 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void setFunctionsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
-		chart.varLock().lock();
+		lock();
 		try {
 			sceneGraph.addNode(new TNode<ICanvasNode>(previousFunctions, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(nextFunctions, menuNode));
@@ -92,12 +124,32 @@ public class ChartFunctionsMenu extends CanvasNode implements IScrollBarOwner {
 				mt.setMiscellaneousFunctionsSceneGraph(sceneGraph, menuNode);
 			}
 		} finally {
-			chart.varLock().unlock();
+			unlock();
 		}
 	}		
 	
+	private void lock() {
+		if (chart != null) {
+			chart.varLock().lock();
+		} else {
+			sp.varLock().lock();
+		}
+	}
+	
+	private void unlock() {
+		if (chart != null) {
+			chart.varLock().unlock();
+		} else {
+			sp.varLock().unlock();
+		}
+	}
+	
 	public Chart chart() {
 		return chart;
+	}
+	
+	public SettingsPane settingsPane() {
+		return sp;
 	}
 	
 	public GeneralFunctionsTab generalFunctionstab() {

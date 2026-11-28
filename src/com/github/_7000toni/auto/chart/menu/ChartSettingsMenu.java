@@ -7,6 +7,7 @@ import com.github._7000toni.auto.chart.Chart;
 import com.github._7000toni.auto.chart.menu.tabs.ColourSettingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.ImageSettingsTab;
 import com.github._7000toni.auto.chart.menu.tabs.MiscellaneousSettingsTab;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -14,6 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenu chartMenu;
 	
 	private CanvasButton previousSettings;
@@ -25,17 +27,32 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	
 	private int settingsMenuIndex = 0;
 	
+	public ChartSettingsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, null, sp, cmbvg);
+	}
+	
 	public ChartSettingsMenu(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, ChartMenuButtonVanGoghs cmbvg) {
+		constructorStuff(x, y, width, height, chartMenu, gc, chart, null, cmbvg);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, ChartMenu chartMenu, GraphicsContext gc, Chart chart, SettingsPane sp, ChartMenuButtonVanGoghs cmbvg) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
 		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
+		this.sp = sp;
 		this.chartMenu = chartMenu;		
-		this.cst = new ColourSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);
-		this.ist = new ImageSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);	
-		this.mst = new MiscellaneousSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);	
+		if (chart != null) {
+			this.cst = new ColourSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);
+			this.ist = new ImageSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);	
+			this.mst = new MiscellaneousSettingsTab(x, y, width, height, chartMenu, gc, chart, cmbvg);
+		} else {
+			this.cst = new ColourSettingsTab(x, y, width, height, chartMenu, gc, sp, cmbvg);
+			this.ist = new ImageSettingsTab(x, y, width, height, chartMenu, gc, sp, cmbvg);	
+			this.mst = new MiscellaneousSettingsTab(x, y, width, height, chartMenu, gc, sp, cmbvg);
+		}
 		initSettingsMenu();
 	}
 	
@@ -45,8 +62,8 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			previousSettings.defaultDraw(gc.getFont());
 		});
 		previousSettings.setOnMouseClicked(e -> {
-			settingsMenuIndex = settingsMenuIndex==0?2:Math.abs((settingsMenuIndex - 1) % 2);
-			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			settingsMenuIndex = settingsMenuIndex==0?2:(settingsMenuIndex - 1);
+			setSceneGraph();
 		});
 		
 		nextSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 60, "NEXT");	
@@ -54,9 +71,17 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 			nextSettings.defaultDraw(gc.getFont());
 		});
 		nextSettings.setOnMouseClicked(e -> {
-			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 3); 
-			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			settingsMenuIndex = Math.abs((settingsMenuIndex + 1) % 3);
+			setSceneGraph();
 		});				
+	}
+	
+	private void setSceneGraph() {
+		if (chart != null) {
+			chartMenu.setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+		} else {
+			chartMenu.setSettingsMenuSceneGraph(sp.sceneGraph(), sp.menuNode());
+		}
 	}
 	
 	private void drawSettingsMenu() {
@@ -72,7 +97,7 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 	}
 	
 	public void setSettingsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
-		chart.varLock().lock();
+		lock();
 		try {
 			sceneGraph.addNode(new TNode<ICanvasNode>(previousSettings, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(nextSettings, menuNode));
@@ -84,13 +109,33 @@ public class ChartSettingsMenu extends CanvasNode implements IScrollBarOwner {
 				mst.setMiscellaneousSettingsSceneGraph(sceneGraph, menuNode);
 			}
 		} finally {
+			unlock();
+		}
+	}
+	
+	private void lock() {
+		if (chart != null) {
+			chart.varLock().lock();
+		} else {
+			sp.varLock().lock();
+		}
+	}
+	
+	private void unlock() {
+		if (chart != null) {
 			chart.varLock().unlock();
+		} else {
+			sp.varLock().unlock();
 		}
 	}
 	
 	public Chart chart() {
 		return chart;
 	}	
+	
+	public SettingsPane settingsPane() {
+		return sp;
+	}
 	
 	public ColourSettingsTab colourSettingsTab() {
 		return cst;

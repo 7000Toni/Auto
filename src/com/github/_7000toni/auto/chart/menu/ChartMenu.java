@@ -4,6 +4,7 @@ import com.github._7000toni.auto.canvasnode.ICanvasNode;
 import com.github._7000toni.auto.canvasnode.button.CanvasButton;
 import com.github._7000toni.auto.canvasnode.scrollbar.IScrollBarOwner;
 import com.github._7000toni.auto.chart.Chart;
+import com.github._7000toni.auto.menu.SettingsPane;
 import com.github._7000toni.auto.tree.TNode;
 import com.github._7000toni.auto.tree.Tree;
 
@@ -11,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	private Chart chart;
+	private SettingsPane sp;
 	private ChartMenuButtonVanGoghs cmbvg;
 	
 	private CanvasButton chartFunctions;
@@ -58,17 +60,31 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 		}
 	}
 	
+	public ChartMenu(double x, double y, double width, double height, GraphicsContext gc, SettingsPane sp) {
+		constructorStuff(x, y, width, height, gc, null, sp);
+	}
+	
 	public ChartMenu(double x, double y, double width, double height, GraphicsContext gc, Chart chart) {
+		constructorStuff(x, y, width, height, gc, chart, null);
+	}
+	
+	private void constructorStuff(double x, double y, double width, double height, GraphicsContext gc, Chart chart, SettingsPane sp) {
 		this.x.set(x);
 		this.y.set(y);
 		this.width.set(width);
 		this.height.set(height);
 		this.gc = gc;
 		this.chart = chart;
+		this.sp = sp;		
 		cmbvg = new ChartMenuButtonVanGoghs();
 		
-		csm = new ChartSettingsMenu(x, y, width, height, this, gc, chart, cmbvg);
-		cfm = new ChartFunctionsMenu(x, y, width, height, this, gc, chart, cmbvg);	
+		if (chart != null) {
+			csm = new ChartSettingsMenu(x, y, width, height, this, gc, chart, cmbvg);
+			cfm = new ChartFunctionsMenu(x, y, width, height, this, gc, chart, cmbvg);
+		} else {
+			csm = new ChartSettingsMenu(x, y, width, height, this, gc, sp, cmbvg);
+			cfm = new ChartFunctionsMenu(x, y, width, height, this, gc, sp, cmbvg);
+		}
 		init();
 	}
 	
@@ -79,7 +95,11 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			chartFunctions.setOn(true);
 			chartSettings.setOn(false);
 			functions = true;
-			setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			if (chart != null) {
+				setFunctionsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			} else {
+				setFunctionsMenuSceneGraph(sp.sceneGraph(), sp.menuNode());
+			}
 		});				
 		
 		chartSettings = new CanvasButton(gc, 142, 20, x.get() + 153, y.get() + 5, "SETTINGS");
@@ -88,34 +108,54 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 			chartFunctions.setOn(false);
 			chartSettings.setOn(true);
 			functions = false;
-			setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			if (chart != null) {
+				setSettingsMenuSceneGraph(chart.sceneGraph(), chart.menuNode());
+			} else {
+				setSettingsMenuSceneGraph(sp.sceneGraph(), sp.menuNode());
+			}
 		});			
 				
 		chartFunctions.setOn(true);
 		functions = true;
 	}
 	
+	private void lock() {
+		if (chart != null) {
+			chart.varLock().lock();
+		} else {
+			sp.varLock().lock();
+		}
+	}
+	
+	private void unlock() {
+		if (chart != null) {
+			chart.varLock().unlock();
+		} else {
+			sp.varLock().unlock();
+		}
+	}
+	
 	public void setFunctionsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
-		chart.varLock().lock();
+		lock();
 		try {			
 			menuNode.removeAllChildren();
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));
 			cfm.setFunctionsMenuSceneGraph(sceneGraph, menuNode);
 		} finally {
-			chart.varLock().unlock();
+			unlock();
 		}
 	}
 	
 	public void setSettingsMenuSceneGraph(Tree<ICanvasNode> sceneGraph, TNode<ICanvasNode> menuNode) {
-		chart.varLock().lock();
+		lock();
 		try {
 			menuNode.removeAllChildren();
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartFunctions, menuNode));
 			sceneGraph.addNode(new TNode<ICanvasNode>(chartSettings, menuNode));
 			csm.setSettingsMenuSceneGraph(sceneGraph, menuNode);
 		} finally {
-			chart.varLock().unlock();
+			unlock();
 		}
 	}
 	
@@ -125,6 +165,10 @@ public class ChartMenu extends CanvasNode implements IScrollBarOwner {
 	
 	public Chart chart() {
 		return chart;
+	}
+	
+	public SettingsPane settingsPane() {
+		return sp;
 	}
 	
 	public ChartSettingsMenu chartSettingsMenu() {
