@@ -603,8 +603,6 @@ public class Menu implements ICanvasWindow, IScrollBarOwner {
 			drawLoadingSets();
 			drawDraggedFiles();
 			drawDSButtons();
-			//TODO
-			//SettingsWindow.drawIcon(gc, 375, 10 + (height - 20) / 2, height / 4);
 		} finally {
 			varLock.unlock();
 		}
